@@ -1,0 +1,27 @@
+<table class="table queries">
+  <thead>
+    <tr>
+      <th style="width: 10%;">Pid</th>
+      <th style="width: 10%;">State</th>
+      <th>Source</th>
+      <th style="width: 10%;">Waiting</th>
+      <th style="width: 15%;">Duration</th>
+      <th style="width: 10%;"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% queries.each do |query| %>
+      <tr>
+        <td><%= query["pid"] %></td>
+        <td><%= query["state"] %></td>
+        <td><%= query["source"] %></td>
+        <td><%= query["waiting"] == "t" ? "true" : "false" %></td>
+        <td><%= query["duration"] %></td>
+        <td class="text-right"><%= button_to "Kill", kill_path(pid: query["pid"]), class: "btn btn-info" %></td>
+      </tr>
+      <tr>
+        <td colspan="6" style="border-top: none; padding-top: 0;"><pre><%= query["query"] %></pre></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

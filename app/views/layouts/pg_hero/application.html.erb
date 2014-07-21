@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= @title %> - PgHero</title>
+
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+    <style>
+      body {
+        padding-top: 20px;
+      }
+
+      h1 {
+        margin-top: 6px;
+        font-size: 20px;
+      }
+
+      h1, p {
+        margin-bottom: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+      }
+
+      #status {
+        margin-bottom: 20px;
+      }
+
+      #status div {
+        margin-bottom: 0;
+        border: none;
+        border-radius: 0;
+      }
+
+      .alert {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      .queries > tbody > tr > td {
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <% if notice %>
+        <div class="alert alert-info"><%= notice %></div>
+      <% elsif Rails.env.development? %>
+        <div class="alert alert-info">Do not use development information to make decisions about your production environment</div>
+      <% end %>
+
+      <div class="row">
+        <div class="col-xs-3">
+          <ul class="nav nav-pills nav-stacked">
+            <!-- poor man's active_link_to -->
+            <li class="<%= controller.action_name == "index" ? "active" : "" %>"><%= link_to "Status", root_path %></li>
+            <li class="<%= controller.action_name == "indexes" ? "active" : "" %>"><%= link_to "Indexes", indexes_path %></li>
+            <li class="<%= controller.action_name == "space" ? "active" : "" %>"><%= link_to "Space", space_path %></li>
+            <li class="<%= controller.action_name == "queries" ? "active" : "" %>"><%= link_to "Queries", queries_path %></li>
+          </ul>
+        </div>
+
+        <div class="col-xs-9">
+          <%= yield %>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
