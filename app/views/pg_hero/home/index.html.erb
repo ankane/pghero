@@ -15,14 +15,14 @@
   </div>
   <div class="alert alert-<%= @missing_indexes.empty? ? "success" : "warning" %>">
     <% if @missing_indexes.any? %>
-      <%= pluralize(@missing_indexes.size, "possibly missing index", "indexes") %>
+      <%= pluralize(@missing_indexes.size, "possibly missing index", "possibly missing indexes") %>
     <% else %>
       No missing indexes
     <% end %>
   </div>
   <div class="alert alert-<%= @unused_indexes.empty? ? "success" : "warning" %>">
     <% if @unused_indexes.any? %>
-      <%= pluralize(@unused_indexes.size, "unused index", "indexes") %>
+      <%= pluralize(@unused_indexes.size, "unused index", "unused indexes") %>
     <% else %>
       No unused indexes
     <% end %>
