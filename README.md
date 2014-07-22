@@ -68,9 +68,7 @@ end
 
 ## TODO
 
-- demo
 - better explanations on dashboard
-- more space metrics
 - poll for running queries
 - better design (no bootstrap)
 
