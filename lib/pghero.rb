@@ -5,7 +5,7 @@ module PgHero
   class << self
 
     def running_queries
-      execute %Q{
+      select_all %Q{
         SELECT
           pid,
           state,
@@ -26,7 +26,7 @@ module PgHero
     end
 
     def long_running_queries
-      execute %Q{
+      select_all %Q{
         SELECT
           pid,
           state,
@@ -48,7 +48,7 @@ module PgHero
     end
 
     def index_hit_rate
-      execute(%Q{
+      select_all(%Q{
         SELECT
           (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read),0) AS rate
         FROM
@@ -57,7 +57,7 @@ module PgHero
     end
 
     def table_hit_rate
-      execute(%Q{
+      select_all(%Q{
         SELECT
           sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read),0) AS rate
         FROM
@@ -66,7 +66,7 @@ module PgHero
     end
 
     def index_usage
-      execute %Q{
+      select_all %Q{
         SELECT
           relname AS table,
           CASE idx_scan
@@ -83,7 +83,7 @@ module PgHero
     end
 
     def missing_indexes
-      execute %Q{
+      select_all %Q{
         SELECT
           relname AS table,
           CASE idx_scan
@@ -104,7 +104,7 @@ module PgHero
     end
 
     def unused_tables
-      execute %Q{
+      select_all %Q{
         SELECT
           relname AS table,
           n_live_tup rows_in_table
@@ -119,7 +119,7 @@ module PgHero
     end
 
     def unused_indexes
-      execute %Q{
+      select_all %Q{
         SELECT
           relname AS table,
           indexrelname AS index,
@@ -140,7 +140,7 @@ module PgHero
     end
 
     def relation_sizes
-      execute %Q{
+      select_all %Q{
         SELECT
           c.relname AS name,
           CASE WHEN c.relkind = 'r' THEN 'table' ELSE 'index' END AS type,
@@ -160,15 +160,15 @@ module PgHero
     end
 
     def database_size
-      execute("SELECT pg_size_pretty(pg_database_size(current_database()))").first["pg_size_pretty"]
+      select_all("SELECT pg_size_pretty(pg_database_size(current_database()))").first["pg_size_pretty"]
     end
 
     def kill(pid)
-      ActiveRecord::Base.connection.execute("SELECT pg_cancel_backend(#{pid.to_i})").first["pg_cancel_backend"] == "t"
+      connection.execute("SELECT pg_cancel_backend(#{pid.to_i})").first["pg_cancel_backend"] == "t"
     end
 
     def kill_all
-      execute %Q{
+      select_all %Q{
         SELECT
           pg_terminate_backend(pid)
         FROM
@@ -180,9 +180,13 @@ module PgHero
       true
     end
 
-    def execute(sql)
+    def select_all(sql)
       # squish for logs
-      ActiveRecord::Base.connection.select_all(sql.squish).to_a
+      connection.select_all(sql.squish).to_a
+    end
+
+    def connection
+      @connection ||= ActiveRecord::Base.connection
     end
 
   end
