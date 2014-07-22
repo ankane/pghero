@@ -69,6 +69,7 @@ end
 ## TODO
 
 - better explanations on dashboard
+- use `pg_stat_statements` extension for more detailed insights
 - poll for running queries
 - better design (no bootstrap)
 
