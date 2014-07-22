@@ -2,6 +2,11 @@ require "pghero/version"
 require "pghero/engine" if defined?(Rails)
 
 module PgHero
+  # hack for connection
+  class Connection < ActiveRecord::Base
+    establish_connection ENV["PGHERO_DATABASE_URL"] if ENV["PGHERO_DATABASE_URL"]
+  end
+
   class << self
 
     def running_queries
@@ -186,7 +191,7 @@ module PgHero
     end
 
     def connection
-      @connection ||= ActiveRecord::Base.connection
+      @connection ||= Connection.connection
     end
 
   end
