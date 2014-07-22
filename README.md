@@ -36,6 +36,8 @@ PgHero.long_running_queries
 PgHero.index_usage
 PgHero.missing_indexes
 PgHero.unused_indexes
+PgHero.unused_tables
+PgHero.database_size
 PgHero.relation_sizes
 PgHero.index_hit_rate
 PgHero.table_hit_rate
