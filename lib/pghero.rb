@@ -100,7 +100,7 @@ module PgHero
           pg_stat_user_tables
         WHERE
           idx_scan > 0
-          AND idx_scan < 95
+          AND (100 * idx_scan / (seq_scan + idx_scan)) < 95
           AND n_live_tup >= 10000
         ORDER BY
           n_live_tup DESC,
