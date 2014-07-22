@@ -16,7 +16,7 @@
         <td><%= query["state"] %></td>
         <td><%= query["source"] %></td>
         <td><%= query["waiting"] == "t" ? "true" : "false" %></td>
-        <td><%= query["duration"] %></td>
+        <td><%= time_ago_in_words(query["started_at"], include_seconds: true) %></td>
         <td class="text-right"><%= button_to "Kill", kill_path(pid: query["pid"]), class: "btn btn-info" %></td>
       </tr>
       <tr>

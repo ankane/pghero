@@ -96,7 +96,7 @@
       <% @unused_tables.each do |query| %>
         <tr>
           <td><%= query["table"] %></td>
-          <td style="width: 20%;"><%= query["rows_in_table"] %></td>
+          <td style="width: 20%;"><%= number_with_delimiter(query["rows_in_table"]) %></td>
         </tr>
       <% end %>
     </tbody>

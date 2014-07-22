@@ -12,7 +12,8 @@ module PgHero
           application_name AS source,
           age(now(), xact_start) AS duration,
           waiting,
-          query
+          query,
+          xact_start AS started_at
         FROM
           pg_stat_activity
         WHERE
@@ -32,7 +33,8 @@ module PgHero
           application_name AS source,
           age(now(), xact_start) AS duration,
           waiting,
-          query
+          query,
+          xact_start AS started_at
         FROM
           pg_stat_activity
         WHERE
