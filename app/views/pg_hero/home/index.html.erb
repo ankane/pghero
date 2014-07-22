@@ -15,14 +15,21 @@
   </div>
   <div class="alert alert-<%= @missing_indexes.empty? ? "success" : "warning" %>">
     <% if @missing_indexes.any? %>
-      <%= pluralize(@missing_indexes.size, "possibly missing indexes") %>
+      <%= pluralize(@missing_indexes.size, "possibly missing index") %>
     <% else %>
       No missing indexes
     <% end %>
   </div>
+  <div class="alert alert-<%= @unused_tables.empty? ? "success" : "warning" %>">
+    <% if @unused_tables.any? %>
+      <%= pluralize(@unused_tables.size, "unused table") %>
+    <% else %>
+      No unused tables
+    <% end %>
+  </div>
   <div class="alert alert-<%= @unused_indexes.empty? ? "success" : "warning" %>">
     <% if @unused_indexes.any? %>
-      <%= pluralize(@unused_indexes.size, "unused indexes") %>
+      <%= pluralize(@unused_indexes.size, "unused index") %>
     <% else %>
       No unused indexes
     <% end %>
@@ -68,6 +75,27 @@
         <tr>
           <td><%= query["table"] %></td>
           <td style="width: 30%;"><%= query["percent_of_times_index_used"] %></td>
+          <td style="width: 20%;"><%= query["rows_in_table"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<% if @unused_tables.any? %>
+  <h1>Unused Tables</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Table</th>
+        <th>Rows in Table</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @unused_tables.each do |query| %>
+        <tr>
+          <td><%= query["table"] %></td>
           <td style="width: 20%;"><%= query["rows_in_table"] %></td>
         </tr>
       <% end %>

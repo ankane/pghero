@@ -12,6 +12,7 @@ module PgHero
       @index_hit_rate = PgHero.index_hit_rate
       @table_hit_rate = PgHero.table_hit_rate
       @missing_indexes = PgHero.missing_indexes
+      @unused_tables = PgHero.unused_tables
       @unused_indexes = PgHero.unused_indexes
       @good_cache_rate = @table_hit_rate >= 0.99 && @index_hit_rate >= 0.99
     end
@@ -23,6 +24,7 @@ module PgHero
 
     def space
       @title = "Space"
+      @database_size = PgHero.database_size
       @relation_sizes = PgHero.relation_sizes
     end
 

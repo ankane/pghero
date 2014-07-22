@@ -82,7 +82,8 @@ module PgHero
 
     def missing_indexes
       execute %Q{
-        SELECT relname AS table,
+        SELECT
+          relname AS table,
           CASE idx_scan
             WHEN 0 THEN 'Insufficient data'
             ELSE (100 * idx_scan / (seq_scan + idx_scan))::text
@@ -91,8 +92,24 @@ module PgHero
         FROM
           pg_stat_user_tables
         WHERE
-          idx_scan < 95
+          idx_scan > 0
+          AND idx_scan < 95
           AND n_live_tup >= 10000
+        ORDER BY
+          n_live_tup DESC,
+          relname ASC
+       }
+    end
+
+    def unused_tables
+      execute %Q{
+        SELECT
+          relname AS table,
+          n_live_tup rows_in_table
+        FROM
+          pg_stat_user_tables
+        WHERE
+          idx_scan = 0
         ORDER BY
           n_live_tup DESC,
           relname ASC
@@ -138,6 +155,10 @@ module PgHero
           pg_table_size(c.oid) DESC,
           name ASC
       }
+    end
+
+    def database_size
+      execute("SELECT pg_size_pretty(pg_database_size(current_database()))").first["pg_size_pretty"]
     end
 
     def kill(pid)
