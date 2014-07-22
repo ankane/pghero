@@ -2,6 +2,10 @@
 
 :tada: Database insights made easy
 
+[View the demo](https://pghero.herokuapp.com/)
+
+![Screenshot](https://pghero.herokuapp.com/assets/screenshot-691982ac8e93cdaf6d386e318e971dd5.png)
+
 Supports PostgreSQL 9.2+
 
 For pure SQL, check out [PgHero.sql](https://github.com/ankane/pghero.sql)
