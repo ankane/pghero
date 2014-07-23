@@ -1,6 +1,6 @@
 # PgHero
 
-:tada: Database insights made easy
+Database insights made easy
 
 [View the demo](https://pghero.herokuapp.com/)
 
@@ -10,7 +10,7 @@ Supports PostgreSQL 9.2+
 
 For pure SQL, check out [PgHero.sql](https://github.com/ankane/pghero.sql)
 
-:clap: Initial queries and inspiration by [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras)
+Initial queries by [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) :clap:
 
 ## Installation
 
@@ -26,7 +26,7 @@ And mount the dashboard in your router.
 mount PgHero::Engine, at: "pghero"
 ```
 
-Be sure to [protect the dashboard](#security) in production.
+Be sure to [secure the dashboard](#security) in production.
 
 ## Insights
 
@@ -74,7 +74,7 @@ end
 
 ## Thanks
 
-Thanks to Heroku for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme.
+Thanks to [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme.
 
 ## Contributing
 
