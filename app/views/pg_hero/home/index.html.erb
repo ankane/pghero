@@ -10,12 +10,12 @@
     <% if @good_cache_rate %>
       Cache hit rate above 99%
     <% else %>
-      Cache hit rate under 99%
+      Low cache hit rate
     <% end %>
   </div>
   <div class="alert alert-<%= @missing_indexes.empty? ? "success" : "warning" %>">
     <% if @missing_indexes.any? %>
-      <%= pluralize(@missing_indexes.size, "possibly missing index", "possibly missing indexes") %>
+      <%= pluralize(@missing_indexes.size, "table appears", "tables appear") %> to be missing indexes
     <% else %>
       No missing indexes
     <% end %>
