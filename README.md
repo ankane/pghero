@@ -4,7 +4,7 @@
 
 [View the demo](https://pghero.herokuapp.com/)
 
-![Screenshot](https://pghero.herokuapp.com/assets/screenshot-720ebfd2af9031f0565e4cc84cae99c0.png)
+![Screenshot](https://pghero.herokuapp.com/assets/screenshot-f7b70ae13b1f2ab0ea44ad005208c477.png)
 
 Supports PostgreSQL 9.2+
 
