@@ -48,7 +48,7 @@
     </p>
 
     <p>
-      Try adding more memory.
+      The cache hit rate <%= link_to "should be above 99%", "https://devcenter.heroku.com/articles/understanding-postgres-data-caching", target: "_blank" %> in most cases.  You can often increase this by adding more memory.
       <!-- TODO better suggestions -->
     </p>
   </div>
@@ -59,7 +59,7 @@
   <div class="content">
     <h1>Missing Indexes</h1>
 
-    <p>These tables have a large number of rows and a lower % of time the index is used.  Consider adding indexes where it makes sense.</p>
+    <p>These tables have a large number of rows but indexes are not used often. Add indexes for faster queries.</p>
 
     <table class="table">
       <thead>
@@ -86,7 +86,7 @@
   <div class="content">
     <h1>Unused Indexes</h1>
 
-    <p>Unused indexes cause unnecessary overhead.</p>
+    <p>Unused indexes cause unnecessary overhead. Remove them for faster writes.</p>
 
     <table class="table">
       <thead>

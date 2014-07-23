@@ -17,8 +17,12 @@
       }
 
       a, a:visited, a:active {
-        color: #fff;
+        color: #428bca;
         text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
       }
 
       table {
@@ -93,6 +97,8 @@
       /* nav */
 
       .nav a {
+        color: #fff;
+        text-decoration: none;
         display: block;
         padding: 12px 20px;
       }
@@ -145,6 +151,11 @@
 
       .alert-warning {
         background-color: #f0ad4e;
+      }
+
+      .alert a {
+        color: #fff;
+        text-decoration: none;
       }
 
       /*
@@ -304,7 +315,7 @@
       <div class="alert alert-info">
         <% if notice %>
           <%= notice %>
-        <% elsif Rails.env.development? and false %>
+        <% elsif Rails.env.development? %>
           Do not use development information to make decisions about your production environment
         <% else %>
           <%= link_to "PgHero", root_path %>
