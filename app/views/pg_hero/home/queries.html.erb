@@ -1,7 +1,9 @@
-<h1>Queries</h1>
+<div class="content">
+  <h1>Queries</h1>
 
-<%= render partial: "queries_table", locals: {queries: @running_queries} %>
+  <%= render partial: "queries_table", locals: {queries: @running_queries} %>
 
-<p><%= button_to "Kill all connections", kill_all_path, class: "btn btn-danger" %></p>
+  <p><%= button_to "Kill all connections", kill_all_path, class: "btn btn-danger" %></p>
 
-<p class="text-muted">You may need to restart your Rails server afterwards.</p>
+  <p class="text-muted">You may need to restart your Rails server afterwards.</p>
+</div>

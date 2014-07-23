@@ -30,72 +30,81 @@
 </div>
 
 <% if @long_running_queries.any? %>
-  <h1>Long Running Queries</h1>
+  <div class="content">
+    <h1>Long Running Queries</h1>
 
-  <%= render partial: "queries_table", locals: {queries: @long_running_queries} %>
+    <%= render partial: "queries_table", locals: {queries: @long_running_queries} %>
+  </div>
 <% end %>
 
 <% if !@good_cache_rate %>
-  <h1>Low Cache Hit Rate</h1>
+  <div class="content">
+    <h1>Low Cache Hit Rate</h1>
 
-  <p>
-    Index Hit Rate: <%= (@index_hit_rate * 100).round(1) %>%
-    <br />
-    Table Hit Rate: <%= (@table_hit_rate * 100).round(1) %>%
-  </p>
+    <p>
+      Index Hit Rate: <%= (@index_hit_rate * 100).round(1) %>%
+      <br />
+      Table Hit Rate: <%= (@table_hit_rate * 100).round(1) %>%
+    </p>
 
-  <p>
-    Try adding more memory.
-    <!-- TODO better suggestions -->
-  </p>
+    <p>
+      Try adding more memory.
+      <!-- TODO better suggestions -->
+    </p>
+  </div>
 <% end %>
 
+
 <% if @missing_indexes.any? %>
-  <h1>Missing Indexes</h1>
+  <div class="content">
+    <h1>Missing Indexes</h1>
 
-  <p>These tables have a large number of rows and a lower % of time the index is used.  Consider adding indexes where it makes sense.</p>
+    <p>These tables have a large number of rows and a lower % of time the index is used.  Consider adding indexes where it makes sense.</p>
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Table</th>
-        <th>% of Time Index Used</th>
-        <th>Rows in Table</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @missing_indexes.each do |query| %>
+    <table class="table">
+      <thead>
         <tr>
-          <td><%= query["table"] %></td>
-          <td style="width: 30%;"><%= query["percent_of_times_index_used"] %></td>
-          <td style="width: 20%;"><%= number_with_delimiter(query["rows_in_table"]) %></td>
+          <th>Table</th>
+          <th>% of Time Index Used</th>
+          <th>Rows in Table</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% @missing_indexes.each do |query| %>
+          <tr>
+            <td><%= query["table"] %></td>
+            <td style="width: 30%;"><%= query["percent_of_times_index_used"] %></td>
+            <td style="width: 20%;"><%= number_with_delimiter(query["rows_in_table"]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 <% end %>
 
 <% if @unused_indexes.any? %>
-  <h1>Unused Indexes</h1>
+  <div class="content">
+    <h1>Unused Indexes</h1>
 
-  <p>Unused indexes cause unnecessary overhead.</p>
+    <p>Unused indexes cause unnecessary overhead.</p>
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Index Size</th>
-        <th>Index Scans</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @unused_indexes.each do |query| %>
+    <table class="table">
+      <thead>
         <tr>
-          <td><%= query["index"] %><div class="text-muted">on <%= query["table"] %></div></td>
-          <td style="width: 15%;"><%= query["index_size"] %></td>
-          <td style="width: 15%;"><%= query["index_scans"] %></td>
+          <th>Name</th>
+          <th>Index Size</th>
+          <th>Index Scans</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% @unused_indexes.each do |query| %>
+          <tr>
+            <td><%= query["index"] %><div class="text-muted">on <%= query["table"] %></div></td>
+            <td style="width: 15%;"><%= query["index_size"] %></td>
+            <td style="width: 15%;"><%= query["index_scans"] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 <% end %>

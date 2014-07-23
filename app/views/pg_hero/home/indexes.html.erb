@@ -1,20 +1,22 @@
-<h1>Index Usage</h1>
+<div class="content">
+  <h1>Index Usage</h1>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Table</th>
-      <th>% of Time Index Used</th>
-      <th>Rows in Table</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @index_usage.each do |query| %>
+  <table class="table">
+    <thead>
       <tr>
-        <td><%= query["table"] %></td>
-        <td style="width: 30%;"><%= query["percent_of_times_index_used"] %></td>
-        <td style="width: 20%;"><%= number_with_delimiter(query["rows_in_table"]) %></td>
+        <th>Table</th>
+        <th>% of Time Index Used</th>
+        <th>Rows in Table</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @index_usage.each do |query| %>
+        <tr>
+          <td><%= query["table"] %></td>
+          <td style="width: 30%;"><%= query["percent_of_times_index_used"] %></td>
+          <td style="width: 20%;"><%= number_with_delimiter(query["rows_in_table"]) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

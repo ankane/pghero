@@ -71,7 +71,10 @@ end
 - better explanations on dashboard
 - use `pg_stat_statements` extension for more detailed insights
 - poll for running queries
-- better design (no bootstrap)
+
+## Thanks
+
+Thanks to Heroku for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme.
 
 ## Contributing
 

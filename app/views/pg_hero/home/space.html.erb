@@ -1,22 +1,24 @@
-<h1>Largest Relations</h1>
+<div class="content">
+  <h1>Largest Relations</h1>
 
-<p>Database Size: <%= @database_size %></p>
+  <p>Database Size: <%= @database_size %></p>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th style="width: 20%;">Type</th>
-      <th style="width: 20%;">Size</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @relation_sizes.each do |query| %>
+  <table class="table">
+    <thead>
       <tr>
-        <td><%= query["name"] %></td>
-        <td><%= query["type"] %></td>
-        <td><%= query["size"] %></td>
+        <th>Name</th>
+        <th style="width: 20%;">Type</th>
+        <th style="width: 20%;">Size</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @relation_sizes.each do |query| %>
+        <tr>
+          <td><%= query["name"] %></td>
+          <td><%= query["type"] %></td>
+          <td><%= query["size"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
