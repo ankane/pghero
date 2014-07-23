@@ -72,6 +72,8 @@ end
 - use `pg_stat_statements` extension for more detailed insights
 - more detailed explanations on dashboard
 
+Know a bit about PostgreSQL? [Suggestions](https://github.com/ankane/pghero/issues) are greatly appreciated.
+
 ## Thanks
 
 Thanks to [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme.
