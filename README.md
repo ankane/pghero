@@ -68,9 +68,9 @@ end
 
 ## TODO
 
-- better explanations on dashboard
+- show exactly which indexes to add
 - use `pg_stat_statements` extension for more detailed insights
-- poll for running queries
+- more detailed explanations on dashboard
 
 ## Thanks
 
