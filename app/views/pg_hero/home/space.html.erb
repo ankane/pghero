@@ -17,7 +17,7 @@
         <tr>
           <td><%= relation.name %></td>
           <td><%= relation.type %></td>
-          <td data-byte-size="<%= relation.size %>"><%= number_to_human_size(relation.size) %> (<%= relation.size_percentage.round(1) %>%)</td>
+          <td data-value="<%= relation.size %>"><%= number_to_human_size(relation.size) %> (<%= relation.size_percentage.round(1) %>%)</td>
         </tr>
       <% end %>
     </tbody>

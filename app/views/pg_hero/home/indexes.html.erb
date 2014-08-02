@@ -15,7 +15,7 @@
         <tr>
           <td><%= query["table"] %></td>
           <td style="width: 30%;"><%= query["percent_of_times_index_used"] %></td>
-          <td style="width: 20%;"><%= number_with_delimiter(query["rows_in_table"]) %></td>
+          <td data-value="<%= query["rows_in_table"] %>" style="width: 20%;"><%= number_with_delimiter(query["rows_in_table"]) %></td>
         </tr>
       <% end %>
     </tbody>
