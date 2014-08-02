@@ -4,6 +4,8 @@
 
   <p>Database Size: <%= number_to_human_size(@space_usage.total) %></p>
 
+  <div class="chart" data-series="<%= @chart_series %>"></div>
+
   <table class="table space display">
     <thead>
       <tr>

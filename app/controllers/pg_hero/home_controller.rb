@@ -21,6 +21,7 @@ module PgHero
 
     def space
       @space_usage = SpaceUsage.new QueryRunner.database_size, QueryRunner.relation_sizes
+      @chart_series = ChartData.new(@space_usage.relations.map { |r| [r.name, r.size_percentage] }).series(5).to_json
     end
 
     def queries
