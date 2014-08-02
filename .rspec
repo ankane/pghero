@@ -1,0 +1,2 @@
+-I lib
+-r spec_helper

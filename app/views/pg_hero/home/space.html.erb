@@ -1,22 +1,25 @@
+<% content_for(:title, 'Space') %>
 <div class="content">
   <h1>Largest Relations</h1>
 
-  <p>Database Size: <%= @database_size %></p>
+  <p>Database Size: <%= number_to_human_size(@space_usage.total) %></p>
 
-  <table class="table">
+  <div class="chart" data-series="<%= @chart_series %>"></div>
+
+  <table class="table space display">
     <thead>
       <tr>
         <th>Name</th>
-        <th style="width: 20%;">Type</th>
-        <th style="width: 20%;">Size</th>
+        <th>Type</th>
+        <th>Size</th>
       </tr>
     </thead>
     <tbody>
-      <% @relation_sizes.each do |query| %>
+      <% @space_usage.relations.each do |relation| %>
         <tr>
-          <td><%= query["name"] %></td>
-          <td><%= query["type"] %></td>
-          <td><%= query["size"] %></td>
+          <td><%= relation.name %></td>
+          <td><%= relation.type %></td>
+          <td data-value="<%= relation.size %>"><%= number_to_human_size(relation.size) %> (<%= relation.size_percentage.round(1) %>%)</td>
         </tr>
       <% end %>
     </tbody>
