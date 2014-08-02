@@ -1,3 +1,4 @@
+<% content_for(:title, 'Status') %>
 <div id="status">
   <div class="alert alert-<%= @long_running_queries.empty? ? "success" : "warning" %>">
     <% if @long_running_queries.any? %>

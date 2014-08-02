@@ -7,33 +7,28 @@ module PgHero
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
     def index
-      @title = "Status"
-      @long_running_queries = PgHero.long_running_queries
-      @index_hit_rate = PgHero.index_hit_rate
-      @table_hit_rate = PgHero.table_hit_rate
-      @missing_indexes = PgHero.missing_indexes
-      @unused_indexes = PgHero.unused_indexes
+      @long_running_queries = QueryRunner.long_running_queries
+      @index_hit_rate = QueryRunner.index_hit_rate
+      @table_hit_rate = QueryRunner.table_hit_rate
+      @missing_indexes = QueryRunner.missing_indexes
+      @unused_indexes = QueryRunner.unused_indexes
       @good_cache_rate = @table_hit_rate >= 0.99 && @index_hit_rate >= 0.99
     end
 
     def indexes
-      @title = "Indexes"
-      @index_usage = PgHero.index_usage
+      @index_usage = QueryRunner.index_usage
     end
 
     def space
-      @title = "Space"
-      @database_size = PgHero.database_size
-      @relation_sizes = PgHero.relation_sizes
+      @space_usage = SpaceUsage.new QueryRunner.database_size, QueryRunner.relation_sizes
     end
 
     def queries
-      @title = "Queries"
-      @running_queries = PgHero.running_queries
+      @running_queries = QueryRunner.running_queries
     end
 
     def kill
-      if PgHero.kill(params[:pid])
+      if QueryRunner.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"
       else
         redirect_to :back, notice: "Query no longer running"
@@ -41,9 +36,8 @@ module PgHero
     end
 
     def kill_all
-      PgHero.kill_all
+      QueryRunner.kill_all
       redirect_to :back, notice: "Connections killed"
     end
-
   end
 end
