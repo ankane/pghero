@@ -10,4 +10,5 @@ PgHero::Engine.routes.draw do
   post "kill_all", to: "home#kill_all"
   post "enable_query_stats", to: "home#enable_query_stats"
   post "explain", to: "home#explain"
+  post "reset_query_stats", to: "home#reset_query_stats"
 end

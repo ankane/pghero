@@ -80,6 +80,15 @@ module PgHero
       end
     end
 
+    def reset_query_stats
+      begin
+        PgHero.reset_query_stats
+        redirect_to :back, notice: "Query stats reset"
+      rescue ActiveRecord::StatementInvalid => e
+        redirect_to :back, alert: "The database user does not have permission to reset query stats"
+      end
+    end
+
     protected
 
     def set_query_stats_enabled
