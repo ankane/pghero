@@ -50,7 +50,6 @@
     <% else %>
       <p>Make them available by adding the following lines to <code>postgresql.conf</code>:</p>
       <pre>shared_preload_libraries = 'pg_stat_statements'
-pg_stat_statements.max = 1000
 pg_stat_statements.track = all</pre>
       <p>Restart the server for the changes to take effect.</p>
     <% end %>
