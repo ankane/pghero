@@ -10,7 +10,7 @@ Supports PostgreSQL 9.2+
 
 For pure SQL, check out [PgHero.sql](https://github.com/ankane/pghero.sql)
 
-Initial queries by [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) :clap:
+A big thanks to [Craig Kerstiens](http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/) and [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries :clap:
 
 ## Installation
 
@@ -76,7 +76,7 @@ Know a bit about PostgreSQL? [Suggestions](https://github.com/ankane/pghero/issu
 
 ## Thanks
 
-Thanks to [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme.
+Thanks to [Craig Kerstiens](http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/) and [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme.
 
 ## History
 
