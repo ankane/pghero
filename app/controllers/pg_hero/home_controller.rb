@@ -41,6 +41,20 @@ module PgHero
       @query_stats = PgHero.query_stats
     end
 
+    def explain
+      @title = "Explain"
+      @query = params[:query]
+      # TODO use get + token instead of post so users can share links
+      # need to prevent CSRF and DoS
+      if request.post? and @query
+        begin
+          @explanation = PgHero.explain(@query)
+        rescue ActiveRecord::StatementInvalid => e
+          @error = e.message
+        end
+      end
+    end
+
     def kill
       if PgHero.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"

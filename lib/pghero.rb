@@ -233,6 +233,16 @@ module PgHero
       !!(Connection.connection_config[:host].to_s =~ /rds\.amazonaws\.com\z/)
     end
 
+    def explain(sql)
+      explanation = nil
+      # use transaction for safety
+      Connection.transaction do
+        explanation = select_all("EXPLAIN #{sql}").map{|v| v["QUERY PLAN"] }.join("\n")
+        raise ActiveRecord::Rollback
+      end
+      explanation
+    end
+
     def select_all(sql)
       # squish for logs
       connection.select_all(sql.squish).to_a
