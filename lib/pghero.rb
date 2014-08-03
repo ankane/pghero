@@ -1,4 +1,5 @@
 require "pghero/version"
+require "active_record"
 require "pghero/engine" if defined?(Rails)
 
 module PgHero
