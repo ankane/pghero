@@ -15,7 +15,7 @@
         <tbody>
           <% @query_stats.each do |query| %>
             <tr>
-              <td><pre><%= query["query"] %></pre></td>
+              <td style="padding: 0;"><pre><%= query["query"] %></pre></td>
               <td><% calls = query["calls"].to_i / 1000.0 %><%= calls >= 10 ? number_with_delimiter(calls.round) : calls.round(1) %>k</td>
               <td><%= query["total_minutes"].to_f.round %></td>
               <td><%= query["average_time"].to_f.round %></td>
