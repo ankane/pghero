@@ -246,7 +246,7 @@ module PgHero
 
     def select_all(sql)
       # squish for logs
-      connection.select_all(sql.squish).to_a
+      connection.select_all(squish(sql)).to_a
     end
 
     def execute(sql)
@@ -255,6 +255,11 @@ module PgHero
 
     def connection
       @connection ||= Connection.connection
+    end
+
+    # from ActiveSupport
+    def squish(str)
+      str.to_s.gsub(/\A[[:space:]]+/, '').gsub(/[[:space:]]+\z/, '').gsub(/[[:space:]]+/, ' ')
     end
 
   end
