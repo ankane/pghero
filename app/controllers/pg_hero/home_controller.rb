@@ -10,9 +10,7 @@ module PgHero
 
     def index
       @title = "Status"
-      if @query_stats_enabled
-        @slow_queries = PgHero.slow_queries
-      end
+      @slow_queries = PgHero.slow_queries
       @long_running_queries = PgHero.long_running_queries
       @index_hit_rate = PgHero.index_hit_rate
       @table_hit_rate = PgHero.table_hit_rate

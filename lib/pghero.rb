@@ -188,43 +188,51 @@ module PgHero
 
     # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
     def query_stats
-      select_all %Q{
-        SELECT
-          query,
-          (total_time / 1000 / 60) as total_minutes,
-          (total_time / calls) as average_time,
-          calls
-        FROM
-          pg_stat_statements
-        INNER JOIN
-          pg_database ON pg_database.oid = pg_stat_statements.dbid
-        WHERE
-          pg_database.datname = current_database()
-        ORDER BY
-          total_minutes DESC
-        LIMIT 100
-      }
+      if query_stats_enabled?
+        select_all %Q{
+          SELECT
+            query,
+            (total_time / 1000 / 60) as total_minutes,
+            (total_time / calls) as average_time,
+            calls
+          FROM
+            pg_stat_statements
+          INNER JOIN
+            pg_database ON pg_database.oid = pg_stat_statements.dbid
+          WHERE
+            pg_database.datname = current_database()
+          ORDER BY
+            total_minutes DESC
+          LIMIT 100
+        }
+      else
+        []
+      end
     end
 
     def slow_queries
-      select_all %Q{
-        SELECT
-          query,
-          (total_time / 1000 / 60) as total_minutes,
-          (total_time / calls) as average_time,
-          calls
-        FROM
-          pg_stat_statements
-        INNER JOIN
-          pg_database ON pg_database.oid = pg_stat_statements.dbid
-        WHERE
-          pg_database.datname = current_database()
-          AND calls >= 100
-          AND (total_time / calls) >= 20
-        ORDER BY
-          total_minutes DESC
-        LIMIT 100
-      }
+      if query_stats_enabled?
+        select_all %Q{
+          SELECT
+            query,
+            (total_time / 1000 / 60) as total_minutes,
+            (total_time / calls) as average_time,
+            calls
+          FROM
+            pg_stat_statements
+          INNER JOIN
+            pg_database ON pg_database.oid = pg_stat_statements.dbid
+          WHERE
+            pg_database.datname = current_database()
+            AND calls >= 100
+            AND (total_time / calls) >= 20
+          ORDER BY
+            total_minutes DESC
+          LIMIT 100
+        }
+      else
+        []
+      end
     end
 
     def query_stats_available?
@@ -245,8 +253,12 @@ module PgHero
     end
 
     def reset_query_stats
-      execute("SELECT pg_stat_statements_reset()")
-      true
+      if query_stats_enabled?
+        execute("SELECT pg_stat_statements_reset()")
+        true
+      else
+        false
+      end
     end
 
     def rds?

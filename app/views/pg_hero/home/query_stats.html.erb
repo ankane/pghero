@@ -1,5 +1,7 @@
 <div class="content">
-  <%= button_to "Reset", reset_query_stats_path, class: "btn btn-danger", style: "float: right;" %>
+  <% if @query_stats_enabled %>
+    <%= button_to "Reset", reset_query_stats_path, class: "btn btn-danger", style: "float: right;" %>
+  <% end %>
 
   <h1>Queries</h1>
 

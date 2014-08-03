@@ -8,7 +8,7 @@
   </div>
   <div class="alert alert-<%= @query_stats_enabled && @slow_queries.empty? ? "success" : "warning" %>">
     <% if !@query_stats_enabled %>
-      Query statistics must be enabled for slow queries
+      Query stats must be enabled for slow queries
     <% elsif @slow_queries.any? %>
       <%= pluralize(@slow_queries.size, "slow query") %>
     <% else %>
