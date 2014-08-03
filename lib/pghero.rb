@@ -169,7 +169,7 @@ module PgHero
     end
 
     def kill(pid)
-      connection.execute("SELECT pg_cancel_backend(#{pid.to_i})").first["pg_cancel_backend"] == "t"
+      execute("SELECT pg_cancel_backend(#{pid.to_i})").first["pg_cancel_backend"] == "t"
     end
 
     def kill_all
@@ -185,9 +185,35 @@ module PgHero
       true
     end
 
+    def stat_statements_available?
+      select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"].to_i > 0
+    end
+
+    def stat_statements_enabled?
+      select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0
+    end
+
+    def enable_stat_statements
+      execute("CREATE EXTENSION pg_stat_statements")
+    end
+
+    def disable_stat_statements
+      execute("DROP EXTENSION IF EXISTS pg_stat_statements")
+      true
+    end
+
+    def reset_stat_statements
+      execute("SELECT pg_stat_statements_reset()")
+      true
+    end
+
     def select_all(sql)
       # squish for logs
       connection.select_all(sql.squish).to_a
+    end
+
+    def execute(sql)
+      connection.execute(sql)
     end
 
     def connection
