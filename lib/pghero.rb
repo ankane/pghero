@@ -190,10 +190,10 @@ module PgHero
     def query_stats
       select_all %Q{
         SELECT
+          query,
           (total_time / 1000 / 60) as total_minutes,
           (total_time / calls) as average_time,
-          calls,
-          query
+          calls
         FROM
           pg_stat_statements
         INNER JOIN
@@ -202,6 +202,27 @@ module PgHero
           pg_database.datname = current_database()
           AND calls >= 100
           AND total_time >= 10000
+        ORDER BY
+          total_minutes DESC
+        LIMIT 100
+      }
+    end
+
+    def slow_queries
+      select_all %Q{
+        SELECT
+          query,
+          (total_time / 1000 / 60) as total_minutes,
+          (total_time / calls) as average_time,
+          calls
+        FROM
+          pg_stat_statements
+        INNER JOIN
+          pg_database ON pg_database.oid = pg_stat_statements.dbid
+        WHERE
+          pg_database.datname = current_database()
+          AND calls >= 100
+          AND (total_time / calls) >= 20
         ORDER BY
           total_minutes DESC
         LIMIT 100

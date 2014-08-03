@@ -1,0 +1,21 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th style="width: 33.33%;">Total Time</th>
+      <th style="width: 33.33%;">Avg Time</th>
+      <th style="width: 33.33%;">Calls</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% queries.each do |query| %>
+      <tr>
+        <td><%= query["total_minutes"].to_f.round %> min</td>
+        <td><%= query["average_time"].to_f.round %> ms</td>
+        <td><% calls = query["calls"].to_i %><%= calls >= 1000 ? number_with_delimiter(calls.round) + "k" : calls %></td>
+      </tr>
+      <tr>
+        <td colspan="3" style="border-top: none; padding: 0;"><pre><%= query["query"] %></pre></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

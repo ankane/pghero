@@ -6,6 +6,15 @@
       Query statistics are not enabled
     <% end %>
   </div>
+  <div class="alert alert-<%= @query_stats_enabled && @slow_queries.empty? ? "success" : "warning" %>">
+    <% if !@query_stats_enabled %>
+      Query statistics must be enabled for slow queries
+    <% elsif @slow_queries.any? %>
+      <%= pluralize(@slow_queries.size, "slow query") %>
+    <% else %>
+      No slow queries
+    <% end %>
+  </div>
   <div class="alert alert-<%= @long_running_queries.empty? ? "success" : "warning" %>">
     <% if @long_running_queries.any? %>
       <%= pluralize(@long_running_queries.size, "long running query") %>
@@ -53,6 +62,17 @@
 pg_stat_statements.track = all</pre>
       <p>Restart the server for the changes to take effect.</p>
     <% end %>
+  </div>
+<% end %>
+
+<% if @query_stats_enabled && @slow_queries.any? %>
+  <div class="content">
+    <h1>Slow Queries</h1>
+
+    <p>Slow queries take 20 ms or more on average and have been called at least 100 times.</p>
+    <p><%= link_to "Run EXPLAIN", explain_path %> on queries to see where to add indexes.</p>
+
+    <%= render partial: "query_stats_table", locals: {queries: @slow_queries} %>
   </div>
 <% end %>
 
