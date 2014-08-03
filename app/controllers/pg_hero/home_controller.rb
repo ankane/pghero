@@ -35,6 +35,11 @@ module PgHero
       @running_queries = PgHero.running_queries
     end
 
+    def query_stats
+      @title = "Query Stats"
+      @query_stats = PgHero.query_stats
+    end
+
     def kill
       if PgHero.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"

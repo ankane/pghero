@@ -185,6 +185,21 @@ module PgHero
       true
     end
 
+    # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
+    def query_stats
+      select_all %Q{
+        SELECT
+          (total_time / 1000 / 60) as total_minutes,
+          (total_time / calls) as average_time,
+          query
+        FROM
+          pg_stat_statements
+        ORDER BY
+          total_minutes DESC
+        LIMIT 100
+      }
+    end
+
     def query_stats_available?
       select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"].to_i > 0
     end

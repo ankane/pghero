@@ -3,6 +3,7 @@ PgHero::Engine.routes.draw do
   get "indexes", to: "home#indexes"
   get "space", to: "home#space"
   get "queries", to: "home#queries"
+  get "query_stats", to: "home#query_stats"
 
   post "kill", to: "home#kill"
   post "kill_all", to: "home#kill_all"

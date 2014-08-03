@@ -1,0 +1,22 @@
+<div class="content">
+  <h1>Query Stats</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Query</th>
+        <th>Total (min)</th>
+        <th>Avg (ms)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @query_stats.each do |query| %>
+        <tr>
+          <td><pre><%= query["query"] %></pre></td>
+          <td><%= query["total_minutes"].to_f.round %></td>
+          <td><%= query["average_time"].to_f.round(1) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
