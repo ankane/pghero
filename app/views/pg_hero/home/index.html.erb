@@ -1,4 +1,11 @@
 <div id="status">
+  <div class="alert alert-<%= @query_stats_enabled ? "success" : "warning" %>">
+    <% if @query_stats_enabled %>
+      Query statistics are enabled
+    <% elsif @query_stats_available %>
+      Query statistics are not enabled
+    <% end %>
+  </div>
   <div class="alert alert-<%= @long_running_queries.empty? ? "success" : "warning" %>">
     <% if @long_running_queries.any? %>
       <%= pluralize(@long_running_queries.size, "long running query") %>
@@ -28,6 +35,27 @@
     <% end %>
   </div>
 </div>
+
+<% if !@query_stats_enabled %>
+  <div class="content">
+    <h1>Query Statistics</h1>
+
+    <% if @query_stats_available %>
+      <p>
+        Query statistics are available but not enabled.
+        <%= button_to "Enable", enable_query_stats_path, class: "btn btn-info" %>
+      </p>
+    <% elsif @rds %>
+      <p>Query statistics are not available on Amazon RDS. <%= link_to "Tell Amazon you want this.", "https://forums.aws.amazon.com/thread.jspa?messageID=548724", target: "_blank" %></p>
+    <% else %>
+      <p>Make them available by adding the following lines to <code>postgresql.conf</code>:</p>
+      <pre>shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.max = 1000
+pg_stat_statements.track = all</pre>
+      <p>Restart the server for the changes to take effect.</p>
+    <% end %>
+  </div>
+<% end %>
 
 <% if @long_running_queries.any? %>
   <div class="content">

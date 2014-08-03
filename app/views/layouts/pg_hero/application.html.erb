@@ -155,6 +155,10 @@
         background-color: #f0ad4e;
       }
 
+      .alert-danger {
+        background-color: #df691a;
+      }
+
       .alert a {
         color: #fff;
         text-decoration: none;
@@ -314,8 +318,10 @@
   </head>
   <body>
     <div class="container">
-      <div class="alert alert-info">
-        <% if notice %>
+      <div class="alert alert-<%= alert ? "danger" : "info" %>">
+        <% if alert %>
+          <%= alert %>
+        <% elsif notice %>
           <%= notice %>
         <% elsif Rails.env.development? %>
           Do not use development information to make decisions about your production environment

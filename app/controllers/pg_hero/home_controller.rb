@@ -14,6 +14,9 @@ module PgHero
       @missing_indexes = PgHero.missing_indexes
       @unused_indexes = PgHero.unused_indexes
       @good_cache_rate = @table_hit_rate >= 0.99 && @index_hit_rate >= 0.99
+      @query_stats_enabled = PgHero.query_stats_enabled?
+      @query_stats_available = PgHero.query_stats_available?
+      @rds = PgHero.rds?
     end
 
     def indexes
@@ -43,6 +46,15 @@ module PgHero
     def kill_all
       PgHero.kill_all
       redirect_to :back, notice: "Connections killed"
+    end
+
+    def enable_query_stats
+      begin
+        PgHero.enable_query_stats
+        redirect_to :back, notice: "Query stats enabled"
+      rescue ActiveRecord::StatementInvalid => e
+        redirect_to :back, alert: "User does not have permission to enable query stats"
+      end
     end
 
   end

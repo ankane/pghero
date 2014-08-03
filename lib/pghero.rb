@@ -185,26 +185,30 @@ module PgHero
       true
     end
 
-    def stat_statements_available?
+    def query_stats_available?
       select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"].to_i > 0
     end
 
-    def stat_statements_enabled?
+    def query_stats_enabled?
       select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0
     end
 
-    def enable_stat_statements
+    def enable_query_stats
       execute("CREATE EXTENSION pg_stat_statements")
     end
 
-    def disable_stat_statements
+    def disable_query_stats
       execute("DROP EXTENSION IF EXISTS pg_stat_statements")
       true
     end
 
-    def reset_stat_statements
+    def reset_query_stats
       execute("SELECT pg_stat_statements_reset()")
       true
+    end
+
+    def rds?
+      !!(Connection.connection_config[:host].to_s =~ /rds\.amazonaws\.com\z/)
     end
 
     def select_all(sql)
