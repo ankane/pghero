@@ -237,15 +237,27 @@ module PgHero
     def explain(sql)
       sql = sql.to_s
       explanation = nil
+      explain_safe = explain_safe?
+
       # use transaction for safety
       Connection.transaction do
-        if ActiveRecord::VERSION::MAJOR == 3 and ActiveRecord::VERSION::MINOR < 2 and sql.include?(";")
+        if !explain_safe and (sql.include?(";") or sql.upcase.include?("COMMIT"))
           raise ActiveRecord::StatementInvalid
         end
         explanation = select_all("EXPLAIN #{sql}").map{|v| v["QUERY PLAN"] }.join("\n")
         raise ActiveRecord::Rollback
       end
+
       explanation
+    end
+
+    def explain_safe?
+      begin
+        select_all("SELECT 1; SELECT 1")
+        false
+      rescue ActiveRecord::StatementInvalid
+        true
+      end
     end
 
     def select_all(sql)
