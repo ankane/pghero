@@ -53,7 +53,7 @@ module PgHero
         PgHero.enable_query_stats
         redirect_to :back, notice: "Query stats enabled"
       rescue ActiveRecord::StatementInvalid => e
-        redirect_to :back, alert: "User does not have permission to enable query stats"
+        redirect_to :back, alert: "The database user does not have permission to enable query stats"
       end
     end
 
