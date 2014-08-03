@@ -240,7 +240,16 @@ module PgHero
     end
 
     def query_stats_enabled?
-      select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0
+      select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0 && query_stats_readable?
+    end
+
+    def query_stats_readable?
+      begin
+        # ensure the user has access to the table
+        select_all("SELECT has_table_privilege(current_user, 'pg_stat_statements', 'SELECT')").first["has_table_privilege"] == "t"
+      rescue ActiveRecord::StatementInvalid
+        false
+      end
     end
 
     def enable_query_stats
