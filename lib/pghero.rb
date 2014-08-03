@@ -235,14 +235,14 @@ module PgHero
     end
 
     def explain(sql)
-      sql = sql.to_s
+      sql = squish(sql)
       explanation = nil
       explain_safe = explain_safe?
 
       # use transaction for safety
       Connection.transaction do
-        if !explain_safe and (sql.include?(";") or sql.upcase.include?("COMMIT"))
-          raise ActiveRecord::StatementInvalid
+        if !explain_safe and (sql.sub(/;\z/, "").include?(";") or sql.upcase.include?("COMMIT"))
+          raise ActiveRecord::StatementInvalid, "Unsafe statement"
         end
         explanation = select_all("EXPLAIN #{sql}").map{|v| v["QUERY PLAN"] }.join("\n")
         raise ActiveRecord::Rollback
