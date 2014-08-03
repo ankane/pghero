@@ -338,7 +338,7 @@
             <li class="<%= controller.action_name == "indexes" ? "active" : "" %>"><%= link_to "Indexes", indexes_path %></li>
             <li class="<%= controller.action_name == "space" ? "active" : "" %>"><%= link_to "Space", space_path %></li>
             <li class="<%= controller.action_name == "queries" ? "active" : "" %>"><%= link_to "Queries", queries_path %></li>
-            <% if PgHero.query_stats_enabled? %>
+            <% if @query_stats_enabled %>
               <li class="<%= controller.action_name == "query_stats" ? "active" : "" %>"><%= link_to "Query Stats", query_stats_path %></li>
             <% end %>
           </ul>

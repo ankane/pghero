@@ -6,6 +6,8 @@ module PgHero
 
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
+    before_filter :set_query_stats_enabled
+
     def index
       @title = "Status"
       @long_running_queries = PgHero.long_running_queries
@@ -14,7 +16,6 @@ module PgHero
       @missing_indexes = PgHero.missing_indexes
       @unused_indexes = PgHero.unused_indexes
       @good_cache_rate = @table_hit_rate >= 0.99 && @index_hit_rate >= 0.99
-      @query_stats_enabled = PgHero.query_stats_enabled?
       @query_stats_available = PgHero.query_stats_available?
       @rds = PgHero.rds?
     end
@@ -60,6 +61,12 @@ module PgHero
       rescue ActiveRecord::StatementInvalid => e
         redirect_to :back, alert: "The database user does not have permission to enable query stats"
       end
+    end
+
+    protected
+
+    def set_query_stats_enabled
+      @query_stats_enabled = PgHero.query_stats_enabled?
     end
 
   end
