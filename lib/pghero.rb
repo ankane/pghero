@@ -200,8 +200,6 @@ module PgHero
           pg_database ON pg_database.oid = pg_stat_statements.dbid
         WHERE
           pg_database.datname = current_database()
-          AND calls >= 100
-          AND total_time >= 10000
         ORDER BY
           total_minutes DESC
         LIMIT 100
