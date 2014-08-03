@@ -2,7 +2,7 @@
   <div class="alert alert-<%= @query_stats_enabled ? "success" : "warning" %>">
     <% if @query_stats_enabled %>
       Query statistics are enabled
-    <% elsif @query_stats_available %>
+    <% else %>
       Query statistics are not enabled
     <% end %>
   </div>
