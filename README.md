@@ -45,6 +45,15 @@ PgHero.table_hit_rate
 # kill queries
 PgHero.kill(pid)
 PgHero.kill_all
+
+# query stats
+PgHero.query_stats_available?
+PgHero.query_stats_enabled?
+PgHero.enable_query_stats
+PgHero.disable_query_stats
+PgHero.reset_query_stats
+PgHero.query_stats
+PgHero.slow_queries
 ```
 
 ## Security
