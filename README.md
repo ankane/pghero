@@ -69,7 +69,6 @@ end
 ## TODO
 
 - show exactly which indexes to add
-- use `pg_stat_statements` extension for more detailed insights
 - more detailed explanations on dashboard
 
 Know a bit about PostgreSQL? [Suggestions](https://github.com/ankane/pghero/issues) are greatly appreciated.
