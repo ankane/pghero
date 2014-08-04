@@ -33,12 +33,12 @@ module PgHero
     end
 
     def queries
-      @title = "Queries"
+      @title = "Live Queries"
       @running_queries = PgHero.running_queries
     end
 
     def query_stats
-      @title = "Query Stats"
+      @title = "Queries"
       @query_stats = PgHero.query_stats
     end
 
