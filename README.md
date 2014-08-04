@@ -47,7 +47,6 @@ PgHero.kill(pid)
 PgHero.kill_all
 
 # query stats
-PgHero.query_stats_available?
 PgHero.query_stats_enabled?
 PgHero.enable_query_stats
 PgHero.disable_query_stats
