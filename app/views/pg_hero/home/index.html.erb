@@ -47,15 +47,15 @@
 
 <% if !@query_stats_enabled %>
   <div class="content">
-    <h1>Query Statistics</h1>
+    <h1>Query Stats</h1>
 
     <% if @query_stats_available %>
       <p>
-        Query statistics are available but not enabled.
+        Query stats are available but not enabled.
         <%= button_to "Enable", enable_query_stats_path, class: "btn btn-info" %>
       </p>
     <% elsif @rds %>
-      <p>Query statistics are not available on Amazon RDS. <%= link_to "Tell Amazon you want this.", "https://forums.aws.amazon.com/thread.jspa?messageID=548724", target: "_blank" %></p>
+      <p>Query stats are not available on Amazon RDS. <%= link_to "Tell Amazon you want this.", "https://forums.aws.amazon.com/thread.jspa?messageID=548724", target: "_blank" %></p>
     <% else %>
       <p>Make them available by adding the following lines to <code>postgresql.conf</code>:</p>
       <pre>shared_preload_libraries = 'pg_stat_statements'
