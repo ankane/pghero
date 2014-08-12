@@ -20,13 +20,26 @@ Add this line to your application’s Gemfile:
 gem 'pghero'
 ```
 
-And mount the dashboard in your router.
+And mount the dashboard in your `config/routes.rb`:
 
 ```ruby
 mount PgHero::Engine, at: "pghero"
 ```
 
 Be sure to [secure the dashboard](#security) in production.
+
+## Enable query stats
+
+The data PgHero displays is collected by the [`pg_stat_statements` module](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html). This module must be added to your `postgresql.conf` and is loaded on startup, so you have to restart your server. Check out [the docs](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html) for details.
+
+It is also recommended to set `pg_stat_statements.track = all` in your `postgresql.conf` so that all statements are tracked by the module. The other default settings are fine.
+
+Additionally, you have to install the `pg_stat_statements` extension in the database you want to track. You can either do this in the PgHero view, or, in case your app's database user does not have the necessary permissions, via `psql` directly on the server like this:
+
+```sql
+sudo su postgres -c 'psql -d myapp_production -c "CREATE extension pg_stat_statements;"'
+```
+
 
 ## Insights
 
@@ -69,7 +82,7 @@ ENV["PGHERO_PASSWORD"] = "secret"
 #### Devise
 
 ```ruby
-authenticate :user, lambda {|user| user.admin? } do
+authenticate :user, lambda { |user| user.admin? } do
   mount PgHero::Engine, at: "pghero"
 end
 ```
