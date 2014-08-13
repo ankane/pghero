@@ -20,7 +20,7 @@ Add this line to your application’s Gemfile:
 gem 'pghero'
 ```
 
-And mount the dashboard in your router.
+And mount the dashboard in your `config/routes.rb`:
 
 ```ruby
 mount PgHero::Engine, at: "pghero"
@@ -72,6 +72,53 @@ ENV["PGHERO_PASSWORD"] = "secret"
 authenticate :user, lambda {|user| user.admin? } do
   mount PgHero::Engine, at: "pghero"
 end
+```
+
+## Query Stats
+
+The [pg_stat_statements module](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html) is used for query stats.
+
+### Common Issues
+
+#### Installation
+
+If you have trouble enabling query stats from the dashboard, try doing it manually.
+
+Add the following to your `postgresql.conf`:
+
+```conf
+shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.track = all
+```
+
+Then restart PostgreSQL. As a superuser from the `psql` console, run:
+
+```psql
+CREATE extension pg_stat_statements;
+```
+
+**Note:** Query stats are not available on Amazon RDS. [Tell Amazon you want this.](https://forums.aws.amazon.com/thread.jspa?messageID=548724)
+
+#### pg_stat_statements must be loaded via shared_preload_libraries
+
+Follow the instructions above.
+
+#### FATAL: could not access file "pg_stat_statements": No such file or directory
+
+Run `apt-get install postgresql-contrib-9.3` and follow the instructions above.
+
+#### The database user does not have permission to ...
+
+The database user is not a superuser.  You can manually enable stats from the `psql` console with:
+
+```psql
+CREATE extension pg_stat_statements;
+```
+
+and reset stats with:
+
+```psql
+SELECT pg_stat_statements_reset();
 ```
 
 ## TODO
