@@ -1,3 +1,9 @@
+## 0.1.4 [unreleased]
+
+- Fixed duration
+- Fixed wrapping
+- Friendlier dependencies for JRuby
+
 ## 0.1.3
 
 - Reverted `query_stats_available?` fix
