@@ -28,19 +28,6 @@ mount PgHero::Engine, at: "pghero"
 
 Be sure to [secure the dashboard](#security) in production.
 
-## Enable query stats
-
-The data PgHero displays is collected by the [`pg_stat_statements` module](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html). This module must be added to your `postgresql.conf` and is loaded on startup, so you have to restart your server. Check out [the docs](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html) for details.
-
-It is also recommended to set `pg_stat_statements.track = all` in your `postgresql.conf` so that all statements are tracked by the module. The other default settings are fine.
-
-Additionally, you have to install the `pg_stat_statements` extension in the database you want to track. You can either do this in the PgHero view, or, in case your app's database user does not have the necessary permissions, via `psql` directly on the server like this:
-
-```sql
-sudo su postgres -c 'psql -d myapp_production -c "CREATE extension pg_stat_statements;"'
-```
-
-
 ## Insights
 
 ```ruby
@@ -82,9 +69,56 @@ ENV["PGHERO_PASSWORD"] = "secret"
 #### Devise
 
 ```ruby
-authenticate :user, lambda { |user| user.admin? } do
+authenticate :user, lambda {|user| user.admin? } do
   mount PgHero::Engine, at: "pghero"
 end
+```
+
+## Query Stats
+
+The [pg_stat_statements module](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html) is used for query stats.
+
+### Common Issues
+
+#### Installation
+
+If you have trouble enabling query stats from the dashboard, try doing it manually.
+
+Add the following to your `postgresql.conf`:
+
+```conf
+shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.track = all
+```
+
+Then restart PostgreSQL. As a superuser from the `psql` console, run:
+
+```psql
+CREATE extension pg_stat_statements;
+```
+
+**Note:** Query stats are not available on Amazon RDS. [Tell Amazon you want this.](https://forums.aws.amazon.com/thread.jspa?messageID=548724)
+
+#### pg_stat_statements must be loaded via shared_preload_libraries
+
+Follow the instructions above.
+
+#### FATAL: could not access file "pg_stat_statements": No such file or directory
+
+Run `apt-get install postgresql-contrib-9.3` and follow the instructions above.
+
+#### The database user does not have permission to ...
+
+The database user is not a superuser.  You can manually enable stats from the `psql` console with:
+
+```psql
+CREATE extension pg_stat_statements;
+```
+
+and reset stats with:
+
+```psql
+SELECT pg_stat_statements_reset();
 ```
 
 ## TODO
