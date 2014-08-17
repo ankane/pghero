@@ -1,6 +1,6 @@
 # PgHero
 
-Database insights made easy
+Postgres insights made easy
 
 [View the demo](https://pghero.herokuapp.com/)
 
