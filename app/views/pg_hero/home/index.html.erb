@@ -1,11 +1,4 @@
 <div id="status">
-  <div class="alert alert-<%= @query_stats_enabled ? "success" : "warning" %>">
-    <% if @query_stats_enabled %>
-      Query stats are enabled
-    <% else %>
-      Query stats are not enabled
-    <% end %>
-  </div>
   <div class="alert alert-<%= @query_stats_enabled && @slow_queries.empty? ? "success" : "warning" %>">
     <% if !@query_stats_enabled %>
       Query stats must be enabled for slow queries
