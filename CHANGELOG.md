@@ -1,4 +1,4 @@
-## 0.1.4 [unreleased]
+## 0.1.4
 
 - Reduced long running queries threshold to 1 minute
 - Fixed duration
