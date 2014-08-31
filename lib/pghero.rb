@@ -47,7 +47,7 @@ module PgHero
           query <> '<insufficient privilege>'
           AND state <> 'idle'
           AND pid <> pg_backend_pid()
-          AND now() - query_start > interval '5 minutes'
+          AND now() - query_start > interval '1 minutes'
         ORDER BY
           query_start DESC
       }

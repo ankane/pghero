@@ -1,5 +1,6 @@
 ## 0.1.4 [unreleased]
 
+- Reduced long running queries threshold to 1 minute
 - Fixed duration
 - Fixed wrapping
 - Friendlier dependencies for JRuby
