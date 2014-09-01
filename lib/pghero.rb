@@ -270,6 +270,45 @@ module PgHero
       end
     end
 
+    def cpu_usage
+      if system_stats_enabled?
+        cw = AWS::CloudWatch.new(access_key_id: access_key_id, secret_access_key: secret_access_key)
+        now = Time.now
+        resp = cw.client.get_metric_statistics(
+          namespace: "AWS/RDS",
+          metric_name: "CPUUtilization",
+          dimensions: [{name: "DBInstanceIdentifier", value: db_instance_identifier}],
+          start_time: (now - 1 * 3600).iso8601,
+          end_time: now.iso8601,
+          period: 60,
+          statistics: ["Average"]
+        )
+        data = {}
+        resp[:datapoints].sort_by{|d| d[:timestamp] }.each do |d|
+          data[d[:timestamp]] = d[:average]
+        end
+        data
+      else
+        {}
+      end
+    end
+
+    def system_stats_enabled?
+      !!(defined?(AWS) && access_key_id && secret_access_key && db_instance_identifier)
+    end
+
+    def access_key_id
+      ENV["PGHERO_ACCESS_KEY_ID"] || ENV["AWS_ACCESS_KEY_ID"]
+    end
+
+    def secret_access_key
+      ENV["PGHERO_SECRET_ACCESS_KEY"] || ENV["AWS_SECRET_ACCESS_KEY"]
+    end
+
+    def db_instance_identifier
+      ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
+    end
+
     # TODO better RDS check
     def rds?
       !!(Connection.connection_config[:host].to_s =~ /rds\.amazonaws\.com\z/)

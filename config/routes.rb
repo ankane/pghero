@@ -4,6 +4,7 @@ PgHero::Engine.routes.draw do
   get "space", to: "home#space"
   get "queries", to: "home#queries"
   get "query_stats", to: "home#query_stats"
+  get "system_stats", to: "home#system_stats"
   get "explain", to: "home#explain"
 
   post "kill", to: "home#kill"

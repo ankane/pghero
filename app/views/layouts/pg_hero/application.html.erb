@@ -349,6 +349,9 @@
             <% if @query_stats_enabled %>
               <li class="<%= controller.action_name == "query_stats" ? "active" : "" %>"><%= link_to "Queries", query_stats_path %></li>
             <% end %>
+            <% if @system_stats_enabled %>
+              <li class="<%= controller.action_name == "system_stats" ? "active" : "" %>"><%= link_to "System", system_stats_path %></li>
+            <% end %>
             <li class="<%= controller.action_name == "indexes" ? "active" : "" %>"><%= link_to "Indexes", indexes_path %></li>
             <li class="<%= controller.action_name == "space" ? "active" : "" %>"><%= link_to "Space", space_path %></li>
             <li class="<%= controller.action_name == "explain" ? "active" : "" %>"><%= link_to "Explain", explain_path %></li>

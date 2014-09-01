@@ -121,6 +121,23 @@ and reset stats with:
 SELECT pg_stat_statements_reset();
 ```
 
+## System Stats [master]
+
+System stats are available for Amazon RDS.  Add these lines to your application’s Gemfile:
+
+```ruby
+gem 'aws-sdk'
+gem 'chartkick'
+```
+
+And add these variables to your environment:
+
+```sh
+PGHERO_ACCESS_KEY_ID=accesskey123
+PGHERO_SECRET_ACCESS_KEY=secret123
+PGHERO_DB_INSTANCE_IDENTIFIER=datakick-production
+```
+
 ## TODO
 
 - show exactly which indexes to add

@@ -42,6 +42,11 @@ module PgHero
       @query_stats = PgHero.query_stats
     end
 
+    def system_stats
+      @title = "System Stats"
+      @cpu_usage = PgHero.cpu_usage
+    end
+
     def explain
       @title = "Explain"
       @query = params[:query]
@@ -91,6 +96,7 @@ module PgHero
 
     def set_query_stats_enabled
       @query_stats_enabled = PgHero.query_stats_enabled?
+      @system_stats_enabled = PgHero.system_stats_enabled?
     end
 
   end
