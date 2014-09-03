@@ -2,6 +2,7 @@
 
 - Added system stats for Amazon RDS
 - Added code to remove unused indexes
+- Require unused indexes to be at least 1 MB
 
 ## 0.1.4
 

@@ -137,9 +137,9 @@ module PgHero
           pg_index i ON ui.indexrelid = i.indexrelid
         WHERE
           NOT indisunique
-          AND idx_scan < 50 AND pg_relation_size(relid) > 5 * 8192
+          AND idx_scan < 50
+          AND pg_relation_size(relid) > 1024 * 1024
         ORDER BY
-          pg_relation_size(i.indexrelid) / nullif(idx_scan, 0) DESC NULLS FIRST,
           pg_relation_size(i.indexrelid) DESC,
           relname ASC
       }
