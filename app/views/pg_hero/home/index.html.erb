@@ -126,7 +126,18 @@ pg_stat_statements.track = all</pre>
   <div class="content">
     <h1>Unused Indexes</h1>
 
-    <p>Unused indexes cause unnecessary overhead. Remove them for faster writes.</p>
+    <p>
+      Unused indexes cause unnecessary overhead. Remove them
+      <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
+      for faster writes.
+    </p>
+
+    <div id="migration" style="display: none;">
+      <pre>rails g migration remove_unused_indexes</pre>
+      <p>And paste</p>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.each do |query| %>
+remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s.inspect %><% end %></pre>
+    </div>
 
     <table class="table">
       <thead>
