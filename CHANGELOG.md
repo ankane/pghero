@@ -1,4 +1,4 @@
-## 0.1.5 [unreleased]
+## 0.1.5
 
 - Added system stats for Amazon RDS
 - Added code to remove unused indexes

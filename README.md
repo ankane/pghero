@@ -121,7 +121,7 @@ and reset stats with:
 SELECT pg_stat_statements_reset();
 ```
 
-## System Stats [master]
+## System Stats
 
 System stats are available for Amazon RDS.  Add these lines to your application’s Gemfile:
 
