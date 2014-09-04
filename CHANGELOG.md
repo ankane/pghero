@@ -3,6 +3,7 @@
 - Added system stats for Amazon RDS
 - Added code to remove unused indexes
 - Require unused indexes to be at least 1 MB
+- Use `pg_terminate_backend` to ensure queries are killed
 
 ## 0.1.4
 

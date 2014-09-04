@@ -170,7 +170,7 @@ module PgHero
     end
 
     def kill(pid)
-      execute("SELECT pg_cancel_backend(#{pid.to_i})").first["pg_cancel_backend"] == "t"
+      execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"] == "t"
     end
 
     def kill_all
