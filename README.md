@@ -123,7 +123,7 @@ SELECT pg_stat_statements_reset();
 
 ## System Stats
 
-System stats are available for Amazon RDS.  Add these lines to your application’s Gemfile:
+CPU usage is available for Amazon RDS.  Add these lines to your application’s Gemfile:
 
 ```ruby
 gem 'aws-sdk'
