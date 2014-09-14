@@ -2,5 +2,5 @@
   <h1>CPU Usage</h1>
 
   <%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
-  <div style="margin-bottom: 20px;"><%= line_chart @cpu_usage %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart @cpu_usage, max: 101 %></div>
 </div>
