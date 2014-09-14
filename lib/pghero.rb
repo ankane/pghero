@@ -53,6 +53,26 @@ module PgHero
       }
     end
 
+    def locks
+      select_all %Q{
+        SELECT DISTINCT ON (pid)
+          pg_stat_activity.pid,
+          pg_stat_activity.query,
+          age(now(), pg_stat_activity.query_start) AS age
+        FROM
+          pg_stat_activity
+        INNER JOIN
+          pg_locks ON pg_locks.pid = pg_stat_activity.pid
+        WHERE
+          pg_stat_activity.query <> '<insufficient privilege>'
+          AND pg_locks.mode = 'ExclusiveLock'
+          AND pg_stat_activity.pid <> pg_backend_pid()
+        ORDER BY
+          pid,
+          query_start
+      }
+    end
+
     def index_hit_rate
       select_all(%Q{
         SELECT
