@@ -8,6 +8,8 @@ Postgres insights made easy
 
 Supports PostgreSQL 9.2+
 
+:speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][32]=true) for new features
+
 For pure SQL, check out [PgHero.sql](https://github.com/ankane/pghero.sql)
 
 A big thanks to [Craig Kerstiens](http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/) and [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries :clap:
