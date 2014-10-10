@@ -74,7 +74,7 @@ PgHero.create_user("andrew")
 
 This generates and returns a secure password.  The user has full access to the `public` schema.
 
-For read-only access, use:
+Read-only access
 
 ```ruby
 PgHero.create_user("andrew", readonly: true)
