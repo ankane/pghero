@@ -68,7 +68,7 @@ PgHero.slow_queries
 Create a user
 
 ```ruby
-PgHero.create_user("andrew")
+PgHero.create_user("link")
 # {password: "zbTrNHk2tvMgNabFgCo0ws7T"}
 ```
 
@@ -77,19 +77,19 @@ This generates and returns a secure password.  The user has full access to the `
 Read-only access
 
 ```ruby
-PgHero.create_user("andrew", readonly: true)
+PgHero.create_user("epona", readonly: true)
 ```
 
 Set the password
 
 ```ruby
-PgHero.create_user("andrew", password: "secret123")
+PgHero.create_user("zelda", password: "hyrule")
 ```
 
 Drop a user
 
 ```ruby
-PgHero.drop_user("andrew")
+PgHero.drop_user("ganondorf")
 ```
 
 ## Security
