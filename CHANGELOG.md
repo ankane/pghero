@@ -1,5 +1,6 @@
 ## 0.1.6 [unreleased]
 
+- Added methods to create and drop users
 - Added locks
 
 ## 0.1.5

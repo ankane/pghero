@@ -43,18 +43,53 @@ PgHero.database_size
 PgHero.relation_sizes
 PgHero.index_hit_rate
 PgHero.table_hit_rate
+```
 
-# kill queries
+Kill queries
+
+```ruby
 PgHero.kill(pid)
 PgHero.kill_all
+```
 
-# query stats
+Query stats
+
+```ruby
 PgHero.query_stats_enabled?
 PgHero.enable_query_stats
 PgHero.disable_query_stats
 PgHero.reset_query_stats
 PgHero.query_stats
 PgHero.slow_queries
+```
+
+## Users
+
+Create a user
+
+```ruby
+PgHero.create_user("andrew")
+# {password: "zbTrNHk2tvMgNabFgCo0ws7T"}
+```
+
+This generates and returns a secure password.  The user has full access to the `public` schema.
+
+For read-only access, use:
+
+```ruby
+PgHero.create_user("andrew", readonly: true)
+```
+
+Set the password
+
+```ruby
+PgHero.create_user("andrew", password: "secret123")
+```
+
+Drop a user
+
+```ruby
+PgHero.drop_user("andrew")
 ```
 
 ## Security
