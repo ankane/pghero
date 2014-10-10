@@ -63,7 +63,7 @@ PgHero.query_stats
 PgHero.slow_queries
 ```
 
-## Users [master]
+## Users
 
 Create a user
 
