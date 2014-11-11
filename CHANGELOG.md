@@ -1,3 +1,7 @@
+## 0.1.7 [unreleased]
+
+- Added support for pg_stat_statments on Amazon RDS
+
 ## 0.1.6
 
 - Added methods to create and drop users
