@@ -134,8 +134,6 @@ Then restart PostgreSQL. As a superuser from the `psql` console, run:
 CREATE extension pg_stat_statements;
 ```
 
-**Note:** Query stats are not available on Amazon RDS. [Tell Amazon you want this.](https://forums.aws.amazon.com/thread.jspa?messageID=548724)
-
 #### pg_stat_statements must be loaded via shared_preload_libraries
 
 Follow the instructions above.

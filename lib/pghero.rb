@@ -256,7 +256,7 @@ module PgHero
     end
 
     def query_stats_available?
-      select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"].to_i > 0 && !rds?
+      select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"].to_i > 0
     end
 
     def query_stats_enabled?
@@ -391,11 +391,6 @@ module PgHero
 
     def db_instance_identifier
       ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
-    end
-
-    # TODO better RDS check
-    def rds?
-      !!(Connection.connection_config[:host].to_s =~ /rds\.amazonaws\.com\z/)
     end
 
     def explain(sql)
