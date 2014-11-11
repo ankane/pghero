@@ -115,9 +115,7 @@ end
 
 The [pg_stat_statements module](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html) is used for query stats.
 
-### Common Issues
-
-#### Installation
+### Installation
 
 If you have trouble enabling query stats from the dashboard, try doing it manually.
 
@@ -133,6 +131,12 @@ Then restart PostgreSQL. As a superuser from the `psql` console, run:
 ```psql
 CREATE extension pg_stat_statements;
 ```
+
+#### Amazon RDS [master]
+
+For Amazon RDS, change `shared_preload_libraries` to `pg_stat_statements` in your [Parameter Group](https://console.aws.amazon.com/rds/home?region=us-east-1#parameter-groups:) and restart the database instance.
+
+### Common Issues
 
 #### pg_stat_statements must be loaded via shared_preload_libraries
 
