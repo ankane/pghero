@@ -134,7 +134,13 @@ CREATE extension pg_stat_statements;
 
 #### Amazon RDS [master]
 
-For Amazon RDS, change `shared_preload_libraries` to `pg_stat_statements` in your [Parameter Group](https://console.aws.amazon.com/rds/home?region=us-east-1#parameter-groups:) and restart the database instance.
+Change `shared_preload_libraries` to `pg_stat_statements` in your [Parameter Group](https://console.aws.amazon.com/rds/home?region=us-east-1#parameter-groups:) and restart the database instance.
+
+As a superuser from the `psql` console, run:
+
+```psql
+CREATE extension pg_stat_statements;
+```
 
 ### Common Issues
 
