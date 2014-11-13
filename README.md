@@ -132,7 +132,7 @@ Then restart PostgreSQL. As a superuser from the `psql` console, run:
 CREATE extension pg_stat_statements;
 ```
 
-#### Amazon RDS [master]
+#### Amazon RDS
 
 Change `shared_preload_libraries` to `pg_stat_statements` in your [Parameter Group](https://console.aws.amazon.com/rds/home?region=us-east-1#parameter-groups:) and restart the database instance.
 
@@ -183,7 +183,7 @@ PGHERO_SECRET_ACCESS_KEY=secret123
 PGHERO_DB_INSTANCE_IDENTIFIER=datakick-production
 ```
 
-## Customize [master]
+## Customize
 
 Minimum time for long running queries
 
