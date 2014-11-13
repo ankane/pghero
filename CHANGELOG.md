@@ -1,6 +1,7 @@
 ## 0.1.7 [unreleased]
 
 - Added support for pg_stat_statments on Amazon RDS
+- Added `long_running_query_sec`, `slow_query_ms` and `slow_query_calls` options
 
 ## 0.1.6
 

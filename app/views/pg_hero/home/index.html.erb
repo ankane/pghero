@@ -85,7 +85,7 @@ pg_stat_statements.track = all</pre>
   <div class="content">
     <h1>Slow Queries</h1>
 
-    <p>Slow queries take 20 ms or more on average and have been called at least 100 times.</p>
+    <p>Slow queries take <%= PgHero.slow_query_ms %> ms or more on average and have been called at least <%= PgHero.slow_query_calls %> times.</p>
     <p><%= link_to "Run EXPLAIN", explain_path %> on queries to see where to add indexes.</p>
 
     <%= render partial: "query_stats_table", locals: {queries: @slow_queries} %>

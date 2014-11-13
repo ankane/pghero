@@ -177,6 +177,26 @@ PGHERO_SECRET_ACCESS_KEY=secret123
 PGHERO_DB_INSTANCE_IDENTIFIER=datakick-production
 ```
 
+## Customize [master]
+
+Minimum time for long running queries
+
+```ruby
+PgHero.long_running_query_sec = 60 # default
+```
+
+Minimum average time for slow queries
+
+```ruby
+PgHero.slow_query_ms = 20 # default
+```
+
+Minimum calls for slow queries
+
+```ruby
+PgHero.slow_query_calls = 100 # default
+```
+
 ## TODO
 
 - show exactly which indexes to add

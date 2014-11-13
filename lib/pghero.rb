@@ -9,6 +9,13 @@ module PgHero
   end
 
   class << self
+    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls
+  end
+  self.long_running_query_sec = 60
+  self.slow_query_ms = 20
+  self.slow_query_calls = 100
+
+  class << self
 
     def running_queries
       select_all %Q{
@@ -47,7 +54,7 @@ module PgHero
           query <> '<insufficient privilege>'
           AND state <> 'idle'
           AND pid <> pg_backend_pid()
-          AND now() - query_start > interval '1 minutes'
+          AND now() - query_start > interval '#{long_running_query_sec.to_i} seconds'
         ORDER BY
           query_start DESC
       }
@@ -244,8 +251,8 @@ module PgHero
             pg_database ON pg_database.oid = pg_stat_statements.dbid
           WHERE
             pg_database.datname = current_database()
-            AND calls >= 100
-            AND (total_time / calls) >= 20
+            AND calls >= #{slow_query_calls.to_i}
+            AND (total_time / calls) >= #{slow_query_ms.to_i}
           ORDER BY
             total_minutes DESC
           LIMIT 100
