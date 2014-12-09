@@ -124,6 +124,7 @@ Add the following to your `postgresql.conf`:
 ```conf
 shared_preload_libraries = 'pg_stat_statements'
 pg_stat_statements.track = all
+pg_stat_statements.max = 10000
 track_activity_query_size = 2048
 ```
 
