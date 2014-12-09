@@ -86,7 +86,7 @@ module PgHero
           (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read),0) AS rate
         FROM
           pg_statio_user_indexes
-      }).first["rate"].to_f
+      }).first["rate"]
     end
 
     def table_hit_rate
@@ -95,7 +95,7 @@ module PgHero
           sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read),0) AS rate
         FROM
           pg_statio_user_tables
-      }).first["rate"].to_f
+      }).first["rate"]
     end
 
     def index_usage
@@ -197,7 +197,7 @@ module PgHero
     end
 
     def kill(pid)
-      execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"] == "t"
+      select_all("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"]
     end
 
     def kill_all
@@ -263,17 +263,17 @@ module PgHero
     end
 
     def query_stats_available?
-      select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"].to_i > 0
+      select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"] > 0
     end
 
     def query_stats_enabled?
-      select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0 && query_stats_readable?
+      select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"] > 0 && query_stats_readable?
     end
 
     def query_stats_readable?
       begin
         # ensure the user has access to the table
-        select_all("SELECT has_table_privilege(current_user, 'pg_stat_statements', 'SELECT')").first["has_table_privilege"] == "t"
+        select_all("SELECT has_table_privilege(current_user, 'pg_stat_statements', 'SELECT')").first["has_table_privilege"]
       rescue ActiveRecord::StatementInvalid
         false
       end
@@ -428,7 +428,13 @@ module PgHero
 
     def select_all(sql)
       # squish for logs
-      connection.select_all(squish(sql)).to_a
+      result = connection.select_all(squish(sql))
+      result.map do |row|
+        row.each do |key, value|
+          row[key] = result.column_type(key).type_cast(value)
+        end
+        row
+      end
     end
 
     def execute(sql)

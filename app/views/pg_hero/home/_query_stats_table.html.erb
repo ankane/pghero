@@ -9,9 +9,9 @@
   <tbody>
     <% queries.each do |query| %>
       <tr>
-        <td><%= query["total_minutes"].to_f.round %> min</td>
-        <td><%= query["average_time"].to_f.round %> ms</td>
-        <td><%= number_with_delimiter(query["calls"].to_i) %></td>
+        <td><%= query["total_minutes"].round %> min</td>
+        <td><%= query["average_time"].round %> ms</td>
+        <td><%= number_with_delimiter(query["calls"]) %></td>
       </tr>
       <tr>
         <td colspan="3" style="border-top: none; padding: 0;"><pre><%= query["query"] %></pre></td>
