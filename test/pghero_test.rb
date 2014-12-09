@@ -17,8 +17,4 @@ class TestPgHero < Minitest::Test
     assert_raises(ActiveRecord::StatementInvalid){ PgHero.explain("ANALYZE DELETE FROM users; DELETE FROM users; COMMIT") }
   end
 
-  def test_query_stats
-    assert_kind_of Numeric, PgHero.query_stats[0]["calls"]
-  end
-
 end

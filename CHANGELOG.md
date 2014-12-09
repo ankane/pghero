@@ -1,7 +1,3 @@
-## 0.2.0 [unreleased]
-
-- Fixed return types
-
 ## 0.1.7
 
 - Added support for pg_stat_statments on Amazon RDS
