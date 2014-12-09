@@ -86,7 +86,7 @@ module PgHero
           (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read),0) AS rate
         FROM
           pg_statio_user_indexes
-      }).first["rate"]
+      }).first["rate"].to_f
     end
 
     def table_hit_rate
@@ -95,7 +95,7 @@ module PgHero
           sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read),0) AS rate
         FROM
           pg_statio_user_tables
-      }).first["rate"]
+      }).first["rate"].to_f
     end
 
     def index_usage
