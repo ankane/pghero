@@ -205,6 +205,10 @@ Minimum calls for slow queries
 PgHero.slow_query_calls = 100 # default
 ```
 
+## Bonus
+
+See where queries come from with [Marginalia](https://github.com/basecamp/marginalia) - comments appear on the Live Queries tab.
+
 ## TODO
 
 - show exactly which indexes to add
