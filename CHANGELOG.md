@@ -1,3 +1,7 @@
+## 0.1.8 [unreleased]
+
+- Added `total_percent` to `query_stats`
+
 ## 0.1.7
 
 - Added support for pg_stat_statments on Amazon RDS

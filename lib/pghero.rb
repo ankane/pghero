@@ -217,17 +217,27 @@ module PgHero
     def query_stats
       if query_stats_enabled?
         select_all %Q{
+          WITH query_stats AS (
+            SELECT
+              query,
+              (total_time / 1000 / 60) as total_minutes,
+              (total_time / calls) as average_time,
+              calls
+            FROM
+              pg_stat_statements
+            INNER JOIN
+              pg_database ON pg_database.oid = pg_stat_statements.dbid
+            WHERE
+              pg_database.datname = current_database()
+          )
           SELECT
             query,
-            (total_time / 1000 / 60) as total_minutes,
-            (total_time / calls) as average_time,
-            calls
+            total_minutes,
+            average_time,
+            calls,
+            total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent
           FROM
-            pg_stat_statements
-          INNER JOIN
-            pg_database ON pg_database.oid = pg_stat_statements.dbid
-          WHERE
-            pg_database.datname = current_database()
+            query_stats
           ORDER BY
             total_minutes DESC
           LIMIT 100
