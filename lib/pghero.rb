@@ -250,19 +250,30 @@ module PgHero
     def slow_queries
       if query_stats_enabled?
         select_all %Q{
+          WITH query_stats AS (
+            SELECT
+              query,
+              (total_time / 1000 / 60) as total_minutes,
+              (total_time / calls) as average_time,
+              calls
+            FROM
+              pg_stat_statements
+            INNER JOIN
+              pg_database ON pg_database.oid = pg_stat_statements.dbid
+            WHERE
+              pg_database.datname = current_database()
+          )
           SELECT
             query,
-            (total_time / 1000 / 60) as total_minutes,
-            (total_time / calls) as average_time,
-            calls
+            total_minutes,
+            average_time,
+            calls,
+            total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent
           FROM
-            pg_stat_statements
-          INNER JOIN
-            pg_database ON pg_database.oid = pg_stat_statements.dbid
+            query_stats
           WHERE
-            pg_database.datname = current_database()
-            AND calls >= #{slow_query_calls.to_i}
-            AND (total_time / calls) >= #{slow_query_ms.to_i}
+            calls >= #{slow_query_calls.to_i}
+            AND average_time >= #{slow_query_ms.to_i}
           ORDER BY
             total_minutes DESC
           LIMIT 100
