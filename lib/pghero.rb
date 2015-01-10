@@ -18,7 +18,7 @@ module PgHero
   class << self
 
     def running_queries
-      select_all %Q{
+      select_all <<-SQL
         SELECT
           pid,
           state,
@@ -35,11 +35,11 @@ module PgHero
           AND pid <> pg_backend_pid()
         ORDER BY
           query_start DESC
-      }
+      SQL
     end
 
     def long_running_queries
-      select_all %Q{
+      select_all <<-SQL
         SELECT
           pid,
           state,
@@ -57,11 +57,11 @@ module PgHero
           AND now() - query_start > interval '#{long_running_query_sec.to_i} seconds'
         ORDER BY
           query_start DESC
-      }
+      SQL
     end
 
     def locks
-      select_all %Q{
+      select_all <<-SQL
         SELECT DISTINCT ON (pid)
           pg_stat_activity.pid,
           pg_stat_activity.query,
@@ -77,29 +77,29 @@ module PgHero
         ORDER BY
           pid,
           query_start
-      }
+      SQL
     end
 
     def index_hit_rate
-      select_all(%Q{
+      select_all(<<-SQL).first["rate"].to_f
         SELECT
           (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read),0) AS rate
         FROM
           pg_statio_user_indexes
-      }).first["rate"].to_f
+      SQL
     end
 
     def table_hit_rate
-      select_all(%Q{
+      select_all(<<-SQL).first["rate"].to_f
         SELECT
           sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read),0) AS rate
         FROM
           pg_statio_user_tables
-      }).first["rate"].to_f
+      SQL
     end
 
     def index_usage
-      select_all %Q{
+      select_all <<-SQL
         SELECT
           relname AS table,
           CASE idx_scan
@@ -112,11 +112,11 @@ module PgHero
         ORDER BY
           n_live_tup DESC,
           relname ASC
-       }
+       SQL
     end
 
     def missing_indexes
-      select_all %Q{
+      select_all <<-SQL
         SELECT
           relname AS table,
           CASE idx_scan
@@ -133,11 +133,11 @@ module PgHero
         ORDER BY
           n_live_tup DESC,
           relname ASC
-       }
+       SQL
     end
 
     def unused_tables
-      select_all %Q{
+      select_all <<-SQL
         SELECT
           relname AS table,
           n_live_tup rows_in_table
@@ -148,11 +148,11 @@ module PgHero
         ORDER BY
           n_live_tup DESC,
           relname ASC
-       }
+       SQL
     end
 
     def unused_indexes
-      select_all %Q{
+      select_all <<-SQL
         SELECT
           relname AS table,
           indexrelname AS index,
@@ -169,11 +169,11 @@ module PgHero
         ORDER BY
           pg_relation_size(i.indexrelid) DESC,
           relname ASC
-      }
+      SQL
     end
 
     def relation_sizes
-      select_all %Q{
+      select_all <<-SQL
         SELECT
           c.relname AS name,
           CASE WHEN c.relkind = 'r' THEN 'table' ELSE 'index' END AS type,
@@ -189,7 +189,7 @@ module PgHero
         ORDER BY
           pg_table_size(c.oid) DESC,
           name ASC
-      }
+      SQL
     end
 
     def database_size
@@ -201,7 +201,7 @@ module PgHero
     end
 
     def kill_all
-      select_all %Q{
+      select_all <<-SQL
         SELECT
           pg_terminate_backend(pid)
         FROM
@@ -209,14 +209,14 @@ module PgHero
         WHERE
           pid <> pg_backend_pid()
           AND query <> '<insufficient privilege>'
-      }
+      SQL
       true
     end
 
     # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
     def query_stats
       if query_stats_enabled?
-        select_all %Q{
+        select_all <<-SQL
           WITH query_stats AS (
             SELECT
               query,
@@ -241,7 +241,7 @@ module PgHero
           ORDER BY
             total_minutes DESC
           LIMIT 100
-        }
+        SQL
       else
         []
       end
@@ -249,7 +249,7 @@ module PgHero
 
     def slow_queries
       if query_stats_enabled?
-        select_all %Q{
+        select_all <<-SQL
           WITH query_stats AS (
             SELECT
               query,
@@ -277,7 +277,7 @@ module PgHero
           ORDER BY
             total_minutes DESC
           LIMIT 100
-        }
+        SQL
       else
         []
       end
