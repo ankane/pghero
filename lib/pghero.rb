@@ -81,21 +81,23 @@ module PgHero
     end
 
     def index_hit_rate
-      select_all(<<-SQL).first["rate"].to_f
+      select_all(<<-SQL
         SELECT
-          (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read),0) AS rate
+          (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read), 0) AS rate
         FROM
           pg_statio_user_indexes
       SQL
+      ).first["rate"].to_f
     end
 
     def table_hit_rate
-      select_all(<<-SQL).first["rate"].to_f
+      select_all(<<-SQL
         SELECT
-          sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read),0) AS rate
+          sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read), 0) AS rate
         FROM
           pg_statio_user_tables
       SQL
+      ).first["rate"].to_f
     end
 
     def index_usage
