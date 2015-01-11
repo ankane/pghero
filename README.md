@@ -168,6 +168,10 @@ and reset stats with:
 SELECT pg_stat_statements_reset();
 ```
 
+#### Queries show up as <insufficient privilege>
+
+For security reasons, only superusers can see queries executed by other users.
+
 ## System Stats
 
 CPU usage is available for Amazon RDS.  Add these lines to your application’s Gemfile:
