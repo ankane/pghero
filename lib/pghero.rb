@@ -3,10 +3,7 @@ require "active_record"
 require "pghero/engine" if defined?(Rails)
 
 module PgHero
-  # hack for connection
-  class Connection < ActiveRecord::Base
-    establish_connection ENV["PGHERO_DATABASE_URL"] if ENV["PGHERO_DATABASE_URL"]
-  end
+  ActiveRecord::Base.establish_connection(ENV["PGHERO_DATABASE_URL"]) if ENV["PGHERO_DATABASE_URL"]
 
   class << self
     attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls
@@ -355,11 +352,11 @@ module PgHero
     def create_user(user, options = {})
       password = options[:password] || random_password
       schema = options[:schema] || "public"
-      database = options[:database] || Connection.connection_config[:database]
+      database = options[:database] || ActiveRecord::Base.connection_config[:database]
 
       commands =
         [
-          "CREATE ROLE #{user} LOGIN PASSWORD #{Connection.connection.quote(password)}",
+          "CREATE ROLE #{user} LOGIN PASSWORD #{ActiveRecord::Base.connection.quote(password)}",
           "GRANT CONNECT ON DATABASE #{database} TO #{user}",
           "GRANT USAGE ON SCHEMA #{schema} TO #{user}"
         ]
@@ -374,7 +371,7 @@ module PgHero
       end
 
       # run commands
-      Connection.transaction do
+      ActiveRecord::Base.transaction.transaction do
         commands.each do |command|
           execute command
         end
@@ -385,7 +382,7 @@ module PgHero
 
     def drop_user(user, options = {})
       schema = options[:schema] || "public"
-      database = options[:database] || Connection.connection_config[:database]
+      database = options[:database] || ActiveRecord::Base.connection_config[:database]
 
       # thanks shiftb
       commands =
@@ -402,7 +399,7 @@ module PgHero
         ]
 
       # run commands
-      Connection.transaction do
+      ActiveRecord::Base.transaction do
         commands.each do |command|
           execute command
         end
@@ -429,7 +426,7 @@ module PgHero
       explain_safe = explain_safe?
 
       # use transaction for safety
-      Connection.transaction do
+      ActiveRecord::Base.transaction do
         if !explain_safe and (sql.sub(/;\z/, "").include?(";") or sql.upcase.include?("COMMIT"))
           raise ActiveRecord::StatementInvalid, "Unsafe statement"
         end
@@ -459,7 +456,7 @@ module PgHero
     end
 
     def connection
-      @connection ||= Connection.connection
+      @connection ||= ActiveRecord::Base.connection
     end
 
     # from ActiveSupport

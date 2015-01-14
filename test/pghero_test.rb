@@ -17,4 +17,11 @@ class TestPgHero < Minitest::Test
     assert_raises(ActiveRecord::StatementInvalid){ PgHero.explain("ANALYZE DELETE FROM users; DELETE FROM users; COMMIT") }
   end
 
+  # https://github.com/ankane/pghero/issues/12
+  def test_active_record_descendants
+    ActiveRecord::Base.descendants.each do |model|
+      model.count
+    end
+  end
+
 end
