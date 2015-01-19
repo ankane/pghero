@@ -43,6 +43,7 @@ PgHero.database_size
 PgHero.relation_sizes
 PgHero.index_hit_rate
 PgHero.table_hit_rate
+PgHero.total_connections # master
 ```
 
 Kill queries

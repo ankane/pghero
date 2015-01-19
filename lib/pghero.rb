@@ -9,11 +9,12 @@ module PgHero
   end
 
   class << self
-    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls
+    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold
   end
   self.long_running_query_sec = 60
   self.slow_query_ms = 20
   self.slow_query_calls = 100
+  self.total_connections_threshold = 100
 
   class << self
 
@@ -196,6 +197,10 @@ module PgHero
 
     def database_size
       select_all("SELECT pg_size_pretty(pg_database_size(current_database()))").first["pg_size_pretty"]
+    end
+
+    def total_connections
+      select_all("SELECT COUNT(*) FROM pg_stat_activity WHERE pid <> pg_backend_pid()").first["count"].to_i
     end
 
     def kill(pid)

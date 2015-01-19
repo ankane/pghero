@@ -18,6 +18,8 @@ module PgHero
       @unused_indexes = PgHero.unused_indexes
       @good_cache_rate = @table_hit_rate >= 0.99 && @index_hit_rate >= 0.99
       @query_stats_available = PgHero.query_stats_available?
+      @total_connections = PgHero.total_connections
+      @good_total_connections = @total_connections < PgHero.total_connections_threshold
     end
 
     def indexes
