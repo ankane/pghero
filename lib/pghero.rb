@@ -203,6 +203,21 @@ module PgHero
       select_all("SELECT COUNT(*) FROM pg_stat_activity WHERE pid <> pg_backend_pid()").first["count"].to_i
     end
 
+    def connection_sources
+      select_all <<-SQL
+        SELECT
+          application_name AS source,
+          COUNT(*) AS total_connections
+        FROM
+          pg_stat_activity
+        GROUP BY
+          application_name
+        ORDER BY
+          COUNT(*) DESC,
+          application_name ASC
+      SQL
+    end
+
     def kill(pid)
       execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"] == "t"
     end

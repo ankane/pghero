@@ -77,6 +77,23 @@
     <p>
       Use <%= link_to "connection pooling", "http://www.craigkerstiens.com/2014/05/22/on-connection-pooling/", target: "_blank" %> for better performance, like <%= link_to "PgBouncer", "https://wiki.postgresql.org/wiki/PgBouncer", target: "_blank" %>.
     </p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Top Sources</th>
+          <th>Connections</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% PgHero.connection_sources.first(10).each do |source| %>
+          <tr>
+            <td><%= source["source"] %></td>
+            <td style="width: 20%;"><%= number_with_delimiter(source["total_connections"]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 <% end %>
 
