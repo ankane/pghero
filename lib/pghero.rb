@@ -210,6 +210,8 @@ module PgHero
           COUNT(*) AS total_connections
         FROM
           pg_stat_activity
+        WHERE
+          pid <> pg_backend_pid()
         GROUP BY
           application_name
         ORDER BY
