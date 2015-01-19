@@ -2,6 +2,7 @@
 
 - Added `total_percent` to `query_stats`
 - Added `total_connections`
+- Added `connection_stats` for Amazon RDS
 
 ## 0.1.7
 
