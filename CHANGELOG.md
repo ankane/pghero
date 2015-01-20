@@ -1,4 +1,4 @@
-## 0.1.8 [unreleased]
+## 0.1.8
 
 - Added `total_percent` to `query_stats`
 - Added `total_connections`
