@@ -75,7 +75,7 @@
     <h1>High Number of Connections</h1>
     <p><%= pluralize(@total_connections, "connection") %></p>
     <p>
-      Use <%= link_to "connection pooling", "http://www.craigkerstiens.com/2014/05/22/on-connection-pooling/", target: "_blank" %> for better performance, like <%= link_to "PgBouncer", "https://wiki.postgresql.org/wiki/PgBouncer", target: "_blank" %>.
+      <%= link_to "Use connection pooling", "http://www.craigkerstiens.com/2014/05/22/on-connection-pooling/", target: "_blank" %> for better performance. <%= link_to "PgBouncer", "https://wiki.postgresql.org/wiki/PgBouncer", target: "_blank" %> is a solid option.
     </p>
 
     <table class="table">
