@@ -210,6 +210,12 @@ Minimum calls for slow queries
 PgHero.slow_query_calls = 100 # default
 ```
 
+Minimum connections for high connections warning
+
+```ruby
+PgHero.total_connections_threshold = 100 # default
+```
+
 ## Bonus Projects
 
 - See where queries come from with [Marginalia](https://github.com/basecamp/marginalia) - comments appear on the Live Queries tab.
