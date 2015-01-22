@@ -483,7 +483,7 @@ module PgHero
       names = %w[
         max_connections shared_buffers effective_cache_size work_mem
         maintenance_work_mem checkpoint_segments checkpoint_completion_target
-        wal_buffers constraint_exclusion default_statistics_target
+        wal_buffers default_statistics_target
       ]
       values = Hash[ select_all(Connection.send(:sanitize_sql_array, ["SELECT name, setting || COALESCE(unit, '') AS value FROM pg_settings WHERE name IN (?)", names])).map{|row| [row["name"], row["value"]] } ]
       names.map do |name|
