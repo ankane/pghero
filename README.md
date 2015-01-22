@@ -210,14 +210,17 @@ Minimum calls for slow queries
 PgHero.slow_query_calls = 100 # default
 ```
 
-## Bonus
+## Bonus Projects
 
-See where queries come from with [Marginalia](https://github.com/basecamp/marginalia) - comments appear on the Live Queries tab.
+- See where queries come from with [Marginalia](https://github.com/basecamp/marginalia) - comments appear on the Live Queries tab.
+- Get weekly news and articles with [Postgres Weekly](http://postgresweekly.com)
+- Optimize your configuration with [PgTune](http://pgtune.leopard.in.ua) and [pgBench](http://www.postgresql.org/docs/devel/static/pgbench.html)
 
 ## TODO
 
-- show exactly which indexes to add
-- more detailed explanations on dashboard
+- suggest indexes
+- suggest paramater values
+- better explanations on dashboard
 
 Know a bit about PostgreSQL? [Suggestions](https://github.com/ankane/pghero/issues) are greatly appreciated.
 
