@@ -1,3 +1,7 @@
+## 0.1.9 [unreleased]
+
+- Removed minimum size for unused indexes
+
 ## 0.1.8
 
 - Added `total_percent` to `query_stats`
