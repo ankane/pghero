@@ -63,6 +63,11 @@ module PgHero
       end
     end
 
+    def tune
+      @title = "Tune"
+      @settings = PgHero.settings
+    end
+
     def kill
       if PgHero.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"

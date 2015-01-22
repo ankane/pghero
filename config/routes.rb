@@ -6,6 +6,7 @@ PgHero::Engine.routes.draw do
   get "query_stats", to: "home#query_stats"
   get "system_stats", to: "home#system_stats"
   get "explain", to: "home#explain"
+  get "tune", to: "home#tune"
 
   post "kill", to: "home#kill"
   post "kill_all", to: "home#kill_all"

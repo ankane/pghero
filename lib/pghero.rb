@@ -479,6 +479,32 @@ module PgHero
       end
     end
 
+    def settings
+      names = %w[
+        max_connections shared_buffers effective_cache_size work_mem
+        maintenance_work_mem checkpoint_segments checkpoint_completion_target
+        wal_buffers constraint_exclusion default_statistics_target
+      ]
+      values = Hash[ select_all(Connection.send(:sanitize_sql_array, ["SELECT name, setting || COALESCE(unit, '') AS value FROM pg_settings WHERE name IN (?)", names])).map{|row| [row["name"], row["value"]] } ]
+      names.map do |name|
+        {
+          "name" => name,
+          "value" => friendly_value(values[name]),
+          "recommended_value" => nil
+        }
+      end
+    end
+
+    def friendly_value(value)
+      if value.to_s.end_with?("kB")
+        number = value[0..-3].to_i
+        if number >= 1024
+          value = "#{number / 1024}MB"
+        end
+      end
+      value
+    end
+
     def select_all(sql)
       # squish for logs
       connection.select_all(squish(sql)).to_a
