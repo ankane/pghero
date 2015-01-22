@@ -168,7 +168,6 @@ module PgHero
         WHERE
           NOT indisunique
           AND idx_scan < 50
-          AND pg_relation_size(i.indexrelid) > 1024 * 1024
         ORDER BY
           pg_relation_size(i.indexrelid) DESC,
           relname ASC
