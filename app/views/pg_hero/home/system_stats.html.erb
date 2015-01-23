@@ -2,8 +2,8 @@
 
 <div class="content">
   <h1>CPU Usage</h1>
-  <div style="margin-bottom: 20px;"><%= line_chart @cpu_usage, max: 101 %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart @cpu_usage, max: 101, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
 
   <h1>Connections</h1>
-  <div style="margin-bottom: 20px;"><%= line_chart @connection_stats %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart @connection_stats, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
 </div>

@@ -45,7 +45,7 @@ module PgHero
 
     def system_stats
       @title = "System Stats"
-      @cpu_usage = PgHero.cpu_usage
+      @cpu_usage = PgHero.cpu_usage.map{|k, v| [k, v.round] }
       @connection_stats = PgHero.connection_stats
     end
 
