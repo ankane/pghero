@@ -1,4 +1,4 @@
-## 0.1.9 [unreleased]
+## 0.1.9
 
 - Added tune page
 - Removed minimum size for unused indexes
