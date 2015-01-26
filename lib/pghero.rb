@@ -484,24 +484,25 @@ module PgHero
         maintenance_work_mem checkpoint_segments checkpoint_completion_target
         wal_buffers default_statistics_target
       ]
-      values = Hash[ select_all(Connection.send(:sanitize_sql_array, ["SELECT name, setting || COALESCE(unit, '') AS value FROM pg_settings WHERE name IN (?)", names])).map{|row| [row["name"], row["value"]] } ]
-      names.map do |name|
-        {
-          "name" => name,
-          "value" => friendly_value(values[name]),
-          "recommended_value" => nil
-        }
-      end
+      values = Hash[ select_all(Connection.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by{|row| names.index(row["name"]) }.map{|row| [row["name"], friendly_value(row["setting"], row["unit"])] } ]
+      Hash[ names.map{|name| [name, values[name]] } ]
     end
 
-    def friendly_value(value)
-      if value.to_s.end_with?("kB")
-        number = value[0..-3].to_i
-        if number >= 1024
-          value = "#{number / 1024}MB"
+    def friendly_value(setting, unit)
+      if %w[kB 8kB].include?(unit)
+        value = setting.to_i
+        value *= 8 if unit == "8kB"
+
+        if value % (1024 * 1024) == 0
+          "#{value / (1024 * 1024)}GB"
+        elsif value % 1024 == 0
+          "#{value / 1024}MB"
+        else
+          "#{value}kB"
         end
+      else
+        "#{setting}#{unit}".strip
       end
-      value
     end
 
     def select_all(sql)

@@ -6,17 +6,17 @@
       <tr>
         <th>Setting</th>
         <th style="width: 20%;">Value</th>
-        <th style="width: 20%;">Recommended</th>
       </tr>
     </thead>
     <tbody>
-      <% @settings.each do |setting| %>
+      <% @settings.each do |setting, value| %>
         <tr>
-          <td><%= setting["name"] %></td>
-          <td><%= setting["value"] %></td>
-          <td><%= setting["recommended_value"] %></td>
+          <td><%= setting %></td>
+          <td><%= value %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
+
+  <p>Check out <%= link_to "PgTune", "http://pgtune.leopard.in.ua", target: "_blank" %> for recommendations.</p>
 </div>
