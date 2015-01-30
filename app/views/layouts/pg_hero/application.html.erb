@@ -71,6 +71,14 @@
         word-break: break-word;
       }
 
+      pre.insufficient-privilege:after {
+        content: "For security reasons, only superusers can see queries executed by other users.";
+        display: block;
+        background-color: pink;
+        margin: 6px -5px -5px;
+        padding: 5px;
+      }
+
       textarea {
         width: 100%;
         height: 100px;

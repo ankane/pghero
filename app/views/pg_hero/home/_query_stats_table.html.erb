@@ -27,13 +27,8 @@
       </tr>
       <tr>
         <td colspan="3" style="border-top: none; padding: 0;">
-          <pre
-            <%= if query["query"] == "<insufficient privilege>"
-              'style="background-color: rgba(245, 75, 75, 0.4);"
-               title="Only superusers can view the queries of other database users"
-              '.html_safe
-            end %>
-          ><%= query["query"] %></pre>
+          <pre class=<%= query["query"].truncate(30).parameterize %>
+            ><%= query["query"] %></pre>
         </td>
       </tr>
     <% end %>
