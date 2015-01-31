@@ -26,7 +26,10 @@
         <td><%= number_with_delimiter(query["calls"].to_i) %></td>
       </tr>
       <tr>
-        <td colspan="3" style="border-top: none; padding: 0;"><pre><%= query["query"] %></pre></td>
+        <td colspan="3" style="border-top: none; padding: 0;">
+          <pre class=<%= query["query"].truncate(30).parameterize %>
+            ><%= query["query"] %></pre>
+        </td>
       </tr>
     <% end %>
   </tbody>
