@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
 class TestPgHero < Minitest::Test
-
   def setup
     User.delete_all
   end
@@ -14,7 +13,6 @@ class TestPgHero < Minitest::Test
 
   def test_explain_multiple_statements
     User.create!
-    assert_raises(ActiveRecord::StatementInvalid){ PgHero.explain("ANALYZE DELETE FROM users; DELETE FROM users; COMMIT") }
+    assert_raises(ActiveRecord::StatementInvalid) { PgHero.explain("ANALYZE DELETE FROM users; DELETE FROM users; COMMIT") }
   end
-
 end

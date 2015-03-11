@@ -17,7 +17,6 @@ module PgHero
   self.total_connections_threshold = 100
 
   class << self
-
     def running_queries
       select_all <<-SQL
         SELECT
@@ -315,12 +314,9 @@ module PgHero
     end
 
     def query_stats_readable?
-      begin
-        # ensure the user has access to the table
-        select_all("SELECT has_table_privilege(current_user, 'pg_stat_statements', 'SELECT')").first["has_table_privilege"] == "t"
-      rescue ActiveRecord::StatementInvalid
-        false
-      end
+      select_all("SELECT has_table_privilege(current_user, 'pg_stat_statements', 'SELECT')").first["has_table_privilege"] == "t"
+    rescue ActiveRecord::StatementInvalid
+      false
     end
 
     def enable_query_stats
@@ -363,7 +359,7 @@ module PgHero
           statistics: ["Average"]
         )
         data = {}
-        resp[:datapoints].sort_by{|d| d[:timestamp] }.each do |d|
+        resp[:datapoints].sort_by { |d| d[:timestamp] }.each do |d|
           data[d[:timestamp]] = d[:average]
         end
         data
@@ -459,10 +455,10 @@ module PgHero
 
       # use transaction for safety
       Connection.transaction do
-        if !explain_safe and (sql.sub(/;\z/, "").include?(";") or sql.upcase.include?("COMMIT"))
+        if !explain_safe && (sql.sub(/;\z/, "").include?(";") || sql.upcase.include?("COMMIT"))
           raise ActiveRecord::StatementInvalid, "Unsafe statement"
         end
-        explanation = select_all("EXPLAIN #{sql}").map{|v| v["QUERY PLAN"] }.join("\n")
+        explanation = select_all("EXPLAIN #{sql}").map { |v| v["QUERY PLAN"] }.join("\n")
         raise ActiveRecord::Rollback
       end
 
@@ -470,26 +466,24 @@ module PgHero
     end
 
     def explain_safe?
-      begin
-        select_all("SELECT 1; SELECT 1")
-        false
-      rescue ActiveRecord::StatementInvalid
-        true
-      end
+      select_all("SELECT 1; SELECT 1")
+      false
+    rescue ActiveRecord::StatementInvalid
+      true
     end
 
     def settings
-      names = %w[
+      names = %w(
         max_connections shared_buffers effective_cache_size work_mem
         maintenance_work_mem checkpoint_segments checkpoint_completion_target
         wal_buffers default_statistics_target
-      ]
-      values = Hash[ select_all(Connection.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by{|row| names.index(row["name"]) }.map{|row| [row["name"], friendly_value(row["setting"], row["unit"])] } ]
-      Hash[ names.map{|name| [name, values[name]] } ]
+      )
+      values = Hash[select_all(Connection.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by { |row| names.index(row["name"]) }.map { |row| [row["name"], friendly_value(row["setting"], row["unit"])] }]
+      Hash[names.map { |name| [name, values[name]] }]
     end
 
     def friendly_value(setting, unit)
-      if %w[kB 8kB].include?(unit)
+      if %w(kB 8kB).include?(unit)
         value = setting.to_i
         value *= 8 if unit == "8kB"
 
@@ -520,8 +514,7 @@ module PgHero
 
     # from ActiveSupport
     def squish(str)
-      str.to_s.gsub(/\A[[:space:]]+/, '').gsub(/[[:space:]]+\z/, '').gsub(/[[:space:]]+/, ' ')
+      str.to_s.gsub(/\A[[:space:]]+/, "").gsub(/[[:space:]]+\z/, "").gsub(/[[:space:]]+/, " ")
     end
-
   end
 end

@@ -45,7 +45,7 @@ module PgHero
 
     def system_stats
       @title = "System Stats"
-      @cpu_usage = PgHero.cpu_usage.map{|k, v| [k, v.round] }
+      @cpu_usage = PgHero.cpu_usage.map { |k, v| [k, v.round] }
       @connection_stats = PgHero.connection_stats
     end
 
@@ -54,7 +54,7 @@ module PgHero
       @query = params[:query]
       # TODO use get + token instead of post so users can share links
       # need to prevent CSRF and DoS
-      if request.post? and @query
+      if request.post? && @query
         begin
           @explanation = PgHero.explain(@query)
         rescue ActiveRecord::StatementInvalid => e
@@ -82,21 +82,17 @@ module PgHero
     end
 
     def enable_query_stats
-      begin
-        PgHero.enable_query_stats
-        redirect_to :back, notice: "Query stats enabled"
-      rescue ActiveRecord::StatementInvalid => e
-        redirect_to :back, alert: "The database user does not have permission to enable query stats"
-      end
+      PgHero.enable_query_stats
+      redirect_to :back, notice: "Query stats enabled"
+    rescue ActiveRecord::StatementInvalid
+      redirect_to :back, alert: "The database user does not have permission to enable query stats"
     end
 
     def reset_query_stats
-      begin
-        PgHero.reset_query_stats
-        redirect_to :back, notice: "Query stats reset"
-      rescue ActiveRecord::StatementInvalid => e
-        redirect_to :back, alert: "The database user does not have permission to reset query stats"
-      end
+      PgHero.reset_query_stats
+      redirect_to :back, notice: "Query stats reset"
+    rescue ActiveRecord::StatementInvalid
+      redirect_to :back, alert: "The database user does not have permission to reset query stats"
     end
 
     protected
@@ -105,6 +101,5 @@ module PgHero
       @query_stats_enabled = PgHero.query_stats_enabled?
       @system_stats_enabled = PgHero.system_stats_enabled?
     end
-
   end
 end

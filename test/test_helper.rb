@@ -8,7 +8,7 @@ Minitest::Test = MiniTest::Unit::TestCase unless defined?(Minitest::Test)
 
 ActiveRecord::Base.establish_connection adapter: "postgresql", database: "pghero_test"
 
-ActiveRecord::Migration.create_table :users, force: true do |t|
+ActiveRecord::Migration.create_table :users, force: true do
   # just id
 end
 

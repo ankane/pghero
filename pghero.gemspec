@@ -1,15 +1,15 @@
 # coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'pghero/version'
+require "pghero/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "pghero"
   spec.version       = PgHero::VERSION
   spec.authors       = ["Andrew Kane"]
   spec.email         = ["andrew@chartkick.com"]
-  spec.summary       = %q{Database insights made easy}
-  spec.description   = %q{Database insights made easy}
+  spec.summary       = "Database insights made easy"
+  spec.description   = "Database insights made easy"
   spec.homepage      = "https://github.com/ankane/pghero"
   spec.license       = "MIT"
 
