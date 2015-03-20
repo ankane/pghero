@@ -205,16 +205,19 @@ module PgHero
       select_all <<-SQL
         SELECT
           application_name AS source,
+          client_addr AS ip,
           COUNT(*) AS total_connections
         FROM
           pg_stat_activity
         WHERE
           pid <> pg_backend_pid()
         GROUP BY
-          application_name
+          application_name,
+          ip
         ORDER BY
           COUNT(*) DESC,
-          application_name ASC
+          application_name ASC,
+          client_addr ASC
       SQL
     end
 

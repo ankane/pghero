@@ -2,6 +2,7 @@
 
 - Added connections page
 - Added message for insufficient privilege
+- Added `ip` to `connection_sources`
 
 ## 0.1.9
 
