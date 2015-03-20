@@ -73,27 +73,7 @@
 <% if !@good_total_connections %>
   <div class="content">
     <h1>High Number of Connections</h1>
-    <p><%= pluralize(@total_connections, "connection") %></p>
-    <p>
-      <%= link_to "Use connection pooling", "http://www.craigkerstiens.com/2014/05/22/on-connection-pooling/", target: "_blank" %> for better performance. <%= link_to "PgBouncer", "https://wiki.postgresql.org/wiki/PgBouncer", target: "_blank" %> is a solid option.
-    </p>
-
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Top Sources</th>
-          <th>Connections</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% PgHero.connection_sources.first(10).each do |source| %>
-          <tr>
-            <td><%= source["source"] %></td>
-            <td style="width: 20%;"><%= number_with_delimiter(source["total_connections"]) %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <%= render partial: "connections_table", locals: {total_connections: @total_connections, show_message: true} %>
   </div>
 <% end %>
 

@@ -1,5 +1,6 @@
 ## 0.1.10 [unreleased]
 
+- Added connections page
 - Added message for insufficient privilege
 
 ## 0.1.9

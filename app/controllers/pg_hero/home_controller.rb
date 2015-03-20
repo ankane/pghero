@@ -68,6 +68,11 @@ module PgHero
       @settings = PgHero.settings
     end
 
+    def connections
+      @title = "Connections"
+      @total_connections = PgHero.total_connections
+    end
+
     def kill
       if PgHero.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"
