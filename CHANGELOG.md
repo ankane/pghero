@@ -1,3 +1,7 @@
+## 0.1.11 [unreleased]
+
+- Added `ssl_used?` method
+
 ## 0.1.10
 
 - Added connections page

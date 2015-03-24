@@ -340,6 +340,11 @@ module PgHero
       end
     end
 
+    def ssl_used?
+      execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
+      select_all("SELECT ssl_is_used()").first["ssl_is_used"] == "t"
+    end
+
     def cpu_usage
       rds_stats("CPUUtilization")
     end

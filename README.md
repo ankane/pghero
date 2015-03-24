@@ -64,6 +64,12 @@ PgHero.query_stats
 PgHero.slow_queries
 ```
 
+Security [master]
+
+```ruby
+PgHero.ssl_used?
+```
+
 ## Users
 
 Create a user
