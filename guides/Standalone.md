@@ -197,3 +197,7 @@ SUSE
 ```sh
 sudo zypper update pghero
 ```
+
+## Credits
+
+:heart: Made possible by [Packager](https://packager.io/)
