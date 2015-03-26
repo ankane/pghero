@@ -4,19 +4,21 @@
 
 ## Installation
 
-14.04 Trusty
+Tell the package manager where to find PgHero.
 
-```sh
-echo "deb https://deb.packager.io/gh/pghero/pghero trusty master" | sudo tee /etc/apt/sources.list.d/pghero.list
-```
+- 14.04 Trusty
 
-12.04 Precise
+  ```sh
+  echo "deb https://deb.packager.io/gh/pghero/pghero trusty master" | sudo tee /etc/apt/sources.list.d/pghero.list
+  ```
 
-```sh
-echo "deb https://deb.packager.io/gh/pghero/pghero precise master" | sudo tee /etc/apt/sources.list.d/pghero.list
-```
+- 12.04 Precise
 
-All
+  ```sh
+  echo "deb https://deb.packager.io/gh/pghero/pghero precise master" | sudo tee /etc/apt/sources.list.d/pghero.list
+  ```
+
+Update and install packages.
 
 ```sh
 wget -qO - https://deb.packager.io/key | sudo apt-key add -
@@ -24,19 +26,25 @@ sudo apt-get update
 sudo apt-get install pghero
 ```
 
-Configure
+Add your database.
 
 ```sh
 sudo pghero config:set DATABASE_URL=postgres://user:password@hostname:5432/dbname
 ```
 
-Start
+Start the server.  This starts PgHero on port 6000.
 
 ```sh
 sudo pghero scale web=1
 ```
 
-Unleash
+Confirm it’s running with:
+
+```ruby
+curl http://localhost:6000/
+```
+
+To open to the outside world, add a proxy. Here’s how to do it with Nginx.
 
 ```sh
 sudo apt-get install -y nginx
@@ -87,6 +95,12 @@ sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
 ## Customize
+
+Change the port
+
+```sh
+sudo pghero config:set PORT=6000 # default
+```
 
 Minimum time for long running queries
 
