@@ -69,7 +69,7 @@ Set the following variables in your environment.
 
 ```ruby
 sudo pghero config:set PGHERO_USERNAME=link
-sudo pghero config:set PGHERO_PASSWORD=ocarina
+sudo pghero config:set PGHERO_PASSWORD=hyrule
 ```
 
 ## Query Stats
@@ -83,7 +83,7 @@ CPU usage is available for Amazon RDS.  Add these variables to your environment:
 ```sh
 sudo pghero config:set PGHERO_ACCESS_KEY_ID=accesskey123
 sudo pghero config:set PGHERO_SECRET_ACCESS_KEY=secret123
-sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=datakick-production
+sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
 ## Customize

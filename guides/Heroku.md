@@ -10,7 +10,7 @@ Set the following variables in your environment.
 
 ```sh
 heroku config:set PGHERO_USERNAME=link
-heroku config:set PGHERO_PASSWORD=ocarina
+heroku config:set PGHERO_PASSWORD=hyrule
 ```
 
 ## Query Stats
@@ -28,7 +28,7 @@ CPU usage is available for Amazon RDS.  Add these variables to your environment:
 ```sh
 heroku config:set PGHERO_ACCESS_KEY_ID=accesskey123
 heroku config:set PGHERO_SECRET_ACCESS_KEY=secret123
-heroku config:set PGHERO_DB_INSTANCE_IDENTIFIER=datakick-production
+heroku config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
 ## Customize

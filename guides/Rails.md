@@ -95,7 +95,7 @@ Set the following variables in your environment or an initializer.
 
 ```ruby
 ENV["PGHERO_USERNAME"] = "link"
-ENV["PGHERO_PASSWORD"] = "ocarina"
+ENV["PGHERO_PASSWORD"] = "hyrule"
 ```
 
 #### Devise
@@ -124,7 +124,7 @@ And add these variables to your environment:
 ```sh
 PGHERO_ACCESS_KEY_ID=accesskey123
 PGHERO_SECRET_ACCESS_KEY=secret123
-PGHERO_DB_INSTANCE_IDENTIFIER=datakick-production
+PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
 ## Customize
