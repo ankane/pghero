@@ -1,24 +1,24 @@
 # PgHero for Ubuntu
 
-:fire: Coming very soon
+:fire: Packaged for 14.04 (Trusty) and 12.04 (Precise)
 
 ## Installation
 
-Tell the package manager where to find PgHero.
+Add the APT repository.
 
-- 14.04 Trusty
+- 14.04 (Trusty) - x64
 
   ```sh
   echo "deb https://deb.packager.io/gh/pghero/pghero trusty master" | sudo tee /etc/apt/sources.list.d/pghero.list
   ```
 
-- 12.04 Precise
+- 12.04 (Precise) - x64
 
   ```sh
   echo "deb https://deb.packager.io/gh/pghero/pghero precise master" | sudo tee /etc/apt/sources.list.d/pghero.list
   ```
 
-Update and install packages.
+Add our GPG key and install the package.
 
 ```sh
 wget -qO - https://deb.packager.io/key | sudo apt-key add -
@@ -32,7 +32,7 @@ Add your database.
 sudo pghero config:set DATABASE_URL=postgres://user:password@hostname:5432/dbname
 ```
 
-Start the server.  This starts PgHero on port 6000.
+Start the server - defaults to port 6000.
 
 ```sh
 sudo pghero scale web=1
@@ -124,4 +124,11 @@ Minimum connections for high connections warning
 
 ```sh
 sudo pghero config:set PGHERO_TOTAL_CONNECTIONS_THRESHOLD=100 # default
+```
+
+## Upgrading
+
+```sh
+sudo apt-get update
+sudo apt-get install --only-upgrade pghero
 ```
