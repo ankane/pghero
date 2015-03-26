@@ -1,5 +1,7 @@
-## 0.1.11 [unreleased]
+## 1.0.0 [unreleased]
 
+- More platforms!
+- Added env vars for settings
 - Added `ssl_used?` method
 
 ## 0.1.10

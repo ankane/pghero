@@ -11,10 +11,10 @@ module PgHero
   class << self
     attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold
   end
-  self.long_running_query_sec = 60
-  self.slow_query_ms = 20
-  self.slow_query_calls = 100
-  self.total_connections_threshold = 100
+  self.long_running_query_sec = (ENV["PGHERO_LONG_RUNNING_QUERY_SEC"] || 60).to_i
+  self.slow_query_ms = (ENV["PGHERO_SLOW_QUERY_MS"] || 20).to_i
+  self.slow_query_calls = (ENV["PGHERO_SLOW_QUERY_CALLS"] || 100).to_i
+  self.total_connections_threshold = (ENV["PGHERO_TOTAL_CONNECTIONS_THRESHOLD"] || 100).to_i
 
   class << self
     def running_queries
