@@ -32,7 +32,7 @@ Add your database.
 sudo pghero config:set DATABASE_URL=postgres://user:password@hostname:5432/dbname
 ```
 
-Start the server - defaults to port 6000.
+Start the server - defaults to port `6000`.
 
 ```sh
 sudo pghero scale web=1
@@ -41,7 +41,7 @@ sudo pghero scale web=1
 Confirm it’s running with:
 
 ```ruby
-curl http://localhost:6000/
+curl -v http://localhost:6000/
 ```
 
 To open to the outside world, add a proxy. Here’s how to do it with Nginx.
@@ -96,7 +96,7 @@ sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
 
 ## Customize
 
-Change the port
+Change the port - you cannot use a privileged port like `80` or `443`
 
 ```sh
 sudo pghero config:set PORT=6000 # default
@@ -131,4 +131,5 @@ sudo pghero config:set PGHERO_TOTAL_CONNECTIONS_THRESHOLD=100 # default
 ```sh
 sudo apt-get update
 sudo apt-get install --only-upgrade pghero
+sudo service pghero restart
 ```
