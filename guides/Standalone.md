@@ -80,7 +80,7 @@ sudo pghero config:set DATABASE_URL=postgres://user:password@hostname:5432/dbnam
 
 And optional authentication.
 
-```ruby
+```sh
 sudo pghero config:set PGHERO_USERNAME=link
 sudo pghero config:set PGHERO_PASSWORD=hyrule
 ```
@@ -93,7 +93,7 @@ sudo pghero scale web=1
 
 Confirm it’s running with:
 
-```ruby
+```sh
 curl -v http://localhost:6000/
 ```
 
