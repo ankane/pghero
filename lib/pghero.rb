@@ -393,7 +393,7 @@ module PgHero
 
       commands =
         [
-          "CREATE ROLE #{user} LOGIN PASSWORD #{Connection.connection.quote(password)}",
+          "CREATE ROLE #{user} LOGIN PASSWORD #{connection.quote(password)}",
           "GRANT CONNECT ON DATABASE #{database} TO #{user}",
           "GRANT USAGE ON SCHEMA #{schema} TO #{user}"
         ]
