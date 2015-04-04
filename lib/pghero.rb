@@ -6,6 +6,7 @@ module PgHero
   # hack for connection
   class Connection < ActiveRecord::Base
     establish_connection ENV["PGHERO_DATABASE_URL"] if ENV["PGHERO_DATABASE_URL"]
+    self.abstract_class = true
   end
 
   class << self
