@@ -7,8 +7,8 @@
   <h1>Connections</h1>
   <div style="margin-bottom: 20px;"><%= line_chart @connection_stats, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
 
-  <% if @replica_lag_stats %>
-    <h1>Replica Lag</h1>
-    <div style="margin-bottom: 20px;"><%= line_chart @replica_lag_stats, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
+  <% if @replication_lag_stats %>
+    <h1>Replication Lag</h1>
+    <div style="margin-bottom: 20px;"><%= line_chart @replication_lag_stats, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
   <% end %>
 </div>

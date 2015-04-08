@@ -20,6 +20,11 @@ module PgHero
       @query_stats_available = PgHero.query_stats_available?
       @total_connections = PgHero.total_connections
       @good_total_connections = @total_connections < PgHero.total_connections_threshold
+      @replica = PgHero.replica?
+      if @replica
+        @replication_lag = PgHero.replication_lag
+        @good_replication_lag = @replication_lag < 1
+      end
     end
 
     def indexes
@@ -47,7 +52,7 @@ module PgHero
       @title = "System Stats"
       @cpu_usage = PgHero.cpu_usage.map { |k, v| [k, v.round] }
       @connection_stats = PgHero.connection_stats
-      @replica_lag_stats = PgHero.replica_lag_stats if PgHero.replica?
+      @replication_lag_stats = PgHero.replication_lag_stats if PgHero.replica?
     end
 
     def explain

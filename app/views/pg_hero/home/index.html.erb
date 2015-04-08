@@ -1,4 +1,14 @@
 <div id="status">
+  <% if @replica %>
+    <div class="alert alert-<%= @good_replication_lag ? "success" : "warning" %>">
+      <% if @good_replication_lag %>
+        Healthy replication lag
+      <% else %>
+        High replication lag
+      <% end %>
+      <span class="tiny"><%= number_with_delimiter((@replication_lag * 1000).round) %> ms</span>
+    </div>
+  <% end %>
   <div class="alert alert-<%= @long_running_queries.empty? ? "success" : "warning" %>">
     <% if @long_running_queries.any? %>
       <%= pluralize(@long_running_queries.size, "long running query") %>
@@ -19,6 +29,7 @@
     <% else %>
       High number of connections
     <% end %>
+    <span class="tiny"><%= @total_connections %></span>
   </div>
   <div class="alert alert-<%= @query_stats_enabled && @slow_queries.empty? ? "success" : "warning" %>">
     <% if !@query_stats_enabled %>
@@ -44,6 +55,14 @@
     <% end %>
   </div>
 </div>
+
+<% if @replica && !@good_replication_lag %>
+  <div class="content">
+    <h1>High Replication Lag</h1>
+
+    <p><%= pluralize(@replication_lag.round, "second") %></p>
+  </div>
+<% end %>
 
 <% if @long_running_queries.any? %>
   <div class="content">

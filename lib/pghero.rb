@@ -354,7 +354,7 @@ module PgHero
       rds_stats("DatabaseConnections")
     end
 
-    def replica_lag_stats
+    def replication_lag_stats
       rds_stats("ReplicaLag")
     end
 
@@ -497,6 +497,11 @@ module PgHero
 
     def replica?
       select_all("SELECT setting FROM pg_settings WHERE name = 'hot_standby'").first["setting"] == "on"
+    end
+
+    # http://www.niwi.be/2013/02/16/replication-status-in-postgresql/
+    def replication_lag
+      select_all("SELECT EXTRACT(EPOCH FROM NOW() - pg_last_xact_replay_timestamp()) AS replication_lag").first["replication_lag"].to_f
     end
 
     def friendly_value(setting, unit)
