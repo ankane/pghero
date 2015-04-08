@@ -47,6 +47,7 @@ module PgHero
       @title = "System Stats"
       @cpu_usage = PgHero.cpu_usage.map { |k, v| [k, v.round] }
       @connection_stats = PgHero.connection_stats
+      @replica_lag_stats = PgHero.replica_lag_stats if PgHero.replica?
     end
 
     def explain

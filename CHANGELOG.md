@@ -2,6 +2,7 @@
 
 - More platforms!
 - Added env vars for settings
+- Added `replica?` method
 - Added `ssl_used?` method
 
 ## 0.1.10

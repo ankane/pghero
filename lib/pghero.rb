@@ -354,6 +354,10 @@ module PgHero
       rds_stats("DatabaseConnections")
     end
 
+    def replica_lag_stats
+      rds_stats("ReplicaLag")
+    end
+
     def rds_stats(metric_name)
       if system_stats_enabled?
         cw = AWS::CloudWatch.new(access_key_id: access_key_id, secret_access_key: secret_access_key)
@@ -489,6 +493,10 @@ module PgHero
       )
       values = Hash[select_all(Connection.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by { |row| names.index(row["name"]) }.map { |row| [row["name"], friendly_value(row["setting"], row["unit"])] }]
       Hash[names.map { |name| [name, values[name]] }]
+    end
+
+    def replica?
+      select_all("SELECT setting FROM pg_settings WHERE name = 'hot_standby'").first["setting"] == "on"
     end
 
     def friendly_value(setting, unit)
