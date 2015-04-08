@@ -6,6 +6,7 @@ module PgHero
 
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
+    around_filter :set_database
     before_filter :set_query_stats_enabled
 
     def index
@@ -107,6 +108,23 @@ module PgHero
     end
 
     protected
+
+    def set_database
+      @databases = PgHero.config["databases"].keys
+      if params[:database]
+        PgHero.with(params[:database]) do
+          yield
+        end
+      elsif @databases.size > 1
+        redirect_to url_for(params.slice(:controller, :action).merge(database: PgHero.primary_database))
+      else
+        yield
+      end
+    end
+
+    def default_url_options
+      {database: params[:database]}
+    end
 
     def set_query_stats_enabled
       @query_stats_enabled = PgHero.query_stats_enabled?

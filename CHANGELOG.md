@@ -1,9 +1,11 @@
 ## 1.0.0 [unreleased]
 
 - More platforms!
-- Added env vars for settings
+- Support for multiple databases!
 - Added `replica?` method
 - Added `ssl_used?` method
+- Added env vars for settings
+- Added replication lag
 
 ## 0.1.10
 

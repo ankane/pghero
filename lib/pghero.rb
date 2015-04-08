@@ -10,14 +10,69 @@ module PgHero
   end
 
   class << self
-    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold
+    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold, :env
   end
   self.long_running_query_sec = (ENV["PGHERO_LONG_RUNNING_QUERY_SEC"] || 60).to_i
   self.slow_query_ms = (ENV["PGHERO_SLOW_QUERY_MS"] || 20).to_i
   self.slow_query_calls = (ENV["PGHERO_SLOW_QUERY_CALLS"] || 100).to_i
   self.total_connections_threshold = (ENV["PGHERO_TOTAL_CONNECTIONS_THRESHOLD"] || 100).to_i
+  self.env = ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
 
   class << self
+    def config
+      @config ||= begin
+        path = "config/pghero.yml"
+
+        config =
+          if File.exist?(path)
+            YAML.load(ERB.new(File.read(path)).result)[env]
+          end
+
+        if config
+          config
+        else
+          {
+            "databases" => {
+              "primary" => {
+                "url" => Connection.connection_config,
+                "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
+              }
+            }
+          }
+        end
+      end
+    end
+
+    def primary_database
+      config["databases"].keys.first
+    end
+
+    def current_database
+      Thread.current[:pghero_database]
+    end
+
+    def current_database=(database)
+      raise "Database not found" unless database_config(database)
+      Thread.current[:pghero_database] = database.to_s
+      Connection.establish_connection(current_config["url"]) if current_config["url"]
+      database
+    end
+
+    def database_config(database)
+      config["databases"][database.to_s]
+    end
+
+    def current_config
+      database_config(current_database)
+    end
+
+    def with(database)
+      self.current_database = database
+      yield
+    ensure
+      self.current_database = primary_database
+    end
+
     def running_queries
       select_all <<-SQL
         SELECT
@@ -458,7 +513,7 @@ module PgHero
     end
 
     def db_instance_identifier
-      ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
+      current_config["db_instance_identifier"]
     end
 
     def explain(sql)
@@ -531,7 +586,7 @@ module PgHero
     end
 
     def connection
-      @connection ||= Connection.connection
+      Connection.connection
     end
 
     # from ActiveSupport
@@ -540,3 +595,5 @@ module PgHero
     end
   end
 end
+
+PgHero.current_database = PgHero.primary_database
