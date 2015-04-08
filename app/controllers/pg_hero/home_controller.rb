@@ -24,7 +24,7 @@ module PgHero
       @replica = PgHero.replica?
       if @replica
         @replication_lag = PgHero.replication_lag
-        @good_replication_lag = @replication_lag < 1
+        @good_replication_lag = @replication_lag < 5
       end
     end
 
