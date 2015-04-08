@@ -5,7 +5,6 @@ require "pghero/engine" if defined?(Rails)
 module PgHero
   # hack for connection
   class Connection < ActiveRecord::Base
-    establish_connection ENV["PGHERO_DATABASE_URL"] if ENV["PGHERO_DATABASE_URL"]
     self.abstract_class = true
   end
 
@@ -34,7 +33,7 @@ module PgHero
           {
             "databases" => {
               "primary" => {
-                "url" => Connection.connection_config,
+                "url" => ENV["PGHERO_DATABASE_URL"], # nil reverts to default config
                 "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
               }
             }
@@ -48,13 +47,13 @@ module PgHero
     end
 
     def current_database
-      Thread.current[:pghero_database]
+      @current_database ||= primary_database
     end
 
     def current_database=(database)
       raise "Database not found" unless database_config(database)
-      Thread.current[:pghero_database] = database.to_s
-      Connection.establish_connection(current_config["url"]) if current_config["url"]
+      @connection = nil
+      @current_database = database.to_s
       database
     end
 
@@ -586,7 +585,10 @@ module PgHero
     end
 
     def connection
-      Connection.connection
+      @connection ||= begin
+        Connection.establish_connection(current_config["url"])
+        Connection.connection
+      end
     end
 
     # from ActiveSupport
@@ -595,5 +597,3 @@ module PgHero
     end
   end
 end
-
-PgHero.current_database = PgHero.primary_database
