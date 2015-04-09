@@ -372,7 +372,7 @@
               <li class="<%= controller.action_name == "system" ? "active" : "" %>"><%= link_to "System", system_path %></li>
             <% end %>
             <% if @query_stats_enabled %>
-              <li class="<%= controller.action_name == "query_stats" ? "active" : "" %>"><%= link_to "Queries", query_stats_path %></li>
+              <li class="<%= controller.action_name == "queries" ? "active" : "" %>"><%= link_to "Queries", queries_path %></li>
             <% end %>
             <li class="<%= controller.action_name == "index_usage" ? "active" : "" %>"><%= link_to "Index Usage", index_usage_path %></li>
             <li class="<%= controller.action_name == "space" ? "active" : "" %>"><%= link_to "Space", space_path %></li>

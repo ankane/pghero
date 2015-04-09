@@ -7,7 +7,7 @@
 
   <% if @query_stats_enabled %>
     <% if @query_stats.any? %>
-      <%= render partial: "query_stats_table", locals: {queries: @query_stats} %>
+      <%= render partial: "queries_table", locals: {queries: @query_stats} %>
     <% else %>
       <p>Stats are not available yet. Come back soon!</p>
     <% end %>

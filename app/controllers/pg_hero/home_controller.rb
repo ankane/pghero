@@ -44,7 +44,7 @@ module PgHero
       @running_queries = PgHero.running_queries
     end
 
-    def query_stats
+    def queries
       @title = "Queries"
       @query_stats = PgHero.query_stats
     end

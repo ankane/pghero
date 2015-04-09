@@ -3,7 +3,7 @@ PgHero::Engine.routes.draw do
     get "index_usage", to: "home#index_usage"
     get "space", to: "home#space"
     get "live_queries", to: "home#live_queries"
-    get "query_stats", to: "home#query_stats"
+    get "queries", to: "home#queries"
     get "system", to: "home#system"
     get "cpu_usage", to: "home#cpu_usage"
     get "connection_stats", to: "home#connection_stats"
@@ -19,7 +19,7 @@ PgHero::Engine.routes.draw do
 
     # legacy routes
     get "system_stats" => redirect("system")
-    get "queries" => redirect("live_queries")
+    get "query_stats" => redirect("queries")
     get "indexes" => redirect("index_usage")
 
     root to: "home#index"

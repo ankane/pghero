@@ -1,7 +1,7 @@
 <div class="content">
   <h1>Live Queries</h1>
 
-  <%= render partial: "queries_table", locals: {queries: @running_queries} %>
+  <%= render partial: "live_queries_table", locals: {queries: @running_queries} %>
 
   <p><%= button_to "Kill all connections", kill_all_path, class: "btn btn-danger" %></p>
 

@@ -68,7 +68,7 @@
   <div class="content">
     <h1>Long Running Queries</h1>
 
-    <%= render partial: "queries_table", locals: {queries: @long_running_queries} %>
+    <%= render partial: "live_queries_table", locals: {queries: @long_running_queries} %>
   </div>
 <% end %>
 
@@ -121,7 +121,7 @@ pg_stat_statements.track = all</pre>
     <p>Slow queries take <%= PgHero.slow_query_ms %> ms or more on average and have been called at least <%= PgHero.slow_query_calls %> times.</p>
     <p><%= link_to "Explain queries", explain_path %> to see where to add indexes.</p>
 
-    <%= render partial: "query_stats_table", locals: {queries: @slow_queries} %>
+    <%= render partial: "queries_table", locals: {queries: @slow_queries} %>
   </div>
 <% end %>
 
