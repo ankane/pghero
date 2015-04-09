@@ -396,8 +396,13 @@ module PgHero
     end
 
     def ssl_used?
-      execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
-      select_all("SELECT ssl_is_used()").first["ssl_is_used"] == "t"
+      ssl_used = nil
+      Connection.transaction do
+        execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
+        ssl_used = select_all("SELECT ssl_is_used()").first["ssl_is_used"] == "t"
+        raise ActiveRecord::Rollback
+      end
+      ssl_used
     end
 
     def cpu_usage
