@@ -383,7 +383,7 @@
           </ul>
 
           <% if @databases.size > 1 %>
-            <p class="nav-header">Other Databases</p>
+            <p class="nav-header">Switch to</p>
             <ul class="nav">
               <% (@databases - [PgHero.current_database]).each do |database| %>
                 <li>
