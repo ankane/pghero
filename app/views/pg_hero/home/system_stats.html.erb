@@ -1,14 +1,14 @@
-<%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
+<%= javascript_include_tag "//www.google.com/jsapi", "//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js", "chartkick" %>
 
 <div class="content">
   <h1>CPU Usage</h1>
-  <div style="margin-bottom: 20px;"><%= line_chart @cpu_usage, max: 101, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart cpu_usage_path, max: 101, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
 
   <h1>Connections</h1>
-  <div style="margin-bottom: 20px;"><%= line_chart @connection_stats, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart connection_stats_path, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
 
-  <% if @replication_lag_stats %>
+  <% if PgHero.replica? %>
     <h1>Replication Lag</h1>
-    <div style="margin-bottom: 20px;"><%= line_chart @replication_lag_stats, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
+    <div style="margin-bottom: 20px;"><%= line_chart replication_lag_stats_path, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
   <% end %>
 </div>
