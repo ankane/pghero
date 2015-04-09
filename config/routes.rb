@@ -1,10 +1,10 @@
 PgHero::Engine.routes.draw do
   scope "(:database)", constraints: proc { |req| (PgHero.config["databases"].keys + [nil]).include?(req.params[:database]) } do
-    get "indexes", to: "home#indexes"
+    get "index_usage", to: "home#index_usage"
     get "space", to: "home#space"
-    get "queries", to: "home#queries"
+    get "live_queries", to: "home#live_queries"
     get "query_stats", to: "home#query_stats"
-    get "system_stats", to: "home#system_stats"
+    get "system", to: "home#system"
     get "cpu_usage", to: "home#cpu_usage"
     get "connection_stats", to: "home#connection_stats"
     get "replication_lag_stats", to: "home#replication_lag_stats"
@@ -16,6 +16,12 @@ PgHero::Engine.routes.draw do
     post "enable_query_stats", to: "home#enable_query_stats"
     post "explain", to: "home#explain"
     post "reset_query_stats", to: "home#reset_query_stats"
+
+    # legacy routes
+    get "system_stats" => redirect("system")
+    get "queries" => redirect("live_queries")
+    get "indexes" => redirect("index_usage")
+
     root to: "home#index"
   end
 end

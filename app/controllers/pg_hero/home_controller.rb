@@ -10,7 +10,7 @@ module PgHero
     before_filter :set_query_stats_enabled
 
     def index
-      @title = "Status"
+      @title = "Overview"
       @slow_queries = PgHero.slow_queries
       @long_running_queries = PgHero.long_running_queries
       @index_hit_rate = PgHero.index_hit_rate
@@ -28,8 +28,8 @@ module PgHero
       end
     end
 
-    def indexes
-      @title = "Indexes"
+    def index_usage
+      @title = "Index Usage"
       @index_usage = PgHero.index_usage
     end
 
@@ -39,7 +39,7 @@ module PgHero
       @relation_sizes = PgHero.relation_sizes
     end
 
-    def queries
+    def live_queries
       @title = "Live Queries"
       @running_queries = PgHero.running_queries
     end
@@ -49,8 +49,8 @@ module PgHero
       @query_stats = PgHero.query_stats
     end
 
-    def system_stats
-      @title = "System Stats"
+    def system
+      @title = "System"
     end
 
     def cpu_usage

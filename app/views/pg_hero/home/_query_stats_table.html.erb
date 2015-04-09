@@ -10,7 +10,7 @@
     <% queries.each do |query| %>
       <tr>
         <td>
-          <%= query["total_minutes"].to_f.round %> min
+          <%= number_with_delimiter(query["total_minutes"].to_f.round) %> min
           <span class="percent">
             <% percent = query["total_percent"].to_f %>
             <% if percent > 1 %>
@@ -22,7 +22,7 @@
             <% end %>
           </span>
         </td>
-        <td><%= query["average_time"].to_f.round %> ms</td>
+        <td><%= number_with_delimiter(query["average_time"].to_f.round) %> ms</td>
         <td><%= number_with_delimiter(query["calls"].to_i) %></td>
       </tr>
       <tr>
