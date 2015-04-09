@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= [@databases.size > 1 ? PgHero.current_database.titleize : nil, @title].compact.join(" / ") %> - PgHero</title>
+    <title><%= [@databases.size > 1 ? PgHero.current_database.titleize : "PgHero", @title].compact.join(" / ") %></title>
 
     <meta charset="utf-8" />
 
