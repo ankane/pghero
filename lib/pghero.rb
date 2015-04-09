@@ -19,7 +19,7 @@ module PgHero
 
   class << self
     def config
-      @config ||= begin
+      Thread.current[:pghero_config] ||= begin
         path = "config/pghero.yml"
 
         config =
@@ -47,13 +47,13 @@ module PgHero
     end
 
     def current_database
-      @current_database ||= primary_database
+      Thread.current[:pghero_current_database] ||= primary_database
     end
 
     def current_database=(database)
       raise "Database not found" unless database_config(database)
-      @connection = nil
-      @current_database = database.to_s
+      Thread.current[:pghero_current_database] = database.to_s
+      Thread.current[:pghero_connection] = nil
       database
     end
 
@@ -590,7 +590,7 @@ module PgHero
     end
 
     def connection
-      @connection ||= begin
+      Thread.current[:pghero_connection] ||= begin
         Connection.establish_connection(current_config["url"])
         Connection.connection
       end
