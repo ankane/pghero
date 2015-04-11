@@ -66,6 +66,7 @@
 
 <% if @long_running_queries.any? %>
   <div class="content">
+    <%= button_to "Kill All", kill_long_running_queries_path, class: "btn btn-danger", style: "float: right;" %>
     <h1>Long Running Queries</h1>
 
     <%= render partial: "live_queries_table", locals: {queries: @long_running_queries} %>

@@ -97,6 +97,11 @@ module PgHero
       end
     end
 
+    def kill_long_running_queries
+      PgHero.kill_long_running_queries
+      redirect_to :back, notice: "Queries killed"
+    end
+
     def kill_all
       PgHero.kill_all
       redirect_to :back, notice: "Connections killed"
