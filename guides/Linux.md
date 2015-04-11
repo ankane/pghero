@@ -1,4 +1,4 @@
-# PgHero Standalone
+# PgHero for Linux
 
 Packaged for:
 
