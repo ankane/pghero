@@ -97,8 +97,8 @@ module PgHero
       end
     end
 
-    def kill_long_running_queries
-      PgHero.kill_long_running_queries
+    def kill_queries
+      params[:pids].each { |pid| PgHero.kill(pid) }
       redirect_to :back, notice: "Queries killed"
     end
 
