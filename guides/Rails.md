@@ -38,7 +38,7 @@ Kill queries
 
 ```ruby
 PgHero.kill(pid)
-PgHero.kill_long_running_queries # [master]
+PgHero.kill_long_running_queries
 PgHero.kill_all
 ```
 
@@ -53,13 +53,13 @@ PgHero.query_stats
 PgHero.slow_queries
 ```
 
-Security [master]
+Security
 
 ```ruby
 PgHero.ssl_used?
 ```
 
-Replication [master]
+Replication
 
 ```ruby
 PgHero.replica?
@@ -135,7 +135,7 @@ PGHERO_SECRET_ACCESS_KEY=secret123
 PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
-## Multiple Databases [master]
+## Multiple Databases
 
 Create `config/pghero.yml` with:
 

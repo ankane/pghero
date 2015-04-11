@@ -1,4 +1,4 @@
-## 1.0.0 [unreleased]
+## 1.0.0
 
 - More platforms!
 - Support for multiple databases!
