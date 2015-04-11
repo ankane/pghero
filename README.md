@@ -14,7 +14,7 @@ PgHero can be installed as a standalone app or a Rails engine.
 
 ### Standalone
 
-[Linux](guides/Standalone.md) - Ubuntu, Debian, and more
+[Linux](guides/Linux.md) - Ubuntu, Debian, and more
 
 [Docker](guides/Docker.md)
 
