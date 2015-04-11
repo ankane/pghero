@@ -3,9 +3,10 @@
 - More platforms!
 - Support for multiple databases!
 - Added `replica?` method
+- Added `replication_lag` method
 - Added `ssl_used?` method
+- Added `kill_long_running_queries` method
 - Added env vars for settings
-- Added replication lag
 
 ## 0.1.10
 

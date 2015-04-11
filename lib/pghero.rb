@@ -280,6 +280,11 @@ module PgHero
       execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"] == "t"
     end
 
+    def kill_long_running_queries
+      long_running_queries.each { |query| kill(query["pid"]) }
+      true
+    end
+
     def kill_all
       select_all <<-SQL
         SELECT

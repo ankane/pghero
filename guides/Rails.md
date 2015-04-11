@@ -38,6 +38,7 @@ Kill queries
 
 ```ruby
 PgHero.kill(pid)
+PgHero.kill_long_running_queries # [master]
 PgHero.kill_all
 ```
 
