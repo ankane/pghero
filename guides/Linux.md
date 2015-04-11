@@ -115,19 +115,11 @@ sudo service nginx restart
 
 ## Management
 
-Ubuntu, CentOS, and RHEL
-
 ```sh
 sudo service pghero status
 sudo service pghero start
 sudo service pghero stop
 sudo service pghero restart
-```
-
-Debian, Fedora, and SUSE
-
-```sh
-#todo
 ```
 
 ## Query Stats
