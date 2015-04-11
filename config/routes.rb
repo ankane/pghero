@@ -12,7 +12,7 @@ PgHero::Engine.routes.draw do
     get "tune", to: "home#tune"
     get "connections", to: "home#connections"
     post "kill", to: "home#kill"
-    post "kill_queries", to: "home#kill_queries"
+    post "kill_long_running_queries", to: "home#kill_long_running_queries"
     post "kill_all", to: "home#kill_all"
     post "enable_query_stats", to: "home#enable_query_stats"
     post "explain", to: "home#explain"
