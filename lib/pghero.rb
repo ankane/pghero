@@ -402,11 +402,15 @@ module PgHero
 
     def ssl_used?
       ssl_used = nil
-      Connection.transaction do
-        execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
-        ssl_used = select_all("SELECT ssl_is_used()").first["ssl_is_used"] == "t"
-        raise ActiveRecord::Rollback
+
+      connection_pool.with_connection do |conn|
+        conn.transaction do
+          execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
+          ssl_used = select_all("SELECT ssl_is_used()").first["ssl_is_used"] == "t"
+          raise ActiveRecord::Rollback
+        end
       end
+
       ssl_used
     end
 
@@ -459,9 +463,11 @@ module PgHero
       schema = options[:schema] || "public"
       database = options[:database] || Connection.connection_config[:database]
 
+      quoted_password = connection_pool.with_connection { |c| c.quote(password) }
+
       commands =
         [
-          "CREATE ROLE #{user} LOGIN PASSWORD #{connection.quote(password)}",
+          "CREATE ROLE #{user} LOGIN PASSWORD #{quoted_password}",
           "GRANT CONNECT ON DATABASE #{database} TO #{user}",
           "GRANT USAGE ON SCHEMA #{schema} TO #{user}"
         ]
@@ -476,9 +482,11 @@ module PgHero
       end
 
       # run commands
-      Connection.transaction do
-        commands.each do |command|
-          execute command
+      connection_pool.with_connection do |conn|
+        Connection.transaction do
+          commands.each do |command|
+            execute command
+          end
         end
       end
 
@@ -587,18 +595,23 @@ module PgHero
 
     def select_all(sql)
       # squish for logs
-      connection.select_all(squish(sql)).to_a
+      connection_pool.with_connection do |conn|
+        conn.select_all(squish(sql)).to_a
+      end
     end
 
     def execute(sql)
-      connection.execute(sql)
+      connection_pool.with_connection do |conn|
+        conn.execute(sql)
+      end
     end
 
-    def connection
-      Thread.current[:pghero_connection] ||= begin
+    def connection_pool
+      if !Connection.connected?
         Connection.establish_connection(current_config["url"])
-        Connection.connection
       end
+
+      Connection.connection_pool
     end
 
     # from ActiveSupport
