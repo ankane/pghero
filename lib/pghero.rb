@@ -598,10 +598,11 @@ module PgHero
     end
 
     def connection
-      Thread.current[:pghero_connection] ||= begin
+      unless Thread.current[:pghero_connection]
         Connection.establish_connection(current_config["url"])
-        Connection.connection
+        Thread.current[:pghero_connection] = true
       end
+      Connection.connection
     end
 
     # from ActiveSupport
