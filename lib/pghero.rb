@@ -66,10 +66,13 @@ module PgHero
     end
 
     def with(database)
-      self.current_database = database
-      yield
-    ensure
-      self.current_database = primary_database
+      previous_database = current_database
+      begin
+        self.current_database = database
+        yield
+      ensure
+        self.current_database = previous_database
+      end
     end
 
     def running_queries

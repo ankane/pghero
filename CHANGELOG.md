@@ -1,3 +1,7 @@
+## 1.0.1 [unreleased]
+
+- Restore previous connection properly for nested with blocks
+
 ## 1.0.0
 
 - More platforms!
