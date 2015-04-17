@@ -1,6 +1,8 @@
 ## 1.0.1 [unreleased]
 
 - Restore previous connection properly for nested with blocks
+- Added analyze button to explain page
+- Added explain button to live queries page
 
 ## 1.0.0
 
