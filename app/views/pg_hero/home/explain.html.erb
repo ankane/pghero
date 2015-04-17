@@ -3,7 +3,7 @@
 
   <%= form_tag explain_path do %>
     <%= text_area_tag :query, @query, placeholder: "Enter a SQL query" %>
-    <p><%= submit_tag "Explain", class: "btn btn-info" %></p>
+    <p><%= submit_tag "Explain", class: "btn btn-info" %> <%= submit_tag "Analyze", class: "btn btn-danger" %></p>
   <% end %>
 
   <% if @explanation %>

@@ -72,7 +72,7 @@ module PgHero
       # need to prevent CSRF and DoS
       if request.post? && @query
         begin
-          @explanation = PgHero.explain(@query)
+          @explanation = PgHero.explain("#{params[:commit] == "Analyze" ? "ANALYZE " : ""}#{@query}")
         rescue ActiveRecord::StatementInvalid => e
           @error = e.message
         end
