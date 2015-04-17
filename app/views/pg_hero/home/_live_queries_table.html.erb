@@ -3,21 +3,23 @@
     <tr>
       <th style="width: 10%;">Pid</th>
       <th style="width: 10%;">State</th>
-      <th>Source</th>
-      <th style="width: 10%;">Waiting</th>
       <th style="width: 15%;">Duration</th>
-      <th style="width: 10%;"></th>
+      <th>Source</th>
+      <th style="width: 25%;"></th>
     </tr>
   </thead>
   <tbody>
+    <% now = Time.now %>
     <% queries.each do |query| %>
       <tr>
         <td><%= query["pid"] %></td>
         <td><%= query["state"] %></td>
+        <td><%= query["started_at"] ? "#{number_with_delimiter(((now - Time.parse(query["started_at"])) * 1000).round)} ms" : nil %></td>
         <td><%= query["source"] %></td>
-        <td><%= query["waiting"] == "t" ? "true" : "false" %></td>
-        <td><%= query["started_at"] ? time_ago_in_words(query["started_at"], include_seconds: true) : nil %></td>
-        <td class="text-right"><%= button_to "Kill", kill_path(pid: query["pid"]), class: "btn btn-info" %></td>
+        <td class="text-right">
+          <%= button_to "Explain", explain_path(query: query["query"]), class: "btn btn-info" %>
+          <%= button_to "Kill", kill_path(pid: query["pid"]), class: "btn btn-danger" %>
+        </td>
       </tr>
       <tr>
         <td colspan="6" style="border-top: none; padding: 0;"><pre><%= query["query"] %></pre></td>
