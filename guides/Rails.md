@@ -154,6 +154,12 @@ production:
   <<: *default
 ```
 
+Specify a database with:
+
+```ruby
+PgHero.with(:replica) { PgHero.running_queries }
+```
+
 ## Customize
 
 Minimum time for long running queries
