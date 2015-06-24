@@ -137,6 +137,10 @@
         background-color: #ddd;
       }
 
+      .nav li.active-database a {
+        color: #999;
+      }
+
       .nav-header {
         font-weight: bold;
         color: #333;
@@ -391,11 +395,11 @@
           </ul>
 
           <% if @databases.size > 1 %>
-            <p class="nav-header">Other Databases</p>
+            <p class="nav-header">Databases</p>
             <ul class="nav">
-              <% (@databases - [PgHero.current_database]).each do |database| %>
-                <li>
-                  <%= link_to database.titleize, root_path(database: database) %>
+              <% @databases.each do |database| %>
+                <li class="<%= ("active-database" if PgHero.current_database == database) %>">
+                  <%= link_to database.titleize, database: database %>
                 </li>
               <% end %>
             </ul>
