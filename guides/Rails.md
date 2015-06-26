@@ -118,7 +118,7 @@ end
 
 Query stats can be enabled from the dashboard. If you run into issues, [view the guide](Query-Stats.md).
 
-## Historical Query Stats [master]
+## Historical Query Stats
 
 To track query stats over time, run:
 
