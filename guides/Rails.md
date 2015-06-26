@@ -130,7 +130,13 @@ rake db:migrate
 And schedule the task below to run every 5 minutes.
 
 ```sh
-rake pghero:capture_query_stats # or PgHero.capture_query_stats
+rake pghero:capture_query_stats
+```
+
+Or if you have a scheduler like Clockwork, use:
+
+```ruby
+PgHero.capture_query_stats
 ```
 
 After this, a time range slider will appear on the Queries tab.
