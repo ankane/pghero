@@ -1,11 +1,18 @@
 require "pghero/version"
 require "active_record"
 require "pghero/engine" if defined?(Rails)
+require "pghero/tasks"
 
 module PgHero
   # hack for connection
   class Connection < ActiveRecord::Base
     self.abstract_class = true
+  end
+
+  class QueryStats < ActiveRecord::Base
+    self.abstract_class = true
+    self.table_name = "pghero_query_stats"
+    establish_connection ENV["PGHERO_STATS_DATABASE_URL"] if ENV["PGHERO_STATS_DATABASE_URL"]
   end
 
   class << self
@@ -33,7 +40,7 @@ module PgHero
           {
             "databases" => {
               "primary" => {
-                "url" => ENV["PGHERO_DATABASE_URL"], # nil reverts to default config
+                "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config,
                 "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
               }
             }
@@ -301,74 +308,28 @@ module PgHero
       true
     end
 
-    # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
-    def query_stats
-      if query_stats_enabled?
-        select_all <<-SQL
-          WITH query_stats AS (
-            SELECT
-              query,
-              (total_time / 1000 / 60) as total_minutes,
-              (total_time / calls) as average_time,
-              calls
-            FROM
-              pg_stat_statements
-            INNER JOIN
-              pg_database ON pg_database.oid = pg_stat_statements.dbid
-            WHERE
-              pg_database.datname = current_database()
-          )
-          SELECT
-            query,
-            total_minutes,
-            average_time,
-            calls,
-            total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent
-          FROM
-            query_stats
-          ORDER BY
-            total_minutes DESC
-          LIMIT 100
-        SQL
-      else
-        []
+    def query_stats(options = {})
+      current_query_stats = (options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)).index_by { |q| q["query"] }
+      historical_query_stats = (options[:historical] ? historical_query_stats(options) : []).index_by { |q| q["query"] }
+      current_query_stats.default = {}
+      historical_query_stats.default = {}
+
+      query_stats = []
+      (current_query_stats.keys + historical_query_stats.keys).uniq.each do |query|
+        value = {
+          "query" => query,
+          "total_minutes" => current_query_stats[query]["total_minutes"].to_f + historical_query_stats[query]["total_minutes"].to_f,
+          "calls" => current_query_stats[query]["calls"].to_i + historical_query_stats[query]["calls"].to_i
+        }
+        value["average_time"] = value["total_minutes"] * 1000 * 60 / value["calls"]
+        value["total_percent"] = value["total_minutes"] * 100.0 / (current_query_stats[query]["all_queries_total_minutes"].to_f + historical_query_stats[query]["all_queries_total_minutes"].to_f)
+        query_stats << value
       end
+      query_stats.sort_by { |q| -q["total_minutes"] }.first(100)
     end
 
-    def slow_queries
-      if query_stats_enabled?
-        select_all <<-SQL
-          WITH query_stats AS (
-            SELECT
-              query,
-              (total_time / 1000 / 60) as total_minutes,
-              (total_time / calls) as average_time,
-              calls
-            FROM
-              pg_stat_statements
-            INNER JOIN
-              pg_database ON pg_database.oid = pg_stat_statements.dbid
-            WHERE
-              pg_database.datname = current_database()
-          )
-          SELECT
-            query,
-            total_minutes,
-            average_time,
-            calls,
-            total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent
-          FROM
-            query_stats
-          WHERE
-            calls >= #{slow_query_calls.to_i}
-            AND average_time >= #{slow_query_ms.to_i}
-          ORDER BY
-            total_minutes DESC
-          LIMIT 100
-        SQL
-      else
-        []
-      end
+    def slow_queries(options = {})
+      query_stats(options).select { |q| q["calls"].to_i >= slow_query_calls.to_i && q["average_time"].to_i >= slow_query_ms.to_i }
     end
 
     def query_stats_available?
@@ -401,6 +362,53 @@ module PgHero
       else
         false
       end
+    end
+
+    def capture_query_stats
+      config["databases"].keys.each do |database|
+        with(database) do
+          now = Time.now
+          query_stats = self.query_stats(limit: 1000000)
+          if query_stats.any? && reset_query_stats
+            values =
+              query_stats.map do |qs|
+                [
+                  database,
+                  qs["query"],
+                  qs["total_minutes"].to_f * 60 * 1000,
+                  qs["calls"],
+                  now
+                ].map { |v| quote(v) }.join(",")
+              end.map { |v| "(#{v})" }.join(",")
+
+            stats_connection.execute("INSERT INTO pghero_query_stats (database, query, total_time, calls, captured_at) VALUES #{values}")
+          end
+        end
+      end
+    end
+
+    # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
+    def historical_query_stats_enabled?
+      # TODO use schema from config
+      stats_connection.select_all( squish <<-SQL
+        SELECT EXISTS (
+          SELECT
+            1
+          FROM
+            pg_catalog.pg_class c
+          INNER JOIN
+            pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+          WHERE
+            n.nspname = 'public'
+            AND c.relname = 'pghero_query_stats'
+            AND c.relkind = 'r'
+        )
+      SQL
+      ).to_a.first["exists"] == "t"
+    end
+
+    def stats_connection
+      QueryStats.connection
     end
 
     def ssl_used?
@@ -464,7 +472,7 @@ module PgHero
 
       commands =
         [
-          "CREATE ROLE #{user} LOGIN PASSWORD #{connection.quote(password)}",
+          "CREATE ROLE #{user} LOGIN PASSWORD #{quote(password)}",
           "GRANT CONNECT ON DATABASE #{database} TO #{user}",
           "GRANT USAGE ON SCHEMA #{schema} TO #{user}"
         ]
@@ -571,6 +579,80 @@ module PgHero
       select_all("SELECT EXTRACT(EPOCH FROM NOW() - pg_last_xact_replay_timestamp()) AS replication_lag").first["replication_lag"].to_f
     end
 
+    private
+
+    # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
+    def current_query_stats(options = {})
+      if query_stats_enabled?
+        limit = options[:limit] || 100
+        select_all <<-SQL
+          WITH query_stats AS (
+            SELECT
+              query,
+              (total_time / 1000 / 60) as total_minutes,
+              (total_time / calls) as average_time,
+              calls
+            FROM
+              pg_stat_statements
+            INNER JOIN
+              pg_database ON pg_database.oid = pg_stat_statements.dbid
+            WHERE
+              pg_database.datname = current_database()
+          )
+          SELECT
+            query,
+            total_minutes,
+            average_time,
+            calls,
+            total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent,
+            (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+          FROM
+            query_stats
+          ORDER BY
+            total_minutes DESC
+          LIMIT #{limit.to_i}
+        SQL
+      else
+        []
+      end
+    end
+
+    def historical_query_stats(options = {})
+      if historical_query_stats_enabled?
+        stats_connection.select_all squish <<-SQL
+          WITH query_stats AS (
+            SELECT
+              query,
+              (SUM(total_time) / 1000 / 60) as total_minutes,
+              (SUM(total_time) / SUM(calls)) as average_time,
+              SUM(calls) as calls
+            FROM
+              pghero_query_stats
+            WHERE
+              database = #{quote(current_database)}
+              #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
+              #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
+            GROUP BY
+              query
+          )
+          SELECT
+            query,
+            total_minutes,
+            average_time,
+            calls,
+            total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent,
+            (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+          FROM
+            query_stats
+          ORDER BY
+            total_minutes DESC
+          LIMIT 100
+        SQL
+      else
+        []
+      end
+    end
+
     def friendly_value(setting, unit)
       if %w(kB 8kB).include?(unit)
         value = setting.to_i
@@ -608,6 +690,10 @@ module PgHero
     # from ActiveSupport
     def squish(str)
       str.to_s.gsub(/\A[[:space:]]+/, "").gsub(/[[:space:]]+\z/, "").gsub(/[[:space:]]+/, " ")
+    end
+
+    def quote(value)
+      connection.quote(value)
     end
   end
 end

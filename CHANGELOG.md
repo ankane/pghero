@@ -1,3 +1,7 @@
+## 1.1.0 [unreleased]
+
+- Added historical query stats
+
 ## 1.0.1
 
 - Fixed connection bad errors
