@@ -50,13 +50,14 @@ module PgHero
 
       @query_stats =
         begin
+          if @historical_query_stats_enabled
+            @start_at = params[:start_at] ? Time.zone.parse(params[:start_at]) : 24.hours.ago
+            @end_at = Time.zone.parse(params[:end_at]) if params[:end_at]
+          end
+
           if @historical_query_stats_enabled && !request.xhr?
             []
           else
-            if @historical_query_stats_enabled
-              @start_at = params[:start_at] ? Time.zone.parse(params[:start_at]) : 24.hours.ago
-              @end_at = Time.zone.parse(params[:end_at]) if params[:end_at]
-            end
             PgHero.query_stats(historical: true, start_at: @start_at, end_at: @end_at)
           end
         rescue
