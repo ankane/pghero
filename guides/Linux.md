@@ -5,7 +5,9 @@ Packaged for:
 - Ubuntu 14.04 (Trusty)
 - Ubuntu 12.04 (Precise)
 - Debian 7 (Wheezy)
-- CentOS and RHEL 6
+- Debian 8 (Jesse)
+- CentOS / RHEL 6
+- CentOS / RHEL 7
 - Fedora 20
 - SUSE Linux Enterprise Server
 
@@ -40,13 +42,33 @@ sudo apt-get update
 sudo apt-get install pghero
 ```
 
-CentOS and RHEL 6
+Debian 8 (Jesse)
+
+```sh
+wget -qO - https://deb.packager.io/key | sudo apt-key add -
+echo "deb https://deb.packager.io/gh/pghero/pghero jessie master" | sudo tee /etc/apt/sources.list.d/pghero.list
+sudo apt-get update
+sudo apt-get install pghero
+```
+
+CentOS / RHEL 6
 
 ```sh
 sudo rpm --import https://rpm.packager.io/key
 echo "[pghero]
 name=Repository for pghero/pghero application.
 baseurl=https://rpm.packager.io/gh/pghero/pghero/centos6/master
+enabled=1" | sudo tee /etc/yum.repos.d/pghero.repo
+sudo yum install pghero
+```
+
+CentOS / RHEL 7
+
+```sh
+sudo rpm --import https://rpm.packager.io/key
+echo "[pghero]
+name=Repository for pghero/pghero application.
+baseurl=https://rpm.packager.io/gh/pghero/pghero/centos7/master
 enabled=1" | sudo tee /etc/yum.repos.d/pghero.repo
 sudo yum install pghero
 ```
