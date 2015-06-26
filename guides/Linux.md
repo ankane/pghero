@@ -157,6 +157,12 @@ CREATE TABLE "pghero_query_stats" ("id" serial primary key, "database" text, "qu
 CREATE INDEX "index_pghero_query_stats_on_database_and_captured_at" ON "pghero_query_stats" ("database", "captured_at")
 ```
 
+This table can be in the current database or another database. If another database, run:
+
+```sh
+sudo pghero config:set PGHERO_STATS_DATABASE_URL=...
+```
+
 Schedule the task below to run every 5 minutes.
 
 ```sh
@@ -164,12 +170,6 @@ sudo pghero run pghero:capture_query_stats
 ```
 
 After this, a time range slider will appear on the Queries tab.
-
-By default, historical query stats are stored in your primary database. Change this with:
-
-```sh
-sudo pghero config:set PGHERO_STATS_DATABASE_URL=...
-```
 
 ## System Stats
 
