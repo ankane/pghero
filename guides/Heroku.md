@@ -21,6 +21,35 @@ For databases outside of Heroku, query stats can be enabled from the dashboard.
 
 If you run into issues, [view the guide](Query-Stats.md).
 
+## Historical Query Stats
+
+To track query stats over time, run:
+
+```sh
+rails generate pghero:query_stats
+rake db:migrate
+```
+
+And schedule the task below to run every 5 minutes.
+
+```sh
+rake pghero:capture_query_stats
+```
+
+Or with a scheduler like Clockwork, use:
+
+```ruby
+PgHero.capture_query_stats
+```
+
+After this, a time range slider will appear on the Queries tab.
+
+By default, historical query stats are stored in your primary database. Change this with:
+
+```sh
+heroku config:set PGHERO_STATS_DATABASE_URL=...
+```
+
 ## System Stats
 
 CPU usage is available for Amazon RDS.  Add these variables to your environment:
