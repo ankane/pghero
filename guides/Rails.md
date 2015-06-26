@@ -141,7 +141,7 @@ PgHero.capture_query_stats
 
 After this, a time range slider will appear on the Queries tab.
 
-By default, historical query stats are stored in your primary database. Change this with:
+By default, query stats are stored in your primary database. Change this with:
 
 ```ruby
 ENV["PGHERO_STATS_DATABASE_URL"]
