@@ -133,7 +133,7 @@ And schedule the task below to run every 5 minutes.
 rake pghero:capture_query_stats
 ```
 
-Or with scheduler like Clockwork, use:
+Or with a scheduler like Clockwork, use:
 
 ```ruby
 PgHero.capture_query_stats
