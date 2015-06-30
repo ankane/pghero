@@ -478,7 +478,11 @@ module PgHero
         ]
       if options[:readonly]
         commands << "GRANT SELECT ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
-        commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT SELECT ON TABLES TO #{user}"
+        if options[:tables]
+          commands <<"ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT SELECT ON TABLE #{options[:tables].join(', ')} TO #{user}"
+        else
+          commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT SELECT ON ALL TABLES TO #{user}"
+        end
       else
         commands << "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
         commands << "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA #{schema} TO #{user}"
