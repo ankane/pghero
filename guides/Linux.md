@@ -166,7 +166,7 @@ sudo pghero config:set PGHERO_STATS_DATABASE_URL=...
 Schedule the task below to run every 5 minutes.
 
 ```sh
-sudo pghero run pghero:capture_query_stats
+sudo pghero run rake pghero:capture_query_stats
 ```
 
 After this, a time range slider will appear on the Queries tab.
