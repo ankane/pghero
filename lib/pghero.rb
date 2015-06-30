@@ -477,22 +477,26 @@ module PgHero
           "GRANT USAGE ON SCHEMA #{schema} TO #{user}"
         ]
       if options[:readonly]
-        commands << "GRANT SELECT ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
         if options[:tables]
-          commands <<"ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT SELECT ON TABLE #{options[:tables].join(', ')} TO #{user}"
+          commands << table_grant_commands('SELECT', options[:tables], user)
         else
+          commands << "GRANT SELECT ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
           commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT SELECT ON ALL TABLES TO #{user}"
         end
       else
-        commands << "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
-        commands << "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA #{schema} TO #{user}"
-        commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT ALL PRIVILEGES ON TABLES TO #{user}"
-        commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT ALL PRIVILEGES ON SEQUENCES TO #{user}"
+        if options[:tables]
+          commands << table_grant_commands('ALL PRIVILEGES', options[:tables], user)
+        else
+          commands << "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
+          commands << "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA #{schema} TO #{user}"
+          commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT ALL PRIVILEGES ON TABLES TO #{user}"
+          commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT ALL PRIVILEGES ON SEQUENCES TO #{user}"
+        end
       end
 
       # run commands
       Connection.transaction do
-        commands.each do |command|
+        commands.flatten.each do |command|
           execute command
         end
       end
@@ -584,6 +588,12 @@ module PgHero
     end
 
     private
+
+    def table_grant_commands(privilege, tables, user)
+      tables.collect do |table|
+        "GRANT #{privilege} ON TABLE #{table} TO #{user}"
+      end
+    end
 
     # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
     def current_query_stats(options = {})
