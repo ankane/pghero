@@ -91,6 +91,12 @@ Set the password
 PgHero.create_user("zelda", password: "hyrule")
 ```
 
+Grant access to only certain tables
+
+```ruby
+PgHero.create_user("navi", tables: ["triforce"])
+```
+
 Drop a user
 
 ```ruby

@@ -1,3 +1,7 @@
+## 1.1.1 [unreleased]
+
+- Added `tables` option to `create_user` method
+
 ## 1.1.0
 
 - Added historical query stats
