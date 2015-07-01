@@ -478,14 +478,14 @@ module PgHero
         ]
       if options[:readonly]
         if options[:tables]
-          commands << table_grant_commands('SELECT', options[:tables], user)
+          commands.concat table_grant_commands("SELECT", options[:tables], user)
         else
           commands << "GRANT SELECT ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
-          commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT SELECT ON ALL TABLES TO #{user}"
+          commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT SELECT ON TABLES TO #{user}"
         end
       else
         if options[:tables]
-          commands << table_grant_commands('ALL PRIVILEGES', options[:tables], user)
+          commands.concat table_grant_commands("ALL PRIVILEGES", options[:tables], user)
         else
           commands << "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
           commands << "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA #{schema} TO #{user}"
@@ -496,7 +496,7 @@ module PgHero
 
       # run commands
       Connection.transaction do
-        commands.flatten.each do |command|
+        commands.each do |command|
           execute command
         end
       end
@@ -590,7 +590,7 @@ module PgHero
     private
 
     def table_grant_commands(privilege, tables, user)
-      tables.collect do |table|
+      tables.map do |table|
         "GRANT #{privilege} ON TABLE #{table} TO #{user}"
       end
     end

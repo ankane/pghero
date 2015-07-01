@@ -68,6 +68,8 @@ PgHero.replication_lag
 
 ## Users
 
+**Note:** It’s unsafe to pass user input to these commands.
+
 Create a user
 
 ```ruby
