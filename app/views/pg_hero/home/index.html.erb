@@ -174,16 +174,14 @@ remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s
       <thead>
         <tr>
           <th>Name</th>
-          <th>Index Size</th>
-          <th>Index Scans</th>
+          <th style="width: 20%;">Index Size</th>
         </tr>
       </thead>
       <tbody>
         <% @unused_indexes.each do |query| %>
           <tr>
             <td><%= query["index"] %><div class="text-muted">on <%= query["table"] %></div></td>
-            <td style="width: 15%;"><%= query["index_size"] %></td>
-            <td style="width: 15%;"><%= query["index_scans"] %></td>
+            <td><%= query["index_size"] %></td>
           </tr>
         <% end %>
       </tbody>

@@ -1,6 +1,7 @@
 ## 1.1.1 [unreleased]
 
 - Added `tables` option to `create_user` method
+- Only show unused indexes with no index scans in UI
 
 ## 1.1.0
 
