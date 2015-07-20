@@ -98,11 +98,11 @@
 
   function refreshStats(push) {
     var values = $slider.val();
-    var startAt = timeAt(values[0]);
+    var startAt = push ? timeAt(values[0]) : new Date(window.startAt);
     var endAt = timeAt(values[1]);
 
     var params = {}
-    if (startAt > sliderStartAt) {
+    if (startAt.getTime() != sliderStartAt) {
       params.start_at = timeParam(startAt);
     }
     if (endAt < now) {
@@ -125,5 +125,7 @@
     refreshStats(true);
   });
   updateText();
-  $(refreshStats);
+  $( function () {
+    refreshStats(false);
+  });
 </script>
