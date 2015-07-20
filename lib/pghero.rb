@@ -325,7 +325,8 @@ module PgHero
         value["total_percent"] = value["total_minutes"] * 100.0 / (current_query_stats[query]["all_queries_total_minutes"].to_f + historical_query_stats[query]["all_queries_total_minutes"].to_f)
         query_stats << value
       end
-      query_stats.sort_by { |q| -q["total_minutes"] }.first(100)
+      sort = options[:sort] || "total_minutes"
+      query_stats.sort_by { |q| -q[sort] }.first(100)
     end
 
     def slow_queries(options = {})
@@ -599,6 +600,7 @@ module PgHero
     def current_query_stats(options = {})
       if query_stats_enabled?
         limit = options[:limit] || 100
+        sort = options[:sort] || "total_minutes"
         select_all <<-SQL
           WITH query_stats AS (
             SELECT
@@ -623,7 +625,7 @@ module PgHero
           FROM
             query_stats
           ORDER BY
-            total_minutes DESC
+            #{quote_table_name(sort)} DESC
           LIMIT #{limit.to_i}
         SQL
       else
@@ -633,6 +635,7 @@ module PgHero
 
     def historical_query_stats(options = {})
       if historical_query_stats_enabled?
+        sort = options[:sort] || "total_minutes"
         stats_connection.select_all squish <<-SQL
           WITH query_stats AS (
             SELECT
@@ -659,7 +662,7 @@ module PgHero
           FROM
             query_stats
           ORDER BY
-            total_minutes DESC
+            #{quote_table_name(sort)} DESC
           LIMIT 100
         SQL
       else
@@ -708,6 +711,10 @@ module PgHero
 
     def quote(value)
       connection.quote(value)
+    end
+
+    def quote_table_name(value)
+      connection.quote_table_name(value)
     end
   end
 end

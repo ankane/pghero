@@ -1,10 +1,10 @@
-<table class="table">
+<table class="table queries-table">
   <% unless local_assigns[:xhr] %>
     <thead>
       <tr>
-        <th style="width: 33.33%;">Total Time</th>
-        <th style="width: 33.33%;">Average Time</th>
-        <th style="width: 33.33%;">Calls</th>
+        <th style="width: 33.33%;"><%= local_assigns[:sort_headers] ? link_to("Total Time", {sort: nil}, data: {sort: nil}) : "Total Time" %></th>
+        <th style="width: 33.33%;"><%= local_assigns[:sort_headers] ? link_to("Average Time", {sort: "average_time"}, data: {sort: "average_time"}) : "Average Time" %></th>
+        <th style="width: 33.33%;"><%= local_assigns[:sort_headers] ? link_to("Calls", {sort: "calls"}, data: {sort: "calls"}) : "Calls" %></th>
       </tr>
     </thead>
   <% end %>

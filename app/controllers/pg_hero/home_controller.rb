@@ -47,6 +47,7 @@ module PgHero
     def queries
       @title = "Queries"
       @historical_query_stats_enabled = PgHero.historical_query_stats_enabled?
+      @sort = %w[average_time calls].include?(params[:sort]) ? params[:sort] : nil
 
       @query_stats =
         begin
@@ -58,7 +59,7 @@ module PgHero
           if @historical_query_stats_enabled && !request.xhr?
             []
           else
-            PgHero.query_stats(historical: true, start_at: @start_at, end_at: @end_at)
+            PgHero.query_stats(historical: true, start_at: @start_at, end_at: @end_at, sort: @sort)
           end
         rescue
           @error = true

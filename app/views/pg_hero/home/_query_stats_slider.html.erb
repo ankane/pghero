@@ -42,6 +42,8 @@
     return (num < 10) ? "0" + num : num;
   }
 
+  var sort = <%= @sort.to_json.html_safe %>;
+
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   var days = 1;
@@ -49,7 +51,7 @@
   var sliderStartAt = roundTime(now) - days * 24 * 60 * 60 * 1000;
   var sliderMax = 24 * 12 * days;
 
-  var startAt = <%= @start_at.to_i %> * 1000;
+  var startAt = <%= params[:start_at] ? @start_at.to_i * 1000 : "sliderStartAt" %>;
   var min = (startAt > 0) ? (startAt - sliderStartAt) / (1000 * 60 * 5) : 0;
 
   var endAt = <%= @end_at.to_i %> * 1000;
@@ -96,6 +98,14 @@
     return time.toISOString();
   }
 
+  function queriesPath(params) {
+    var path = "queries";
+    if (params.start_at || params.end_at || params.sort) {
+      path += "?" + $.param(params);
+    }
+    return path;
+  }
+
   function refreshStats(push) {
     var values = $slider.val();
     var startAt = push ? timeAt(values[0]) : new Date(window.startAt);
@@ -108,11 +118,19 @@
     if (endAt < now) {
       params.end_at = timeParam(endAt);
     }
-
-    var path = "queries";
-    if (params.start_at || params.end_at) {
-      path += "?" + $.param(params);
+    if (sort) {
+      params.sort = sort;
     }
+
+    var path = queriesPath(params);
+
+    $(".queries-table th a").each( function () {
+      var p = $.extend({}, params, {sort: $(this).data("sort")});
+      if (!p.sort) {
+        delete p.sort;
+      }
+      $(this).attr("href", queriesPath(p));
+    });
 
     $("#queries").html('<tr><td colspan="3"><p class="queries-info text-muted">...</p></td></tr>').load(path);
 
