@@ -1,4 +1,4 @@
-## 1.1.1 [unreleased]
+## 1.1.1
 
 - Added `tables` option to `create_user` method
 - Added ability to sort query stats by average_time and calls
