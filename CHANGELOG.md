@@ -1,3 +1,7 @@
+## 1.1.2 [unreleased]
+
+- Fixed RDS stats for aws-sdk 2
+
 ## 1.1.1
 
 - Added `tables` option to `create_user` method

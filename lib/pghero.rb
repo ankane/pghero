@@ -436,9 +436,15 @@ module PgHero
 
     def rds_stats(metric_name)
       if system_stats_enabled?
-        cw = AWS::CloudWatch.new(access_key_id: access_key_id, secret_access_key: secret_access_key)
+        client =
+          if defined?(Aws)
+            Aws::CloudWatch::Client.new(access_key_id: access_key_id, secret_access_key: secret_access_key)
+          else
+            AWS::CloudWatch.new(access_key_id: access_key_id, secret_access_key: secret_access_key).client
+          end
+
         now = Time.now
-        resp = cw.client.get_metric_statistics(
+        resp = client.get_metric_statistics(
           namespace: "AWS/RDS",
           metric_name: metric_name,
           dimensions: [{name: "DBInstanceIdentifier", value: db_instance_identifier}],
@@ -458,7 +464,7 @@ module PgHero
     end
 
     def system_stats_enabled?
-      !!(defined?(AWS) && access_key_id && secret_access_key && db_instance_identifier)
+      !!((defined?(Aws) || defined?(AWS)) && access_key_id && secret_access_key && db_instance_identifier)
     end
 
     def random_password
