@@ -1,5 +1,6 @@
 require "pghero/version"
 require "active_record"
+require "pghero/database"
 require "pghero/engine" if defined?(Rails)
 require "pghero/tasks"
 
@@ -49,8 +50,18 @@ module PgHero
       end
     end
 
+    def databases
+      @databases ||= begin
+        Hash[
+          config["databases"].map do |id, c|
+            [id, PgHero::Database.new(id, c)]
+          end
+        ]
+      end
+    end
+
     def primary_database
-      config["databases"].keys.first
+      databases.keys.first
     end
 
     def current_database
@@ -58,18 +69,9 @@ module PgHero
     end
 
     def current_database=(database)
-      raise "Database not found" unless database_config(database)
+      raise "Database not found" unless databases[database]
       Thread.current[:pghero_current_database] = database.to_s
-      Thread.current[:pghero_connection] = nil
       database
-    end
-
-    def database_config(database)
-      config["databases"][database.to_s]
-    end
-
-    def current_config
-      database_config(current_database)
     end
 
     def with(database)
@@ -414,7 +416,7 @@ module PgHero
 
     def ssl_used?
       ssl_used = nil
-      Connection.transaction do
+      connection_model.transaction do
         execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
         ssl_used = select_all("SELECT ssl_is_used()").first["ssl_is_used"] == "t"
         raise ActiveRecord::Rollback
@@ -475,7 +477,7 @@ module PgHero
     def create_user(user, options = {})
       password = options[:password] || random_password
       schema = options[:schema] || "public"
-      database = options[:database] || Connection.connection_config[:database]
+      database = options[:database] || connection_model.connection_config[:database]
 
       commands =
         [
@@ -502,7 +504,7 @@ module PgHero
       end
 
       # run commands
-      Connection.transaction do
+      connection_model.transaction do
         commands.each do |command|
           execute command
         end
@@ -513,7 +515,7 @@ module PgHero
 
     def drop_user(user, options = {})
       schema = options[:schema] || "public"
-      database = options[:database] || Connection.connection_config[:database]
+      database = options[:database] || connection_model.connection_config[:database]
 
       # thanks shiftb
       commands =
@@ -530,7 +532,7 @@ module PgHero
         ]
 
       # run commands
-      Connection.transaction do
+      connection_model.transaction do
         commands.each do |command|
           execute command
         end
@@ -548,7 +550,7 @@ module PgHero
     end
 
     def db_instance_identifier
-      current_config["db_instance_identifier"]
+      databases[current_database].db_instance_identifier
     end
 
     def explain(sql)
@@ -557,7 +559,7 @@ module PgHero
       explain_safe = explain_safe?
 
       # use transaction for safety
-      Connection.transaction do
+      connection_model.transaction do
         if !explain_safe && (sql.sub(/;\z/, "").include?(";") || sql.upcase.include?("COMMIT"))
           raise ActiveRecord::StatementInvalid, "Unsafe statement"
         end
@@ -581,7 +583,7 @@ module PgHero
         maintenance_work_mem checkpoint_segments checkpoint_completion_target
         wal_buffers default_statistics_target
       )
-      values = Hash[select_all(Connection.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by { |row| names.index(row["name"]) }.map { |row| [row["name"], friendly_value(row["setting"], row["unit"])] }]
+      values = Hash[select_all(connection_model.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by { |row| names.index(row["name"]) }.map { |row| [row["name"], friendly_value(row["setting"], row["unit"])] }]
       Hash[names.map { |name| [name, values[name]] }]
     end
 
@@ -702,12 +704,12 @@ module PgHero
       connection.execute(sql)
     end
 
+    def connection_model
+      databases[current_database].connection_model
+    end
+
     def connection
-      unless Thread.current[:pghero_connection]
-        Connection.establish_connection(current_config["url"])
-        Thread.current[:pghero_connection] = true
-      end
-      Connection.connection
+      connection_model.connection
     end
 
     # from ActiveSupport
