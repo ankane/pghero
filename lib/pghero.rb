@@ -240,6 +240,26 @@ module PgHero
       SQL
     end
 
+    def invalid_indexes
+      select_all <<-SQL
+        SELECT
+          c.relname AS index
+        FROM
+          pg_catalog.pg_class c,
+          pg_catalog.pg_namespace n,
+          pg_catalog.pg_index i
+        WHERE
+          i.indisvalid = false
+          AND i.indexrelid = c.oid
+          AND c.relnamespace = n.oid
+          AND n.nspname != 'pg_catalog'
+          AND n.nspname != 'information_schema'
+          AND n.nspname != 'pg_toast'
+        ORDER BY
+          c.relname
+      SQL
+    end
+
     def relation_sizes
       select_all <<-SQL
         SELECT

@@ -1,5 +1,6 @@
 ## 1.1.2 [unreleased]
 
+- Added invalid indexes
 - Fixed RDS stats for aws-sdk 2
 
 ## 1.1.1
