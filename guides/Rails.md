@@ -24,6 +24,7 @@ Be sure to [secure the dashboard](#security) in production.
 PgHero.running_queries
 PgHero.long_running_queries
 PgHero.index_usage
+PgHero.invalid_indexes
 PgHero.missing_indexes
 PgHero.unused_indexes
 PgHero.unused_tables
