@@ -15,7 +15,7 @@ module PgHero
     end
 
     def db_instance_identifier
-      @config["database_instance_identifier"]
+      @config["db_instance_identifier"]
     end
   end
 end
