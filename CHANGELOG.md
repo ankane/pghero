@@ -1,3 +1,7 @@
+## 1.1.3
+
+- Fixed system stats
+
 ## 1.1.2
 
 - Added invalid indexes
