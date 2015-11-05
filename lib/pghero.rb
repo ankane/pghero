@@ -308,6 +308,27 @@ module PgHero
       SQL
     end
 
+    # http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND
+    # "the system will shut down and refuse to start any new transactions
+    # once there are fewer than 1 million transactions left until wraparound"
+    # warn when 10,000,000 transactions left
+    def transaction_id_danger
+      select_all <<-SQL
+        SELECT
+          c.oid::regclass::text AS table,
+          2146483648 - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_before_shutdown
+        FROM
+          pg_class c
+        LEFT JOIN
+          pg_class t ON c.reltoastrelid = t.oid
+        WHERE
+          c.relkind = 'r'
+          AND (2146483648 - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < 10000000
+        ORDER BY
+          transactions_before_shutdown
+      SQL
+    end
+
     def kill(pid)
       execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"] == "t"
     end

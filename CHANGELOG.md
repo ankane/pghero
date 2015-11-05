@@ -1,3 +1,7 @@
+## 1.1.4 [unreleased]
+
+- Added check for transaction ID wraparound failure
+
 ## 1.1.3
 
 - Fixed system stats

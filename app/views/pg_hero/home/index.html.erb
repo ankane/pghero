@@ -1,3 +1,30 @@
+<% if @transaction_id_danger.any? %>
+  <div class="alert alert-danger">
+    Database shutdown imminent due to transaction ID wraparound failure
+  </div>
+  <div class="content">
+    <p>For each table, run:</p>
+    <code><pre>VACUUM FREEZE VERBOSE table</pre></code>
+    <p><%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %></p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Table</th>
+          <th>Transactions Before Shutdown</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @transaction_id_danger.each do |query| %>
+          <tr>
+            <td><%= query["table"] %></td>
+            <td style="width: 20%;"><%= number_with_delimiter(query["transactions_before_shutdown"]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
 <div id="status">
   <% if @replica %>
     <div class="alert alert-<%= @good_replication_lag ? "success" : "warning" %>">

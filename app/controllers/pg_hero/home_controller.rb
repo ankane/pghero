@@ -27,6 +27,7 @@ module PgHero
         @replication_lag = PgHero.replication_lag
         @good_replication_lag = @replication_lag < 5
       end
+      @transaction_id_danger = PgHero.transaction_id_danger
     end
 
     def index_usage
