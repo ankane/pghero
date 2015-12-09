@@ -10,14 +10,14 @@
       <thead>
         <tr>
           <th>Table</th>
-          <th>Transactions Before Shutdown</th>
+          <th style="width: 20%;">Transactions Before Shutdown</th>
         </tr>
       </thead>
       <tbody>
         <% @transaction_id_danger.each do |query| %>
           <tr>
             <td><%= query["table"] %></td>
-            <td style="width: 20%;"><%= number_with_delimiter(query["transactions_before_shutdown"]) %></td>
+            <td><%= number_with_delimiter(query["transactions_before_shutdown"]) %></td>
           </tr>
         <% end %>
       </tbody>
@@ -57,6 +57,13 @@
       High number of connections
     <% end %>
     <span class="tiny"><%= @total_connections %></span>
+  </div>
+  <div class="alert alert-<%= @autovacuum_danger.empty? ? "success" : "warning" %>">
+    <% if @autovacuum_danger.any? %>
+      <%= pluralize(@autovacuum_danger.size, "table") %> approaching autovacuum freeze max age
+    <% else %>
+      No autovacuum danger
+    <% end %>
   </div>
   <div class="alert alert-<%= @query_stats_enabled && @slow_queries.empty? ? "success" : "warning" %>">
     <% if !@query_stats_enabled %>
@@ -128,6 +135,31 @@
   <div class="content">
     <h1>High Number of Connections</h1>
     <%= render partial: "connections_table", locals: {total_connections: @total_connections, show_message: true} %>
+  </div>
+<% end %>
+
+<% if @autovacuum_danger.any? %>
+  <div class="content">
+    <h1>Autovacuum Danger</h1>
+    <p>For each table, run:</p>
+    <code><pre>VACUUM FREEZE VERBOSE table</pre></code>
+    <p><%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %></p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Table</th>
+          <th style="width: 20%;">Transactions Before Autovacuum</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @autovacuum_danger.each do |query| %>
+          <tr>
+            <td><%= query["table"] %></td>
+            <td><%= number_with_delimiter(query["transactions_before_autovacuum"]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 <% end %>
 

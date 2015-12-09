@@ -329,6 +329,24 @@ module PgHero
       SQL
     end
 
+    def autovacuum_danger
+      select_all <<-SQL
+        SELECT
+          c.oid::regclass as table,
+          (SELECT setting FROM pg_settings WHERE name = 'autovacuum_freeze_max_age')::int -
+          GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_before_autovacuum
+        FROM
+          pg_class c
+        LEFT JOIN
+          pg_class t ON c.reltoastrelid = t.oid
+        WHERE
+          c.relkind = 'r'
+          AND (SELECT setting FROM pg_settings WHERE name = 'autovacuum_freeze_max_age')::int - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) < 2000000
+        ORDER BY
+          transactions_before_autovacuum
+      SQL
+    end
+
     def kill(pid)
       execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"] == "t"
     end

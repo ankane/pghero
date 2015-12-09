@@ -1,6 +1,7 @@
 ## 1.1.4 [unreleased]
 
 - Added check for transaction ID wraparound failure
+- Added check for autovacuum danger
 
 ## 1.1.3
 
