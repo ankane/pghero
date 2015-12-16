@@ -4,7 +4,7 @@
   </div>
   <div class="content">
     <p>For each table, run:</p>
-    <code><pre>VACUUM FREEZE VERBOSE table</pre></code>
+    <code><pre>VACUUM (FREEZE, VERBOSE) table</pre></code>
     <p><%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %></p>
     <table class="table">
       <thead>
@@ -142,7 +142,7 @@
   <div class="content">
     <h1>Autovacuum Danger</h1>
     <p>For each table, run:</p>
-    <code><pre>VACUUM FREEZE VERBOSE table</pre></code>
+    <code><pre>VACUUM (FREEZE, VERBOSE) table</pre></code>
     <p><%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %></p>
     <table class="table">
       <thead>
