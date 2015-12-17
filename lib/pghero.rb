@@ -347,6 +347,26 @@ module PgHero
       SQL
     end
 
+    def connection_sources_by_database
+      select_all <<-SQL
+        SELECT
+          application_name AS source,
+          client_addr AS ip,
+          datname AS database,
+          COUNT(*) AS total_connections
+        FROM
+          pg_stat_activity
+        WHERE
+          pid <> pg_backend_pid()
+        GROUP BY
+          1, 2, 3
+        ORDER BY
+          COUNT(*) DESC,
+          application_name ASC,
+          client_addr ASC
+      SQL
+    end
+
     # http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND
     # "the system will shut down and refuse to start any new transactions
     # once there are fewer than 1 million transactions left until wraparound"
