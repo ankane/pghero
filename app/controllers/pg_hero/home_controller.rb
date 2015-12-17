@@ -22,7 +22,6 @@ module PgHero
       @query_stats_available = PgHero.query_stats_available?
       @total_connections = PgHero.total_connections
       @good_total_connections = @total_connections < PgHero.total_connections_threshold
-      @replica = PgHero.replica?
       if @replica
         @replication_lag = PgHero.replication_lag
         @good_replication_lag = @replication_lag < 5
@@ -173,6 +172,7 @@ module PgHero
     def set_query_stats_enabled
       @query_stats_enabled = PgHero.query_stats_enabled?
       @system_stats_enabled = PgHero.system_stats_enabled?
+      @replica = PgHero.replica?
     end
   end
 end
