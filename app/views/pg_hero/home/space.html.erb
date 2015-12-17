@@ -8,6 +8,7 @@
       <tr>
         <th>Relation</th>
         <th style="width: 20%;">Size</th>
+        <th style="width: 20%;">Cache Hits</th>
       </tr>
     </thead>
     <tbody>
@@ -20,6 +21,7 @@
             <% end %>
           </td>
           <td><%= query["size"] %></td>
+          <td><%= (@hit_rates[query["name"]].to_f * 100).round %>%</td>
         </tr>
       <% end %>
     </tbody>

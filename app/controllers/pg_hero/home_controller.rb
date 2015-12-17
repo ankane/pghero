@@ -40,6 +40,13 @@ module PgHero
       @title = "Space"
       @database_size = PgHero.database_size
       @relation_sizes = PgHero.relation_sizes
+      @hit_rates = {}
+      PgHero.table_caching.each do |table|
+        @hit_rates[table["table"]] = table["hit_rate"]
+      end
+      PgHero.index_caching.each do |table|
+        @hit_rates[table["index"]] = table["hit_rate"]
+      end
     end
 
     def live_queries
@@ -123,6 +130,7 @@ module PgHero
       @title = "Caching"
       @table_caching = PgHero.table_caching
       @index_caching = PgHero.index_caching
+      @sizes = Hash[PgHero.relation_sizes.map { |r| [r["name"], r["size"]] }]
     end
 
     def kill

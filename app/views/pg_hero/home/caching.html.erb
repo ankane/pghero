@@ -7,16 +7,16 @@
     <thead>
       <tr>
         <th>Table</th>
-        <th style="width: 20%;">Hit Rate</th>
+        <th style="width: 15%;">Hit Rate</th>
+        <th style="width: 15%;">Size</th>
       </tr>
     </thead>
     <tbody>
       <% @table_caching.each do |table| %>
         <tr>
           <td><%= table["table"] %></td>
-          <td>
-            <%= (table["hit_rate"].to_f * 100).round %>%
-          </td>
+          <td><%= (table["hit_rate"].to_f * 100).round %>%</td>
+          <td><%= @sizes[table["table"]] %></td>
         </tr>
       <% end %>
     </tbody>
@@ -28,16 +28,16 @@
     <thead>
       <tr>
         <th>Index</th>
-        <th style="width: 20%;">Hit Rate</th>
+        <th style="width: 15%;">Hit Rate</th>
+        <th style="width: 15%;">Size</th>
       </tr>
     </thead>
     <tbody>
       <% @index_caching.each do |table| %>
         <tr>
           <td><%= table["index"] %> <span class="text-muted"><%= table["table"] %></span></td>
-          <td>
-            <%= (table["hit_rate"].to_f * 100).round %>%
-          </td>
+          <td><%= (table["hit_rate"].to_f * 100).round %>%</td>
+          <td><%= @sizes[table["table"]] %></td>
         </tr>
       <% end %>
     </tbody>
