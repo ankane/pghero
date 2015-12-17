@@ -172,6 +172,39 @@ module PgHero
       ).first["rate"].to_f
     end
 
+    def table_caching
+      select_all <<-SQL
+        SELECT
+          relname AS table,
+          CASE WHEN heap_blks_hit + heap_blks_read = 0 THEN
+            0
+          ELSE
+            1.0 * heap_blks_hit / (heap_blks_hit + heap_blks_read)
+          END AS hit_rate
+        FROM
+          pg_statio_user_tables
+        ORDER BY
+          2 DESC
+      SQL
+    end
+
+    def index_caching
+      select_all <<-SQL
+        SELECT
+          indexrelname AS index,
+          relname AS table,
+          CASE WHEN idx_blks_hit + idx_blks_read = 0 THEN
+            0
+          ELSE
+            1.0 * idx_blks_hit / (idx_blks_hit + idx_blks_read)
+          END AS hit_rate
+        FROM
+          pg_statio_user_indexes
+        ORDER BY
+          3 DESC
+      SQL
+    end
+
     def index_usage
       select_all <<-SQL
         SELECT

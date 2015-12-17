@@ -119,6 +119,12 @@ module PgHero
       @maintenance_info = PgHero.maintenance_info
     end
 
+    def caching
+      @title = "Caching"
+      @table_caching = PgHero.table_caching
+      @index_caching = PgHero.index_caching
+    end
+
     def kill
       if PgHero.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"
