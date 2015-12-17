@@ -13,7 +13,7 @@
     </tr>
   </thead>
   <tbody>
-    <% PgHero.connection_sources.first(10).each do |source| %>
+    <% connection_sources.each do |source| %>
       <tr>
         <td><%= source["source"] %> <span class="text-muted"><%= source["ip"] %></span></td>
         <td><%= number_with_delimiter(source["total_connections"]) %></td>
