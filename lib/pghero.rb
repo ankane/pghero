@@ -18,6 +18,7 @@ module PgHero
 
   class << self
     attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold, :env
+    attr_writer :time_zone
   end
   self.long_running_query_sec = (ENV["PGHERO_LONG_RUNNING_QUERY_SEC"] || 60).to_i
   self.slow_query_ms = (ENV["PGHERO_SLOW_QUERY_MS"] || 20).to_i
@@ -26,6 +27,10 @@ module PgHero
   self.env = ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
 
   class << self
+    def time_zone
+      @time_zone || Time.zone
+    end
+
     def config
       Thread.current[:pghero_config] ||= begin
         path = "config/pghero.yml"
@@ -344,6 +349,21 @@ module PgHero
           AND (SELECT setting FROM pg_settings WHERE name = 'autovacuum_freeze_max_age')::int - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) < 2000000
         ORDER BY
           transactions_before_autovacuum
+      SQL
+    end
+
+    def maintenance_info
+      select_all <<-SQL
+        SELECT
+          relname AS table,
+          last_vacuum,
+          last_autovacuum,
+          last_analyze,
+          last_autoanalyze
+        FROM
+          pg_stat_user_tables
+        ORDER BY
+          relname ASC
       SQL
     end
 
