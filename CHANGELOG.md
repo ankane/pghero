@@ -2,6 +2,7 @@
 
 - Added maintenance tab
 - Added `table_caching` and `index_caching` methods
+- Added configurable cache hit rate threshold
 - Show all connections in connections tab
 
 ## 1.1.4

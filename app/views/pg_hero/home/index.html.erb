@@ -45,7 +45,7 @@
   </div>
   <div class="alert alert-<%= @good_cache_rate ? "success" : "warning" %>">
     <% if @good_cache_rate %>
-      Cache hit rate above 99%
+      Cache hit rate above <%= PgHero.cache_hit_rate_threshold %>%
     <% else %>
       Low cache hit rate
     <% end %>
