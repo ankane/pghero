@@ -179,7 +179,7 @@ module PgHero
           CASE WHEN heap_blks_hit + heap_blks_read = 0 THEN
             0
           ELSE
-            1.0 * heap_blks_hit / (heap_blks_hit + heap_blks_read)
+            ROUND(1.0 * heap_blks_hit / (heap_blks_hit + heap_blks_read), 2)
           END AS hit_rate
         FROM
           pg_statio_user_tables
@@ -196,7 +196,7 @@ module PgHero
           CASE WHEN idx_blks_hit + idx_blks_read = 0 THEN
             0
           ELSE
-            1.0 * idx_blks_hit / (idx_blks_hit + idx_blks_read)
+            ROUND(1.0 * idx_blks_hit / (idx_blks_hit + idx_blks_read), 2)
           END AS hit_rate
         FROM
           pg_statio_user_indexes
