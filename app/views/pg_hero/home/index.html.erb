@@ -134,7 +134,7 @@
 <% if !@good_total_connections %>
   <div class="content">
     <h1>High Number of Connections</h1>
-    <%= render partial: "connections_table", locals: {total_connections: @total_connections, connection_sources: PgHero.connection_sources_by_database.first(10), show_message: true} %>
+    <%= render partial: "connections_table", locals: {total_connections: @total_connections, connection_sources: PgHero.connection_sources(by_database: true).first(10), show_message: true} %>
   </div>
 <% end %>
 
