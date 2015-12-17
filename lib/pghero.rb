@@ -184,7 +184,7 @@ module PgHero
         FROM
           pg_statio_user_tables
         ORDER BY
-          2 DESC
+          2 DESC, 1
       SQL
     end
 
@@ -201,7 +201,7 @@ module PgHero
         FROM
           pg_statio_user_indexes
         ORDER BY
-          3 DESC
+          3 DESC, 1
       SQL
     end
 

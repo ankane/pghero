@@ -15,7 +15,7 @@
         <tr>
           <td><%= table["table"] %></td>
           <td>
-            <%= (table["hit_rate"].to_f * 100).round(1) %>%
+            <%= (table["hit_rate"].to_f * 100).round(3) %>%
           </td>
         </tr>
       <% end %>
@@ -36,7 +36,7 @@
         <tr>
           <td><%= table["index"] %> <span class="text-muted"><%= table["table"] %></span></td>
           <td>
-            <%= (table["hit_rate"].to_f * 100).round(1) %>%
+            <%= (table["hit_rate"].to_f * 100).round(3) %>%
           </td>
         </tr>
       <% end %>
