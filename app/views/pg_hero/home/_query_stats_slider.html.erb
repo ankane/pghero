@@ -43,6 +43,7 @@
   }
 
   var sort = <%= @sort.to_json.html_safe %>;
+  var threshold = <%= @threshold.to_json %>;
 
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -100,7 +101,7 @@
 
   function queriesPath(params) {
     var path = "queries";
-    if (params.start_at || params.end_at || params.sort) {
+    if (params.start_at || params.end_at || params.sort || params.threshold) {
       path += "?" + $.param(params);
     }
     return path;
@@ -121,13 +122,19 @@
     if (sort) {
       params.sort = sort;
     }
+    if (threshold) {
+      params.threshold = threshold;
+    }
 
     var path = queriesPath(params);
 
     $(".queries-table th a").each( function () {
-      var p = $.extend({}, params, {sort: $(this).data("sort")});
+      var p = $.extend({}, params, {sort: $(this).data("sort"), threshold: threshold});
       if (!p.sort) {
         delete p.sort;
+      }
+      if (!p.threshold) {
+        delete p.threshold;
       }
       $(this).attr("href", queriesPath(p));
     });

@@ -464,7 +464,11 @@ module PgHero
         query_stats << value
       end
       sort = options[:sort] || "total_minutes"
-      query_stats.sort_by { |q| -q[sort] }.first(100)
+      query_stats = query_stats.sort_by { |q| -q[sort] }.first(100)
+      if options[:threshold]
+        query_stats.reject! { |q| q["average_time"].to_f < options[:threshold] }
+      end
+      query_stats
     end
 
     def slow_queries(options = {})
