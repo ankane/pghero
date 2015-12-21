@@ -465,8 +465,11 @@ module PgHero
       end
       sort = options[:sort] || "total_minutes"
       query_stats = query_stats.sort_by { |q| -q[sort] }.first(100)
-      if options[:threshold]
-        query_stats.reject! { |q| q["average_time"].to_f < options[:threshold] }
+      if options[:min_average_time]
+        query_stats.reject! { |q| q["average_time"].to_f < options[:min_average_time] }
+      end
+      if options[:min_calls]
+        query_stats.reject! { |q| q["calls"].to_i < options[:min_calls] }
       end
       query_stats
     end
