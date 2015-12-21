@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestPgHero < Minitest::Test
+class ExplainTest < Minitest::Test
   def setup
     User.delete_all
   end
