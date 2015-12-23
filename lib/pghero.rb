@@ -739,7 +739,49 @@ module PgHero
       select_all("SELECT EXTRACT(EPOCH FROM NOW() - pg_last_xact_replay_timestamp()) AS replication_lag").first["replication_lag"].to_f
     end
 
+    # TODO parse array properly
+    # http://stackoverflow.com/questions/2204058/list-columns-with-indexes-in-postgresql
+    def indexes
+      select_all( <<-SQL
+        SELECT
+          t.relname AS table,
+          ix.relname AS name,
+          regexp_replace(pg_get_indexdef(indexrelid), '.*\\((.*)\\)', '\\1') AS columns,
+          indisunique AS unique,
+          indisprimary AS primary,
+          indexprs,
+          indpred
+        FROM
+          pg_index i
+        INNER JOIN
+          pg_class t ON t.oid = i.indrelid
+        INNER JOIN
+          pg_class ix ON ix.oid = i.indexrelid
+        ORDER BY
+          1, 2
+      SQL
+      ).map { |v| v["columns"] = v["columns"].split(","); v }
+    end
+
+    def duplicate_indexes
+      indexes = []
+
+      indexes_by_table = self.indexes.group_by { |i| i["table"] }
+      indexes_by_table.values.flatten.select { |i| i["primary"] == "f" && i["unique"] == "f" && !i["indexprs"] && !i["indpred"] }.each do |index|
+        covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["name"] != index["name"] }
+        if covering_index
+          indexes << index.merge("covering_index" => covering_index)
+        end
+      end
+
+      indexes
+    end
+
     private
+
+    def index_covers?(indexed_columns, columns)
+      indexed_columns.first(columns.size) == columns
+    end
 
     def table_grant_commands(privilege, tables, user)
       tables.map do |table|

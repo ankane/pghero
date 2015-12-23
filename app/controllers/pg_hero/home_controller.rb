@@ -18,6 +18,7 @@ module PgHero
       @missing_indexes = PgHero.missing_indexes
       @unused_indexes = PgHero.unused_indexes.select { |q| q["index_scans"].to_i == 0 }
       @invalid_indexes = PgHero.invalid_indexes
+      @duplicate_indexes = PgHero.duplicate_indexes
       @good_cache_rate = @table_hit_rate >= PgHero.cache_hit_rate_threshold.to_f / 100 && @index_hit_rate >= PgHero.cache_hit_rate_threshold.to_f / 100
       @query_stats_available = PgHero.query_stats_available?
       @total_connections = PgHero.total_connections
