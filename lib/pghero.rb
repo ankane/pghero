@@ -747,6 +747,7 @@ module PgHero
           t.relname AS table,
           ix.relname AS name,
           regexp_replace(pg_get_indexdef(indexrelid), '.*\\((.*)\\)', '\\1') AS columns,
+          regexp_replace(pg_get_indexdef(indexrelid), '.* USING (.*) \\(.*', '\\1') AS type,
           indisunique AS unique,
           indisprimary AS primary,
           indexprs,
@@ -768,7 +769,7 @@ module PgHero
 
       indexes_by_table = self.indexes.group_by { |i| i["table"] }
       indexes_by_table.values.flatten.select { |i| i["primary"] == "f" && i["unique"] == "f" && !i["indexprs"] && !i["indpred"] }.each do |index|
-        covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["name"] != index["name"] }
+        covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["type"] == index["type"] && i["name"] != index["name"] }
         if covering_index
           indexes << index.merge("covering_index" => covering_index)
         end
