@@ -750,8 +750,8 @@ module PgHero
           regexp_replace(pg_get_indexdef(indexrelid), '.* USING (.*) \\(.*', '\\1') AS type,
           indisunique AS unique,
           indisprimary AS primary,
-          indexprs,
-          indpred
+          indexprs::text,
+          indpred::text
         FROM
           pg_index i
         INNER JOIN
