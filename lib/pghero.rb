@@ -817,7 +817,7 @@ module PgHero
         end
       end
 
-      indexes
+      indexes.sort_by { |i| [i[:table], i[:columns]] }
     end
 
     def autoindex(options = {})
