@@ -17,7 +17,7 @@ module PgHero
   end
 
   class << self
-    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold, :cache_hit_rate_threshold, :env
+    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold, :cache_hit_rate_threshold, :env, :show_migrations
   end
   self.long_running_query_sec = (ENV["PGHERO_LONG_RUNNING_QUERY_SEC"] || 60).to_i
   self.slow_query_ms = (ENV["PGHERO_SLOW_QUERY_MS"] || 20).to_i
@@ -25,6 +25,7 @@ module PgHero
   self.total_connections_threshold = (ENV["PGHERO_TOTAL_CONNECTIONS_THRESHOLD"] || 100).to_i
   self.cache_hit_rate_threshold = 99
   self.env = ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
+  self.show_migrations = true
 
   class << self
     def time_zone=(time_zone)
@@ -394,7 +395,7 @@ module PgHero
     def autovacuum_danger
       select_all <<-SQL
         SELECT
-          c.oid::regclass as table,
+          c.oid::regclass::text as table,
           (SELECT setting FROM pg_settings WHERE name = 'autovacuum_freeze_max_age')::int -
           GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_before_autovacuum
         FROM
@@ -475,7 +476,8 @@ module PgHero
     end
 
     def slow_queries(options = {})
-      query_stats(options).select { |q| q["calls"].to_i >= slow_query_calls.to_i && q["average_time"].to_i >= slow_query_ms.to_i }
+      query_stats = options[:query_stats] || self.query_stats(options.except(:query_stats))
+      query_stats.select { |q| q["calls"].to_i >= slow_query_calls.to_i && q["average_time"].to_i >= slow_query_ms.to_i }
     end
 
     def query_stats_available?
@@ -577,6 +579,14 @@ module PgHero
 
     def replication_lag_stats
       rds_stats("ReplicaLag")
+    end
+
+    def read_iops_stats
+      rds_stats("ReadIOPS")
+    end
+
+    def write_iops_stats
+      rds_stats("WriteIOPS")
     end
 
     def rds_stats(metric_name)
@@ -747,7 +757,7 @@ module PgHero
           t.relname AS table,
           ix.relname AS name,
           regexp_replace(pg_get_indexdef(indexrelid), '.*\\((.*)\\)', '\\1') AS columns,
-          regexp_replace(pg_get_indexdef(indexrelid), '.* USING (.*) \\(.*', '\\1') AS type,
+          regexp_replace(pg_get_indexdef(indexrelid), '.* USING (.*) \\(.*', '\\1') AS using,
           indisunique AS unique,
           indisprimary AS primary,
           indexprs::text,
@@ -761,7 +771,7 @@ module PgHero
         ORDER BY
           1, 2
       SQL
-      ).map { |v| v["columns"] = v["columns"].split(","); v }
+      ).map { |v| v["columns"] = v["columns"].split(", "); v }
     end
 
     def duplicate_indexes
@@ -769,19 +779,242 @@ module PgHero
 
       indexes_by_table = self.indexes.group_by { |i| i["table"] }
       indexes_by_table.values.flatten.select { |i| i["primary"] == "f" && i["unique"] == "f" && !i["indexprs"] && !i["indpred"] }.each do |index|
-        covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["type"] == index["type"] && i["name"] != index["name"] }
+        covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["using"] == index["using"] && i["name"] != index["name"] }
         if covering_index
-          indexes << index.merge("covering_index" => covering_index)
+          indexes << {"unneeded_index" => index, "covering_index" => covering_index}
         end
       end
 
       indexes
     end
 
+    def suggested_indexes_enabled?
+      defined?(PgQuery) && query_stats_enabled?
+    end
+
+    # TODO clean this mess
+    def suggested_indexes(options = {})
+      indexes = []
+
+      if suggested_indexes_enabled?
+        # get most time-consuming queries
+        queries = options[:queries] || (options[:query_stats] || self.query_stats(historical: true, start_at: 24.hours.ago)).map { |qs| qs["query"] }
+
+        # get best indexes for queries
+        indexes = []
+        best_index_helper(queries).select { |s, i| i[:found] }.group_by { |s, i| i[:index] }.each do |index, group|
+          indexes << index.merge(queries: group.map(&:first))
+        end
+
+        # check if indexes already exist that cover the suggested indexes
+        if indexes.any?
+          existing_columns = Hash.new { |hash, key| hash[key] = [] }
+          self.indexes.each do |i|
+            existing_columns[i["table"]] << i["columns"]
+          end
+
+          indexes = indexes.reject { |i| existing_columns[i[:table]].any? { |e| index_covers?(e, i[:columns]) } }
+        end
+      end
+
+      indexes
+    end
+
+    def autoindex(options = {})
+      suggested_indexes.each do |index|
+        p index
+        if options[:create]
+          connection.execute("CREATE INDEX CONCURRENTLY ON #{quote_table_name(index[:table])} (#{index[:columns].map { |c| quote_table_name(c) }.join(",")})")
+        end
+      end
+    end
+
+    def autoindex_all(options = {})
+      config["databases"].keys.each do |database|
+        with(database) do
+          puts "Autoindexing #{database}..."
+          autoindex(options)
+        end
+      end
+    end
+
+    def best_index(statement, options = {})
+      best_index_helper([statement])[statement]
+    end
+
+    def column_stats(options = {})
+      tables = options[:table] ? Array(options[:table]) : nil
+      select_all <<-SQL
+        SELECT
+          tablename AS table,
+          attname AS column,
+          null_frac,
+          n_distinct,
+          n_live_tup
+        FROM
+          pg_stats
+        INNER JOIN
+          pg_class ON pg_class.relname = pg_stats.tablename
+        INNER JOIN
+          pg_stat_user_tables ON pg_class.relname = pg_stat_user_tables.relname
+        WHERE
+          #{tables ? "pg_class.relname IN (#{tables.map { |t| quote(t) }.join(", ")})" : "1 = 1"}
+        ORDER BY
+          1, 2
+      SQL
+    end
+
     private
+
+    def best_index_helper(statements)
+      indexes = {}
+
+      # see if this is a query we understand and can use
+      parts = {}
+      statements.each do |statement|
+        parts[statement] = best_index_structure(statement)
+      end
+
+      # get stats about columns for relevant tables
+      tables = parts.values.map { |t| t[:table] }.uniq
+      if tables.any?
+        column_stats = self.column_stats(table: tables).group_by { |i| i["table"] }
+      end
+
+      # find best index based on query structure and column stats
+      parts.each do |statement, structure|
+        index = {found: false}
+
+        if structure[:error]
+          index[:explanation] = structure[:error]
+        else
+          index[:structure] = structure
+
+          table = structure[:table]
+          where = structure[:where]
+          sort = structure[:sort]
+
+          ranks = Hash[column_stats[table].to_a.map { |r| [r["column"], r] }]
+
+          columns = (where + sort).map { |c| c[:column] }.uniq
+
+          if columns.any? && columns.all? { |c| ranks[c] }
+            first_desc = sort.index { |c| c[:direction] == :desc }
+            if first_desc
+              sort = sort.first(first_desc + 1)
+            end
+            where = where.sort_by { |c| [row_estimates(ranks[c[:column]]), c] } + sort
+
+            index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]]).round] }]
+
+            rows_left = ranks[where.first[:column]]["n_live_tup"].to_i
+            index[:rows] = rows_left
+
+            # no index needed if less than 500 rows
+            if rows_left >= 500
+
+              # if most values are unique, no need to index others
+              final_where = []
+              where.each do |c|
+                final_where << c[:column]
+                rows_left = row_estimates(ranks[c[:column]], rows_left)
+                if rows_left < 10
+                  break
+                end
+              end
+
+              index[:found] = true
+              index[:index] = {table: table, columns: final_where}
+            else
+              index[:explanation] = "No index needed if less than 500 rows"
+            end
+          else
+            index[:explanation] = "No columns to index"
+          end
+        end
+
+        indexes[statement] = index
+      end
+
+      indexes
+    end
+
+    def best_index_structure(statement)
+      begin
+        tree = PgQuery.parse(statement).parsetree
+      rescue PgQuery::ParseError
+        return {error: "Parse error"}
+      end
+      return {error: "Unknown structure"} unless tree.size == 1
+
+      tree = tree.first
+      table = parse_table(tree) rescue nil
+      return {error: "Unknown structure"} unless table
+
+      select = tree["SELECT"] || tree["DELETE FROM"] || tree["UPDATE"]
+      where = (select["whereClause"] ? parse_where(select["whereClause"]) : []) rescue nil
+      return {error: "Unknown structure"} unless where
+
+      sort = (select["sortClause"] ? parse_sort(select["sortClause"]) : []) rescue nil
+      return {error: "Unknown structure"} unless sort
+
+      {table: table, where: where, sort: sort}
+    end
 
     def index_covers?(indexed_columns, columns)
       indexed_columns.first(columns.size) == columns
+    end
+
+    # TODO better row estimation
+    # http://www.postgresql.org/docs/current/static/row-estimation-examples.html
+    def row_estimates(stats, rows_left = nil)
+      rows_left ||= stats["n_live_tup"].to_i
+      if stats["n_distinct"].to_f < 0
+        [(stats["n_distinct"].to_f + 1) * rows_left, 1].max
+      else
+        rows_left / stats["n_distinct"].to_f
+      end
+    end
+
+    def parse_table(tree)
+      case tree.keys.first
+      when "SELECT"
+        tree["SELECT"]["fromClause"].first["RANGEVAR"]["relname"]
+      when "DELETE FROM"
+        tree["DELETE FROM"]["relation"]["RANGEVAR"]["relname"]
+      when "UPDATE"
+        tree["UPDATE"]["relation"]["RANGEVAR"]["relname"]
+      else
+        nil
+      end
+    end
+
+    # TODO capture values
+    def parse_where(tree)
+      if tree["AEXPR AND"]
+        left = parse_where(tree["AEXPR AND"]["lexpr"])
+        right = parse_where(tree["AEXPR AND"]["rexpr"])
+        if left && right
+          left + right
+        end
+      elsif tree["AEXPR"] && tree["AEXPR"]["name"].first == "="
+        [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last}]
+      elsif tree["AEXPR IN"] && tree["AEXPR IN"]["name"].first == "="
+        [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last}]
+      # elsif tree["NULLTEST"]
+      #   [tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last]
+      else
+        nil
+      end
+    end
+
+    def parse_sort(sort_clause)
+      sort_clause.map do |v|
+        {
+          column: v["SORTBY"]["node"]["COLUMNREF"]["fields"].last,
+          direction: v["SORTBY"]["sortby_dir"] == 2 ? :desc : :asc
+        }
+      end
     end
 
     def table_grant_commands(privilege, tables, user)

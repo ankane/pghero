@@ -1,7 +1,9 @@
-## 1.1.5 [unreleased]
+## 1.2.0 [unreleased]
 
+- Added suggested indexes
 - Added duplicate indexes
 - Added maintenance tab
+- Aded load stats
 - Added `table_caching` and `index_caching` methods
 - Added configurable cache hit rate threshold
 - Show all connections in connections tab

@@ -8,6 +8,7 @@ PgHero::Engine.routes.draw do
     get "cpu_usage", to: "home#cpu_usage"
     get "connection_stats", to: "home#connection_stats"
     get "replication_lag_stats", to: "home#replication_lag_stats"
+    get "load_stats", to: "home#load_stats"
     get "explain", to: "home#explain"
     get "tune", to: "home#tune"
     get "connections", to: "home#connections"

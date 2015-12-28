@@ -18,6 +18,16 @@ mount PgHero::Engine, at: "pghero"
 
 Be sure to [secure the dashboard](#security) in production.
 
+### Suggested Indexes (powerful, but experimental) [master]
+
+PgHero can suggest indexes to add. To enable, add to your Gemfile:
+
+```ruby
+gem 'pg_query'
+```
+
+and make sure [query stats](#query-stats) are enabled.
+
 ## Insights
 
 ```ruby
@@ -53,6 +63,14 @@ PgHero.disable_query_stats
 PgHero.reset_query_stats
 PgHero.query_stats
 PgHero.slow_queries
+```
+
+Suggested indexes
+
+```ruby
+PgHero.suggested_indexes
+PgHero.best_index(query)
+PgHero.autoindex(create: true) # create suggested indexes
 ```
 
 Security
@@ -155,6 +173,22 @@ By default, query stats are stored in your app’s database. Change this with:
 
 ```ruby
 ENV["PGHERO_STATS_DATABASE_URL"]
+```
+
+## Autoindexing (experimental)
+
+PgHero can automatically add indexes where needed.
+
+Schedule the task below to run every 5 minutes.
+
+```sh
+rake pghero:autoindex
+```
+
+Or with a scheduler like Clockwork, use:
+
+```ruby
+PgHero.autoindex_all(create: true)
 ```
 
 ## System Stats

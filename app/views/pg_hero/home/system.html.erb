@@ -4,6 +4,9 @@
   <h1>CPU</h1>
   <div style="margin-bottom: 20px;"><%= line_chart cpu_usage_path, max: 100, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
 
+  <h1>Load</h1>
+  <div style="margin-bottom: 20px;"><%= line_chart load_stats_path, colors: ["#5bc0de", "#d9534f"], library: {pointSize: 0, lineWidth: 5} %></div>
+
   <h1>Connections</h1>
   <div style="margin-bottom: 20px;"><%= line_chart connection_stats_path, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
 

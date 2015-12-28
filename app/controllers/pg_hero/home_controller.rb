@@ -11,7 +11,8 @@ module PgHero
 
     def index
       @title = "Overview"
-      @slow_queries = PgHero.slow_queries(historical: true, start_at: 3.hours.ago)
+      @query_stats = PgHero.query_stats(historical: true, start_at: 3.hours.ago)
+      @slow_queries = PgHero.slow_queries(query_stats: @query_stats)
       @long_running_queries = PgHero.long_running_queries
       @index_hit_rate = PgHero.index_hit_rate
       @table_hit_rate = PgHero.table_hit_rate
@@ -29,6 +30,8 @@ module PgHero
       end
       @transaction_id_danger = PgHero.transaction_id_danger
       @autovacuum_danger = PgHero.autovacuum_danger
+      set_suggested_indexes
+      @show_migrations = PgHero.show_migrations
     end
 
     def index_usage
@@ -78,6 +81,8 @@ module PgHero
           []
         end
 
+      set_suggested_indexes
+
       if request.xhr?
         render layout: false, partial: "queries_table", locals: {queries: @query_stats, xhr: true}
       end
@@ -99,6 +104,13 @@ module PgHero
       render json: PgHero.replication_lag_stats
     end
 
+    def load_stats
+      render json: [
+        {name: "Read IOPS", data: PgHero.read_iops_stats.map { |k, v| [k, v.round] }},
+        {name: "Write IOPS", data: PgHero.write_iops_stats.map { |k, v| [k, v.round] }}
+      ]
+    end
+
     def explain
       @title = "Explain"
       @query = params[:query]
@@ -107,6 +119,7 @@ module PgHero
       if request.post? && @query
         begin
           @explanation = PgHero.explain("#{params[:commit] == "Analyze" ? "ANALYZE " : ""}#{@query}")
+          @suggested_index = PgHero.suggested_indexes(queries: [@query]).first
         rescue ActiveRecord::StatementInvalid => e
           @error = e.message
         end
@@ -183,6 +196,11 @@ module PgHero
       @query_stats_enabled = PgHero.query_stats_enabled?
       @system_stats_enabled = PgHero.system_stats_enabled?
       @replica = PgHero.replica?
+    end
+
+    def set_suggested_indexes
+      @suggested_indexes = PgHero.suggested_indexes(query_stats: @query_stats)
+      @suggested_indexes_by_query = Hash[@suggested_indexes.flat_map { |si| si[:queries].map { |q| [q, si] } }]
     end
   end
 end

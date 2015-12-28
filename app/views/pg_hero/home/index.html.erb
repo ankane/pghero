@@ -43,6 +43,15 @@
       No long running queries
     <% end %>
   </div>
+  <% if PgHero.suggested_indexes_enabled? %>
+    <div class="alert alert-<%= @suggested_indexes.empty? ? "success" : "warning" %>">
+      <% if @suggested_indexes.any? %>
+        <%= pluralize(@suggested_indexes.size, "suggested index", "suggested indexes") %>
+      <% else %>
+        No suggested indexes
+      <% end %>
+    </div>
+  <% end %>
   <div class="alert alert-<%= @good_cache_rate ? "success" : "warning" %>">
     <% if @good_cache_rate %>
       Cache hit rate above <%= PgHero.cache_hit_rate_threshold %>%
@@ -118,6 +127,21 @@
     <h1>Long Running Queries</h1>
 
     <%= render partial: "live_queries_table", locals: {queries: @long_running_queries} %>
+  </div>
+<% end %>
+
+<% if @suggested_indexes.any? %>
+  <div class="content">
+    <h1>Suggested Indexes</h1>
+    <p>Add indexes to speed up queries.</p>
+    <% @suggested_indexes.each_with_index do |index, i| %>
+      <hr />
+      <code><pre>CREATE INDEX CONCURRENTLY ON <%= index[:table] %> (<%= index[:columns].join(", ") %>)</pre></code>
+      <p>to speed up</p>
+      <% index[:queries].each do |query| %>
+        <code><pre><%= query %></pre></code>
+      <% end %>
+    <% end %>
   </div>
 <% end %>
 
@@ -226,7 +250,20 @@ pg_stat_statements.track = all</pre>
   <div class="content">
     <h1>Duplicate Indexes</h1>
 
-    <p>These indexes exist, but aren’t needed. You should delete them.</p>
+    <p>
+      These indexes exist, but aren’t needed. Remove them
+      <% if @show_migrations %>
+      <a href="javascript: void(0);" onclick="document.getElementById('migration2').style.display = 'block';">with a migration</a>
+      <% end %>
+      for faster writes.
+    </p>
+
+    <div id="migration2" style="display: none;">
+      <pre>rails g migration remove_unneeded_indexes</pre>
+      <p>And paste</p>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @duplicate_indexes.each do |query| %>
+remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= query["unneeded_index"]["name"].to_s.inspect %><% end %></pre>
+    </div>
 
     <table class="table">
       <thead>
@@ -236,13 +273,14 @@ pg_stat_statements.track = all</pre>
       </thead>
       <tbody>
         <% @duplicate_indexes.each do |index| %>
+          <% unneeded_index = index["unneeded_index"] %>
           <% covering_index = index["covering_index"] %>
           <tr>
-            <td>
-              On <%= index["table"] %>,<br />
-              <%= index["name"] %> (<%= index["columns"].join(", ") %>)<br />
-              is covered by<br />
-              <%= covering_index["name"] %> (<%= covering_index["columns"].join(", ") %>)
+            <td style="padding-top: 15px; padding-bottom: 5px;">
+              On <%= unneeded_index["table"] %>
+              <pre><%= unneeded_index["name"] %> (<%= unneeded_index["columns"].join(", ") %>)</pre>
+              is covered by
+              <pre><%= covering_index["name"] %> (<%= covering_index["columns"].join(", ") %>)</pre>
             </td>
           </tr>
         <% end %>
@@ -284,7 +322,9 @@ pg_stat_statements.track = all</pre>
 
     <p>
       Unused indexes cause unnecessary overhead. Remove them
+      <% if @show_migrations %>
       <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
+      <% end %>
       for faster writes.
     </p>
 
