@@ -969,6 +969,7 @@ module PgHero
     # http://www.postgresql.org/docs/current/static/row-estimation-examples.html
     def row_estimates(stats, rows_left = nil)
       rows_left ||= stats["n_live_tup"].to_i
+      rows_left *= (1 - stats["null_frac"].to_f)
       if stats["n_distinct"].to_f < 0
         [(stats["n_distinct"].to_f + 1) * rows_left, 1].max
       else
