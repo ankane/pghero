@@ -61,6 +61,18 @@ class BestIndexTest < Minitest::Test
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = ?"
   end
 
+  def test_is_null
+    assert_best_index ({table: "users", columns: ["zip_code"]}), "SELECT * FROM users WHERE zip_code IS NULL"
+  end
+
+  def test_is_null_equal
+    assert_best_index ({table: "users", columns: ["zip_code", "login_attempts"]}), "SELECT * FROM users WHERE zip_code IS NULL AND login_attempts = ?"
+  end
+
+  def test_is_not_null
+    assert_best_index ({table: "users", columns: ["login_attempts", "zip_code"]}), "SELECT * FROM users WHERE zip_code IS NOT NULL AND login_attempts = ?"
+  end
+
   def test_update
     assert_best_index ({table: "users", columns: ["city_id"]}), "UPDATE users SET email = 'test' WHERE city_id = 1"
   end

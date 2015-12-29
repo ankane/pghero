@@ -27,13 +27,20 @@ if ENV["SEED"]
     t.integer :city_id
     t.integer :login_attempts
     t.string :email
+    t.string :zip_code
     t.timestamp :created_at
   end
 
   User.transaction do
     10000.times do |i|
       city_id = i % 100
-      User.create!(city_id: city_id, email: "person#{i}@example.org", login_attempts: rand(30), created_at: Time.now - rand(50).days)
+      User.create!(
+        city_id: city_id,
+        email: "person#{i}@example.org",
+        login_attempts: rand(30),
+        zip_code: i % 40 == 0 ? nil : "12345",
+        created_at: Time.now - rand(50).days
+      )
     end
   end
   ActiveRecord::Base.connection.execute("VACUUM ANALYZE users")

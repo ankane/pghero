@@ -903,9 +903,9 @@ module PgHero
             if first_desc
               sort = sort.first(first_desc + 1)
             end
-            where = where.sort_by { |c| [row_estimates(ranks[c[:column]]), c] } + sort
+            where = where.sort_by { |c| [row_estimates(ranks[c[:column]], nil, c[:op]), c] } + sort
 
-            index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]]).round] }]
+            index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]], nil, c[:op]).round] }]
 
             rows_left = ranks[where.first[:column]]["n_live_tup"].to_i
             index[:rows] = rows_left
@@ -917,7 +917,7 @@ module PgHero
               final_where = []
               where.each do |c|
                 final_where << c[:column]
-                rows_left = row_estimates(ranks[c[:column]], rows_left)
+                rows_left = row_estimates(ranks[c[:column]], rows_left, c[:op])
                 if rows_left < 10
                   break
                 end
@@ -967,13 +967,20 @@ module PgHero
 
     # TODO better row estimation
     # http://www.postgresql.org/docs/current/static/row-estimation-examples.html
-    def row_estimates(stats, rows_left = nil)
+    def row_estimates(stats, rows_left = nil, op = nil)
       rows_left ||= stats["n_live_tup"].to_i
-      rows_left *= (1 - stats["null_frac"].to_f)
-      if stats["n_distinct"].to_f < 0
-        [(stats["n_distinct"].to_f + 1) * rows_left, 1].max
+      case op
+      when :null
+        rows_left * stats["null_frac"].to_f
+      when :not_null
+        rows_left * (1 - stats["null_frac"].to_f)
       else
-        rows_left / stats["n_distinct"].to_f
+        rows_left *= (1 - stats["null_frac"].to_f)
+        if stats["n_distinct"].to_f < 0
+          [(stats["n_distinct"].to_f + 1) * rows_left, 1].max
+        else
+          rows_left / stats["n_distinct"].to_f
+        end
       end
     end
 
@@ -1002,8 +1009,9 @@ module PgHero
         [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last}]
       elsif tree["AEXPR IN"] && tree["AEXPR IN"]["name"].first == "="
         [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last}]
-      # elsif tree["NULLTEST"]
-      #   [tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last]
+      elsif tree["NULLTEST"]
+        op = tree["NULLTEST"]["nulltesttype"] == 1 ? :not_null : :null
+        [{column: tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last, op: op}]
       else
         nil
       end
