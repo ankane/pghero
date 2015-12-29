@@ -915,11 +915,25 @@ module PgHero
 
               # if most values are unique, no need to index others
               final_where = []
+              prev_rows_left = [rows_left]
               where.each do |c|
                 final_where << c[:column]
                 rows_left = row_estimates(ranks[c[:column]], rows_left, c[:op])
-                if rows_left < 10
+                prev_rows_left << rows_left
+                if rows_left < 50
                   break
+                end
+              end
+
+              # if the last indexes don't give us much, don't include
+              if prev_rows_left.last > 50
+                prev_rows_left.reverse!
+                (prev_rows_left.size - 1).times do |i|
+                  if prev_rows_left[i] > prev_rows_left[i + 1] * 0.1
+                    final_where.pop
+                  else
+                    break
+                  end
                 end
               end
 

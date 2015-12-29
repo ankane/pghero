@@ -70,7 +70,7 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_is_not_null
-    assert_best_index ({table: "users", columns: ["login_attempts", "zip_code"]}), "SELECT * FROM users WHERE zip_code IS NOT NULL AND login_attempts = ?"
+    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE zip_code IS NOT NULL AND login_attempts = ?"
   end
 
   def test_update
