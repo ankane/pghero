@@ -45,6 +45,7 @@
   var sort = <%= @sort.to_json.html_safe %>;
   var minAverageTime = <%= @min_average_time.to_json %>;
   var minCalls = <%= @min_calls.to_json %>;
+  var debug = <%= @debug.to_json %>;
 
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -102,7 +103,7 @@
 
   function queriesPath(params) {
     var path = "queries";
-    if (params.start_at || params.end_at || params.sort || params.min_average_time || params.min_calls) {
+    if (params.start_at || params.end_at || params.sort || params.min_average_time || params.min_calls || params.debug) {
       path += "?" + $.param(params);
     }
     return path;
@@ -129,11 +130,14 @@
     if (minCalls) {
       params.min_calls = minCalls;
     }
+    if (debug) {
+      params.debug = debug;
+    }
 
     var path = queriesPath(params);
 
     $(".queries-table th a").each( function () {
-      var p = $.extend({}, params, {sort: $(this).data("sort"), min_average_time: minAverageTime});
+      var p = $.extend({}, params, {sort: $(this).data("sort"), min_average_time: minAverageTime, min_calls: minCalls, debug: debug});
       if (!p.sort) {
         delete p.sort;
       }
@@ -142,6 +146,9 @@
       }
       if (!p.min_calls) {
         delete p.min_calls;
+      }
+      if (!p.debug) {
+        delete p.debug;
       }
       $(this).attr("href", queriesPath(p));
     });

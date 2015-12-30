@@ -136,7 +136,7 @@
     <p>Add indexes to speed up queries.</p>
     <% @suggested_indexes.each_with_index do |index, i| %>
       <hr />
-      <code><pre>CREATE INDEX CONCURRENTLY ON <%= index[:table] %> (<%= index[:columns].join(", ") %>)</pre></code>
+      <%= render partial: "suggested_index", locals: {index: index} %>
       <p>to speed up</p>
       <% index[:queries].each do |query| %>
         <code><pre><%= query %></pre></code>

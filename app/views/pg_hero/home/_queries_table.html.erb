@@ -46,9 +46,13 @@
           <% if query["query"] == "<insufficient privilege>" %>
             <p class="text-muted">For security reasons, only superusers can see queries executed by other users.</p>
           <% end %>
-          <% if (index = @suggested_indexes_by_query[query["query"]]) %>
-            <div class="alert alert-info" style="margin-bottom: 0;">Suggested index</div>
-            <code><pre>CREATE INDEX CONCURRENTLY ON <%= index[:table] %> (<%= index[:columns].join(", ") %>)</pre></code>
+          <% if (i2 = @suggested_indexes_by_query[query["query"]]) %>
+            <% if (index = i2[:index]) && !i2[:covering_index] %>
+              <%= render partial: "suggested_index", locals: {index: index} %>
+            <% end %>
+            <% if @debug %>
+              <code><pre style="color: #f0ad4e; background-color: #333;"><%= i2.to_json %></pre></code>
+            <% end %>
           <% end %>
         </td>
       </tr>

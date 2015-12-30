@@ -10,8 +10,7 @@
     <pre><%= @explanation %></pre>
     <p><%= link_to "See how to interpret this", "http://www.postgresql.org/docs/current/static/using-explain.html", target: "_blank" %></p>
     <% if (index = @suggested_index) %>
-      <div class="alert alert-info" style="margin-bottom: 0;">Suggested index</div>
-      <code><pre>CREATE INDEX CONCURRENTLY ON <%= index[:table] %> (<%= index[:columns].join(", ") %>)</pre></code>
+      <%= render partial: "suggested_index", locals: {index: index} %>
     <% end %>
   <% elsif @error %>
     <div class="alert alert-danger"><%= @error %></div>

@@ -793,28 +793,39 @@ module PgHero
     end
 
     # TODO clean this mess
-    def suggested_indexes(options = {})
-      indexes = []
+    def suggested_indexes_by_query(options = {})
+      best_indexes = {}
 
       if suggested_indexes_enabled?
         # get most time-consuming queries
         queries = options[:queries] || (options[:query_stats] || self.query_stats(historical: true, start_at: 24.hours.ago)).map { |qs| qs["query"] }
 
         # get best indexes for queries
-        indexes = []
-        best_index_helper(queries).select { |s, i| i[:found] }.group_by { |s, i| i[:index] }.each do |index, group|
-          indexes << index.merge(queries: group.map(&:first))
-        end
+        best_indexes = best_index_helper(queries)
 
-        # check if indexes already exist that cover the suggested indexes
-        if indexes.any?
+        if best_indexes.any?
           existing_columns = Hash.new { |hash, key| hash[key] = [] }
           self.indexes.each do |i|
             existing_columns[i["table"]] << i["columns"]
           end
 
-          indexes = indexes.reject { |i| existing_columns[i[:table]].any? { |e| index_covers?(e, i[:columns]) } }
+          best_indexes.each do |query, best_index|
+            if best_index[:found]
+              index = best_index[:index]
+              best_index[:covering_index] = existing_columns[index[:table]].find { |e| index_covers?(e, index[:columns]) }
+            end
+          end
         end
+      end
+
+      best_indexes
+    end
+
+    def suggested_indexes(options = {})
+      indexes = []
+
+      (options[:suggested_indexes_by_query] || suggested_indexes_by_query(options)).select { |s, i| i[:found] && !i[:covering_index] }.group_by { |s, i| i[:index] }.each do |index, group|
+        indexes << index.merge(queries: group.map(&:first))
       end
 
       indexes.sort_by { |i| [i[:table], i[:columns]] }
@@ -937,8 +948,10 @@ module PgHero
                 end
               end
 
-              index[:found] = true
-              index[:index] = {table: table, columns: final_where}
+              if final_where.any?
+                index[:found] = true
+                index[:index] = {table: table, columns: final_where}
+              end
             else
               index[:explanation] = "No index needed if less than 500 rows"
             end
@@ -991,7 +1004,7 @@ module PgHero
       else
         rows_left *= (1 - stats["null_frac"].to_f)
         if stats["n_distinct"].to_f < 0
-          [(stats["n_distinct"].to_f + 1) * rows_left, 1].max
+          (-1 / stats["n_distinct"].to_f) * (rows_left / stats["n_live_tup"].to_f)
         else
           rows_left / stats["n_distinct"].to_f
         end
