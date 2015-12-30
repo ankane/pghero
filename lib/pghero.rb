@@ -916,7 +916,7 @@ module PgHero
             if first_desc
               sort = sort.first(first_desc + 1)
             end
-            where = where.sort_by { |c| [row_estimates(ranks[c[:column]], nil, c[:op]), c] } + sort
+            where = where.sort_by { |c| [row_estimates(ranks[c[:column]], nil, c[:op]), c[:column]] } + sort
 
             index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]], nil, c[:op]).round] }]
 
