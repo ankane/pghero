@@ -985,8 +985,11 @@ module PgHero
       table = parse_table(tree) rescue nil
       unless table
         error =
-          if tree.keys.first == "INSERT INTO"
+          case tree.keys.first
+          when "INSERT INTO"
             "INSERT statement"
+          when "SET"
+            "SET statement"
           else
             "Unknown structure"
           end

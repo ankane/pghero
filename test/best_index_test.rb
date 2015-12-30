@@ -105,6 +105,10 @@ class BestIndexTest < Minitest::Test
     assert_no_index "INSERT statement", "INSERT INTO users (login_attempts) VALUES (1)"
   end
 
+  def test_set
+    assert_no_index "SET statement", "set client_encoding to 'UTF8'"
+  end
+
   protected
 
   def assert_best_index(expected, statement)
