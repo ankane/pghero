@@ -1005,7 +1005,9 @@ module PgHero
         rows_left * (1 - stats["null_frac"].to_f)
       else
         rows_left *= (1 - stats["null_frac"].to_f)
-        if stats["n_distinct"].to_f < 0
+        if stats["n_distinct"].to_f == 0
+          0
+        elsif stats["n_distinct"].to_f < 0
           if stats["n_live_tup"].to_i > 0
             (-1 / stats["n_distinct"].to_f) * (rows_left / stats["n_live_tup"].to_f)
           else
