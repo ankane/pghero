@@ -935,6 +935,7 @@ module PgHero
               final_where = []
               prev_rows_left = [rows_left]
               where.each do |c|
+                next if final_where.include?(c[:column])
                 final_where << c[:column]
                 rows_left = row_estimates(ranks[c[:column]], rows_left, c[:op])
                 prev_rows_left << rows_left
@@ -1058,7 +1059,7 @@ module PgHero
         if left && right
           left + right
         end
-      elsif tree["AEXPR"] && tree["AEXPR"]["name"].first == "="
+      elsif tree["AEXPR"] && ["=", ">", ">=", "<", "<="].include?(tree["AEXPR"]["name"].first)
         [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last}]
       elsif tree["AEXPR IN"] && tree["AEXPR IN"]["name"].first == "="
         [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last}]
