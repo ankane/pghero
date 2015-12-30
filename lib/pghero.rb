@@ -813,7 +813,11 @@ module PgHero
           best_indexes.each do |query, best_index|
             if best_index[:found]
               index = best_index[:index]
-              best_index[:covering_index] = existing_columns[index[:table]].find { |e| index_covers?(e, index[:columns]) }
+              covering_index = existing_columns[index[:table]].find { |e| index_covers?(e, index[:columns]) }
+              if covering_index
+                best_index[:covering_index] = covering_index
+                best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"
+              end
             end
           end
         end

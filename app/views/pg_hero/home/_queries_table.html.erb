@@ -51,7 +51,7 @@
               <%= render partial: "suggested_index", locals: {index: index} %>
             <% end %>
             <% if @debug %>
-              <code><pre style="color: #f0ad4e; background-color: #333;"><%= i2.to_json %></pre></code>
+              <code><pre style="color: #f0ad4e; background-color: #333;"><% if i2[:explanation] %><%= i2[:explanation] %><% else %><%= i2.as_json.slice("rows", "row_estimates").to_json %><% end %></pre></code>
             <% end %>
           <% end %>
         </td>
