@@ -943,6 +943,8 @@ module PgHero
                 end
               end
 
+              index[:row_progression] = prev_rows_left.map(&:round)
+
               # if the last indexes don't give us much, don't include
               if prev_rows_left.last > 50
                 prev_rows_left.reverse!

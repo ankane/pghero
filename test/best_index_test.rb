@@ -12,7 +12,8 @@ class BestIndexTest < Minitest::Test
       structure: {table: "users", where: [{column: "login_attempts"}], sort: [{column: "created_at", direction: :asc}]},
       index: {table: "users", columns: ["login_attempts", "created_at"]},
       rows: 10000,
-      row_estimates: {"login_attempts" => 333, "created_at" => 1}
+      row_estimates: {"login_attempts" => 333, "created_at" => 1},
+      row_progression: [10000, 333, 0]
     }
     assert_equal expected, index
   end
