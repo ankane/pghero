@@ -760,6 +760,7 @@ module PgHero
           regexp_replace(pg_get_indexdef(indexrelid), '.* USING (.*) \\(.*', '\\1') AS using,
           indisunique AS unique,
           indisprimary AS primary,
+          indisvalid AS valid,
           indexprs::text,
           indpred::text
         FROM
@@ -778,14 +779,14 @@ module PgHero
       indexes = []
 
       indexes_by_table = self.indexes.group_by { |i| i["table"] }
-      indexes_by_table.values.flatten.select { |i| i["primary"] == "f" && i["unique"] == "f" && !i["indexprs"] && !i["indpred"] }.each do |index|
-        covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["using"] == index["using"] && i["name"] != index["name"] }
+      indexes_by_table.values.flatten.select { |i| i["primary"] == "f" && i["unique"] == "f" && !i["indexprs"] && !i["indpred"] && i["valid"] == "t" }.each do |index|
+        covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["using"] == index["using"] && i["name"] != index["name"] && i["valid"] == "t" }
         if covering_index
           indexes << {"unneeded_index" => index, "covering_index" => covering_index}
         end
       end
 
-      indexes
+      indexes.sort_by { |i| ui = i["unneeded_index"]; [ui["table"], ui["columns"]] }
     end
 
     def suggested_indexes_enabled?
