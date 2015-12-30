@@ -898,6 +898,8 @@ module PgHero
 
         if structure[:error]
           index[:explanation] = structure[:error]
+        elsif structure[:table].start_with?("pg_")
+          index[:explanation] = "System table"
         else
           index[:structure] = structure
 

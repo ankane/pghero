@@ -97,6 +97,10 @@ class BestIndexTest < Minitest::Test
     assert_no_index "No index needed if less than 500 rows", "SELECT * FROM states WHERE name = 'State 1'"
   end
 
+  def test_system_table
+    assert_no_index "System table", "SELECT COUNT(*) AS count FROM pg_extension WHERE extname = ?"
+  end
+
   protected
 
   def assert_best_index(expected, statement)
