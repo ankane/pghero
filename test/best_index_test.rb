@@ -101,6 +101,10 @@ class BestIndexTest < Minitest::Test
     assert_no_index "System table", "SELECT COUNT(*) AS count FROM pg_extension WHERE extname = ?"
   end
 
+  def test_insert
+    assert_no_index "INSERT statement", "INSERT INTO users (login_attempts) VALUES (1)"
+  end
+
   protected
 
   def assert_best_index(expected, statement)

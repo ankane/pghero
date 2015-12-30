@@ -979,7 +979,15 @@ module PgHero
 
       tree = tree.first
       table = parse_table(tree) rescue nil
-      return {error: "Unknown structure"} unless table
+      unless table
+        error =
+          if tree.keys.first == "INSERT INTO"
+            "INSERT statement"
+          else
+            "Unknown structure"
+          end
+        return {error: error}
+      end
 
       select = tree["SELECT"] || tree["DELETE FROM"] || tree["UPDATE"]
       where = (select["whereClause"] ? parse_where(select["whereClause"]) : []) rescue nil
