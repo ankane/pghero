@@ -863,23 +863,36 @@ module PgHero
       tables = options[:table] ? Array(options[:table]) : nil
       select_all <<-SQL
         SELECT
-          pg_namespace.nspname AS schema,
+          schemaname AS schema,
           tablename AS table,
           attname AS column,
           null_frac,
-          n_distinct,
-          reltuples AS n_live_tup
+          n_distinct
         FROM
           pg_stats
-        INNER JOIN
-          pg_class ON pg_class.relname = pg_stats.tablename
+        WHERE
+          #{tables ? "tablename IN (#{tables.map { |t| quote(t) }.join(", ")})" : "1 = 1"}
+          AND schemaname = #{quote(schema)}
+        ORDER BY
+          1, 2, 3
+      SQL
+    end
+
+    def table_stats(options = {})
+      schema = options[:schema]
+      tables = options[:table] ? Array(options[:table]) : nil
+      select_all <<-SQL
+        SELECT
+          nspname AS schema,
+          relname AS table,
+          reltuples
+        FROM
+          pg_class
         INNER JOIN
           pg_namespace ON pg_namespace.oid = pg_class.relnamespace
-        INNER JOIN
-          pg_stat_user_tables ON pg_class.relname = pg_stat_user_tables.relname
         WHERE
-          #{tables ? "pg_class.relname IN (#{tables.map { |t| quote(t) }.join(", ")})" : "1 = 1"}
-          AND pg_namespace.nspname = #{quote(schema)}
+          #{tables ? "relname IN (#{tables.map { |t| quote(t) }.join(", ")})" : "1 = 1"}
+          AND nspname = #{quote(schema)}
         ORDER BY
           1, 2, 3
       SQL
@@ -901,6 +914,7 @@ module PgHero
       # TODO get schema from query structure, then try search path
       schema = connection_model.connection_config[:schema] || "public"
       if tables.any?
+        row_stats = Hash[self.table_stats(table: tables, schema: schema).map { |i| [i["table"], i["reltuples"]] }]
         column_stats = self.column_stats(table: tables, schema: schema).group_by { |i| i["table"] }
       end
 
@@ -919,8 +933,10 @@ module PgHero
           where = structure[:where]
           sort = structure[:sort]
 
-          ranks = Hash[column_stats[table].to_a.map { |r| [r["column"], r] }]
+          total_rows = row_stats[table].to_i
+          index[:rows] = total_rows
 
+          ranks = Hash[column_stats[table].to_a.map { |r| [r["column"], r] }]
           columns = (where + sort).map { |c| c[:column] }.uniq
 
           if columns.any? && columns.all? { |c| ranks[c] }
@@ -928,23 +944,21 @@ module PgHero
             if first_desc
               sort = sort.first(first_desc + 1)
             end
-            where = where.sort_by { |c| [row_estimates(ranks[c[:column]], nil, c[:op]), c[:column]] } + sort
+            where = where.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
 
-            index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]], nil, c[:op]).round] }]
-
-            rows_left = ranks[where.first[:column]]["n_live_tup"].to_i
-            index[:rows] = rows_left
+            index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }]
 
             # no index needed if less than 500 rows
-            if rows_left >= 500
+            if total_rows >= 500
 
               # if most values are unique, no need to index others
+              rows_left = total_rows
               final_where = []
               prev_rows_left = [rows_left]
               where.each do |c|
                 next if final_where.include?(c[:column])
                 final_where << c[:column]
-                rows_left = row_estimates(ranks[c[:column]], rows_left, c[:op])
+                rows_left = row_estimates(ranks[c[:column]], total_rows, rows_left, c[:op])
                 prev_rows_left << rows_left
                 if rows_left < 50
                   break
@@ -1022,8 +1036,7 @@ module PgHero
 
     # TODO better row estimation
     # http://www.postgresql.org/docs/current/static/row-estimation-examples.html
-    def row_estimates(stats, rows_left = nil, op = nil)
-      rows_left ||= stats["n_live_tup"].to_i
+    def row_estimates(stats, total_rows, rows_left, op)
       case op
       when "null"
         rows_left * stats["null_frac"].to_f
@@ -1034,8 +1047,8 @@ module PgHero
         if stats["n_distinct"].to_f == 0
           0
         elsif stats["n_distinct"].to_f < 0
-          if stats["n_live_tup"].to_i > 0
-            (-1 / stats["n_distinct"].to_f) * (rows_left / stats["n_live_tup"].to_f)
+          if total_rows > 0
+            (-1 / stats["n_distinct"].to_f) * (rows_left / total_rows.to_f)
           else
             0
           end
