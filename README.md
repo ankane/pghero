@@ -1,8 +1,8 @@
 # PgHero
 
-Postgres insights made easy
+The missing dashboard for Postgres
 
-[View the demo](https://pghero.herokuapp.com/)
+[See it in action](https://pghero.herokuapp.com/)
 
 [![Screenshot](https://pghero.herokuapp.com/assets/screenshot-34a33ee68c77d64c1f89f143f6297a47.png)](https://pghero.herokuapp.com/)
 
