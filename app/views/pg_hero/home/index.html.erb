@@ -133,7 +133,21 @@
 <% if @suggested_indexes.any? %>
   <div class="content">
     <h1>Suggested Indexes</h1>
-    <p>Add indexes to speed up queries.</p>
+    <p>
+      Add indexes to speed up queries.
+      <% if @show_migrations %>
+      Here’s a
+      <a href="javascript: void(0);" onclick="document.getElementById('migration3').style.display = 'block';">migration</a> to help.
+      <% end %>
+    </p>
+
+    <div id="migration3" style="display: none;">
+      <pre>rails g migration add_suggested_indexes</pre>
+      <p>And paste</p>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @suggested_indexes.each do |index| %>
+add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(" ,") %>], algorithm: :concurrently<% end %></pre>
+    </div>
+
     <% @suggested_indexes.each_with_index do |index, i| %>
       <hr />
       <%= render partial: "suggested_index", locals: {index: index} %>

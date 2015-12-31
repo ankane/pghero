@@ -3,7 +3,7 @@
 - Added suggested indexes
 - Added duplicate indexes
 - Added maintenance tab
-- Aded load stats
+- Added load stats for RDS
 - Added `table_caching` and `index_caching` methods
 - Added configurable cache hit rate threshold
 - Show all connections in connections tab
