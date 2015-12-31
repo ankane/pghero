@@ -1,3 +1,8 @@
+## 1.2.1 [unreleased]
+
+- Fixed suggested indexes for replicas
+- Fixed issue w/ suggested indexes where same table name exists in multiple schemas
+
 ## 1.2.0
 
 - Added suggested indexes
