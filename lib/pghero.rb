@@ -866,7 +866,7 @@ module PgHero
           attname AS column,
           null_frac,
           n_distinct,
-          n_live_tup
+          reltuples as n_live_tup
         FROM
           pg_stats
         INNER JOIN
