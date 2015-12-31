@@ -26,9 +26,7 @@ PgHero can suggest indexes to add. To enable, add to your Gemfile:
 gem 'pg_query'
 ```
 
-and make sure [query stats](#query-stats) are enabled.
-
-Read about [how it works here](Suggested-Indexes.md).
+and make sure [query stats](#query-stats) are enabled. Read about how it works [here](Suggested-Indexes.md).
 
 ## Insights
 
