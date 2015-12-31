@@ -1,8 +1,6 @@
-# Suggested Indexes
+# How PgHero Suggests Indexes
 
-Here’s how PgHero suggests indexes.
-
-1. Get the most time-consuming queries from [pg_stat_statments](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html).
+1. Get the most time-consuming queries from [pg_stat_statements](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html).
 
 2. Parse queries with [pg_query](https://github.com/lfittl/pg_query).  Look for a single table with a `WHERE` clause that consists of only `=`, `IN`, `IS NULL` or `IS NOT NULL` and/or an `ORDER BY` clause.
 
