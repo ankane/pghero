@@ -859,24 +859,29 @@ module PgHero
     end
 
     def column_stats(options = {})
+      schema = options[:schema]
       tables = options[:table] ? Array(options[:table]) : nil
       select_all <<-SQL
         SELECT
+          pg_namespace.nspname AS schema,
           tablename AS table,
           attname AS column,
           null_frac,
           n_distinct,
-          reltuples as n_live_tup
+          reltuples AS n_live_tup
         FROM
           pg_stats
         INNER JOIN
           pg_class ON pg_class.relname = pg_stats.tablename
         INNER JOIN
+          pg_namespace ON pg_namespace.oid = pg_class.relnamespace
+        INNER JOIN
           pg_stat_user_tables ON pg_class.relname = pg_stat_user_tables.relname
         WHERE
           #{tables ? "pg_class.relname IN (#{tables.map { |t| quote(t) }.join(", ")})" : "1 = 1"}
+          AND pg_namespace.nspname = #{quote(schema)}
         ORDER BY
-          1, 2
+          1, 2, 3
       SQL
     end
 
@@ -893,8 +898,10 @@ module PgHero
 
       # get stats about columns for relevant tables
       tables = parts.values.map { |t| t[:table] }.uniq
+      # TODO get schema from query structure, then try search path
+      schema = connection_model.connection_config[:schema] || "public"
       if tables.any?
-        column_stats = self.column_stats(table: tables).group_by { |i| i["table"] }
+        column_stats = self.column_stats(table: tables, schema: schema).group_by { |i| i["table"] }
       end
 
       # find best index based on query structure and column stats
