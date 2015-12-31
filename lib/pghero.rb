@@ -917,7 +917,7 @@ module PgHero
           columns = (where + sort).map { |c| c[:column] }.uniq
 
           if columns.any? && columns.all? { |c| ranks[c] }
-            first_desc = sort.index { |c| c[:direction] == :desc }
+            first_desc = sort.index { |c| c[:direction] == "desc" }
             if first_desc
               sort = sort.first(first_desc + 1)
             end
@@ -1018,9 +1018,9 @@ module PgHero
     def row_estimates(stats, rows_left = nil, op = nil)
       rows_left ||= stats["n_live_tup"].to_i
       case op
-      when :null
+      when "null"
         rows_left * stats["null_frac"].to_f
-      when :not_null
+      when "not_null"
         rows_left * (1 - stats["null_frac"].to_f)
       else
         rows_left *= (1 - stats["null_frac"].to_f)
@@ -1059,12 +1059,12 @@ module PgHero
         if left && right
           left + right
         end
-      elsif tree["AEXPR"] && ["=", ">", ">=", "<", "<="].include?(tree["AEXPR"]["name"].first)
-        [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last}]
+      elsif tree["AEXPR"] && ["="].include?(tree["AEXPR"]["name"].first)
+        [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR"]["name"].first}]
       elsif tree["AEXPR IN"] && tree["AEXPR IN"]["name"].first == "="
-        [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last}]
+        [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: "in"}]
       elsif tree["NULLTEST"]
-        op = tree["NULLTEST"]["nulltesttype"] == 1 ? :not_null : :null
+        op = tree["NULLTEST"]["nulltesttype"] == 1 ? "not_null" : "null"
         [{column: tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last, op: op}]
       else
         nil
@@ -1075,7 +1075,7 @@ module PgHero
       sort_clause.map do |v|
         {
           column: v["SORTBY"]["node"]["COLUMNREF"]["fields"].last,
-          direction: v["SORTBY"]["sortby_dir"] == 2 ? :desc : :asc
+          direction: v["SORTBY"]["sortby_dir"] == 2 ? "desc" : "asc"
         }
       end
     end
