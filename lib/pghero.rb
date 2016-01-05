@@ -891,10 +891,11 @@ module PgHero
         INNER JOIN
           pg_namespace ON pg_namespace.oid = pg_class.relnamespace
         WHERE
-          #{tables ? "relname IN (#{tables.map { |t| quote(t) }.join(", ")})" : "1 = 1"}
+          relkind = 'r'
           AND nspname = #{quote(schema)}
+          #{tables ? "AND relname IN (#{tables.map { |t| quote(t) }.join(", ")})" : nil}
         ORDER BY
-          1, 2, 3
+          1, 2
       SQL
     end
 
