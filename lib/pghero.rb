@@ -968,14 +968,12 @@ module PgHero
               index[:row_progression] = prev_rows_left.map(&:round)
 
               # if the last indexes don't give us much, don't include
-              if prev_rows_left.last > 50
-                prev_rows_left.reverse!
-                (prev_rows_left.size - 1).times do |i|
-                  if prev_rows_left[i] > prev_rows_left[i + 1] * 0.1
-                    final_where.pop
-                  else
-                    break
-                  end
+              prev_rows_left.reverse!
+              (prev_rows_left.size - 1).times do |i|
+                if prev_rows_left[i] > prev_rows_left[i + 1] * 0.3
+                  final_where.pop
+                else
+                  break
                 end
               end
 
