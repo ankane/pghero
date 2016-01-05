@@ -885,7 +885,7 @@ module PgHero
         SELECT
           nspname AS schema,
           relname AS table,
-          reltuples
+          reltuples::bigint
         FROM
           pg_class
         INNER JOIN
