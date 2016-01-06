@@ -967,7 +967,7 @@ module PgHero
                 final_where << c[:column]
                 rows_left = row_estimates(ranks[c[:column]], total_rows, rows_left, c[:op])
                 prev_rows_left << rows_left
-                if rows_left < 50
+                if rows_left < 50 || final_where.size >= 3 || [">", ">=", "<", "<="].include?(c[:op])
                   break
                 end
               end
@@ -1049,8 +1049,6 @@ module PgHero
         rows_left * stats["null_frac"].to_f
       when "not_null"
         rows_left * (1 - stats["null_frac"].to_f)
-      when ">", ">=", "<", "<="
-        rows_left / 10.0 # TODO better approximation
       else
         rows_left *= (1 - stats["null_frac"].to_f)
         ret =
@@ -1066,7 +1064,14 @@ module PgHero
             rows_left / stats["n_distinct"].to_f
           end
 
-        op == "<>" ? rows_left - ret : ret
+        case op
+        when ">", ">=", "<", "<="
+          (rows_left + ret) / 10.0 # TODO better approximation
+        when "<>"
+          rows_left - ret
+        else
+          ret
+        end
       end
     end
 
