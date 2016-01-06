@@ -33,7 +33,7 @@ module PgHero
         @replication_lag = PgHero.replication_lag
         @good_replication_lag = @replication_lag < 5
       end
-      @transaction_id_danger = PgHero.transaction_id_danger(threshold: 1000000000)
+      @transaction_id_danger = PgHero.transaction_id_danger(threshold: 1500000000)
       set_suggested_indexes((params[:min_average_time] || 5).to_f)
       @show_migrations = PgHero.show_migrations
     end
