@@ -97,13 +97,15 @@
       No duplicate indexes
     <% end %>
   </div>
-  <div class="alert alert-<%= @missing_indexes.empty? ? "success" : "warning" %>">
-    <% if @missing_indexes.any? %>
-      <%= pluralize(@missing_indexes.size, "table appears", "tables appear") %> to be missing indexes
-    <% else %>
-      No missing indexes
-    <% end %>
-  </div>
+  <% unless PgHero.suggested_indexes_enabled? %>
+    <div class="alert alert-<%= @missing_indexes.empty? ? "success" : "warning" %>">
+      <% if @missing_indexes.any? %>
+        <%= pluralize(@missing_indexes.size, "table appears", "tables appear") %> to be missing indexes
+      <% else %>
+        No missing indexes
+      <% end %>
+    </div>
+  <% end %>
   <div class="alert alert-<%= @unused_indexes.empty? ? "success" : "warning" %>">
     <% if @unused_indexes.any? %>
       <%= pluralize(@unused_indexes.size, "unused index", "unused indexes") %>

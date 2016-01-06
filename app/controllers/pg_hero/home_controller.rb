@@ -16,7 +16,12 @@ module PgHero
       @long_running_queries = PgHero.long_running_queries
       @index_hit_rate = PgHero.index_hit_rate
       @table_hit_rate = PgHero.table_hit_rate
-      @missing_indexes = PgHero.missing_indexes
+      @missing_indexes =
+        if PgHero.suggested_indexes_enabled?
+          []
+        else
+          PgHero.missing_indexes
+        end
       @unused_indexes = PgHero.unused_indexes.select { |q| q["index_scans"].to_i == 0 }
       @invalid_indexes = PgHero.invalid_indexes
       @duplicate_indexes = PgHero.duplicate_indexes
