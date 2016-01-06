@@ -97,33 +97,6 @@
   </div>
 <% end %>
 
-<% if @suggested_indexes.any? %>
-  <div class="content">
-    <h1>Suggested Indexes</h1>
-    <p>
-      Add indexes to speed up queries.
-      <% if @show_migrations %>
-      Here’s a
-      <a href="javascript: void(0);" onclick="document.getElementById('migration3').style.display = 'block';">migration</a> to help.
-      <% end %>
-    </p>
-
-    <div id="migration3" style="display: none;">
-      <pre>rails g migration add_suggested_indexes</pre>
-      <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @suggested_indexes.each do |index| %>
-add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(" ,") %>], algorithm: :concurrently<% end %></pre>
-    </div>
-
-    <% @suggested_indexes.each_with_index do |index, i| %>
-      <hr />
-      <%= render partial: "suggested_index", locals: {index: index} %>
-      <p>to speed up</p>
-      <%= render partial: "queries_table", locals: {queries: index[:queries].map { |q| @query_stats_by_query[q] }, suggested_indexes: false} %>
-    <% end %>
-  </div>
-<% end %>
-
 <% if !@good_cache_rate %>
   <div class="content">
     <h1>Low Cache Hit Rate</h1>
@@ -170,35 +143,6 @@ add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym
         <% end %>
       </tbody>
     </table>
-  </div>
-<% end %>
-
-<% if !@query_stats_enabled %>
-  <div class="content">
-    <h1>Query Stats</h1>
-
-    <% if @query_stats_available %>
-      <p>
-        Query stats are available but not enabled.
-        <%= button_to "Enable", enable_query_stats_path, class: "btn btn-info" %>
-      </p>
-    <% else %>
-      <p>Make them available by adding the following lines to <code>postgresql.conf</code>:</p>
-      <pre>shared_preload_libraries = 'pg_stat_statements'
-pg_stat_statements.track = all</pre>
-      <p>Restart the server for the changes to take effect.</p>
-    <% end %>
-  </div>
-<% end %>
-
-<% if @query_stats_enabled && @slow_queries.any? %>
-  <div class="content">
-    <h1>Slow Queries</h1>
-
-    <p>Slow queries take <%= PgHero.slow_query_ms %> ms or more on average and have been called at least <%= PgHero.slow_query_calls %> times.</p>
-    <p><%= link_to "Explain queries", explain_path %> to see where to add indexes.</p>
-
-    <%= render partial: "queries_table", locals: {queries: @slow_queries} %>
   </div>
 <% end %>
 
@@ -268,6 +212,33 @@ remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= q
   </div>
 <% end %>
 
+<% if @suggested_indexes.any? %>
+  <div class="content">
+    <h1>Suggested Indexes</h1>
+    <p>
+      Add indexes to speed up queries.
+      <% if @show_migrations %>
+      Here’s a
+      <a href="javascript: void(0);" onclick="document.getElementById('migration3').style.display = 'block';">migration</a> to help.
+      <% end %>
+    </p>
+
+    <div id="migration3" style="display: none;">
+      <pre>rails g migration add_suggested_indexes</pre>
+      <p>And paste</p>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @suggested_indexes.each do |index| %>
+add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(" ,") %>], algorithm: :concurrently<% end %></pre>
+    </div>
+
+    <% @suggested_indexes.each_with_index do |index, i| %>
+      <hr />
+      <%= render partial: "suggested_index", locals: {index: index} %>
+      <p>to speed up</p>
+      <%= render partial: "queries_table", locals: {queries: index[:queries].map { |q| @query_stats_by_query[q] }, suggested_indexes: false} %>
+    <% end %>
+  </div>
+<% end %>
+
 <% if @missing_indexes.any? %>
   <div class="content">
     <h1>Missing Indexes</h1>
@@ -292,5 +263,34 @@ remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= q
         <% end %>
       </tbody>
     </table>
+  </div>
+<% end %>
+
+<% if !@query_stats_enabled %>
+  <div class="content">
+    <h1>Query Stats</h1>
+
+    <% if @query_stats_available %>
+      <p>
+        Query stats are available but not enabled.
+        <%= button_to "Enable", enable_query_stats_path, class: "btn btn-info" %>
+      </p>
+    <% else %>
+      <p>Make them available by adding the following lines to <code>postgresql.conf</code>:</p>
+      <pre>shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.track = all</pre>
+      <p>Restart the server for the changes to take effect.</p>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @query_stats_enabled && @slow_queries.any? %>
+  <div class="content">
+    <h1>Slow Queries</h1>
+
+    <p>Slow queries take <%= PgHero.slow_query_ms %> ms or more on average and have been called at least <%= PgHero.slow_query_calls %> times.</p>
+    <p><%= link_to "Explain queries", explain_path %> to see where to add indexes.</p>
+
+    <%= render partial: "queries_table", locals: {queries: @slow_queries} %>
   </div>
 <% end %>
