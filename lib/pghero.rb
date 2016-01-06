@@ -967,7 +967,7 @@ module PgHero
                 final_where << c[:column]
                 rows_left = row_estimates(ranks[c[:column]], total_rows, rows_left, c[:op])
                 prev_rows_left << rows_left
-                if rows_left < 50
+                if rows_left < 50 || final_where.size >= 3 || [">", ">=", "<", "<="].include?(c[:op])
                   break
                 end
               end
