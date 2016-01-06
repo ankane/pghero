@@ -806,15 +806,17 @@ module PgHero
         best_indexes = best_index_helper(queries)
 
         if best_indexes.any?
-          existing_columns = Hash.new { |hash, key| hash[key] = [] }
-          self.indexes.each do |i|
-            existing_columns[i["table"]] << i["columns"]
+          existing_columns = {}
+          self.indexes.group_by { |g| g["using"] }.each do |group, inds|
+            inds.each do |i|
+              ((existing_columns[group] ||= {})[i["table"]] ||= []) << i["columns"]
+            end
           end
 
           best_indexes.each do |query, best_index|
             if best_index[:found]
               index = best_index[:index]
-              covering_index = existing_columns[index[:table]].find { |e| index_covers?(e, index[:columns]) }
+              covering_index = existing_columns[index[:using] || "btree"][index[:table]].find { |e| index_covers?(e, index[:columns]) }
               if covering_index
                 best_index[:covering_index] = covering_index
                 best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"
