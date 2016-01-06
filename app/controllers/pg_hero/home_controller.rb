@@ -34,7 +34,7 @@ module PgHero
         @good_replication_lag = @replication_lag < 5
       end
       @transaction_id_danger = PgHero.transaction_id_danger(threshold: 1000000000)
-      set_suggested_indexes
+      set_suggested_indexes((params[:min_average_time] || 5).to_f)
       @show_migrations = PgHero.show_migrations
     end
 
@@ -202,8 +202,8 @@ module PgHero
       @replica = PgHero.replica?
     end
 
-    def set_suggested_indexes
-      @suggested_indexes_by_query = PgHero.suggested_indexes_by_query(query_stats: @query_stats)
+    def set_suggested_indexes(min_average_time = 0)
+      @suggested_indexes_by_query = PgHero.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs["average_time"].to_f >= min_average_time })
       @suggested_indexes = PgHero.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query)
       @query_stats_by_query = @query_stats.index_by { |q| q["query"] }
       @debug = params[:debug] == "true"
