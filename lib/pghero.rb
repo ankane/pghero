@@ -375,7 +375,8 @@ module PgHero
     # "the system will shut down and refuse to start any new transactions
     # once there are fewer than 1 million transactions left until wraparound"
     # warn when 10,000,000 transactions left
-    def transaction_id_danger
+    def transaction_id_danger(options = {})
+      threshold = options[:threshold] || 10000000
       select_all <<-SQL
         SELECT
           c.oid::regclass::text AS table,
@@ -386,9 +387,9 @@ module PgHero
           pg_class t ON c.reltoastrelid = t.oid
         WHERE
           c.relkind = 'r'
-          AND (2146483648 - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < 10000000
+          AND (2146483648 - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < #{threshold}
         ORDER BY
-          transactions_before_shutdown
+         2, 1
       SQL
     end
 

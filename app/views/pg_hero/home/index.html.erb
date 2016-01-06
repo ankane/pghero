@@ -1,30 +1,3 @@
-<% if @transaction_id_danger.any? %>
-  <div class="alert alert-danger">
-    Database shutdown imminent due to transaction ID wraparound failure
-  </div>
-  <div class="content">
-    <p>For each table, run:</p>
-    <code><pre>VACUUM FREEZE VERBOSE table</pre></code>
-    <p><%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %></p>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Table</th>
-          <th style="width: 20%;">Transactions Before Shutdown</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @transaction_id_danger.each do |query| %>
-          <tr>
-            <td><%= query["table"] %></td>
-            <td><%= number_with_delimiter(query["transactions_before_shutdown"]) %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-<% end %>
-
 <div id="status">
   <% if @replica %>
     <div class="alert alert-<%= @good_replication_lag ? "success" : "warning" %>">
@@ -67,11 +40,11 @@
     <% end %>
     <span class="tiny"><%= @total_connections %></span>
   </div>
-  <div class="alert alert-<%= @autovacuum_danger.empty? ? "success" : "warning" %>">
-    <% if @autovacuum_danger.any? %>
-      <%= pluralize(@autovacuum_danger.size, "table") %> approaching autovacuum freeze max age
+  <div class="alert alert-<%= @transaction_id_danger.empty? ? "success" : "warning" %>">
+    <% if @transaction_id_danger.any? %>
+      <%= pluralize(@transaction_id_danger.size, "table") %> not vacuuming properly
     <% else %>
-      No autovacuum danger
+      Vacuuming healthy
     <% end %>
   </div>
   <div class="alert alert-<%= @query_stats_enabled && @slow_queries.empty? ? "success" : "warning" %>">
@@ -183,24 +156,24 @@ add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym
   </div>
 <% end %>
 
-<% if @autovacuum_danger.any? %>
+<% if @transaction_id_danger.any? %>
   <div class="content">
-    <h1>Autovacuum Danger</h1>
+    <h2>Vacuuming Needed</h2>
+    <p>The database <strong>will shutdown</strong> when there are fewer than 1,000,000 transactions left. <%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %>.</p>
     <p>For each table, run:</p>
     <code><pre>VACUUM FREEZE VERBOSE table</pre></code>
-    <p><%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %></p>
     <table class="table">
       <thead>
         <tr>
           <th>Table</th>
-          <th style="width: 20%;">Transactions Before Autovacuum</th>
+          <th style="width: 20%;">Transactions Left</th>
         </tr>
       </thead>
       <tbody>
-        <% @autovacuum_danger.each do |query| %>
+        <% @transaction_id_danger.each do |query| %>
           <tr>
             <td><%= query["table"] %></td>
-            <td><%= number_with_delimiter(query["transactions_before_autovacuum"]) %></td>
+            <td><%= number_with_delimiter(query["transactions_before_shutdown"]) %></td>
           </tr>
         <% end %>
       </tbody>
