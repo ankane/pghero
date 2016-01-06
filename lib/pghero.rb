@@ -806,10 +806,10 @@ module PgHero
         best_indexes = best_index_helper(queries)
 
         if best_indexes.any?
-          existing_columns = {}
+          existing_columns = Hash.new { |hash, key| hash[key] = Hash.new { |hash2, key2| hash2[key2] = [] } }
           self.indexes.group_by { |g| g["using"] }.each do |group, inds|
             inds.each do |i|
-              ((existing_columns[group] ||= {})[i["table"]] ||= []) << i["columns"]
+              existing_columns[group][i["table"]] << i["columns"]
             end
           end
 
