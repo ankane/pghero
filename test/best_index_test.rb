@@ -54,6 +54,14 @@ class BestIndexTest < Minitest::Test
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id IN (1, 2)"
   end
 
+  def test_like
+    assert_best_index ({table: "users", columns: ["name gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE name LIKE ?"
+  end
+
+  def test_ilike
+    assert_best_index ({table: "users", columns: ["name gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE name ILIKE ?"
+  end
+
   def test_between
     skip
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id BETWEEN 1 AND 2"

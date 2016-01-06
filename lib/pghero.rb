@@ -941,12 +941,15 @@ module PgHero
           ranks = Hash[column_stats[table].to_a.map { |r| [r["column"], r] }]
           columns = (where + sort).map { |c| c[:column] }.uniq
 
-          if columns.any? && columns.all? { |c| ranks[c] }
+          if where.size == 1 && ["~~", "~~*"].include?(where.first[:op])
+            index[:found] = true
+            index[:index] = {table: table, columns: ["#{where.first[:column]} gist_trgm_ops"], using: "gist"}
+          elsif columns.any? && columns.all? { |c| ranks[c] }
             first_desc = sort.index { |c| c[:direction] == "desc" }
             if first_desc
               sort = sort.first(first_desc + 1)
             end
-            where = where.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
+            where = where.select { |c| !["~~", "~~*"].include?(c[:op]) }.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
 
             index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }]
 
@@ -1079,7 +1082,7 @@ module PgHero
         if left && right
           left + right
         end
-      elsif tree["AEXPR"] && ["="].include?(tree["AEXPR"]["name"].first)
+      elsif tree["AEXPR"] && ["=", "~~", "~~*"].include?(tree["AEXPR"]["name"].first)
         [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR"]["name"].first}]
       elsif tree["AEXPR IN"] && tree["AEXPR IN"]["name"].first == "="
         [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: "in"}]
