@@ -806,15 +806,17 @@ module PgHero
         best_indexes = best_index_helper(queries)
 
         if best_indexes.any?
-          existing_columns = Hash.new { |hash, key| hash[key] = [] }
-          self.indexes.each do |i|
-            existing_columns[i["table"]] << i["columns"]
+          existing_columns = {}
+          self.indexes.group_by { |g| g["using"] }.each do |group, inds|
+            inds.each do |i|
+              ((existing_columns[group] ||= {})[i["table"]] ||= []) << i["columns"]
+            end
           end
 
           best_indexes.each do |query, best_index|
             if best_index[:found]
               index = best_index[:index]
-              covering_index = existing_columns[index[:table]].find { |e| index_covers?(e, index[:columns]) }
+              covering_index = existing_columns[index[:using] || "btree"][index[:table]].find { |e| index_covers?(e, index[:columns]) }
               if covering_index
                 best_index[:covering_index] = covering_index
                 best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"
@@ -932,7 +934,7 @@ module PgHero
           index[:structure] = structure
 
           table = structure[:table]
-          where = structure[:where]
+          where = structure[:where].uniq
           sort = structure[:sort]
 
           total_rows = row_stats[table].to_i
@@ -941,12 +943,15 @@ module PgHero
           ranks = Hash[column_stats[table].to_a.map { |r| [r["column"], r] }]
           columns = (where + sort).map { |c| c[:column] }.uniq
 
-          if columns.any? && columns.all? { |c| ranks[c] }
+          if where.size == 1 && ["~~", "~~*"].include?(where.first[:op])
+            index[:found] = true
+            index[:index] = {table: table, columns: ["#{where.first[:column]} gist_trgm_ops"], using: "gist"}
+          elsif columns.any? && columns.all? { |c| ranks[c] }
             first_desc = sort.index { |c| c[:direction] == "desc" }
             if first_desc
               sort = sort.first(first_desc + 1)
             end
-            where = where.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
+            where = where.select { |c| !["~~", "~~*"].include?(c[:op]) }.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
 
             index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }]
 
@@ -1014,10 +1019,12 @@ module PgHero
             "INSERT statement"
           when "SET"
             "SET statement"
-          else
-            "Unknown structure"
+          when "SELECT"
+            if (tree["SELECT"]["fromClause"].first["JOINEXPR"] rescue false)
+              "JOIN not supported yet"
+            end
           end
-        return {error: error}
+        return {error: error || "Unknown structure"}
       end
 
       select = tree["SELECT"] || tree["DELETE FROM"] || tree["UPDATE"]
@@ -1042,19 +1049,24 @@ module PgHero
         rows_left * stats["null_frac"].to_f
       when "not_null"
         rows_left * (1 - stats["null_frac"].to_f)
+      when ">", ">=", "<", "<="
+        rows_left / 10.0 # TODO better approximation
       else
         rows_left *= (1 - stats["null_frac"].to_f)
-        if stats["n_distinct"].to_f == 0
-          0
-        elsif stats["n_distinct"].to_f < 0
-          if total_rows > 0
-            (-1 / stats["n_distinct"].to_f) * (rows_left / total_rows.to_f)
-          else
+        ret =
+          if stats["n_distinct"].to_f == 0
             0
+          elsif stats["n_distinct"].to_f < 0
+            if total_rows > 0
+              (-1 / stats["n_distinct"].to_f) * (rows_left / total_rows.to_f)
+            else
+              0
+            end
+          else
+            rows_left / stats["n_distinct"].to_f
           end
-        else
-          rows_left / stats["n_distinct"].to_f
-        end
+
+        op == "<>" ? rows_left - ret : ret
       end
     end
 
@@ -1079,10 +1091,10 @@ module PgHero
         if left && right
           left + right
         end
-      elsif tree["AEXPR"] && ["="].include?(tree["AEXPR"]["name"].first)
+      elsif tree["AEXPR"] && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*"].include?(tree["AEXPR"]["name"].first)
         [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR"]["name"].first}]
-      elsif tree["AEXPR IN"] && tree["AEXPR IN"]["name"].first == "="
-        [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: "in"}]
+      elsif tree["AEXPR IN"] && ["=", "<>"].include?(tree["AEXPR IN"]["name"].first)
+        [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR IN"]["name"].first}]
       elsif tree["NULLTEST"]
         op = tree["NULLTEST"]["nulltesttype"] == 1 ? "not_null" : "null"
         [{column: tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last, op: op}]
