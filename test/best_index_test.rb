@@ -71,7 +71,6 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_between
-    skip
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id BETWEEN 1 AND 2"
   end
 
@@ -107,8 +106,12 @@ class BestIndexTest < Minitest::Test
     assert_no_index "Parse error", "SELECT *123'"
   end
 
+  def test_unknown_structure
+    assert_no_index "Unknown structure", "SELECT NOW()"
+  end
+
   def test_multiple_tables
-    assert_no_index "Unknown structure", "SELECT * FROM users INNER JOIN cities ON cities.id = users.city_id"
+    assert_no_index "Multiple tables not supported yet", "SELECT * FROM users INNER JOIN cities ON cities.id = users.city_id"
   end
 
   def test_no_columns

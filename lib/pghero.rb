@@ -1019,10 +1019,12 @@ module PgHero
             "INSERT statement"
           when "SET"
             "SET statement"
-          else
-            "Unknown structure"
+          when "SELECT"
+            if (tree["SELECT"]["fromClause"].first["JOINEXPR"] rescue false)
+              "Multiple tables not supported yet"
+            end
           end
-        return {error: error}
+        return {error: error || "Unknown structure"}
       end
 
       select = tree["SELECT"] || tree["DELETE FROM"] || tree["UPDATE"]
@@ -1047,6 +1049,8 @@ module PgHero
         rows_left * stats["null_frac"].to_f
       when "not_null"
         rows_left * (1 - stats["null_frac"].to_f)
+      when ">", ">=", "<", "<="
+        rows_left / 10.0 # TODO better approximation
       else
         rows_left *= (1 - stats["null_frac"].to_f)
         ret =
@@ -1087,7 +1091,7 @@ module PgHero
         if left && right
           left + right
         end
-      elsif tree["AEXPR"] && ["=", "<>", "~~", "~~*"].include?(tree["AEXPR"]["name"].first)
+      elsif tree["AEXPR"] && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*"].include?(tree["AEXPR"]["name"].first)
         [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR"]["name"].first}]
       elsif tree["AEXPR IN"] && ["=", "<>"].include?(tree["AEXPR IN"]["name"].first)
         [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR IN"]["name"].first}]
