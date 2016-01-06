@@ -111,7 +111,7 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_multiple_tables
-    assert_no_index "Multiple tables not supported yet", "SELECT * FROM users INNER JOIN cities ON cities.id = users.city_id"
+    assert_no_index "JOIN not supported yet", "SELECT * FROM users INNER JOIN cities ON cities.id = users.city_id"
   end
 
   def test_no_columns

@@ -1021,7 +1021,7 @@ module PgHero
             "SET statement"
           when "SELECT"
             if (tree["SELECT"]["fromClause"].first["JOINEXPR"] rescue false)
-              "Multiple tables not supported yet"
+              "JOIN not supported yet"
             end
           end
         return {error: error || "Unknown structure"}
