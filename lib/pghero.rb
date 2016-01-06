@@ -1049,8 +1049,6 @@ module PgHero
         rows_left * stats["null_frac"].to_f
       when "not_null"
         rows_left * (1 - stats["null_frac"].to_f)
-      when ">", ">=", "<", "<="
-        rows_left / 10.0 # TODO better approximation
       else
         rows_left *= (1 - stats["null_frac"].to_f)
         ret =
@@ -1066,7 +1064,14 @@ module PgHero
             rows_left / stats["n_distinct"].to_f
           end
 
-        op == "<>" ? rows_left - ret : ret
+        case op
+        when ">", ">=", "<", "<="
+          (rows_left + ret) / 10.0 # TODO better approximation
+        when "<>"
+          rows_left - ret
+        else
+          ret
+        end
       end
     end
 

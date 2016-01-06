@@ -74,6 +74,10 @@ class BestIndexTest < Minitest::Test
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id BETWEEN 1 AND 2"
   end
 
+  def test_multiple_range
+    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id > ? and login_attempts > ?"
+  end
+
   def test_where_prepared
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = $1"
   end
