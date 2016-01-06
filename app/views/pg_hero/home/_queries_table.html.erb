@@ -51,9 +51,10 @@
               <%= render partial: "suggested_index", locals: {index: index} %>
             <% end %>
             <% if @debug %>
-              <code><pre style="color: #f0ad4e; background-color: #333;"><% if i2[:explanation] %><%= i2[:explanation] %><% else %>Rows: <%= i2[:rows] %>
+              <code><pre style="color: #f0ad4e; background-color: #333;"><% if i2[:explanation] %><%= i2[:explanation] %><% end %>
+<% if i2[:row_estimates] %>Rows: <%= i2[:rows] %>
 Row estimates: <%= i2[:row_estimates].to_a.map { |k, v| "#{k}=#{v}" }.join(", ") %>
-Row progresssion: <%= i2[:row_progression].to_a.join(", ") %><% end %></pre></code>
+Row progression: <%= i2[:row_progression].to_a.join(", ") %><% end %></pre></code>
             <% end %>
           <% end %>
         </td>
