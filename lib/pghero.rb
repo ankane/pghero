@@ -1047,17 +1047,20 @@ module PgHero
         rows_left * (1 - stats["null_frac"].to_f)
       else
         rows_left *= (1 - stats["null_frac"].to_f)
-        if stats["n_distinct"].to_f == 0
-          0
-        elsif stats["n_distinct"].to_f < 0
-          if total_rows > 0
-            (-1 / stats["n_distinct"].to_f) * (rows_left / total_rows.to_f)
-          else
+        ret =
+          if stats["n_distinct"].to_f == 0
             0
+          elsif stats["n_distinct"].to_f < 0
+            if total_rows > 0
+              (-1 / stats["n_distinct"].to_f) * (rows_left / total_rows.to_f)
+            else
+              0
+            end
+          else
+            rows_left / stats["n_distinct"].to_f
           end
-        else
-          rows_left / stats["n_distinct"].to_f
-        end
+
+        op == "<>" ? rows_left - ret : ret
       end
     end
 
@@ -1082,10 +1085,10 @@ module PgHero
         if left && right
           left + right
         end
-      elsif tree["AEXPR"] && ["=", "~~", "~~*"].include?(tree["AEXPR"]["name"].first)
+      elsif tree["AEXPR"] && ["=", "<>", "~~", "~~*"].include?(tree["AEXPR"]["name"].first)
         [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR"]["name"].first}]
-      elsif tree["AEXPR IN"] && tree["AEXPR IN"]["name"].first == "="
-        [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: "in"}]
+      elsif tree["AEXPR IN"] && ["=", "<>"].include?(tree["AEXPR IN"]["name"].first)
+        [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR IN"]["name"].first}]
       elsif tree["NULLTEST"]
         op = tree["NULLTEST"]["nulltesttype"] == 1 ? "not_null" : "null"
         [{column: tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last, op: op}]
