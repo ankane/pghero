@@ -46,7 +46,7 @@
           <% if query["query"] == "<insufficient privilege>" %>
             <p class="text-muted">For security reasons, only superusers can see queries executed by other users.</p>
           <% end %>
-          <% if (i2 = @suggested_indexes_by_query[query["query"]]) %>
+          <% if local_assigns[:suggested_indexes] != false && (i2 = @suggested_indexes_by_query[query["query"]]) %>
             <% if (index = i2[:index]) && !i2[:covering_index] %>
               <%= render partial: "suggested_index", locals: {index: index} %>
             <% end %>

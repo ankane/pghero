@@ -152,9 +152,7 @@ add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym
       <hr />
       <%= render partial: "suggested_index", locals: {index: index} %>
       <p>to speed up</p>
-      <% index[:queries].each do |query| %>
-        <code><pre><%= query %></pre></code>
-      <% end %>
+      <%= render partial: "queries_table", locals: {queries: index[:queries].map { |q| @query_stats_by_query[q] }, suggested_indexes: false} %>
     <% end %>
   </div>
 <% end %>

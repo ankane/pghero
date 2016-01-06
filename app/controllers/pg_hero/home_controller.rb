@@ -56,7 +56,6 @@ module PgHero
       @sort = %w[average_time calls].include?(params[:sort]) ? params[:sort] : nil
       @min_average_time = params[:min_average_time] ? params[:min_average_time].to_i : nil
       @min_calls = params[:min_calls] ? params[:min_calls].to_i : nil
-      @debug = params[:debug] == "true"
 
       @query_stats =
         begin
@@ -202,6 +201,8 @@ module PgHero
     def set_suggested_indexes
       @suggested_indexes_by_query = PgHero.suggested_indexes_by_query(query_stats: @query_stats)
       @suggested_indexes = PgHero.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query)
+      @query_stats_by_query = @query_stats.index_by { |q| q["query"] }
+      @debug = params[:debug] == "true"
     end
   end
 end
