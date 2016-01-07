@@ -1,6 +1,8 @@
 ## 1.2.1 [unreleased]
 
 - Better suggested indexes
+- Removed unused indexes noise
+- Removed autovacuum danger noise
 - Fixed suggested indexes for replicas
 - Fixed issue w/ suggested indexes where same table name exists in multiple schemas
 
