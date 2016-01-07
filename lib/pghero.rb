@@ -943,51 +943,53 @@ module PgHero
           ranks = Hash[column_stats[table].to_a.map { |r| [r["column"], r] }]
           columns = (where + sort).map { |c| c[:column] }.uniq
 
-          if where.size == 1 && ["~~", "~~*"].include?(where.first[:op])
-            index[:found] = true
-            index[:index] = {table: table, columns: ["#{where.first[:column]} gist_trgm_ops"], using: "gist"}
-          elsif columns.any?
+          if columns.any?
             if columns.all? { |c| ranks[c] }
               first_desc = sort.index { |c| c[:direction] == "desc" }
               if first_desc
                 sort = sort.first(first_desc + 1)
               end
-              where = where.select { |c| !["~~", "~~*"].include?(c[:op]) }.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
+              where = where.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
 
               index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }]
 
               # no index needed if less than 500 rows
               if total_rows >= 500
 
-                # if most values are unique, no need to index others
-                rows_left = total_rows
-                final_where = []
-                prev_rows_left = [rows_left]
-                where.each do |c|
-                  next if final_where.include?(c[:column])
-                  final_where << c[:column]
-                  rows_left = row_estimates(ranks[c[:column]], total_rows, rows_left, c[:op])
-                  prev_rows_left << rows_left
-                  if rows_left < 50 || final_where.size >= 3 || [">", ">=", "<", "<="].include?(c[:op])
-                    break
-                  end
-                end
-
-                index[:row_progression] = prev_rows_left.map(&:round)
-
-                # if the last indexes don't give us much, don't include
-                prev_rows_left.reverse!
-                (prev_rows_left.size - 1).times do |i|
-                  if prev_rows_left[i] > prev_rows_left[i + 1] * 0.3
-                    final_where.pop
-                  else
-                    break
-                  end
-                end
-
-                if final_where.any?
+                if ["~~", "~~*"].include?(where.first[:op])
                   index[:found] = true
-                  index[:index] = {table: table, columns: final_where}
+                  index[:index] = {table: table, columns: ["#{where.first[:column]} gist_trgm_ops"], using: "gist"}
+                else
+                  # if most values are unique, no need to index others
+                  rows_left = total_rows
+                  final_where = []
+                  prev_rows_left = [rows_left]
+                  where.reject { |c| ["~~", "~~*"].include?(c[:op]) }.each do |c|
+                    next if final_where.include?(c[:column])
+                    final_where << c[:column]
+                    rows_left = row_estimates(ranks[c[:column]], total_rows, rows_left, c[:op])
+                    prev_rows_left << rows_left
+                    if rows_left < 50 || final_where.size >= 3 || [">", ">=", "<", "<=", "~~", "~~*"].include?(c[:op])
+                      break
+                    end
+                  end
+
+                  index[:row_progression] = prev_rows_left.map(&:round)
+
+                  # if the last indexes don't give us much, don't include
+                  prev_rows_left.reverse!
+                  (prev_rows_left.size - 1).times do |i|
+                    if prev_rows_left[i] > prev_rows_left[i + 1] * 0.3
+                      final_where.pop
+                    else
+                      break
+                    end
+                  end
+
+                  if final_where.any?
+                    index[:found] = true
+                    index[:index] = {table: table, columns: final_where}
+                  end
                 end
               else
                 index[:explanation] = "No index needed if less than 500 rows"
@@ -1069,7 +1071,7 @@ module PgHero
           end
 
         case op
-        when ">", ">=", "<", "<="
+        when ">", ">=", "<", "<=", "~~", "~~*"
           (rows_left + ret) / 10.0 # TODO better approximation
         when "<>"
           rows_left - ret

@@ -55,11 +55,19 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_like
-    assert_best_index ({table: "users", columns: ["name gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE name LIKE ?"
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE ?"
+  end
+
+  def test_like_where
+    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = ? AND email LIKE ?"
+  end
+
+  def test_like_where2
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE ? AND active = ?"
   end
 
   def test_ilike
-    assert_best_index ({table: "users", columns: ["name gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE name ILIKE ?"
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email ILIKE ?"
   end
 
   def test_not_equals
@@ -146,6 +154,7 @@ class BestIndexTest < Minitest::Test
 
   def assert_best_index(expected, statement)
     index = PgHero.best_index(statement)
+    assert_nil index[:explanation]
     assert index[:found]
     assert_equal expected, index[:index]
   end
