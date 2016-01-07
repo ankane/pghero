@@ -1037,8 +1037,7 @@ module PgHero
       where = (select["whereClause"] ? parse_where(select["whereClause"]) : []) rescue nil
       return {error: "Unknown structure"} unless where
 
-      sort = (select["sortClause"] ? parse_sort(select["sortClause"]) : []) rescue nil
-      return {error: "Unknown structure"} unless sort
+      sort = (select["sortClause"] ? parse_sort(select["sortClause"]) : []) rescue []
 
       {table: table, where: where, sort: sort}
     end

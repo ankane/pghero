@@ -50,6 +50,10 @@ class BestIndexTest < Minitest::Test
     assert_best_index ({table: "users", columns: ["login_attempts", "created_at"]}), "SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at"
   end
 
+  def test_where_order_unknown
+    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE login_attempts = 1 ORDER BY NOW()"
+  end
+
   def test_where_in
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id IN (1, 2)"
   end
