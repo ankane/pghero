@@ -227,7 +227,10 @@ remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= q
       <pre>rails g migration add_suggested_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @suggested_indexes.each do |index| %>
-add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(" ,") %>], algorithm: :concurrently<% end %></pre>
+<% if index[:using] == "gist" %>
+connection.execute("CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)")
+<% else %>
+add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(" ,") %>], algorithm: :concurrently<% end %><% end %></pre>
     </div>
 
     <% @suggested_indexes.each_with_index do |index, i| %>

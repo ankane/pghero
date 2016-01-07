@@ -1,1 +1,1 @@
-<code><pre style="color: #eee; background-color: #333;">CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING<%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)</pre></code>
+<code><pre style="color: #eee; background-color: #333;">CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)</pre></code>
