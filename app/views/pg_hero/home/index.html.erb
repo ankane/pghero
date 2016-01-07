@@ -16,15 +16,6 @@
       No long running queries
     <% end %>
   </div>
-  <% if PgHero.suggested_indexes_enabled? %>
-    <div class="alert alert-<%= @suggested_indexes.empty? ? "success" : "warning" %>">
-      <% if @suggested_indexes.any? %>
-        <%= pluralize(@suggested_indexes.size, "suggested index", "suggested indexes") %>
-      <% else %>
-        No suggested indexes
-      <% end %>
-    </div>
-  <% end %>
   <div class="alert alert-<%= @good_cache_rate ? "success" : "warning" %>">
     <% if @good_cache_rate %>
       Cache hit rate above <%= PgHero.cache_hit_rate_threshold %>%
@@ -47,15 +38,6 @@
       Vacuuming healthy
     <% end %>
   </div>
-  <div class="alert alert-<%= @query_stats_enabled && @slow_queries.empty? ? "success" : "warning" %>">
-    <% if !@query_stats_enabled %>
-      Query stats must be enabled for slow queries
-    <% elsif @slow_queries.any? %>
-      <%= pluralize(@slow_queries.size, "slow query") %>
-    <% else %>
-      No slow queries
-    <% end %>
-  </div>
   <div class="alert alert-<%= @invalid_indexes.empty? ? "success" : "warning" %>">
     <% if @invalid_indexes.any? %>
       <%= pluralize(@invalid_indexes.size, "invalid index", "invalid indexes") %>
@@ -70,7 +52,15 @@
       No duplicate indexes
     <% end %>
   </div>
-  <% unless PgHero.suggested_indexes_enabled? %>
+  <% if PgHero.suggested_indexes_enabled? %>
+    <div class="alert alert-<%= @suggested_indexes.empty? ? "success" : "warning" %>">
+      <% if @suggested_indexes.any? %>
+        <%= pluralize(@suggested_indexes.size, "suggested index", "suggested indexes") %>
+      <% else %>
+        No suggested indexes
+      <% end %>
+    </div>
+  <% else %>
     <div class="alert alert-<%= @missing_indexes.empty? ? "success" : "warning" %>">
       <% if @missing_indexes.any? %>
         <%= pluralize(@missing_indexes.size, "table appears", "tables appear") %> to be missing indexes
@@ -79,11 +69,13 @@
       <% end %>
     </div>
   <% end %>
-  <div class="alert alert-<%= @unused_indexes.empty? ? "success" : "warning" %>">
-    <% if @unused_indexes.any? %>
-      <%= pluralize(@unused_indexes.size, "unused index", "unused indexes") %>
+  <div class="alert alert-<%= @query_stats_enabled && @slow_queries.empty? ? "success" : "warning" %>">
+    <% if !@query_stats_enabled %>
+      Query stats must be enabled for slow queries
+    <% elsif @slow_queries.any? %>
+      <%= pluralize(@slow_queries.size, "slow query") %>
     <% else %>
-      No unused indexes
+      No slow queries
     <% end %>
   </div>
 </div>
@@ -102,33 +94,6 @@
     <h1>Long Running Queries</h1>
 
     <%= render partial: "live_queries_table", locals: {queries: @long_running_queries} %>
-  </div>
-<% end %>
-
-<% if @suggested_indexes.any? %>
-  <div class="content">
-    <h1>Suggested Indexes</h1>
-    <p>
-      Add indexes to speed up queries.
-      <% if @show_migrations %>
-      Here’s a
-      <a href="javascript: void(0);" onclick="document.getElementById('migration3').style.display = 'block';">migration</a> to help.
-      <% end %>
-    </p>
-
-    <div id="migration3" style="display: none;">
-      <pre>rails g migration add_suggested_indexes</pre>
-      <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @suggested_indexes.each do |index| %>
-add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(" ,") %>], algorithm: :concurrently<% end %></pre>
-    </div>
-
-    <% @suggested_indexes.each_with_index do |index, i| %>
-      <hr />
-      <%= render partial: "suggested_index", locals: {index: index} %>
-      <p>to speed up</p>
-      <%= render partial: "queries_table", locals: {queries: index[:queries].map { |q| @query_stats_by_query[q] }, suggested_indexes: false} %>
-    <% end %>
   </div>
 <% end %>
 
@@ -178,35 +143,6 @@ add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym
         <% end %>
       </tbody>
     </table>
-  </div>
-<% end %>
-
-<% if !@query_stats_enabled %>
-  <div class="content">
-    <h1>Query Stats</h1>
-
-    <% if @query_stats_available %>
-      <p>
-        Query stats are available but not enabled.
-        <%= button_to "Enable", enable_query_stats_path, class: "btn btn-info" %>
-      </p>
-    <% else %>
-      <p>Make them available by adding the following lines to <code>postgresql.conf</code>:</p>
-      <pre>shared_preload_libraries = 'pg_stat_statements'
-pg_stat_statements.track = all</pre>
-      <p>Restart the server for the changes to take effect.</p>
-    <% end %>
-  </div>
-<% end %>
-
-<% if @query_stats_enabled && @slow_queries.any? %>
-  <div class="content">
-    <h1>Slow Queries</h1>
-
-    <p>Slow queries take <%= PgHero.slow_query_ms %> ms or more on average and have been called at least <%= PgHero.slow_query_calls %> times.</p>
-    <p><%= link_to "Explain queries", explain_path %> to see where to add indexes.</p>
-
-    <%= render partial: "queries_table", locals: {queries: @slow_queries} %>
   </div>
 <% end %>
 
@@ -276,6 +212,33 @@ remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= q
   </div>
 <% end %>
 
+<% if @suggested_indexes.any? %>
+  <div class="content">
+    <h1>Suggested Indexes</h1>
+    <p>
+      Add indexes to speed up queries.
+      <% if @show_migrations %>
+      Here’s a
+      <a href="javascript: void(0);" onclick="document.getElementById('migration3').style.display = 'block';">migration</a> to help.
+      <% end %>
+    </p>
+
+    <div id="migration3" style="display: none;">
+      <pre>rails g migration add_suggested_indexes</pre>
+      <p>And paste</p>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @suggested_indexes.each do |index| %>
+add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(" ,") %>], algorithm: :concurrently<% end %></pre>
+    </div>
+
+    <% @suggested_indexes.each_with_index do |index, i| %>
+      <hr />
+      <%= render partial: "suggested_index", locals: {index: index} %>
+      <p>to speed up</p>
+      <%= render partial: "queries_table", locals: {queries: index[:queries].map { |q| @query_stats_by_query[q] }, suggested_indexes: false} %>
+    <% end %>
+  </div>
+<% end %>
+
 <% if @missing_indexes.any? %>
   <div class="content">
     <h1>Missing Indexes</h1>
@@ -303,40 +266,31 @@ remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= q
   </div>
 <% end %>
 
-<% if @unused_indexes.any? %>
+<% if !@query_stats_enabled %>
   <div class="content">
-    <h1>Unused Indexes</h1>
+    <h1>Query Stats</h1>
 
-    <p>
-      Unused indexes cause unnecessary overhead. Remove them
-      <% if @show_migrations %>
-      <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
-      <% end %>
-      for faster writes.
-    </p>
+    <% if @query_stats_available %>
+      <p>
+        Query stats are available but not enabled.
+        <%= button_to "Enable", enable_query_stats_path, class: "btn btn-info" %>
+      </p>
+    <% else %>
+      <p>Make them available by adding the following lines to <code>postgresql.conf</code>:</p>
+      <pre>shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.track = all</pre>
+      <p>Restart the server for the changes to take effect.</p>
+    <% end %>
+  </div>
+<% end %>
 
-    <div id="migration" style="display: none;">
-      <pre>rails g migration remove_unused_indexes</pre>
-      <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.each do |query| %>
-remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s.inspect %><% end %></pre>
-    </div>
+<% if @query_stats_enabled && @slow_queries.any? %>
+  <div class="content">
+    <h1>Slow Queries</h1>
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th style="width: 20%;">Index Size</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @unused_indexes.each do |query| %>
-          <tr>
-            <td><%= query["index"] %><div class="text-muted">on <%= query["table"] %></div></td>
-            <td><%= query["index_size"] %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <p>Slow queries take <%= PgHero.slow_query_ms %> ms or more on average and have been called at least <%= PgHero.slow_query_calls %> times.</p>
+    <p><%= link_to "Explain queries", explain_path %> to see where to add indexes.</p>
+
+    <%= render partial: "queries_table", locals: {queries: @slow_queries} %>
   </div>
 <% end %>
