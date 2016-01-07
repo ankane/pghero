@@ -110,6 +110,10 @@ class BestIndexTest < Minitest::Test
     assert_no_index "Parse error", "SELECT *123'"
   end
 
+  def test_stats_not_found
+    assert_no_index "Stats not found", "SELECT * FROM non_existent_table WHERE id = 1"
+  end
+
   def test_unknown_structure
     assert_no_index "Unknown structure", "SELECT NOW()"
   end
