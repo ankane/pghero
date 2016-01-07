@@ -50,16 +50,28 @@ class BestIndexTest < Minitest::Test
     assert_best_index ({table: "users", columns: ["login_attempts", "created_at"]}), "SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at"
   end
 
+  def test_where_order_unknown
+    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE login_attempts = 1 ORDER BY NOW()"
+  end
+
   def test_where_in
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id IN (1, 2)"
   end
 
   def test_like
-    assert_best_index ({table: "users", columns: ["name gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE name LIKE ?"
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE ?"
+  end
+
+  def test_like_where
+    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = ? AND email LIKE ?"
+  end
+
+  def test_like_where2
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE ? AND active = ?"
   end
 
   def test_ilike
-    assert_best_index ({table: "users", columns: ["name gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE name ILIKE ?"
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email ILIKE ?"
   end
 
   def test_not_equals
@@ -110,6 +122,10 @@ class BestIndexTest < Minitest::Test
     assert_no_index "Parse error", "SELECT *123'"
   end
 
+  def test_stats_not_found
+    assert_no_index "Stats not found", "SELECT * FROM non_existent_table WHERE id = 1"
+  end
+
   def test_unknown_structure
     assert_no_index "Unknown structure", "SELECT NOW()"
   end
@@ -142,6 +158,7 @@ class BestIndexTest < Minitest::Test
 
   def assert_best_index(expected, statement)
     index = PgHero.best_index(statement)
+    assert_nil index[:explanation]
     assert index[:found]
     assert_equal expected, index[:index]
   end
