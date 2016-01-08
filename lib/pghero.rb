@@ -757,13 +757,14 @@ module PgHero
         SELECT
           t.relname AS table,
           ix.relname AS name,
-          regexp_replace(pg_get_indexdef(indexrelid), '.*\\((.*)\\)', '\\1') AS columns,
-          regexp_replace(pg_get_indexdef(indexrelid), '.* USING (.*) \\(.*', '\\1') AS using,
+          regexp_replace(pg_get_indexdef(indexrelid), '^[^\\(]*\\((.*)\\)$', '\\1') AS columns,
+          regexp_replace(pg_get_indexdef(indexrelid), '.* USING ([^ ]*) \\(.*', '\\1') AS using,
           indisunique AS unique,
           indisprimary AS primary,
           indisvalid AS valid,
           indexprs::text,
-          indpred::text
+          indpred::text,
+          pg_get_indexdef(indexrelid) AS definition
         FROM
           pg_index i
         INNER JOIN
@@ -773,7 +774,7 @@ module PgHero
         ORDER BY
           1, 2
       SQL
-      ).map { |v| v["columns"] = v["columns"].split(", "); v }
+      ).map { |v| v["columns"] = v["columns"].sub(") WHERE (", " WHERE ").split(", "); v }
     end
 
     def duplicate_indexes
