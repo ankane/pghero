@@ -965,6 +965,7 @@ module PgHero
 
                 if ["~~", "~~*"].include?(where.first[:op])
                   index[:found] = true
+                  index[:row_progression] = [total_rows, index[:row_estimates].values.first]
                   index[:index] = {table: table, columns: ["#{where.first[:column]} gist_trgm_ops"], using: "gist"}
                 else
                   # if most values are unique, no need to index others
