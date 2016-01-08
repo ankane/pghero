@@ -34,10 +34,9 @@ if ENV["SEED"]
   end
 
   User.transaction do
-    users = []
-    10000.times do |i|
-      city_id = i % 100
-      users <<
+    users =
+      10000.times.map do |i|
+        city_id = i % 100
         User.new(
           city_id: city_id,
           email: "person#{i}@example.org",
@@ -46,7 +45,7 @@ if ENV["SEED"]
           active: true,
           created_at: Time.now - rand(50).days
         )
-    end
+      end
     User.import users, validate: false
   end
   ActiveRecord::Base.connection.execute("VACUUM ANALYZE users")
@@ -56,9 +55,11 @@ if ENV["SEED"]
   end
 
   State.transaction do
-    50.times do |i|
-      State.create!(name: "State #{i}")
-    end
+    states =
+      50.times.map do |i|
+        State.new(name: "State #{i}")
+      end
+    State.import states, validate: false
   end
   ActiveRecord::Base.connection.execute("VACUUM ANALYZE states")
 end
