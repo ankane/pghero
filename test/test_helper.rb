@@ -3,6 +3,7 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "pg_query"
+require "activerecord-import"
 
 # for Minitest < 5
 Minitest::Test = MiniTest::Unit::TestCase unless defined?(Minitest::Test)
@@ -33,17 +34,20 @@ if ENV["SEED"]
   end
 
   User.transaction do
+    users = []
     10000.times do |i|
       city_id = i % 100
-      User.create!(
-        city_id: city_id,
-        email: "person#{i}@example.org",
-        login_attempts: rand(30),
-        zip_code: i % 40 == 0 ? nil : "12345",
-        active: true,
-        created_at: Time.now - rand(50).days
-      )
+      users <<
+        User.new(
+          city_id: city_id,
+          email: "person#{i}@example.org",
+          login_attempts: rand(30),
+          zip_code: i % 40 == 0 ? nil : "12345",
+          active: true,
+          created_at: Time.now - rand(50).days
+        )
     end
+    User.import users, validate: false
   end
   ActiveRecord::Base.connection.execute("VACUUM ANALYZE users")
 
