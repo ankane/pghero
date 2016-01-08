@@ -807,15 +807,18 @@ module PgHero
 
         if best_indexes.any?
           existing_columns = Hash.new { |hash, key| hash[key] = Hash.new { |hash2, key2| hash2[key2] = [] } }
-          self.indexes.group_by { |g| g["using"] }.each do |group, inds|
+          indexes = self.indexes
+          indexes.group_by { |g| g["using"] }.each do |group, inds|
             inds.each do |i|
               existing_columns[group][i["table"]] << i["columns"]
             end
           end
+          indexes_by_table = indexes.group_by { |i| i["table"] }
 
           best_indexes.each do |query, best_index|
             if best_index[:found]
               index = best_index[:index]
+              best_index[:table_indexes] = indexes_by_table[index[:table]].to_a
               covering_index = existing_columns[index[:using] || "btree"][index[:table]].find { |e| index_covers?(e, index[:columns]) }
               if covering_index
                 best_index[:covering_index] = covering_index
@@ -833,7 +836,11 @@ module PgHero
       indexes = []
 
       (options[:suggested_indexes_by_query] || suggested_indexes_by_query(options)).select { |s, i| i[:found] && !i[:covering_index] }.group_by { |s, i| i[:index] }.each do |index, group|
-        indexes << index.merge(queries: group.map(&:first))
+        details = {}
+        group.map(&:second).each do |g|
+          details = details.except(:index).deep_merge(g)
+        end
+        indexes << index.merge(queries: group.map(&:first), details: details)
       end
 
       indexes.sort_by { |i| [i[:table], i[:columns]] }
@@ -951,7 +958,7 @@ module PgHero
               end
               where = where.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
 
-              index[:row_estimates] = Hash[where.map { |c| [c[:column], row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }]
+              index[:row_estimates] = Hash[where.map { |c| ["#{c[:column]} (#{c[:op] || "sort"})", row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }]
 
               # no index needed if less than 500 rows
               if total_rows >= 500

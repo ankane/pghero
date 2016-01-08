@@ -46,16 +46,8 @@
           <% if query["query"] == "<insufficient privilege>" %>
             <p class="text-muted">For security reasons, only superusers can see queries executed by other users.</p>
           <% end %>
-          <% if local_assigns[:suggested_indexes] != false && (i2 = @suggested_indexes_by_query[query["query"]]) %>
-            <% if (index = i2[:index]) && !i2[:covering_index] %>
-              <%= render partial: "suggested_index", locals: {index: index} %>
-            <% end %>
-            <% if @debug %>
-              <code><pre style="color: #f0ad4e; background-color: #333;"><% if i2[:explanation] %><%= i2[:explanation] %><% end %>
-<% if i2[:row_estimates] %>Rows: <%= i2[:rows] %>
-Row estimates: <%= i2[:row_estimates].to_a.map { |k, v| "#{k}=#{v}" }.join(", ") %>
-Row progression: <%= i2[:row_progression].to_a.join(", ") %><% end %></pre></code>
-            <% end %>
+          <% if local_assigns[:suggested_indexes] != false && (details = @suggested_indexes_by_query[query["query"]]) %>
+            <%= render partial: "suggested_index", locals: {index: details[:index], details: details} %>
           <% end %>
         </td>
       </tr>
