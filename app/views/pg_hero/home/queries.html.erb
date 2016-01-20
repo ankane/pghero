@@ -9,10 +9,6 @@
     <%= render partial: "query_stats_slider" %>
   <% end %>
 
-  <% if PgHero.suggested_indexes_enabled? %>
-    <p style="text-align: center; margin-top: 7px;">PgHero now suggests indexes. <%= link_to "See how it thinks", {debug: true} %>.</p>
-  <% end %>
-
   <% if @query_stats_enabled %>
     <% if @error %>
       <div class="alert alert-danger">Cannot understand start or end time.</div>
