@@ -1,3 +1,9 @@
+## 1.2.2
+
+- Better suggested indexes
+- Removed duplicate indexes noise
+- Fixed partial and expression indexes
+
 ## 1.2.1
 
 - Better suggested indexes
