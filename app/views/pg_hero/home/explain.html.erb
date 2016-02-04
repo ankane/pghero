@@ -10,7 +10,7 @@
     <pre><%= @explanation %></pre>
     <p><%= link_to "See how to interpret this", "http://www.postgresql.org/docs/current/static/using-explain.html", target: "_blank" %></p>
     <% if (index = @suggested_index) %>
-      <%= render partial: "suggested_index", locals: {index: index} %>
+      <%= render partial: "suggested_index", locals: {index: index, details: index[:details]} %>
     <% end %>
   <% elsif @error %>
     <div class="alert alert-danger"><%= @error %></div>
