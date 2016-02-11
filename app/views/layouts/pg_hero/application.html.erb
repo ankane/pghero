@@ -430,8 +430,8 @@
             <p class="nav-header">Databases</p>
             <ul class="nav">
               <% @databases.each do |database| %>
-                <li class="<%= ("active-database" if PgHero.current_database == database) %>">
-                  <%= link_to database.titleize, database: database %>
+                <li class="<%= ("active-database" if PgHero.current_database == database.id) %>">
+                  <%= link_to database.name, database: database.id %>
                 </li>
               <% end %>
             </ul>

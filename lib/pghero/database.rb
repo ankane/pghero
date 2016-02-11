@@ -5,17 +5,26 @@ module PgHero
     def initialize(id, config)
       @id = id
       @config = config
-      @connection_model =
+    end
+
+    def connection_model
+      @connection_model ||= begin
+        url = config["url"]
         Class.new(PgHero::Connection) do
           def self.name
             "PgHero::Connection::#{object_id}"
           end
-          establish_connection(config["url"]) if config["url"]
+          establish_connection(url) if url
         end
+      end
     end
 
     def db_instance_identifier
-      @config["db_instance_identifier"]
+      @db_instance_identifier ||= @config["db_instance_identifier"]
+    end
+
+    def name
+      @name ||= @config["name"] || id.titleize
     end
   end
 end

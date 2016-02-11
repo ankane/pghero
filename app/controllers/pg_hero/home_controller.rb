@@ -179,7 +179,7 @@ module PgHero
     protected
 
     def set_database
-      @databases = PgHero.config["databases"].keys
+      @databases = PgHero.databases.values
       if params[:database]
         PgHero.with(params[:database]) do
           yield
