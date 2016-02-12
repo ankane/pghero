@@ -213,7 +213,7 @@ module PgHero
     def index_usage
       select_all <<-SQL
         SELECT
-          relname AS table,
+          schemaname || '.' || relname AS table,
           CASE idx_scan
             WHEN 0 THEN 'Insufficient data'
             ELSE (100 * idx_scan / (seq_scan + idx_scan))::text
@@ -230,7 +230,7 @@ module PgHero
     def missing_indexes
       select_all <<-SQL
         SELECT
-          relname AS table,
+          schemaname || '.' || relname AS table,
           CASE idx_scan
             WHEN 0 THEN 'Insufficient data'
             ELSE (100 * idx_scan / (seq_scan + idx_scan))::text
@@ -251,7 +251,7 @@ module PgHero
     def unused_tables
       select_all <<-SQL
         SELECT
-          relname AS table,
+          schemaname || '.' || relname AS table,
           n_live_tup rows_in_table
         FROM
           pg_stat_user_tables
@@ -266,7 +266,7 @@ module PgHero
     def unused_indexes
       select_all <<-SQL
         SELECT
-          relname AS table,
+          schemaname || '.' || relname AS table,
           indexrelname AS index,
           pg_size_pretty(pg_relation_size(i.indexrelid)) AS index_size,
           idx_scan as index_scans
@@ -306,7 +306,7 @@ module PgHero
     def relation_sizes
       select_all <<-SQL
         SELECT
-          c.relname AS name,
+          n.nspname || '.' || c.relname AS name,
           CASE WHEN c.relkind = 'r' THEN 'table' ELSE 'index' END AS type,
           pg_size_pretty(pg_table_size(c.oid)) AS size
         FROM
