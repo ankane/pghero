@@ -1,3 +1,7 @@
+## 1.3.0 [unreleased]
+
+- Added schema to queries
+
 ## 1.2.2
 
 - Better suggested indexes
