@@ -4,6 +4,11 @@ require "pghero/database"
 require "pghero/engine" if defined?(Rails)
 require "pghero/tasks"
 
+# models
+require "pghero/connection"
+require "pghero/query_stats"
+
+# methods
 require "pghero/basic"
 require "pghero/connections"
 require "pghero/database_information"
@@ -18,17 +23,7 @@ require "pghero/system"
 require "pghero/tables"
 
 module PgHero
-  # hack for connection
-  class Connection < ActiveRecord::Base
-    self.abstract_class = true
-  end
-
-  class QueryStats < ActiveRecord::Base
-    self.abstract_class = true
-    self.table_name = "pghero_query_stats"
-    establish_connection ENV["PGHERO_STATS_DATABASE_URL"] if ENV["PGHERO_STATS_DATABASE_URL"]
-  end
-
+  # settings
   class << self
     attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold, :cache_hit_rate_threshold, :env, :show_migrations
   end

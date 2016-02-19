@@ -60,5 +60,9 @@ module PgHero
     def secret_access_key
       ENV["PGHERO_SECRET_ACCESS_KEY"] || ENV["AWS_SECRET_ACCESS_KEY"]
     end
+
+    def db_instance_identifier
+      databases[current_database].db_instance_identifier
+    end
   end
 end

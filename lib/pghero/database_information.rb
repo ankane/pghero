@@ -34,10 +34,6 @@ module PgHero
       end
     end
 
-    def db_instance_identifier
-      databases[current_database].db_instance_identifier
-    end
-
     def database_size
       select_all("SELECT pg_size_pretty(pg_database_size(current_database()))").first["pg_size_pretty"]
     end
