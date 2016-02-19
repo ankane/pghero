@@ -26,7 +26,6 @@ module PgHero
       SQL
     end
 
-
     def unused_tables
       select_all <<-SQL
         SELECT
@@ -84,7 +83,5 @@ module PgHero
           1, 2
       SQL
     end
-
-
   end
 end

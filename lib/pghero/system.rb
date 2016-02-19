@@ -60,8 +60,5 @@ module PgHero
     def secret_access_key
       ENV["PGHERO_SECRET_ACCESS_KEY"] || ENV["AWS_SECRET_ACCESS_KEY"]
     end
-
-
-
   end
 end

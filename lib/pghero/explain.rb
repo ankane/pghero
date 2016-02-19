@@ -1,4 +1,4 @@
-module PgHero 
+module PgHero
   module Explain
     def explain(sql)
       sql = squish(sql)
@@ -23,6 +23,5 @@ module PgHero
     rescue ActiveRecord::StatementInvalid
       true
     end
-
   end
 end

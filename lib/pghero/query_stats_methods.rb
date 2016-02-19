@@ -28,7 +28,6 @@ module PgHero
       query_stats
     end
 
-
     def query_stats_available?
       select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"].to_i > 0
     end
@@ -78,7 +77,7 @@ module PgHero
                 ].map { |v| quote(v) }.join(",")
               end.map { |v| "(#{v})" }.join(",")
 
-              stats_connection.execute("INSERT INTO pghero_query_stats (database, query, total_time, calls, captured_at) VALUES #{values}")
+            stats_connection.execute("INSERT INTO pghero_query_stats (database, query, total_time, calls, captured_at) VALUES #{values}")
           end
         end
       end
@@ -87,7 +86,7 @@ module PgHero
     # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
     def historical_query_stats_enabled?
       # TODO use schema from config
-      stats_connection.select_all( squish <<-SQL
+      stats_connection.select_all(squish <<-SQL
         SELECT EXISTS (
           SELECT
             1
@@ -100,8 +99,8 @@ module PgHero
             AND c.relname = 'pghero_query_stats'
             AND c.relkind = 'r'
         )
-                                  SQL
-                                 ).to_a.first["exists"] == "t"
+      SQL
+      ).to_a.first["exists"] == "t"
     end
 
     def stats_connection

@@ -1,25 +1,5 @@
 module PgHero
-  module Uncategorized
-    def locks
-      select_all <<-SQL
-        SELECT DISTINCT ON (pid)
-          pg_stat_activity.pid,
-          pg_stat_activity.query,
-          age(now(), pg_stat_activity.query_start) AS age
-        FROM
-          pg_stat_activity
-        INNER JOIN
-          pg_locks ON pg_locks.pid = pg_stat_activity.pid
-        WHERE
-          pg_stat_activity.query <> '<insufficient privilege>'
-          AND pg_locks.mode = 'ExclusiveLock'
-          AND pg_stat_activity.pid <> pg_backend_pid()
-        ORDER BY
-          pid,
-          query_start
-      SQL
-    end
-
+  module Maintenance
     # http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND
     # "the system will shut down and refuse to start any new transactions
     # once there are fewer than 1 million transactions left until wraparound"

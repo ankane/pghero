@@ -43,6 +43,5 @@ module PgHero
         SQL
       end
     end
-
   end
 end

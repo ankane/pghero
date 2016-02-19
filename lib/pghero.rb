@@ -3,17 +3,19 @@ require "active_record"
 require "pghero/database"
 require "pghero/engine" if defined?(Rails)
 require "pghero/tasks"
+
 require "pghero/basic"
-require "pghero/database_information"
-require "pghero/queries"
-require "pghero/indexes"
-require "pghero/tables"
-require "pghero/query_stats_methods"
 require "pghero/connections"
-require "pghero/system"
-require "pghero/replica"
+require "pghero/database_information"
 require "pghero/explain"
-require "pghero/uncategorized"
+require "pghero/indexes"
+require "pghero/maintenance"
+require "pghero/queries"
+require "pghero/query_stats_methods"
+require "pghero/replica"
+require "pghero/suggested_indexes"
+require "pghero/system"
+require "pghero/tables"
 
 module PgHero
   # hack for connection
@@ -40,15 +42,16 @@ module PgHero
 
   class << self
     include Basic
-    include DatabaseInformation
-    include Queries
-    include Indexes
-    include Tables
     include Connections
-    include QueryStatsMethods
-    include System
-    include Replica
+    include DatabaseInformation
     include Explain
-    include Uncategorized
+    include Indexes
+    include Maintenance
+    include Queries
+    include QueryStatsMethods
+    include Replica
+    include SuggestedIndexes
+    include System
+    include Tables
   end
 end
