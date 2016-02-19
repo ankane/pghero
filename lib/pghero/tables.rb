@@ -30,6 +30,7 @@ module PgHero
     def unused_tables
       select_all <<-SQL
         SELECT
+          schemaname AS schema,
           relname AS table,
           n_live_tup rows_in_table
         FROM
@@ -45,6 +46,7 @@ module PgHero
     def relation_sizes
       select_all <<-SQL
         SELECT
+          n.nspname AS schema,
           c.relname AS name,
           CASE WHEN c.relkind = 'r' THEN 'table' ELSE 'index' END AS type,
           pg_size_pretty(pg_table_size(c.oid)) AS size

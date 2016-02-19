@@ -30,6 +30,7 @@ module PgHero
     def index_usage
       select_all <<-SQL
         SELECT
+          schemaname AS schema,
           relname AS table,
           CASE idx_scan
             WHEN 0 THEN 'Insufficient data'
@@ -47,6 +48,7 @@ module PgHero
     def missing_indexes
       select_all <<-SQL
         SELECT
+          schemaname AS schema,
           relname AS table,
           CASE idx_scan
             WHEN 0 THEN 'Insufficient data'
@@ -68,6 +70,7 @@ module PgHero
     def unused_indexes
       select_all <<-SQL
         SELECT
+          schemaname AS schema,
           relname AS table,
           indexrelname AS index,
           pg_size_pretty(pg_relation_size(i.indexrelid)) AS index_size,

@@ -63,6 +63,7 @@ module PgHero
     def maintenance_info
       select_all <<-SQL
         SELECT
+          schemaname AS schema,
           relname AS table,
           last_vacuum,
           last_autovacuum,
@@ -71,7 +72,7 @@ module PgHero
         FROM
           pg_stat_user_tables
         ORDER BY
-          relname ASC
+          1, 2
       SQL
     end
   end
