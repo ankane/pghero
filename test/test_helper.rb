@@ -23,7 +23,7 @@ end
 class User < ActiveRecord::Base
 end
 
-if ENV["SEED"]
+unless ENV["SKIP_SEED"]
   ActiveRecord::Migration.create_table :users, force: true do |t|
     t.integer :city_id
     t.integer :login_attempts
