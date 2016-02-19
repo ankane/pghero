@@ -9,19 +9,19 @@ require "pghero/connection"
 require "pghero/query_stats"
 
 # methods
-require "pghero/basic"
-require "pghero/connections"
-require "pghero/database_information"
-require "pghero/explain"
-require "pghero/indexes"
-require "pghero/maintenance"
-require "pghero/queries"
-require "pghero/query_stats_methods"
-require "pghero/replica"
-require "pghero/space"
-require "pghero/suggested_indexes"
-require "pghero/system"
-require "pghero/tables"
+require "pghero/methods/basic"
+require "pghero/methods/connections"
+require "pghero/methods/databases"
+require "pghero/methods/explain"
+require "pghero/methods/indexes"
+require "pghero/methods/maintenance"
+require "pghero/methods/queries"
+require "pghero/methods/query_stats"
+require "pghero/methods/replica"
+require "pghero/methods/space"
+require "pghero/methods/suggested_indexes"
+require "pghero/methods/system"
+require "pghero/methods/tables"
 
 module PgHero
   # settings
@@ -36,19 +36,17 @@ module PgHero
   self.env = ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
   self.show_migrations = true
 
-  class << self
-    include Basic
-    include Connections
-    include DatabaseInformation
-    include Explain
-    include Indexes
-    include Maintenance
-    include Queries
-    include QueryStatsMethods
-    include Replica
-    include Space
-    include SuggestedIndexes
-    include System
-    include Tables
-  end
+  extend Methods::Basic
+  extend Methods::Connections
+  extend Methods::Databases
+  extend Methods::Explain
+  extend Methods::Indexes
+  extend Methods::Maintenance
+  extend Methods::Queries
+  extend Methods::QueryStats
+  extend Methods::Replica
+  extend Methods::Space
+  extend Methods::SuggestedIndexes
+  extend Methods::System
+  extend Methods::Tables
 end
