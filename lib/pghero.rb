@@ -18,6 +18,7 @@ require "pghero/maintenance"
 require "pghero/queries"
 require "pghero/query_stats_methods"
 require "pghero/replica"
+require "pghero/space"
 require "pghero/suggested_indexes"
 require "pghero/system"
 require "pghero/tables"
@@ -45,6 +46,7 @@ module PgHero
     include Queries
     include QueryStatsMethods
     include Replica
+    include Space
     include SuggestedIndexes
     include System
     include Tables

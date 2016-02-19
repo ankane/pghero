@@ -33,9 +33,5 @@ module PgHero
         self.current_database = previous_database
       end
     end
-
-    def database_size
-      select_all("SELECT pg_size_pretty(pg_database_size(current_database()))").first["pg_size_pretty"]
-    end
   end
 end
