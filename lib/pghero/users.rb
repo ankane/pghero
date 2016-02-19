@@ -71,5 +71,15 @@ module PgHero
 
         true
     end
+
+    private 
+
+    def table_grant_commands(privilege, tables, user)
+      tables.map do |table|
+        "GRANT #{privilege} ON TABLE #{table} TO #{user}"
+      end
+    end
+
+
   end
 end

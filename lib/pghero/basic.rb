@@ -52,6 +52,53 @@ module PgHero
       ssl_used
     end
 
+    private
 
+    def friendly_value(setting, unit)
+      if %w(kB 8kB).include?(unit)
+        value = setting.to_i
+        value *= 8 if unit == "8kB"
+
+        if value % (1024 * 1024) == 0
+          "#{value / (1024 * 1024)}GB"
+        elsif value % 1024 == 0
+          "#{value / 1024}MB"
+        else
+          "#{value}kB"
+        end
+      else
+        "#{setting}#{unit}".strip
+      end
+    end
+
+    def select_all(sql)
+      # squish for logs
+      connection.select_all(squish(sql)).to_a
+    end
+
+    def execute(sql)
+      connection.execute(sql)
+    end
+
+    def connection_model
+      databases[current_database].connection_model
+    end
+
+    def connection
+      connection_model.connection
+    end
+
+    # from ActiveSupport
+    def squish(str)
+      str.to_s.gsub(/\A[[:space:]]+/, "").gsub(/[[:space:]]+\z/, "").gsub(/[[:space:]]+/, " ")
+    end
+
+    def quote(value)
+      connection.quote(value)
+    end
+
+    def quote_table_name(value)
+      connection.quote_table_name(value)
+    end
   end
 end
