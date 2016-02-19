@@ -7,7 +7,8 @@
     <thead>
       <tr>
         <th>Relation</th>
-        <th style="width: 20%;">Size</th>
+        <th style="width: 15%;"></th>
+        <th style="width: 15%;">Size</th>
       </tr>
     </thead>
     <tbody>
@@ -15,10 +16,11 @@
         <tr>
           <td>
             <%= query["name"] %>
-            <% if query["type"] != "table" %>
-              <span class="text-muted"><%= query["type"] %></span>
+            <% if query["schema"] != "public" %>
+              <span class="text-muted"><%= query["schema"] %></span>
             <% end %>
           </td>
+          <td> <span class="text-muted"><%= query["type"] == "index" ? "index" : "" %></span></td>
           <td><%= query["size"] %></td>
         </tr>
       <% end %>

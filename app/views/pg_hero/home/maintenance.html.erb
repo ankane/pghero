@@ -12,7 +12,12 @@
     <tbody>
       <% @maintenance_info.each do |table| %>
         <tr>
-          <td><%= table["table"] %></td>
+          <td>
+            <%= table["table"] %>
+            <% if table["schema"] != "public" %>
+              <span class="text-muted"><%= table["schema"] %></span>
+            <% end %>
+          </td>
           <td>
             <% time = [table["last_autovacuum"], table["last_vacuum"]].compact.max %>
             <% if time %>
