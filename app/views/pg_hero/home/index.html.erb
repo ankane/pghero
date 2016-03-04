@@ -1,9 +1,3 @@
-<div>
-  <p> Server Version:
-  <strong><%= PgHero.version %></strong>
-  </p>
-</div>
-
 <div id="status">
   <% if @replica %>
     <div class="alert alert-<%= @good_replication_lag ? "success" : "warning" %>">
