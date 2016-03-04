@@ -1,6 +1,10 @@
 module PgHero
   module Methods
     module Basic
+      def version
+        select_all("SHOW SERVER_VERSION").first["server_version"]
+      end
+
       def time_zone=(time_zone)
         @time_zone = time_zone.is_a?(ActiveSupport::TimeZone) ? time_zone : ActiveSupport::TimeZone[time_zone.to_s]
       end
@@ -32,11 +36,19 @@ module PgHero
       end
 
       def settings
-        names = %w(
+        if version_newer_than_9_5?
+          names = %w(
+            max_connections shared_buffers effective_cache_size work_mem
+            maintenance_work_mem min_wal_size max_wal_size checkpoint_completion_target
+            wal_buffers default_statistics_target
+          )
+        else
+          names = %w(
           max_connections shared_buffers effective_cache_size work_mem
           maintenance_work_mem checkpoint_segments checkpoint_completion_target
           wal_buffers default_statistics_target
-        )
+          )
+        end
         values = Hash[select_all(connection_model.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by { |row| names.index(row["name"]) }.map { |row| [row["name"], friendly_value(row["setting"], row["unit"])] }]
         Hash[names.map { |name| [name, values[name]] }]
       end
@@ -98,6 +110,10 @@ module PgHero
 
       def quote_table_name(value)
         connection.quote_table_name(value)
+      end
+
+      def version_newer_than_9_5?
+        Gem::Version.new(version) >= Gem::Version.new('9.5.0')
       end
     end
   end
