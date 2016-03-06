@@ -6,8 +6,13 @@ module PgHero
 
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
-    around_filter :set_database
-    before_filter :set_query_stats_enabled
+    if respond_to?(:before_action)
+      around_action :set_database
+      before_action :set_query_stats_enabled
+    else
+      around_filter :set_database
+      before_filter :set_query_stats_enabled
+    end
 
     def index
       @title = "Overview"
