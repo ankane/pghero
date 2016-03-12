@@ -2,7 +2,6 @@ require "pghero/version"
 require "active_record"
 require "pghero/database"
 require "pghero/engine" if defined?(Rails)
-require "pghero/tasks"
 
 # models
 require "pghero/connection"
