@@ -14,6 +14,7 @@ require "pghero/methods/connections"
 require "pghero/methods/databases"
 require "pghero/methods/explain"
 require "pghero/methods/indexes"
+require "pghero/methods/kill"
 require "pghero/methods/maintenance"
 require "pghero/methods/queries"
 require "pghero/methods/query_stats"
@@ -41,6 +42,7 @@ module PgHero
   extend Methods::Databases
   extend Methods::Explain
   extend Methods::Indexes
+  extend Methods::Kill
   extend Methods::Maintenance
   extend Methods::Queries
   extend Methods::QueryStats
