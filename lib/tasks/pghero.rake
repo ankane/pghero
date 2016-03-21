@@ -1,5 +1,3 @@
-require "rake"
-
 namespace :pghero do
   desc "capture query stats"
   task capture_query_stats: :environment do
