@@ -12,6 +12,8 @@ The missing dashboard for Postgres
 
 PgHero can be installed as a standalone app or a Rails engine.
 
+To have PgHero suggest indexes for your database, install [PgQuery](https://github.com/lfittl/pg_query) as well. 
+
 ### Standalone
 
 [Linux](guides/Linux.md) - Ubuntu, Debian, and more
