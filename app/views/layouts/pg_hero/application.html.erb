@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= [@databases.size > 1 ? PgHero.current_database.titleize : "PgHero", @title].compact.join(" / ") %></title>
+    <title><%= [@databases.size > 1 ? @current_database.name : "PgHero", @title].compact.join(" / ") %></title>
 
     <meta charset="utf-8" />
 
@@ -406,7 +406,7 @@
       <div class="grid">
         <div class="col-3-12">
           <% if @databases.size > 1 %>
-            <p class="nav-header"><%= PgHero.current_database.titleize %></p>
+            <p class="nav-header"><%= @current_database.name %></p>
           <% end %>
 
           <ul class="nav">

@@ -8,9 +8,11 @@ module PgHero
 
     if respond_to?(:before_action)
       around_action :set_database
+      before_action :set_current_database
       before_action :set_query_stats_enabled
     else
       around_filter :set_database
+      before_filter :set_current_database
       before_filter :set_query_stats_enabled
     end
 
@@ -194,6 +196,10 @@ module PgHero
       else
         yield
       end
+    end
+
+    def set_current_database
+      @current_database = PgHero.databases[PgHero.current_database]
     end
 
     def default_url_options
