@@ -17,6 +17,7 @@ module PgHero
             query <> '<insufficient privilege>'
             AND state <> 'idle'
             AND pid <> pg_backend_pid()
+            AND datname = current_database()
           ORDER BY
             query_start DESC
         SQL
@@ -39,6 +40,7 @@ module PgHero
             AND state <> 'idle'
             AND pid <> pg_backend_pid()
             AND now() - query_start > interval '#{long_running_query_sec.to_i} seconds'
+            AND datname = current_database()
           ORDER BY
             query_start DESC
         SQL
@@ -63,6 +65,7 @@ module PgHero
             pg_stat_activity.query <> '<insufficient privilege>'
             AND pg_locks.mode = 'ExclusiveLock'
             AND pg_stat_activity.pid <> pg_backend_pid()
+            AND pg_stat_activity.datname = current_database()
           ORDER BY
             pid,
             query_start
