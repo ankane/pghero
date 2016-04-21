@@ -1,4 +1,4 @@
-## 1.3.0 [unreleased]
+## 1.2.3
 
 - Added schema to queries
 - Fixed deprecation warning on Rails 5
