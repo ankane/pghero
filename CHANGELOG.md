@@ -1,6 +1,8 @@
 ## 1.3.0 [unreleased]
 
 - Added schema to queries
+- Fixed deprecation warning on Rails 5
+- Fix for pg_query >= 0.9.0
 
 ## 1.2.2
 
