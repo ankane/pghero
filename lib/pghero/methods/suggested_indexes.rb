@@ -145,7 +145,7 @@ module PgHero
                       final_where << c[:column]
                       rows_left = row_estimates(ranks[c[:column]], total_rows, rows_left, c[:op])
                       prev_rows_left << rows_left
-                      if rows_left < 50 || final_where.size >= 2 || [">", ">=", "<", "<=", "~~", "~~*"].include?(c[:op])
+                      if rows_left < 50 || final_where.size >= 2 || [">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(c[:op])
                         break
                       end
                     end
@@ -246,7 +246,7 @@ module PgHero
             end
 
           case op
-          when ">", ">=", "<", "<=", "~~", "~~*"
+          when ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"
             (rows_left + ret) / 10.0 # TODO better approximation
           when "<>"
             rows_left - ret
@@ -269,18 +269,24 @@ module PgHero
 
       # TODO capture values
       def parse_where(tree)
-        if tree["AEXPR AND"]
+        aexpr = tree["AEXPR"] || tree[nil]
+
+        if tree["BOOLEXPR"]
+          if tree["BOOLEXPR"]["boolop"] == 0
+            tree["BOOLEXPR"]["args"].flat_map { |v| parse_where(v) }
+          end
+        elsif tree["AEXPR AND"]
           left = parse_where(tree["AEXPR AND"]["lexpr"])
           right = parse_where(tree["AEXPR AND"]["rexpr"])
           left + right if left && right
-        elsif tree["AEXPR"] && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*"].include?(tree["AEXPR"]["name"].first)
-          [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR"]["name"].first}]
+        elsif aexpr && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(aexpr["name"].first)
+          [{column: aexpr["lexpr"]["COLUMNREF"]["fields"].last, op: aexpr["name"].first}]
         elsif tree["AEXPR IN"] && ["=", "<>"].include?(tree["AEXPR IN"]["name"].first)
           [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR IN"]["name"].first}]
         elsif tree["NULLTEST"]
           op = tree["NULLTEST"]["nulltesttype"] == 1 ? "not_null" : "null"
           [{column: tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last, op: op}]
-              end
+        end
       end
 
       def parse_sort(sort_clause)
