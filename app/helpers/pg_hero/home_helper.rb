@@ -1,34 +1,26 @@
 module PgHero
 
   module HomeHelper
-    def pghero_post_to(name, url, html_options)
-      html_options = html_options.stringify_keys
-      html_options['value'] = name
-      html_options['type'] = 'submit'
-
-      params = html_options.delete('params')
+    def pghero_post_to(name, url, html_options = {})
+      html_options.stringify_keys!
 
       form_options = html_options.delete('form') || {}
-      form_options[:method] = 'post'
-      form_options[:action] = url
-      form_options[:class] = 'button_to'
+      form_options['class'] = 'button_to'
+      params = html_options.delete('params')
 
-      # required for post html method
-      request_token_tag = token_tag(nil)
+      form_tag(url, form_options) do
+        tags = ''.freeze.html_safe
 
-      button = tag('input', html_options)
+        tags.safe_concat submit_tag(name, html_options)
 
-      inner_tags = ''.freeze.html_safe.
-        safe_concat(request_token_tag).
-        safe_concat(button)
-
-      if params
-        params.each do |param_name, param_value|
-          inner_tags.safe_concat tag(:input, type: 'hidden', name: param_name, value: param_value)
+        if params
+          params.each do |param_key, param_value|
+            tags.safe_concat hidden_field_tag(param_key, param_value)
+          end
         end
-      end
 
-      content_tag('form', inner_tags, form_options)
+        tags
+      end
     end
   end
 
