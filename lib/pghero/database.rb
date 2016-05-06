@@ -1,6 +1,6 @@
 module PgHero
   class Database
-    attr_reader :id, :config, :connection_model
+    attr_reader :id, :config
 
     def initialize(id, config)
       @id = id

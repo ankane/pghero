@@ -1,7 +1,7 @@
 module PgHero
   module Methods
     module SuggestedIndexes
-     def suggested_indexes_enabled?
+      def suggested_indexes_enabled?
         defined?(PgQuery) && query_stats_enabled?
       end
 
@@ -216,7 +216,7 @@ module PgHero
         sort = (select["sortClause"] ? parse_sort(select["sortClause"]) : []) rescue []
 
         {table: table, where: where, sort: sort}
-       end
+      end
 
       def index_covers?(indexed_columns, columns)
         indexed_columns.first(columns.size) == columns
