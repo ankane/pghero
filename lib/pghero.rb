@@ -22,6 +22,7 @@ require "pghero/methods/space"
 require "pghero/methods/suggested_indexes"
 require "pghero/methods/system"
 require "pghero/methods/tables"
+require "pghero/methods/users"
 
 module PgHero
   # settings
@@ -50,4 +51,5 @@ module PgHero
   extend Methods::SuggestedIndexes
   extend Methods::System
   extend Methods::Tables
+  extend Methods::Users
 end

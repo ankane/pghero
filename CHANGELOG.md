@@ -1,3 +1,7 @@
+## 1.2.4 [unreleased]
+
+- Fixed user methods
+
 ## 1.2.3
 
 - Added schema to queries
