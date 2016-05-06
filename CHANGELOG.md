@@ -1,4 +1,4 @@
-## 1.2.4 [unreleased]
+## 1.2.4
 
 - Fixed user methods
 
