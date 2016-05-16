@@ -274,6 +274,8 @@ module PgHero
         if tree["BOOLEXPR"]
           if tree["BOOLEXPR"]["boolop"] == 0
             tree["BOOLEXPR"]["args"].flat_map { |v| parse_where(v) }
+          else
+            raise "Not Implemented"
           end
         elsif tree["AEXPR AND"]
           left = parse_where(tree["AEXPR AND"]["lexpr"])
