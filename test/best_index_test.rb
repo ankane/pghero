@@ -130,6 +130,15 @@ class BestIndexTest < Minitest::Test
     assert_no_index "Unknown structure", "SELECT NOW()"
   end
 
+  def test_where_or
+    assert_no_index "Unknown structure", "SELECT FROM users WHERE login_attempts = 0 OR login_attempts = 1"
+  end
+
+  def test_where_nested_or
+    assert_no_index "Unknown structure", "SELECT FROM users WHERE city_id = 1 AND (login_attempts = 0 OR login_attempts = 1)"
+  end
+
+
   def test_multiple_tables
     assert_no_index "JOIN not supported yet", "SELECT * FROM users INNER JOIN cities ON cities.id = users.city_id"
   end
