@@ -61,24 +61,48 @@ module PgHero
         end
       end
 
+      # resetting query stats will reset across the entire Postgres instance
+      # this is problematic if multiple PgHero databases use the same Postgres instance
+      #
+      # to get around this, we capture queries for every Postgres database before we
+      # reset query stats for the Postgres instance with the `capture_query_stats` option
       def capture_query_stats
-        config["databases"].keys.each do |database|
-          with(database) do
-            now = Time.now
-            query_stats = self.query_stats(limit: 1000000)
-            if query_stats.any? && reset_query_stats
-              values =
-                query_stats.map do |qs|
-                  [
-                    database,
-                    qs["query"],
-                    qs["total_minutes"].to_f * 60 * 1000,
-                    qs["calls"],
-                    now
-                  ].map { |v| quote(v) }.join(",")
-                end.map { |v| "(#{v})" }.join(",")
+        # get database names
+        pg_databases = {}
+        config["databases"].each do |k, _|
+          pg_databases[k] = with(k) { execute("SELECT current_database()").first["current_database"] }
+        end
 
-              stats_connection.execute("INSERT INTO pghero_query_stats (database, query, total_time, calls, captured_at) VALUES #{values}")
+        config["databases"].reject { |_, v| v["capture_query_stats"] && v["capture_query_stats"] != true }.each do |database, _|
+          with(database) do
+            mapping = {database => pg_databases[database]}
+            config["databases"].select { |_, v| v["capture_query_stats"] == database }.each do |k, _|
+              mapping[k] = pg_databases[k]
+            end
+
+            now = Time.now
+            query_stats = {}
+            mapping.each do |database, pg_database|
+              query_stats[database] = self.query_stats(limit: 1000000, database: pg_database)
+            end
+
+            if query_stats.any? { |_, v| v.any? } && reset_query_stats
+              query_stats.each do |database, db_query_stats|
+                if db_query_stats.any?
+                  values =
+                    db_query_stats.map do |qs|
+                      [
+                        database,
+                        qs["query"],
+                        qs["total_minutes"].to_f * 60 * 1000,
+                        qs["calls"],
+                        now
+                      ].map { |v| quote(v) }.join(",")
+                    end.map { |v| "(#{v})" }.join(",")
+
+                  stats_connection.execute("INSERT INTO pghero_query_stats (database, query, total_time, calls, captured_at) VALUES #{values}")
+                end
+              end
             end
           end
         end
@@ -115,6 +139,7 @@ module PgHero
         if query_stats_enabled?
           limit = options[:limit] || 100
           sort = options[:sort] || "total_minutes"
+          database = options[:database] ? quote(options[:database]) : "current_database()"
           select_all <<-SQL
             WITH query_stats AS (
               SELECT
@@ -127,7 +152,7 @@ module PgHero
               INNER JOIN
                 pg_database ON pg_database.oid = pg_stat_statements.dbid
               WHERE
-                pg_database.datname = current_database()
+                pg_database.datname = #{database}
             )
             SELECT
               query,

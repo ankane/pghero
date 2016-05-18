@@ -1,3 +1,7 @@
+## 1.2.5 [unreleased]
+
+- Added `capture_query_stats` option to config
+
 ## 1.2.4
 
 - Fixed user methods
