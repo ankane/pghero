@@ -133,7 +133,7 @@ module PgHero
           ORDER BY
             1, 2
         SQL
-        ).map { |v| v["columns"] = v["columns"].sub(") WHERE (", " WHERE ").split(", "); v }
+        ).map { |v| v["columns"] = v["columns"].sub(") WHERE (", " WHERE ").split(", ").map { |c| unquote(c) }; v }
       end
 
       def duplicate_indexes

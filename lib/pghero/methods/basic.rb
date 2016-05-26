@@ -99,6 +99,14 @@ module PgHero
       def quote_table_name(value)
         connection.quote_table_name(value)
       end
+
+      def unquote(part)
+        if part && part.start_with?('"')
+          part[1..-2]
+        else
+          part
+        end
+      end
     end
   end
 end
