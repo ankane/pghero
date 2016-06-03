@@ -292,6 +292,8 @@ module PgHero
         elsif tree["NULLTEST"]
           op = tree["NULLTEST"]["nulltesttype"] == 1 ? "not_null" : "null"
           [{column: tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last, op: op}]
+        else
+          raise "Not Implemented"
         end
       end
 
