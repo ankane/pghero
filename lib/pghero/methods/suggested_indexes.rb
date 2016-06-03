@@ -280,7 +280,11 @@ module PgHero
         elsif tree["AEXPR AND"]
           left = parse_where(tree["AEXPR AND"]["lexpr"])
           right = parse_where(tree["AEXPR AND"]["rexpr"])
-          left + right if left && right
+          if left && right
+            left + right
+          else
+            raise "Not Implemented"
+          end
         elsif aexpr && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(aexpr["name"].first)
           [{column: aexpr["lexpr"]["COLUMNREF"]["fields"].last, op: aexpr["name"].first}]
         elsif tree["AEXPR IN"] && ["=", "<>"].include?(tree["AEXPR IN"]["name"].first)
