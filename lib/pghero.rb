@@ -18,6 +18,7 @@ require "pghero/methods/maintenance"
 require "pghero/methods/queries"
 require "pghero/methods/query_stats"
 require "pghero/methods/replica"
+require "pghero/methods/sequences"
 require "pghero/methods/space"
 require "pghero/methods/suggested_indexes"
 require "pghero/methods/system"
@@ -47,6 +48,7 @@ module PgHero
   extend Methods::Queries
   extend Methods::QueryStats
   extend Methods::Replica
+  extend Methods::Sequences
   extend Methods::Space
   extend Methods::SuggestedIndexes
   extend Methods::System
