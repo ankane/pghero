@@ -40,9 +40,9 @@
   </div>
   <div class="alert alert-<%= @sequence_danger.empty? ? "success" : "warning" %>">
     <% if @sequence_danger.any? %>
-      <%= pluralize(@sequence_danger.size, "sequence") %> approaching limit
+      <%= pluralize(@sequence_danger.size, "columns") %> approaching overflow
     <% else %>
-      Sequences below limit
+      No columns near overflow
     <% end %>
   </div>
   <div class="alert alert-<%= @invalid_indexes.empty? ? "success" : "warning" %>">
@@ -148,20 +148,24 @@
 
 <% if @sequence_danger.any? %>
   <div class="content">
-    <h2>Sequences Near Limit</h2>
+    <h2>Columns Near Overflow</h2>
     <p>Consider changing the column type to support a larger range of values.</p>
     <table class="table">
       <thead>
         <tr>
-          <th>Sequence</th>
+          <th>Column</th>
+          <th style="width: 20%;">Type</th>
           <th style="width: 20%;">Values Left</th>
         </tr>
       </thead>
       <tbody>
-        <% @sequence_danger.each do |query| %>
+        <% @sequence_danger.sort_by { |s| [s["table"], s["column"]] }.each do |query| %>
           <tr>
             <td>
-              <%= query["sequence"] %> <span class="text-muted"><%= query["column_type"] %></span>
+              <%= query["table"] %>.<%= query["column"] %>
+            </td>
+            <td>
+              <span class="text-muted"><%= query["column_type"] %></span>
             </td>
             <td>
               <%= number_with_delimiter(query["max_value"].to_i - query["last_value"].to_i) %>
