@@ -242,6 +242,23 @@ Minimum connections for high connections warning
 PgHero.total_connections_threshold = 100 # default
 ```
 
+## Upgrading
+
+### 1.3.0 [unreleased]
+
+For better query stats grouping with Postgres 9.4+, create a migration with:
+
+```ruby
+add_column :pghero_query_stats, :query_hash, :integer, limit: 8
+```
+
+If you get an error with `queryid`, recreate the `pg_stat_statements` extension.
+
+```sql
+DROP EXTENSION pg_stat_statements;
+CREATE EXTENSION pg_stat_statements;
+```
+
 ## Bonus
 
 - See where queries come from with [Marginalia](https://github.com/basecamp/marginalia) - comments appear on the Live Queries tab.
