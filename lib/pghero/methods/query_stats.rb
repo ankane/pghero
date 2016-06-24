@@ -186,77 +186,49 @@ module PgHero
       def historical_query_stats(options = {})
         if historical_query_stats_enabled?
           sort = options[:sort] || "total_minutes"
-          if supports_query_hash?
-            stats_connection.select_all squish <<-SQL
-              WITH query_stats AS (
-                SELECT
-                  query_hash,
-                  MAX(query) AS query,
-                  (SUM(total_time) / 1000 / 60) AS total_minutes,
-                  (SUM(total_time) / SUM(calls)) AS average_time,
-                  SUM(calls) AS calls
-                FROM
-                  pghero_query_stats
-                WHERE
-                  database = #{quote(current_database)}
-                  AND query_hash IS NOT NULL
-                  #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
-                  #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
-                GROUP BY
-                  1
-              )
+          stats_connection.select_all squish <<-SQL
+            WITH query_stats AS (
               SELECT
-                query_hash,
-                query,
-                total_minutes,
-                average_time,
-                calls,
-                total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent,
-                (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+                #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
+                MAX(query) AS query,
+                (SUM(total_time) / 1000 / 60) AS total_minutes,
+                (SUM(total_time) / SUM(calls)) AS average_time,
+                SUM(calls) AS calls
               FROM
-                query_stats
-              ORDER BY
-                #{quote_table_name(sort)} DESC
-              LIMIT 100
-            SQL
-          else
-            stats_connection.select_all squish <<-SQL
-              WITH query_stats AS (
-                SELECT
-                  query,
-                  (SUM(total_time) / 1000 / 60) as total_minutes,
-                  (SUM(total_time) / SUM(calls)) as average_time,
-                  SUM(calls) as calls
-                FROM
-                  pghero_query_stats
-                WHERE
-                  database = #{quote(current_database)}
-                  #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
-                  #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
-                GROUP BY
-                  query
-              )
-              SELECT
-                query,
-                total_minutes,
-                average_time,
-                calls,
-                total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent,
-                (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
-              FROM
-                query_stats
-              ORDER BY
-                #{quote_table_name(sort)} DESC
-              LIMIT 100
-            SQL
-          end
+                pghero_query_stats
+              WHERE
+                database = #{quote(current_database)}
+                #{supports_query_hash? ? "AND query_hash IS NOT NULL" : ""}
+                #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
+                #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
+              GROUP BY
+                1
+            )
+            SELECT
+              query_hash,
+              query,
+              total_minutes,
+              average_time,
+              calls,
+              total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent,
+              (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+            FROM
+              query_stats
+            ORDER BY
+              #{quote_table_name(sort)} DESC
+            LIMIT 100
+          SQL
         else
           []
         end
       end
 
       def supports_query_hash?
-        server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
+        @supports_query_hash ||= {}
+        if @supports_query_hash[current_database].nil?
+          @supports_query_hash[current_database] = server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
+        end
+        @supports_query_hash[current_database]
       end
 
       def server_version
