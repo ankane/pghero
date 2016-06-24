@@ -191,6 +191,7 @@ module PgHero
               WITH query_stats AS (
                 SELECT
                   query_hash,
+                  MAX(query) AS query,
                   (SUM(total_time) / 1000 / 60) AS total_minutes,
                   (SUM(total_time) / SUM(calls)) AS average_time,
                   SUM(calls) AS calls
@@ -205,7 +206,7 @@ module PgHero
                   1
               )
               SELECT
-                (SELECT query FROM pghero_query_stats WHERE pghero_query_stats.query_hash = query_stats.query_hash LIMIT 1) AS query,
+                query,
                 total_minutes,
                 average_time,
                 calls,
