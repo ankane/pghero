@@ -260,7 +260,7 @@ module PgHero
       end
 
       def supports_query_hash?
-        server_version >= 90400 && PgHero::QueryStats.column_names.include?("query_hash")
+        server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
       end
 
       def server_version
