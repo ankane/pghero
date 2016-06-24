@@ -52,6 +52,13 @@
       No invalid indexes
     <% end %>
   </div>
+  <div class="alert alert-<%= @duplicate_indexes.empty? ? "success" : "warning" %>">
+    <% if @duplicate_indexes.any? %>
+      <%= pluralize(@duplicate_indexes.size, "duplicate index", "duplicate indexes") %>
+    <% else %>
+      No duplicate indexes
+    <% end %>
+  </div>
   <% if PgHero.suggested_indexes_enabled? %>
     <div class="alert alert-<%= @suggested_indexes.empty? ? "success" : "warning" %>">
       <% if @suggested_indexes.any? %>
@@ -193,6 +200,49 @@
         <% @invalid_indexes.each do |query| %>
           <tr>
             <td><%= query["index"] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<% if @duplicate_indexes.any? %>
+  <div class="content">
+    <h1>Duplicate Indexes</h1>
+
+    <p>
+      These indexes exist, but aren’t needed. Remove them
+      <% if @show_migrations %>
+      <a href="javascript: void(0);" onclick="document.getElementById('migration2').style.display = 'block';">with a migration</a>
+      <% end %>
+      for faster writes.
+    </p>
+
+    <div id="migration2" style="display: none;">
+      <pre>rails g migration remove_unneeded_indexes</pre>
+      <p>And paste</p>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @duplicate_indexes.each do |query| %>
+remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= query["unneeded_index"]["name"].to_s.inspect %><% end %></pre>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @duplicate_indexes.each do |index| %>
+          <% unneeded_index = index["unneeded_index"] %>
+          <% covering_index = index["covering_index"] %>
+          <tr>
+            <td style="padding-top: 15px; padding-bottom: 5px;">
+              On <%= unneeded_index["table"] %>
+              <pre><%= unneeded_index["name"] %> (<%= unneeded_index["columns"].join(", ") %>)</pre>
+              is covered by
+              <pre><%= covering_index["name"] %> (<%= covering_index["columns"].join(", ") %>)</pre>
+            </td>
           </tr>
         <% end %>
       </tbody>
