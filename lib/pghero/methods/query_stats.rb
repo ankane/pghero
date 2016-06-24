@@ -11,6 +11,7 @@ module PgHero
         (current_query_stats.keys + historical_query_stats.keys).uniq.each do |query|
           value = {
             "query" => query,
+            "query_hash" => current_query_stats[query]["query_hash"],
             "total_minutes" => current_query_stats[query]["total_minutes"].to_f + historical_query_stats[query]["total_minutes"].to_f,
             "calls" => current_query_stats[query]["calls"].to_i + historical_query_stats[query]["calls"].to_i
           }
@@ -69,8 +70,12 @@ module PgHero
       def capture_query_stats
         # get database names
         pg_databases = {}
+        supports_query_hash = {}
         config["databases"].each do |k, _|
-          pg_databases[k] = with(k) { execute("SELECT current_database()").first["current_database"] }
+          with(k) do
+            pg_databases[k] = execute("SELECT current_database()").first["current_database"]
+            supports_query_hash[k] = supports_query_hash?
+          end
         end
 
         config["databases"].reject { |_, v| v["capture_query_stats"] && v["capture_query_stats"] != true }.each do |database, _|
@@ -96,11 +101,14 @@ module PgHero
                         qs["query"],
                         qs["total_minutes"].to_f * 60 * 1000,
                         qs["calls"],
-                        now
-                      ].map { |v| quote(v) }.join(",")
+                        now,
+                        qs["query_hash"]
+                      ].compact.map { |v| quote(v) }.join(",")
                     end.map { |v| "(#{v})" }.join(",")
 
-                  stats_connection.execute("INSERT INTO pghero_query_stats (database, query, total_time, calls, captured_at) VALUES #{values}")
+                  columns = %w[database query total_time calls captured_at]
+                  columns << "query_hash" if supports_query_hash[database]
+                  stats_connection.execute("INSERT INTO pghero_query_stats (#{columns.join(", ")}) VALUES #{values}")
                 end
               end
             end
@@ -144,8 +152,9 @@ module PgHero
             WITH query_stats AS (
               SELECT
                 query,
-                (total_time / 1000 / 60) as total_minutes,
-                (total_time / calls) as average_time,
+                #{supports_query_hash? ? "queryid" : "NULL"} AS query_hash,
+                (total_time / 1000 / 60) AS total_minutes,
+                (total_time / calls) AS average_time,
                 calls
               FROM
                 pg_stat_statements
@@ -156,6 +165,7 @@ module PgHero
             )
             SELECT
               query,
+              query_hash,
               total_minutes,
               average_time,
               calls,
@@ -175,38 +185,79 @@ module PgHero
       def historical_query_stats(options = {})
         if historical_query_stats_enabled?
           sort = options[:sort] || "total_minutes"
-          stats_connection.select_all squish <<-SQL
-            WITH query_stats AS (
+          if supports_query_hash?
+            stats_connection.select_all squish <<-SQL
+              WITH query_stats AS (
+                SELECT
+                  query_hash,
+                  (SUM(total_time) / 1000 / 60) AS total_minutes,
+                  (SUM(total_time) / SUM(calls)) AS average_time,
+                  SUM(calls) AS calls
+                FROM
+                  pghero_query_stats
+                WHERE
+                  database = #{quote(current_database)}
+                  #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
+                  #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
+                GROUP BY
+                  1
+              )
+              SELECT
+                (SELECT query FROM pghero_query_stats WHERE pghero_query_stats.query_hash = query_stats.query_hash LIMIT 1) AS query,
+                total_minutes,
+                average_time,
+                calls,
+                total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent,
+                (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+              FROM
+                query_stats
+              ORDER BY
+                #{quote_table_name(sort)} DESC
+              LIMIT 100
+            SQL
+          else
+            stats_connection.select_all squish <<-SQL
+              WITH query_stats AS (
+                SELECT
+                  query,
+                  (SUM(total_time) / 1000 / 60) as total_minutes,
+                  (SUM(total_time) / SUM(calls)) as average_time,
+                  SUM(calls) as calls
+                FROM
+                  pghero_query_stats
+                WHERE
+                  database = #{quote(current_database)}
+                  #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
+                  #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
+                GROUP BY
+                  query
+              )
               SELECT
                 query,
-                (SUM(total_time) / 1000 / 60) as total_minutes,
-                (SUM(total_time) / SUM(calls)) as average_time,
-                SUM(calls) as calls
+                total_minutes,
+                average_time,
+                calls,
+                total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent,
+                (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
               FROM
-                pghero_query_stats
-              WHERE
-                database = #{quote(current_database)}
-                #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
-                #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
-              GROUP BY
-                query
-            )
-            SELECT
-              query,
-              total_minutes,
-              average_time,
-              calls,
-              total_minutes * 100.0 / (SELECT SUM(total_minutes) FROM query_stats) AS total_percent,
-              (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
-            FROM
-              query_stats
-            ORDER BY
-              #{quote_table_name(sort)} DESC
-            LIMIT 100
-          SQL
+                query_stats
+              ORDER BY
+                #{quote_table_name(sort)} DESC
+              LIMIT 100
+            SQL
+          end
         else
           []
         end
+      end
+
+      def supports_query_hash?
+        server_version >= 90400 && PgHero::QueryStats.column_names.include?("query_hash")
+      end
+
+      def server_version
+        @server_version ||= {}
+        @server_version[current_database] ||= select_all("SHOW server_version_num").first["server_version_num"].to_i
       end
     end
   end
