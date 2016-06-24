@@ -2,21 +2,21 @@ module PgHero
   module Methods
     module QueryStats
       def query_stats(options = {})
-        current_query_stats = (options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)).index_by { |q| q["query"] }
-        historical_query_stats = (options[:historical] ? historical_query_stats(options) : []).index_by { |q| q["query"] }
+        current_query_stats = (options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)).index_by { |q| q["query_hash"] }
+        historical_query_stats = (options[:historical] ? historical_query_stats(options) : []).index_by { |q| q["query_hash"] }
         current_query_stats.default = {}
         historical_query_stats.default = {}
 
         query_stats = []
-        (current_query_stats.keys + historical_query_stats.keys).uniq.each do |query|
+        (current_query_stats.keys + historical_query_stats.keys).uniq.each do |query_hash|
           value = {
-            "query" => query,
-            "query_hash" => current_query_stats[query]["query_hash"],
-            "total_minutes" => current_query_stats[query]["total_minutes"].to_f + historical_query_stats[query]["total_minutes"].to_f,
-            "calls" => current_query_stats[query]["calls"].to_i + historical_query_stats[query]["calls"].to_i
+            "query" => current_query_stats[query_hash]["query"] || historical_query_stats[query_hash]["query"],
+            "query_hash" => query_hash,
+            "total_minutes" => current_query_stats[query_hash]["total_minutes"].to_f + historical_query_stats[query_hash]["total_minutes"].to_f,
+            "calls" => current_query_stats[query_hash]["calls"].to_i + historical_query_stats[query_hash]["calls"].to_i
           }
           value["average_time"] = value["total_minutes"] * 1000 * 60 / value["calls"]
-          value["total_percent"] = value["total_minutes"] * 100.0 / (current_query_stats[query]["all_queries_total_minutes"].to_f + historical_query_stats[query]["all_queries_total_minutes"].to_f)
+          value["total_percent"] = value["total_minutes"] * 100.0 / (current_query_stats[query_hash]["all_queries_total_minutes"].to_f + historical_query_stats[query_hash]["all_queries_total_minutes"].to_f)
           query_stats << value
         end
         sort = options[:sort] || "total_minutes"
@@ -96,14 +96,15 @@ module PgHero
                 if db_query_stats.any?
                   values =
                     db_query_stats.map do |qs|
-                      [
+                      values = [
                         database,
                         qs["query"],
                         qs["total_minutes"].to_f * 60 * 1000,
                         qs["calls"],
-                        now,
-                        qs["query_hash"]
-                      ].compact.map { |v| quote(v) }.join(",")
+                        now
+                      ]
+                      values << qs["query_hash"] if supports_query_hash[database]
+                      values.map { |v| quote(v) }.join(",")
                     end.map { |v| "(#{v})" }.join(",")
 
                   columns = %w[database query total_time calls captured_at]
@@ -152,7 +153,7 @@ module PgHero
             WITH query_stats AS (
               SELECT
                 query,
-                #{supports_query_hash? ? "queryid" : "NULL"} AS query_hash,
+                #{supports_query_hash? ? "queryid" : "md5(query)"} AS query_hash,
                 (total_time / 1000 / 60) AS total_minutes,
                 (total_time / calls) AS average_time,
                 calls
@@ -197,6 +198,7 @@ module PgHero
                   pghero_query_stats
                 WHERE
                   database = #{quote(current_database)}
+                  AND query_hash IS NOT NULL
                   #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
                   #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
                 GROUP BY
