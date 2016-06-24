@@ -206,6 +206,7 @@ module PgHero
                   1
               )
               SELECT
+                query_hash,
                 query,
                 total_minutes,
                 average_time,
