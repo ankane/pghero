@@ -2,20 +2,16 @@ module PgHero
   module Methods
     module QueryStats
       def query_stats(options = {})
-        supports_query_hash = supports_query_hash?
-        index_key = supports_query_hash ? "query_hash" : "query"
-
-        current_query_stats = (options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)).index_by { |q| q[index_key] }
-        historical_query_stats = (options[:historical] ? historical_query_stats(options) : []).index_by { |q| q[index_key] }
+        current_query_stats = (options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)).index_by { |q| q["query_hash"] }
+        historical_query_stats = (options[:historical] ? historical_query_stats(options) : []).index_by { |q| q["query_hash"] }
         current_query_stats.default = {}
         historical_query_stats.default = {}
 
         query_stats = []
         (current_query_stats.keys + historical_query_stats.keys).uniq.each do |query_hash|
-          query = supports_query_hash ? (current_query_stats[query_hash]["query"] || historical_query_stats[query_hash]["query"]) : query_hash
           value = {
-            "query" => query,
-            "query_hash" => supports_query_hash ? query_hash : nil,
+            "query" => current_query_stats[query_hash]["query"] || historical_query_stats[query_hash]["query"],
+            "query_hash" => query_hash,
             "total_minutes" => current_query_stats[query_hash]["total_minutes"].to_f + historical_query_stats[query_hash]["total_minutes"].to_f,
             "calls" => current_query_stats[query_hash]["calls"].to_i + historical_query_stats[query_hash]["calls"].to_i
           }
