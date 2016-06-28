@@ -87,28 +87,28 @@ module PgHero
 
             now = Time.now
             query_stats = {}
-            mapping.each do |database, pg_database|
-              query_stats[database] = self.query_stats(limit: 1000000, database: pg_database)
+            mapping.each do |db, pg_database|
+              query_stats[db] = self.query_stats(limit: 1000000, database: pg_database)
             end
 
             if query_stats.any? { |_, v| v.any? } && reset_query_stats
-              query_stats.each do |database, db_query_stats|
+              query_stats.each do |db, db_query_stats|
                 if db_query_stats.any?
                   values =
                     db_query_stats.map do |qs|
                       values = [
-                        database,
+                        db,
                         qs["query"],
                         qs["total_minutes"].to_f * 60 * 1000,
                         qs["calls"],
                         now
                       ]
-                      values << qs["query_hash"] if supports_query_hash[database]
+                      values << qs["query_hash"] if supports_query_hash[db]
                       values.map { |v| quote(v) }.join(",")
                     end.map { |v| "(#{v})" }.join(",")
 
                   columns = %w[database query total_time calls captured_at]
-                  columns << "query_hash" if supports_query_hash[database]
+                  columns << "query_hash" if supports_query_hash[db]
                   stats_connection.execute("INSERT INTO pghero_query_stats (#{columns.join(", ")}) VALUES #{values}")
                 end
               end
