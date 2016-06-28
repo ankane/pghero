@@ -25,9 +25,9 @@ module PgHero
         if system_stats_enabled?
           client =
             if defined?(Aws)
-              Aws::CloudWatch::Client.new(access_key_id: access_key_id, secret_access_key: secret_access_key)
+              Aws::CloudWatch::Client.new(access_key_id: access_key_id, secret_access_key: secret_access_key, region: region)
             else
-              AWS::CloudWatch.new(access_key_id: access_key_id, secret_access_key: secret_access_key).client
+              AWS::CloudWatch.new(access_key_id: access_key_id, secret_access_key: secret_access_key, region: region).client
             end
 
           now = Time.now
@@ -60,6 +60,10 @@ module PgHero
 
       def secret_access_key
         ENV["PGHERO_SECRET_ACCESS_KEY"] || ENV["AWS_SECRET_ACCESS_KEY"]
+      end
+
+      def region
+        ENV["PGHERO_REGION"] || ENV["AWS_REGION"] || (defined?(Aws) && Aws.config[:region]) || "us-east-1"
       end
 
       def db_instance_identifier
