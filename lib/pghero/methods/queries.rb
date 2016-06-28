@@ -10,7 +10,8 @@ module PgHero
             age(now(), xact_start) AS duration,
             waiting,
             query,
-            xact_start AS started_at
+            xact_start AS started_at,
+            usename AS user
           FROM
             pg_stat_activity
           WHERE
@@ -32,7 +33,8 @@ module PgHero
             age(now(), xact_start) AS duration,
             waiting,
             query,
-            xact_start AS started_at
+            xact_start AS started_at,
+            usename AS user
           FROM
             pg_stat_activity
           WHERE
