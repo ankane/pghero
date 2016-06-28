@@ -244,7 +244,7 @@ PgHero.total_connections_threshold = 100 # default
 
 ## Upgrading
 
-### 1.3.0 [unreleased]
+### 1.3.0
 
 For better query stats grouping with Postgres 9.4+, create a migration with:
 

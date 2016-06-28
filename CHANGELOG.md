@@ -1,4 +1,4 @@
-## 1.3.0 [unreleased]
+## 1.3.0
 
 - Added query hash for better query stats grouping
 - Added sequence danger check
