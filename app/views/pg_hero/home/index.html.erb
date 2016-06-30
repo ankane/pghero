@@ -165,6 +165,7 @@
           <th>Column</th>
           <th style="width: 20%;">Type</th>
           <th style="width: 20%;">Values Left</th>
+          <th style="width: 10%;">% Left</th>
         </tr>
       </thead>
       <tbody>
@@ -174,10 +175,13 @@
               <%= query["table"] %>.<%= query["column"] %>
             </td>
             <td>
-              <span class="text-muted"><%= query["column_type"] %></span>
+              <%= query["column_type"] %>
             </td>
             <td>
               <%= number_with_delimiter(query["max_value"].to_i - query["last_value"].to_i) %>
+            </td>
+            <td>
+              <%= number_to_percentage((query["max_value"].to_i - query["last_value"].to_i) * 100.0 / query["max_value"].to_i, precision: 0) %>
             </td>
           </tr>
         <% end %>
