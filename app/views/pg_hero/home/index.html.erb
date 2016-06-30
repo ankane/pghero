@@ -181,7 +181,7 @@
               <%= number_with_delimiter(query["max_value"].to_i - query["last_value"].to_i) %>
             </td>
             <td>
-              <%= number_to_percentage((query["max_value"].to_i - query["last_value"].to_i) * 100.0 / query["max_value"].to_i, precision: 0) %>
+              <%= number_to_percentage((query["max_value"].to_i - query["last_value"].to_i) * 100.0 / query["max_value"].to_i, precision: 2, significant: true) %>
             </td>
           </tr>
         <% end %>
