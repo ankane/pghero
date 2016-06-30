@@ -153,7 +153,13 @@
       $(this).attr("href", queriesPath(p));
     });
 
-    $("#queries").html('<tr><td colspan="3"><p class="queries-info text-muted">...</p></td></tr>').load(path);
+
+    var callback = function (response, status, xhr) {
+      if (status === "error" ) {
+        $(".queries-info").css("color", "red").html(xhr.status + " " + xhr.statusText);
+      }
+    };
+    $("#queries").html('<tr><td colspan="3"><p class="queries-info text-muted">...</p></td></tr>').load(path, callback);
 
     if (push && history.pushState) {
       history.pushState(null, null, path);
