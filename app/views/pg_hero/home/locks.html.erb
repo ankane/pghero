@@ -1,0 +1,39 @@
+<div class="content">
+  <h1>Locks</h1>
+
+  <% if @locks.any? %>
+    <table class="table">
+      <tbody>
+        <% @locks.each do |lock| %>
+          <tr>
+            <td>
+              <%= lock %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>None</p>
+  <% end %>
+</div>
+
+<div class="content">
+  <h1>Blocked Queries</h1>
+
+  <% if @blocked_queries.any? %>
+    <table class="table">
+      <tbody>
+        <% @blocked_queries.each do |lock| %>
+          <tr>
+            <td>
+              <%= lock %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>None</p>
+  <% end %>
+</div>

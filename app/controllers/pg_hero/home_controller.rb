@@ -153,6 +153,12 @@ module PgHero
       @maintenance_info = PgHero.maintenance_info
     end
 
+    def locks
+      @title = "Locks"
+      @locks = PgHero.locks
+      @blocked_queries = PgHero.blocked_queries
+    end
+
     def kill
       if PgHero.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"
