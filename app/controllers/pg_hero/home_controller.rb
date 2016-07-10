@@ -95,6 +95,8 @@ module PgHero
 
       set_suggested_indexes
 
+      # fix back button issue with caching
+      response.headers["Cache-Control"] = "must-revalidate, no-store, no-cache, private"
       if request.xhr?
         render layout: false, partial: "queries_table", locals: {queries: @query_stats, xhr: true}
       end
