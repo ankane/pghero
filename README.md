@@ -31,3 +31,5 @@ A big thanks to [Craig Kerstiens](http://www.craigkerstiens.com/2013/01/10/more-
 Know a bit about PostgreSQL? [Suggestions](https://github.com/ankane/pghero/issues) are greatly appreciated.
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
+
+[![Build Status](https://travis-ci.org/ankane/pghero.svg?branch=master)](https://travis-ci.org/ankane/pghero)

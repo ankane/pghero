@@ -1,5 +1,6 @@
-## 1.3.1 [unreleased]
+## 1.3.1
 
+- Improved grouping of query stats
 - Added `blocked_queries` method
 
 ## 1.3.0

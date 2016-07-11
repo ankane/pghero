@@ -2,23 +2,19 @@ module PgHero
   module Methods
     module QueryStats
       def query_stats(options = {})
-        current_query_stats = (options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)).index_by { |q| q["query_hash"] }
-        historical_query_stats = (options[:historical] ? historical_query_stats(options) : []).index_by { |q| q["query_hash"] }
-        current_query_stats.default = {}
-        historical_query_stats.default = {}
+        current_query_stats = options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)
+        historical_query_stats = options[:historical] ? historical_query_stats(options) : []
 
-        query_stats = []
-        (current_query_stats.keys + historical_query_stats.keys).uniq.each do |query_hash|
-          value = {
-            "query" => current_query_stats[query_hash]["query"] || historical_query_stats[query_hash]["query"],
-            "query_hash" => query_hash,
-            "total_minutes" => current_query_stats[query_hash]["total_minutes"].to_f + historical_query_stats[query_hash]["total_minutes"].to_f,
-            "calls" => current_query_stats[query_hash]["calls"].to_i + historical_query_stats[query_hash]["calls"].to_i
-          }
-          value["average_time"] = value["total_minutes"] * 1000 * 60 / value["calls"]
-          value["total_percent"] = value["total_minutes"] * 100.0 / (current_query_stats[query_hash]["all_queries_total_minutes"].to_f + historical_query_stats[query_hash]["all_queries_total_minutes"].to_f)
-          query_stats << value
+        query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| q["query_hash"] })
+        query_stats = combine_query_stats(query_stats.group_by { |q| normalize_query(q["query"]) })
+
+        # add percentages
+        all_queries_total_minutes = [current_query_stats, historical_query_stats].sum { |s| (s.first || {})["all_queries_total_minutes"].to_f }
+        query_stats.each do |query|
+          query["average_time"] = query["total_minutes"] * 1000 * 60 / query["calls"]
+          query["total_percent"] = query["total_minutes"] * 100.0 / all_queries_total_minutes
         end
+
         sort = options[:sort] || "total_minutes"
         query_stats = query_stats.sort_by { |q| -q[sort] }.first(100)
         if options[:min_average_time]
@@ -234,6 +230,30 @@ module PgHero
       def server_version
         @server_version ||= {}
         @server_version[current_database] ||= select_all("SHOW server_version_num").first["server_version_num"].to_i
+      end
+
+      private
+
+      def combine_query_stats(grouped_stats)
+        query_stats = []
+        grouped_stats.each do |_, stats2|
+          value = {
+            "query" => (stats2.find { |s| s["query"] } || {})["query"],
+            "query_hash" => (stats2.find { |s| s["query"] } || {})["query_hash"],
+            "total_minutes" => stats2.sum { |s| s["total_minutes"].to_f },
+            "calls" => stats2.sum { |s| s["calls"].to_i },
+            "all_queries_total_minutes" => stats2.sum { |s| s["all_queries_total_minutes"].to_f }
+          }
+          value["total_percent"] = value["total_minutes"] * 100.0 / value["all_queries_total_minutes"]
+          query_stats << value
+        end
+        query_stats
+      end
+
+      # removes comments
+      # combines ?, ?, ? => ?
+      def normalize_query(query)
+        squish(query.to_s.gsub(/\?(, ?\?)+/, "?").gsub(/\/\*.+?\*\//, ""))
       end
     end
   end
