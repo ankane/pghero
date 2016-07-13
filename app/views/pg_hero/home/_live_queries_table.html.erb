@@ -17,7 +17,7 @@
         <td><%= query["started_at"] ? "#{number_with_delimiter(((now - Time.parse(query["started_at"])) * 1000).round)} ms" : nil %></td>
         <td><%= query["source"] %> <span class="text-muted"><%= query["user"] %></span></td>
         <td class="text-right">
-          <%= button_to "Explain", explain_path(query: query["query"]), form: {target: "_blank"}, class: "btn btn-info" %>
+          <%= pghero_post_to "Explain", explain_path, form: {target: "_blank"}, params: {query: query["query"]}, class: "btn btn-info" %>
           <%= button_to "Kill", kill_path(pid: query["pid"]), class: "btn btn-danger" %>
         </td>
       </tr>
