@@ -185,6 +185,8 @@ module PgHero
       end
 
       def best_index_structure(statement)
+        return {error: "Too large"} if statement.to_s.length > 10000
+
         begin
           tree = PgQuery.parse(statement).parsetree
         rescue PgQuery::ParseError
