@@ -1,6 +1,7 @@
 ## 1.3.2 [unreleased]
 
 - Improved performance of historical query stats
+- Do not attempt to parse extremely long queries for suggested indexes
 
 ## 1.3.1
 
