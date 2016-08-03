@@ -186,7 +186,7 @@ module PgHero
             WITH query_stats AS (
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
-                MAX(query) AS query,
+                array_agg(query) AS query,
                 (SUM(total_time) / 1000 / 60) AS total_minutes,
                 (SUM(total_time) / SUM(calls)) AS average_time,
                 SUM(calls) AS calls
@@ -202,7 +202,7 @@ module PgHero
             )
             SELECT
               query_hash,
-              query,
+              query[1],
               total_minutes,
               average_time,
               calls,

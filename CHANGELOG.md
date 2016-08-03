@@ -1,3 +1,7 @@
+## 1.3.2 [unreleased]
+
+- Improved performance of historical query stats
+
 ## 1.3.1
 
 - Improved grouping of query stats
