@@ -20,7 +20,7 @@ module PgHero
       end
 
       def current_database=(database)
-        raise "Database not found" unless databases[database]
+        raise "Database not found" unless databases[database.to_s]
         Thread.current[:pghero_current_database] = database.to_s
         database
       end
