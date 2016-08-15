@@ -45,10 +45,15 @@ module PgHero
         ssl_used = nil
         connection_model.transaction do
           execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
-          ssl_used = select_all("SELECT ssl_is_used()").first["ssl_is_used"] == "t"
+          ssl_used = truthy?(select_all("SELECT ssl_is_used()").first["ssl_is_used"])
           raise ActiveRecord::Rollback
         end
         ssl_used
+      end
+
+      # Handles Rails 4 ('t') and Rails 5 (true) values.
+      def truthy?(value)
+        value == true || value == 't'
       end
 
       private
@@ -107,6 +112,7 @@ module PgHero
           part
         end
       end
+
     end
   end
 end
