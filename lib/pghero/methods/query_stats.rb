@@ -41,7 +41,7 @@ module PgHero
       def query_stats_readable?
         select_all("SELECT * FROM pg_stat_statements LIMIT 1")
         true
-      rescue ActiveRecord::StatementInvalid => e
+      rescue ActiveRecord::StatementInvalid
         false
       end
 
