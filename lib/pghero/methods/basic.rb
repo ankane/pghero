@@ -56,6 +56,10 @@ module PgHero
         value == true || value == 't'
       end
 
+      def falsey?(value)
+        value == false || value == 'f'
+      end
+
       private
 
       def friendly_value(setting, unit)
@@ -112,7 +116,6 @@ module PgHero
           part
         end
       end
-
     end
   end
 end

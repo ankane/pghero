@@ -13,6 +13,6 @@ Row estimates
 <%= details[:row_estimates].to_a.map { |k, v| "- #{k}: #{v}" }.join("\n") %><% end %><% if details[:table_indexes] %>
 
 Existing indexes
-<% details[:table_indexes].sort_by { |i| [PgHero.truthy?(i["primary"]) ? 0 : 1, i["columns"]] }.each do |i3| %>- <%= i3["columns"].join(", ") %><% if i3["using"] != "btree" %> <%= i3["using"].to_s.upcase %><% end %><% if PgHero.truthy?(i3["primary"]) %> PRIMARY<% elsif PgHero.truthy(i3["unique"]) %> UNIQUE<% end %>
+<% details[:table_indexes].sort_by { |i| [PgHero.truthy?(i["primary"]) ? 0 : 1, i["columns"]] }.each do |i3| %>- <%= i3["columns"].join(", ") %><% if i3["using"] != "btree" %> <%= i3["using"].to_s.upcase %><% end %><% if PgHero.truthy?(i3["primary"]) %> PRIMARY<% elsif PgHero.truthy?(i3["unique"]) %> UNIQUE<% end %>
 <% end %><% end %></pre></code>
 </div>
