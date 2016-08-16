@@ -31,12 +31,17 @@ module PgHero
       end
 
       def query_stats_enabled?
-        select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0 && query_stats_readable?
+        query_stats_extension_enabled? && query_stats_readable?
+      end
+
+      def query_stats_extension_enabled?
+        select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0
       end
 
       def query_stats_readable?
-        select_all("SELECT has_table_privilege(current_user, 'pg_stat_statements', 'SELECT')").first["has_table_privilege"] == "t"
-      rescue ActiveRecord::StatementInvalid
+        select_all("SELECT * FROM pg_stat_statements LIMIT 1")
+        true
+      rescue ActiveRecord::StatementInvalid => e
         false
       end
 
