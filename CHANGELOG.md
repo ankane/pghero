@@ -1,3 +1,7 @@
+## 1.4.0 [unreleased]
+
+- Fixed error when `pg_stat_statements` not enabled in `shared_libaries`
+
 ## 1.3.2
 
 - Improved performance of query stats
