@@ -17,7 +17,8 @@
         <td><%= query["started_at"] ? "#{number_with_delimiter(((now - Time.parse(query["started_at"])) * 1000).round)} ms" : nil %></td>
         <td><%= query["source"] %> <span class="text-muted"><%= query["user"] %></span></td>
         <td class="text-right">
-          <%= button_to "Explain", explain_path(query: query["query"]), form: {target: "_blank"}, class: "btn btn-info" %>
+          <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: query["query"]}}] : [explain_path(query: query["query"]), {}] %>
+          <%= button_to "Explain", button_path, button_options.merge(form: {target: "_blank"}, class: "btn btn-info") %>
           <%= button_to "Kill", kill_path(pid: query["pid"]), class: "btn btn-danger" %>
         </td>
       </tr>
