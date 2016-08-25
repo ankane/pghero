@@ -121,7 +121,7 @@ module PgHero
       # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
       def historical_query_stats_enabled?
         # TODO use schema from config
-        stats_connection.select_all(squish <<-SQL
+        truthy? stats_connection.select_all(squish <<-SQL
           SELECT EXISTS (
             SELECT
               1
@@ -135,7 +135,7 @@ module PgHero
               AND c.relkind = 'r'
           )
         SQL
-        ).to_a.first["exists"] == "t"
+        ).to_a.first["exists"]
       end
 
       def stats_connection

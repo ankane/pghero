@@ -140,8 +140,8 @@ module PgHero
         indexes = []
 
         indexes_by_table = self.indexes.group_by { |i| i["table"] }
-        indexes_by_table.values.flatten.select { |i| i["primary"] == "f" && i["unique"] == "f" && !i["indexprs"] && !i["indpred"] && i["valid"] == "t" }.each do |index|
-          covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["using"] == index["using"] && i["name"] != index["name"] && i["valid"] == "t" }
+        indexes_by_table.values.flatten.select { |i| falsey?(i["primary"]) && falsey?(i["unique"]) && !i["indexprs"] && !i["indpred"] && truthy?(i["valid"]) }.each do |index|
+          covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["using"] == index["using"] && i["name"] != index["name"] && truthy?(i["valid"]) }
           if covering_index
             indexes << {"unneeded_index" => index, "covering_index" => covering_index}
           end
