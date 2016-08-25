@@ -1,8 +1,6 @@
-<%= javascript_include_tag "//www.google.com/jsapi", "//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js", "chartkick" %>
-
 <div class="content">
   <h1>CPU</h1>
-  <div style="margin-bottom: 20px;"><%= line_chart cpu_usage_path, max: 100, colors: ["#5bc0de"], library: {pointSize: 0, lineWidth: 5} %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart cpu_usage_path, max: 100, colors: ["#5bc0de"] %></div>
 
   <h1>Load</h1>
   <div style="margin-bottom: 20px;"><%= line_chart load_stats_path, colors: ["#5bc0de", "#d9534f"], library: {pointSize: 0, lineWidth: 5} %></div>

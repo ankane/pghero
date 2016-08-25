@@ -1,3 +1,7 @@
+## 1.4.1 [unreleased]
+
+- Removed external assets
+
 ## 1.4.0
 
 - Updated for Rails 5
