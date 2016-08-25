@@ -31,7 +31,9 @@ unless ENV["SKIP_SEED"]
     t.string :zip_code
     t.boolean :active
     t.timestamp :created_at
+    t.timestamp :updated_at
   end
+  ActiveRecord::Migration.add_index :users, :updated_at
 
   User.transaction do
     users =
@@ -43,7 +45,8 @@ unless ENV["SKIP_SEED"]
           login_attempts: rand(30),
           zip_code: i % 40 == 0 ? nil : "12345",
           active: true,
-          created_at: Time.now - rand(50).days
+          created_at: Time.now - rand(50).days,
+          updated_at: Time.now - rand(50).days
         )
       end
     User.import users, validate: false
