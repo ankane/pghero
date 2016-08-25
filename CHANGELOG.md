@@ -1,5 +1,6 @@
 ## 1.4.0 [unreleased]
 
+- Updated for Rails 5
 - Fixed error when `pg_stat_statements` not enabled in `shared_libaries`
 
 ## 1.3.2
