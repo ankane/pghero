@@ -1,4 +1,4 @@
-## 1.4.2 [unreleased]
+## 1.4.2
 
 - Fixed `wrong constant name` error in development
 - Added different periods for system stats
