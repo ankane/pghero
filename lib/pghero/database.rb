@@ -12,7 +12,7 @@ module PgHero
         url = config["url"]
         Class.new(PgHero::Connection) do
           def self.name
-            "PgHero::Connection::#{object_id}"
+            "PgHero::Connection::Database#{object_id}"
           end
           establish_connection(url) if url
         end
