@@ -1,6 +1,6 @@
 # PgHero
 
-The missing dashboard for Postgres
+A performance dashboard for Postgres
 
 [See it in action](https://pghero.herokuapp.com/)
 

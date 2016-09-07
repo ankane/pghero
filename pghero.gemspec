@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = PgHero::VERSION
   spec.authors       = ["Andrew Kane"]
   spec.email         = ["andrew@chartkick.com"]
-  spec.summary       = "The missing dashboard for Postgres"
-  spec.description   = "The missing dashboard for Postgres"
+  spec.summary       = "A performance dashboard for Postgres"
+  spec.description   = "A performance dashboard for Postgres"
   spec.homepage      = "https://github.com/ankane/pghero"
   spec.license       = "MIT"
 
