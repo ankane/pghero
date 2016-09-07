@@ -407,3 +407,11 @@ body {
 .noUi-origin {
   border-radius: 0;
 }
+
+#periods {
+  text-align: center;
+}
+
+#periods a {
+  margin-right: 20px;
+}

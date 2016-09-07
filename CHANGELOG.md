@@ -1,3 +1,7 @@
+## 1.4.2 [unreleased]
+
+- Added different periods for system stats
+
 ## 1.4.1
 
 - Removed external assets

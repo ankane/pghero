@@ -1,15 +1,22 @@
 <div class="content">
+  <p id="periods">
+    <% @periods.each do |name, options| %>
+      <%= link_to name, system_path(options) %>
+    <% end %>
+  </p>
+  <% path_options = params.slice(:duration, :period) %>
+
   <h1>CPU</h1>
-  <div style="margin-bottom: 20px;"><%= line_chart cpu_usage_path, max: 100, colors: ["#5bc0de"] %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart cpu_usage_path(path_options), max: 100, colors: ["#5bc0de"] %></div>
 
   <h1>Load</h1>
-  <div style="margin-bottom: 20px;"><%= line_chart load_stats_path, colors: ["#5bc0de", "#d9534f"] %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart load_stats_path(path_options), colors: ["#5bc0de", "#d9534f"] %></div>
 
   <h1>Connections</h1>
-  <div style="margin-bottom: 20px;"><%= line_chart connection_stats_path, colors: ["#5bc0de"] %></div>
+  <div style="margin-bottom: 20px;"><%= line_chart connection_stats_path(path_options), colors: ["#5bc0de"] %></div>
 
   <% if PgHero.replica? %>
     <h1>Replication Lag</h1>
-    <div style="margin-bottom: 20px;"><%= line_chart replication_lag_stats_path, colors: ["#5bc0de"] %></div>
+    <div style="margin-bottom: 20px;"><%= line_chart replication_lag_stats_path(path_options), colors: ["#5bc0de"] %></div>
   <% end %>
 </div>

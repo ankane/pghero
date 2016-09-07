@@ -107,24 +107,30 @@ module PgHero
 
     def system
       @title = "System"
+      @periods = {
+        "1 hour" => {duration: 1.hour, period: 60.seconds},
+        "1 day" => {duration: 1.day, period: 10.minutes},
+        "1 week" => {duration: 1.week, period: 30.minutes},
+        "2 weeks" => {duration: 2.weeks, period: 1.hours}
+      }
     end
 
     def cpu_usage
-      render json: PgHero.cpu_usage.map { |k, v| [k, v.round] }
+      render json: [{name: "CPU", data: PgHero.cpu_usage(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}]
     end
 
     def connection_stats
-      render json: PgHero.connection_stats
+      render json: [{name: "Connections", data: PgHero.connection_stats(system_params), library: chart_library_options}]
     end
 
     def replication_lag_stats
-      render json: PgHero.replication_lag_stats
+      render json: [{name: "Lag", data: PgHero.replication_lag_stats(system_params), library: chart_library_options}]
     end
 
     def load_stats
       render json: [
-        {name: "Read IOPS", data: PgHero.read_iops_stats.map { |k, v| [k, v.round] }},
-        {name: "Write IOPS", data: PgHero.write_iops_stats.map { |k, v| [k, v.round] }}
+        {name: "Read IOPS", data: PgHero.read_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options},
+        {name: "Write IOPS", data: PgHero.write_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}
       ]
     end
 
@@ -224,6 +230,14 @@ module PgHero
       @suggested_indexes = PgHero.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query)
       @query_stats_by_query = @query_stats.index_by { |q| q["query"] }
       @debug = params[:debug] == "true"
+    end
+
+    def system_params
+      params.slice(:duration, :period)
+    end
+
+    def chart_library_options
+      {pointRadius: 0, pointHitRadius: 5, borderWidth: 4}
     end
   end
 end
