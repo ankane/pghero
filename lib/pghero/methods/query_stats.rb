@@ -121,7 +121,7 @@ module PgHero
       # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
       def historical_query_stats_enabled?
         # TODO use schema from config
-        truthy? stats_connection.select_all(squish <<-SQL
+        PgHero.truthy? stats_connection.select_all(squish <<-SQL
           SELECT EXISTS (
             SELECT
               1
@@ -138,11 +138,11 @@ module PgHero
         ).to_a.first["exists"]
       end
 
+      private
+
       def stats_connection
         ::PgHero::QueryStats.connection
       end
-
-      private
 
       # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
       def current_query_stats(options = {})
@@ -198,7 +198,7 @@ module PgHero
               FROM
                 pghero_query_stats
               WHERE
-                database = #{quote(current_database)}
+                database = #{quote(id)}
                 #{supports_query_hash? ? "AND query_hash IS NOT NULL" : ""}
                 #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
                 #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
@@ -225,19 +225,12 @@ module PgHero
       end
 
       def supports_query_hash?
-        @supports_query_hash ||= {}
-        if @supports_query_hash[current_database].nil?
-          @supports_query_hash[current_database] = server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
-        end
-        @supports_query_hash[current_database]
+        @supports_query_hash ||= server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
       end
 
       def server_version
-        @server_version ||= {}
-        @server_version[current_database] ||= select_all("SHOW server_version_num").first["server_version_num"].to_i
+        @server_version ||= select_all("SHOW server_version_num").first["server_version_num"].to_i
       end
-
-      private
 
       def combine_query_stats(grouped_stats)
         query_stats = []

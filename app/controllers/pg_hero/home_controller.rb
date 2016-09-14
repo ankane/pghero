@@ -205,14 +205,14 @@ module PgHero
           yield
         end
       elsif @databases.size > 1
-        redirect_to url_for(params.slice(:controller, :action).merge(database: PgHero.primary_database))
+        redirect_to url_for(params.slice(:controller, :action).merge(database: PgHero.primary_database.id))
       else
         yield
       end
     end
 
     def set_current_database
-      @current_database = PgHero.databases[PgHero.current_database]
+      @current_database = PgHero.current_database
     end
 
     def default_url_options

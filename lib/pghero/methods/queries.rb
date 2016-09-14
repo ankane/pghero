@@ -41,7 +41,7 @@ module PgHero
             query <> '<insufficient privilege>'
             AND state <> 'idle'
             AND pid <> pg_backend_pid()
-            AND now() - query_start > interval '#{long_running_query_sec.to_i} seconds'
+            AND now() - query_start > interval '#{PgHero.long_running_query_sec.to_i} seconds'
             AND datname = current_database()
           ORDER BY
             query_start DESC
@@ -50,7 +50,7 @@ module PgHero
 
       def slow_queries(options = {})
         query_stats = options[:query_stats] || self.query_stats(options.except(:query_stats))
-        query_stats.select { |q| q["calls"].to_i >= slow_query_calls.to_i && q["average_time"].to_i >= slow_query_ms.to_i }
+        query_stats.select { |q| q["calls"].to_i >= PgHero.slow_query_calls.to_i && q["average_time"].to_i >= PgHero.slow_query_ms.to_i }
       end
 
       def locks

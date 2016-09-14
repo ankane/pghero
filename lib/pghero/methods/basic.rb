@@ -1,36 +1,6 @@
 module PgHero
   module Methods
     module Basic
-      def time_zone=(time_zone)
-        @time_zone = time_zone.is_a?(ActiveSupport::TimeZone) ? time_zone : ActiveSupport::TimeZone[time_zone.to_s]
-      end
-
-      def time_zone
-        @time_zone || Time.zone
-      end
-
-      def config
-        Thread.current[:pghero_config] ||= begin
-          path = "config/pghero.yml"
-
-          config =
-            (YAML.load(ERB.new(File.read(path)).result)[env] if File.exist?(path))
-
-          if config
-            config
-          else
-            {
-              "databases" => {
-                "primary" => {
-                  "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config,
-                  "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
-                }
-              }
-            }
-          end
-        end
-      end
-
       def settings
         names = %w(
           max_connections shared_buffers effective_cache_size work_mem
@@ -45,19 +15,10 @@ module PgHero
         ssl_used = nil
         connection_model.transaction do
           execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
-          ssl_used = truthy?(select_all("SELECT ssl_is_used()").first["ssl_is_used"])
+          ssl_used = PgHero.truthy?(select_all("SELECT ssl_is_used()").first["ssl_is_used"])
           raise ActiveRecord::Rollback
         end
         ssl_used
-      end
-
-      # Handles Rails 4 ('t') and Rails 5 (true) values.
-      def truthy?(value)
-        value == true || value == 't'
-      end
-
-      def falsey?(value)
-        value == false || value == 'f'
       end
 
       private
@@ -86,10 +47,6 @@ module PgHero
 
       def execute(sql)
         connection.execute(sql)
-      end
-
-      def connection_model
-        databases[current_database].connection_model
       end
 
       def connection

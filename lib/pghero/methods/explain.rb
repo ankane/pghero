@@ -18,6 +18,8 @@ module PgHero
         explanation
       end
 
+      private
+
       def explain_safe?
         select_all("SELECT 1; SELECT 1")
         false
