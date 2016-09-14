@@ -12,17 +12,10 @@ A performance dashboard for Postgres
 
 PgHero can be installed as a standalone app or a Rails engine.
 
-### Standalone
-
-[Linux](guides/Linux.md) - Ubuntu, Debian, and more
-
-[Docker](guides/Docker.md)
-
-[Heroku](guides/Heroku.md)
-
-### Rails
-
-[Rails](guides/Rails.md)
+- [Linux](guides/Linux.md) - Ubuntu, Debian, and more
+- [Docker](guides/Docker.md)
+- [Heroku](guides/Heroku.md)
+- [Rails](guides/Rails.md)
 
 ## Related Projects
 
