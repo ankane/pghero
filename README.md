@@ -24,6 +24,13 @@ PgHero can be installed as a standalone app or a Rails engine.
 
 [Rails](guides/Rails.md)
 
+## Related Projects
+
+Also check out:
+
+- [pgsync](https://github.com/ankane/pgsync) - Sync Postgres data to your local machine
+- [pgslice](https://github.com/ankane/pgslice) - Postgres partitioning as easy as pie
+
 ## Credits
 
 A big thanks to [Craig Kerstiens](http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/) and [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme :clap:
