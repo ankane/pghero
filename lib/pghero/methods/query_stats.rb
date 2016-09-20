@@ -2,22 +2,19 @@ module PgHero
   module Methods
     module QueryStats
       def query_stats(options = {})
-        current_query_stats = (options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)).index_by { |q| q["query"] }
-        historical_query_stats = (options[:historical] ? historical_query_stats(options) : []).index_by { |q| q["query"] }
-        current_query_stats.default = {}
-        historical_query_stats.default = {}
+        current_query_stats = options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)
+        historical_query_stats = options[:historical] ? historical_query_stats(options) : []
 
-        query_stats = []
-        (current_query_stats.keys + historical_query_stats.keys).uniq.each do |query|
-          value = {
-            "query" => query,
-            "total_minutes" => current_query_stats[query]["total_minutes"].to_f + historical_query_stats[query]["total_minutes"].to_f,
-            "calls" => current_query_stats[query]["calls"].to_i + historical_query_stats[query]["calls"].to_i
-          }
-          value["average_time"] = value["total_minutes"] * 1000 * 60 / value["calls"]
-          value["total_percent"] = value["total_minutes"] * 100.0 / (current_query_stats[query]["all_queries_total_minutes"].to_f + historical_query_stats[query]["all_queries_total_minutes"].to_f)
-          query_stats << value
+        query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| q["query_hash"] })
+        query_stats = combine_query_stats(query_stats.group_by { |q| normalize_query(q["query"]) })
+
+        # add percentages
+        all_queries_total_minutes = [current_query_stats, historical_query_stats].sum { |s| (s.first || {})["all_queries_total_minutes"].to_f }
+        query_stats.each do |query|
+          query["average_time"] = query["total_minutes"] * 1000 * 60 / query["calls"]
+          query["total_percent"] = query["total_minutes"] * 100.0 / all_queries_total_minutes
         end
+
         sort = options[:sort] || "total_minutes"
         query_stats = query_stats.sort_by { |q| -q[sort] }.first(100)
         if options[:min_average_time]
@@ -34,11 +31,16 @@ module PgHero
       end
 
       def query_stats_enabled?
-        select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0 && query_stats_readable?
+        query_stats_extension_enabled? && query_stats_readable?
+      end
+
+      def query_stats_extension_enabled?
+        select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0
       end
 
       def query_stats_readable?
-        select_all("SELECT has_table_privilege(current_user, 'pg_stat_statements', 'SELECT')").first["has_table_privilege"] == "t"
+        select_all("SELECT * FROM pg_stat_statements LIMIT 1")
+        true
       rescue ActiveRecord::StatementInvalid
         false
       end
@@ -61,24 +63,56 @@ module PgHero
         end
       end
 
+      # resetting query stats will reset across the entire Postgres instance
+      # this is problematic if multiple PgHero databases use the same Postgres instance
+      #
+      # to get around this, we capture queries for every Postgres database before we
+      # reset query stats for the Postgres instance with the `capture_query_stats` option
       def capture_query_stats
-        config["databases"].keys.each do |database|
-          with(database) do
-            now = Time.now
-            query_stats = self.query_stats(limit: 1000000)
-            if query_stats.any? && reset_query_stats
-              values =
-                query_stats.map do |qs|
-                  [
-                    database,
-                    qs["query"],
-                    qs["total_minutes"].to_f * 60 * 1000,
-                    qs["calls"],
-                    now
-                  ].map { |v| quote(v) }.join(",")
-                end.map { |v| "(#{v})" }.join(",")
+        # get database names
+        pg_databases = {}
+        supports_query_hash = {}
+        config["databases"].each do |k, _|
+          with(k) do
+            pg_databases[k] = execute("SELECT current_database()").first["current_database"]
+            supports_query_hash[k] = supports_query_hash?
+          end
+        end
 
-              stats_connection.execute("INSERT INTO pghero_query_stats (database, query, total_time, calls, captured_at) VALUES #{values}")
+        config["databases"].reject { |_, v| v["capture_query_stats"] && v["capture_query_stats"] != true }.each do |database, _|
+          with(database) do
+            mapping = {database => pg_databases[database]}
+            config["databases"].select { |_, v| v["capture_query_stats"] == database }.each do |k, _|
+              mapping[k] = pg_databases[k]
+            end
+
+            now = Time.now
+            query_stats = {}
+            mapping.each do |db, pg_database|
+              query_stats[db] = self.query_stats(limit: 1000000, database: pg_database)
+            end
+
+            if query_stats.any? { |_, v| v.any? } && reset_query_stats
+              query_stats.each do |db, db_query_stats|
+                if db_query_stats.any?
+                  values =
+                    db_query_stats.map do |qs|
+                      values = [
+                        db,
+                        qs["query"],
+                        qs["total_minutes"].to_f * 60 * 1000,
+                        qs["calls"],
+                        now
+                      ]
+                      values << qs["query_hash"] if supports_query_hash[db]
+                      values.map { |v| quote(v) }.join(",")
+                    end.map { |v| "(#{v})" }.join(",")
+
+                  columns = %w[database query total_time calls captured_at]
+                  columns << "query_hash" if supports_query_hash[db]
+                  stats_connection.execute("INSERT INTO pghero_query_stats (#{columns.join(", ")}) VALUES #{values}")
+                end
+              end
             end
           end
         end
@@ -87,7 +121,7 @@ module PgHero
       # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
       def historical_query_stats_enabled?
         # TODO use schema from config
-        stats_connection.select_all(squish <<-SQL
+        PgHero.truthy? stats_connection.select_all(squish <<-SQL
           SELECT EXISTS (
             SELECT
               1
@@ -101,36 +135,39 @@ module PgHero
               AND c.relkind = 'r'
           )
         SQL
-        ).to_a.first["exists"] == "t"
+        ).to_a.first["exists"]
       end
+
+      private
 
       def stats_connection
         ::PgHero::QueryStats.connection
       end
-
-      private
 
       # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
       def current_query_stats(options = {})
         if query_stats_enabled?
           limit = options[:limit] || 100
           sort = options[:sort] || "total_minutes"
+          database = options[:database] ? quote(options[:database]) : "current_database()"
           select_all <<-SQL
             WITH query_stats AS (
               SELECT
-                query,
-                (total_time / 1000 / 60) as total_minutes,
-                (total_time / calls) as average_time,
+                LEFT(query, 10000) AS query,
+                #{supports_query_hash? ? "queryid" : "md5(query)"} AS query_hash,
+                (total_time / 1000 / 60) AS total_minutes,
+                (total_time / calls) AS average_time,
                 calls
               FROM
                 pg_stat_statements
               INNER JOIN
                 pg_database ON pg_database.oid = pg_stat_statements.dbid
               WHERE
-                pg_database.datname = current_database()
+                pg_database.datname = #{database}
             )
             SELECT
               query,
+              query_hash,
               total_minutes,
               average_time,
               calls,
@@ -153,21 +190,24 @@ module PgHero
           stats_connection.select_all squish <<-SQL
             WITH query_stats AS (
               SELECT
-                query,
-                (SUM(total_time) / 1000 / 60) as total_minutes,
-                (SUM(total_time) / SUM(calls)) as average_time,
-                SUM(calls) as calls
+                #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
+                array_agg(LEFT(query, 10000)) AS query,
+                (SUM(total_time) / 1000 / 60) AS total_minutes,
+                (SUM(total_time) / SUM(calls)) AS average_time,
+                SUM(calls) AS calls
               FROM
                 pghero_query_stats
               WHERE
-                database = #{quote(current_database)}
+                database = #{quote(id)}
+                #{supports_query_hash? ? "AND query_hash IS NOT NULL" : ""}
                 #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
                 #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
               GROUP BY
-                query
+                1
             )
             SELECT
-              query,
+              query_hash,
+              query[1],
               total_minutes,
               average_time,
               calls,
@@ -182,6 +222,36 @@ module PgHero
         else
           []
         end
+      end
+
+      def supports_query_hash?
+        @supports_query_hash ||= server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
+      end
+
+      def server_version
+        @server_version ||= select_all("SHOW server_version_num").first["server_version_num"].to_i
+      end
+
+      def combine_query_stats(grouped_stats)
+        query_stats = []
+        grouped_stats.each do |_, stats2|
+          value = {
+            "query" => (stats2.find { |s| s["query"] } || {})["query"],
+            "query_hash" => (stats2.find { |s| s["query"] } || {})["query_hash"],
+            "total_minutes" => stats2.sum { |s| s["total_minutes"].to_f },
+            "calls" => stats2.sum { |s| s["calls"].to_i },
+            "all_queries_total_minutes" => stats2.sum { |s| s["all_queries_total_minutes"].to_f }
+          }
+          value["total_percent"] = value["total_minutes"] * 100.0 / value["all_queries_total_minutes"]
+          query_stats << value
+        end
+        query_stats
+      end
+
+      # removes comments
+      # combines ?, ?, ? => ?
+      def normalize_query(query)
+        squish(query.to_s.gsub(/\?(, ?\?)+/, "?").gsub(/\/\*.+?\*\//, ""))
       end
     end
   end

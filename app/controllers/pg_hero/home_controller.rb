@@ -6,8 +6,15 @@ module PgHero
 
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
-    around_filter :set_database
-    before_filter :set_query_stats_enabled
+    if respond_to?(:before_action)
+      around_action :set_database
+      before_action :set_current_database
+      before_action :set_query_stats_enabled
+    else
+      around_filter :set_database
+      before_filter :set_current_database
+      before_filter :set_query_stats_enabled
+    end
 
     def index
       @title = "Overview"
@@ -24,8 +31,12 @@ module PgHero
         end
       @unused_indexes = PgHero.unused_indexes.select { |q| q["index_scans"].to_i == 0 }
       @invalid_indexes = PgHero.invalid_indexes
+      @duplicate_indexes = PgHero.duplicate_indexes if params[:duplicate_indexes]
       @good_cache_rate = @table_hit_rate >= PgHero.cache_hit_rate_threshold.to_f / 100 && @index_hit_rate >= PgHero.cache_hit_rate_threshold.to_f / 100
-      @query_stats_available = PgHero.query_stats_available?
+      unless @query_stats_enabled
+        @query_stats_available = PgHero.query_stats_available?
+        @query_stats_extension_enabled = PgHero.query_stats_extension_enabled? if @query_stats_available
+      end
       @total_connections = PgHero.total_connections
       @good_total_connections = @total_connections < PgHero.total_connections_threshold
       if @replica
@@ -35,6 +46,7 @@ module PgHero
       @transaction_id_danger = PgHero.transaction_id_danger(threshold: 1500000000)
       set_suggested_indexes((params[:min_average_time] || 20).to_f, (params[:min_calls] || 50).to_i)
       @show_migrations = PgHero.show_migrations
+      @sequence_danger = PgHero.sequence_danger(threshold: params[:sequence_threshold])
     end
 
     def index_usage
@@ -86,6 +98,8 @@ module PgHero
 
       set_suggested_indexes
 
+      # fix back button issue with caching
+      response.headers["Cache-Control"] = "must-revalidate, no-store, no-cache, private"
       if request.xhr?
         render layout: false, partial: "queries_table", locals: {queries: @query_stats, xhr: true}
       end
@@ -93,24 +107,30 @@ module PgHero
 
     def system
       @title = "System"
+      @periods = {
+        "1 hour" => {duration: 1.hour, period: 60.seconds},
+        "1 day" => {duration: 1.day, period: 10.minutes},
+        "1 week" => {duration: 1.week, period: 30.minutes},
+        "2 weeks" => {duration: 2.weeks, period: 1.hours}
+      }
     end
 
     def cpu_usage
-      render json: PgHero.cpu_usage.map { |k, v| [k, v.round] }
+      render json: [{name: "CPU", data: PgHero.cpu_usage(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}]
     end
 
     def connection_stats
-      render json: PgHero.connection_stats
+      render json: [{name: "Connections", data: PgHero.connection_stats(system_params), library: chart_library_options}]
     end
 
     def replication_lag_stats
-      render json: PgHero.replication_lag_stats
+      render json: [{name: "Lag", data: PgHero.replication_lag_stats(system_params), library: chart_library_options}]
     end
 
     def load_stats
       render json: [
-        {name: "Read IOPS", data: PgHero.read_iops_stats.map { |k, v| [k, v.round] }},
-        {name: "Write IOPS", data: PgHero.write_iops_stats.map { |k, v| [k, v.round] }}
+        {name: "Read IOPS", data: PgHero.read_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options},
+        {name: "Write IOPS", data: PgHero.write_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}
       ]
     end
 
@@ -185,10 +205,14 @@ module PgHero
           yield
         end
       elsif @databases.size > 1
-        redirect_to url_for(params.slice(:controller, :action).merge(database: PgHero.primary_database))
+        redirect_to url_for(params.slice(:controller, :action).merge(database: PgHero.primary_database.id))
       else
         yield
       end
+    end
+
+    def set_current_database
+      @current_database = PgHero.current_database
     end
 
     def default_url_options
@@ -206,6 +230,14 @@ module PgHero
       @suggested_indexes = PgHero.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query)
       @query_stats_by_query = @query_stats.index_by { |q| q["query"] }
       @debug = params[:debug] == "true"
+    end
+
+    def system_params
+      params.slice(:duration, :period)
+    end
+
+    def chart_library_options
+      {pointRadius: 0, pointHitRadius: 5, borderWidth: 4}
     end
   end
 end

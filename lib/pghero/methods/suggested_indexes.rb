@@ -1,7 +1,7 @@
 module PgHero
   module Methods
     module SuggestedIndexes
-     def suggested_indexes_enabled?
+      def suggested_indexes_enabled?
         defined?(PgQuery) && query_stats_enabled?
       end
 
@@ -145,7 +145,7 @@ module PgHero
                       final_where << c[:column]
                       rows_left = row_estimates(ranks[c[:column]], total_rows, rows_left, c[:op])
                       prev_rows_left << rows_left
-                      if rows_left < 50 || final_where.size >= 2 || [">", ">=", "<", "<=", "~~", "~~*"].include?(c[:op])
+                      if rows_left < 50 || final_where.size >= 2 || [">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(c[:op])
                         break
                       end
                     end
@@ -185,8 +185,12 @@ module PgHero
       end
 
       def best_index_structure(statement)
+        return {error: "Too large"} if statement.to_s.length > 10000
+
         begin
-          tree = PgQuery.parse(statement).parsetree
+          parsed_statement = PgQuery.parse(statement)
+          v2 = parsed_statement.respond_to?(:tree)
+          tree = v2 ? parsed_statement.tree : parsed_statement.parsetree
         rescue PgQuery::ParseError
           return {error: "Parse error"}
         end
@@ -197,10 +201,14 @@ module PgHero
         unless table
           error =
             case tree.keys.first
-            when "INSERT INTO"
+            when "InsertStmt", "INSERT INTO"
               "INSERT statement"
-            when "SET"
+            when "VariableSetStmt", "SET"
               "SET statement"
+            when "SelectStmt"
+              if (tree["SelectStmt"]["fromClause"].first["JoinExpr"] rescue false)
+                "JOIN not supported yet"
+              end
             when "SELECT"
               if (tree["SELECT"]["fromClause"].first["JOINEXPR"] rescue false)
                 "JOIN not supported yet"
@@ -209,14 +217,14 @@ module PgHero
           return {error: error || "Unknown structure"}
         end
 
-        select = tree["SELECT"] || tree["DELETE FROM"] || tree["UPDATE"]
-        where = (select["whereClause"] ? parse_where(select["whereClause"]) : []) rescue nil
+        select = tree.values.first
+        where = (select["whereClause"] ? parse_where(select["whereClause"], v2) : []) rescue nil
         return {error: "Unknown structure"} unless where
 
-        sort = (select["sortClause"] ? parse_sort(select["sortClause"]) : []) rescue []
+        sort = (select["sortClause"] ? parse_sort(select["sortClause"], v2) : []) rescue []
 
         {table: table, where: where, sort: sort}
-       end
+      end
 
       def index_covers?(indexed_columns, columns)
         indexed_columns.first(columns.size) == columns
@@ -246,7 +254,7 @@ module PgHero
             end
 
           case op
-          when ">", ">=", "<", "<=", "~~", "~~*"
+          when ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"
             (rows_left + ret) / 10.0 # TODO better approximation
           when "<>"
             rows_left - ret
@@ -258,6 +266,12 @@ module PgHero
 
       def parse_table(tree)
         case tree.keys.first
+        when "SelectStmt"
+          tree["SelectStmt"]["fromClause"].first["RangeVar"]["relname"]
+        when "DeleteStmt"
+          tree["DeleteStmt"]["relation"]["RangeVar"]["relname"]
+        when "UpdateStmt"
+          tree["UpdateStmt"]["relation"]["RangeVar"]["relname"]
         when "SELECT"
           tree["SELECT"]["fromClause"].first["RANGEVAR"]["relname"]
         when "DELETE FROM"
@@ -268,27 +282,69 @@ module PgHero
       end
 
       # TODO capture values
-      def parse_where(tree)
-        if tree["AEXPR AND"]
-          left = parse_where(tree["AEXPR AND"]["lexpr"])
-          right = parse_where(tree["AEXPR AND"]["rexpr"])
-          left + right if left && right
-        elsif tree["AEXPR"] && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*"].include?(tree["AEXPR"]["name"].first)
-          [{column: tree["AEXPR"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR"]["name"].first}]
-        elsif tree["AEXPR IN"] && ["=", "<>"].include?(tree["AEXPR IN"]["name"].first)
-          [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR IN"]["name"].first}]
-        elsif tree["NULLTEST"]
-          op = tree["NULLTEST"]["nulltesttype"] == 1 ? "not_null" : "null"
-          [{column: tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last, op: op}]
-              end
+      def parse_where(tree, v2 = false)
+        if v2
+          aexpr = tree["A_Expr"]
+
+          if tree["BoolExpr"]
+            if tree["BoolExpr"]["boolop"] == 0
+              tree["BoolExpr"]["args"].flat_map { |v| parse_where(v, v2) }
+            else
+              raise "Not Implemented"
+            end
+          elsif aexpr && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(aexpr["name"].first["String"]["str"])
+            [{column: aexpr["lexpr"]["ColumnRef"]["fields"].last["String"]["str"], op: aexpr["name"].first["String"]["str"]}]
+          elsif tree["NullTest"]
+            op = tree["NullTest"]["nulltesttype"] == 1 ? "not_null" : "null"
+            [{column: tree["NullTest"]["arg"]["ColumnRef"]["fields"].last["String"]["str"], op: op}]
+          else
+            raise "Not Implemented"
+          end
+        else
+          aexpr = tree["AEXPR"] || tree[nil]
+
+          if tree["BOOLEXPR"]
+            if tree["BOOLEXPR"]["boolop"] == 0
+              tree["BOOLEXPR"]["args"].flat_map { |v| parse_where(v) }
+            else
+              raise "Not Implemented"
+            end
+          elsif tree["AEXPR AND"]
+            left = parse_where(tree["AEXPR AND"]["lexpr"])
+            right = parse_where(tree["AEXPR AND"]["rexpr"])
+            if left && right
+              left + right
+            else
+              raise "Not Implemented"
+            end
+          elsif aexpr && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(aexpr["name"].first)
+            [{column: aexpr["lexpr"]["COLUMNREF"]["fields"].last, op: aexpr["name"].first}]
+          elsif tree["AEXPR IN"] && ["=", "<>"].include?(tree["AEXPR IN"]["name"].first)
+            [{column: tree["AEXPR IN"]["lexpr"]["COLUMNREF"]["fields"].last, op: tree["AEXPR IN"]["name"].first}]
+          elsif tree["NULLTEST"]
+            op = tree["NULLTEST"]["nulltesttype"] == 1 ? "not_null" : "null"
+            [{column: tree["NULLTEST"]["arg"]["COLUMNREF"]["fields"].last, op: op}]
+          else
+            raise "Not Implemented"
+          end
+        end
       end
 
-      def parse_sort(sort_clause)
-        sort_clause.map do |v|
-          {
-            column: v["SORTBY"]["node"]["COLUMNREF"]["fields"].last,
-            direction: v["SORTBY"]["sortby_dir"] == 2 ? "desc" : "asc"
-          }
+      def parse_sort(sort_clause, v2)
+        if v2
+          sort_clause.map do |v|
+            {
+              column: v["SortBy"]["node"]["ColumnRef"]["fields"].last["String"]["str"],
+              direction: v["SortBy"]["sortby_dir"] == 2 ? "desc" : "asc"
+            }
+          end
+        else
+          sort_clause.map do |v|
+            {
+              column: v["SORTBY"]["node"]["COLUMNREF"]["fields"].last,
+              direction: v["SORTBY"]["sortby_dir"] == 2 ? "desc" : "asc"
+            }
+          end
         end
       end
 

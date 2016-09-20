@@ -1,6 +1,45 @@
-## 1.3.0 [unreleased]
+## 1.4.3 [unreleased]
+
+- Better charts for system stats
+
+## 1.4.2
+
+- Fixed `wrong constant name` error in development
+- Added different periods for system stats
+
+## 1.4.1
+
+- Removed external assets
+
+## 1.4.0
+
+- Updated for Rails 5
+- Fixed error when `pg_stat_statements` not enabled in `shared_libaries`
+
+## 1.3.2
+
+- Improved performance of query stats
+
+## 1.3.1
+
+- Improved grouping of query stats
+- Added `blocked_queries` method
+
+## 1.3.0
+
+- Added query hash for better query stats grouping
+- Added sequence danger check
+- Added `capture_query_stats` option to config
+
+## 1.2.4
+
+- Fixed user methods
+
+## 1.2.3
 
 - Added schema to queries
+- Fixed deprecation warning on Rails 5
+- Fix for pg_query >= 0.9.0
 
 ## 1.2.2
 

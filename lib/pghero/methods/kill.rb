@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module Kill
       def kill(pid)
-        execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"] == "t"
+        PgHero.truthy? execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"]
       end
 
       def kill_long_running_queries
@@ -19,6 +19,7 @@ module PgHero
           WHERE
             pid <> pg_backend_pid()
             AND query <> '<insufficient privilege>'
+            AND datname = current_database()
         SQL
         true
       end

@@ -5,36 +5,6 @@ module PgHero
         select_all("SHOW SERVER_VERSION").first["server_version"]
       end
 
-      def time_zone=(time_zone)
-        @time_zone = time_zone.is_a?(ActiveSupport::TimeZone) ? time_zone : ActiveSupport::TimeZone[time_zone.to_s]
-      end
-
-      def time_zone
-        @time_zone || Time.zone
-      end
-
-      def config
-        Thread.current[:pghero_config] ||= begin
-          path = "config/pghero.yml"
-
-          config =
-            (YAML.load(ERB.new(File.read(path)).result)[env] if File.exist?(path))
-
-          if config
-            config
-          else
-            {
-              "databases" => {
-                "primary" => {
-                  "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config,
-                  "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
-                }
-              }
-            }
-          end
-        end
-      end
-
       def settings
         if version_newer_than_9_5?
           names = %w(
@@ -57,7 +27,7 @@ module PgHero
         ssl_used = nil
         connection_model.transaction do
           execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
-          ssl_used = select_all("SELECT ssl_is_used()").first["ssl_is_used"] == "t"
+          ssl_used = PgHero.truthy?(select_all("SELECT ssl_is_used()").first["ssl_is_used"])
           raise ActiveRecord::Rollback
         end
         ssl_used
@@ -91,10 +61,6 @@ module PgHero
         connection.execute(sql)
       end
 
-      def connection_model
-        databases[current_database].connection_model
-      end
-
       def connection
         connection_model.connection
       end
@@ -114,6 +80,14 @@ module PgHero
 
       def version_newer_than_9_5?
         Gem::Version.new(version) >= Gem::Version.new('9.5.0')
+      end
+
+      def unquote(part)
+        if part && part.start_with?('"')
+          part[1..-2]
+        else
+          part
+        end
       end
     end
   end
