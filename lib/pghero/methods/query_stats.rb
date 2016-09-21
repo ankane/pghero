@@ -5,8 +5,8 @@ module PgHero
         current_query_stats = options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)
         historical_query_stats = options[:historical] ? historical_query_stats(options) : []
 
-        query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| q["query_hash"] })
-        query_stats = combine_query_stats(query_stats.group_by { |q| normalize_query(q["query"]) })
+        query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q["query_hash"], q["user"]] })
+        query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q["query"]), q["user"]] })
 
         # add percentages
         all_queries_total_minutes = [current_query_stats, historical_query_stats].sum { |s| (s.first || {})["all_queries_total_minutes"].to_f }
@@ -87,6 +87,10 @@ module PgHero
         @supports_query_hash ||= server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
       end
 
+      def supports_query_stats_user?
+        @supports_query_stats_user ||= historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("user")
+      end
+
       def insert_stats(table, columns, values)
         values = values.map { |v| "(#{v.map { |v2| quote(v2) }.join(",")})" }.join(",")
         columns = columns.map { |v| quote_table_name(v) }.join(",")
@@ -118,6 +122,7 @@ module PgHero
           query_stats.each do |db_id, db_query_stats|
             if db_query_stats.any?
               supports_query_hash = PgHero.databases[db_id].supports_query_hash?
+              supports_query_stats_user = PgHero.databases[db_id].supports_query_stats_user?
 
               values =
                 db_query_stats.map do |qs|
@@ -129,11 +134,13 @@ module PgHero
                     now
                   ]
                   values << qs["query_hash"] if supports_query_hash
+                  values << qs["user"] if supports_query_stats_user
                   values
                 end
 
               columns = %w[database query total_time calls captured_at]
               columns << "query_hash" if supports_query_hash
+              columns << "user" if supports_query_stats_user
 
               insert_stats("pghero_query_stats", columns, values)
             end
@@ -158,6 +165,7 @@ module PgHero
               SELECT
                 LEFT(query, 10000) AS query,
                 #{supports_query_hash? ? "queryid" : "md5(query)"} AS query_hash,
+                #{supports_query_stats_user? ? "rolname" : "NULL"} AS user,
                 (total_time / 1000 / 60) AS total_minutes,
                 (total_time / calls) AS average_time,
                 calls
@@ -165,12 +173,15 @@ module PgHero
                 pg_stat_statements
               INNER JOIN
                 pg_database ON pg_database.oid = pg_stat_statements.dbid
+              INNER JOIN
+                pg_authid ON pg_authid.oid = pg_stat_statements.userid
               WHERE
                 pg_database.datname = #{database}
             )
             SELECT
               query,
               query_hash,
+              query_stats.user,
               total_minutes,
               average_time,
               calls,
@@ -194,6 +205,7 @@ module PgHero
             WITH query_stats AS (
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
+                #{supports_query_stats_user? ? "user" : "NULL"} AS user,
                 array_agg(LEFT(query, 10000)) AS query,
                 (SUM(total_time) / 1000 / 60) AS total_minutes,
                 (SUM(total_time) / SUM(calls)) AS average_time,
@@ -206,10 +218,11 @@ module PgHero
                 #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
                 #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
               GROUP BY
-                1
+                1, 2
             )
             SELECT
               query_hash,
+              user,
               query[1],
               total_minutes,
               average_time,
@@ -236,6 +249,7 @@ module PgHero
         grouped_stats.each do |_, stats2|
           value = {
             "query" => (stats2.find { |s| s["query"] } || {})["query"],
+            "user" => (stats2.find { |s| s["user"] } || {})["user"],
             "query_hash" => (stats2.find { |s| s["query"] } || {})["query_hash"],
             "total_minutes" => stats2.sum { |s| s["total_minutes"].to_f },
             "calls" => stats2.sum { |s| s["calls"].to_i },
