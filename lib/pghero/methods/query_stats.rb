@@ -63,61 +63,6 @@ module PgHero
         end
       end
 
-      # resetting query stats will reset across the entire Postgres instance
-      # this is problematic if multiple PgHero databases use the same Postgres instance
-      #
-      # to get around this, we capture queries for every Postgres database before we
-      # reset query stats for the Postgres instance with the `capture_query_stats` option
-      def capture_query_stats
-        # get database names
-        pg_databases = {}
-        supports_query_hash = {}
-        config["databases"].each do |k, _|
-          with(k) do
-            pg_databases[k] = execute("SELECT current_database()").first["current_database"]
-            supports_query_hash[k] = supports_query_hash?
-          end
-        end
-
-        config["databases"].reject { |_, v| v["capture_query_stats"] && v["capture_query_stats"] != true }.each do |database, _|
-          with(database) do
-            mapping = {database => pg_databases[database]}
-            config["databases"].select { |_, v| v["capture_query_stats"] == database }.each do |k, _|
-              mapping[k] = pg_databases[k]
-            end
-
-            now = Time.now
-            query_stats = {}
-            mapping.each do |db, pg_database|
-              query_stats[db] = self.query_stats(limit: 1000000, database: pg_database)
-            end
-
-            if query_stats.any? { |_, v| v.any? } && reset_query_stats
-              query_stats.each do |db, db_query_stats|
-                if db_query_stats.any?
-                  values =
-                    db_query_stats.map do |qs|
-                      values = [
-                        db,
-                        qs["query"],
-                        qs["total_minutes"].to_f * 60 * 1000,
-                        qs["calls"],
-                        now
-                      ]
-                      values << qs["query_hash"] if supports_query_hash[db]
-                      values.map { |v| quote(v) }.join(",")
-                    end.map { |v| "(#{v})" }.join(",")
-
-                  columns = %w[database query total_time calls captured_at]
-                  columns << "query_hash" if supports_query_hash[db]
-                  stats_connection.execute("INSERT INTO pghero_query_stats (#{columns.join(", ")}) VALUES #{values}")
-                end
-              end
-            end
-          end
-        end
-      end
-
       # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
       def historical_query_stats_enabled?
         # TODO use schema from config
@@ -136,6 +81,16 @@ module PgHero
           )
         SQL
         ).to_a.first["exists"]
+      end
+
+      def supports_query_hash?
+        @supports_query_hash ||= server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
+      end
+
+      def insert_stats(table, columns, values)
+        values = values.map { |v| "(#{v.map { |v2| quote(v2) }.join(",")})" }.join(",")
+        columns = columns.map { |v| quote_table_name(v) }.join(",")
+        stats_connection.execute("INSERT INTO #{quote_table_name(table)} (#{columns}) VALUES #{values}")
       end
 
       private
@@ -222,10 +177,6 @@ module PgHero
         else
           []
         end
-      end
-
-      def supports_query_hash?
-        @supports_query_hash ||= server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
       end
 
       def server_version

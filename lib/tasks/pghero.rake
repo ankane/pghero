@@ -4,6 +4,11 @@ namespace :pghero do
     PgHero.capture_query_stats
   end
 
+  desc "capture space stats"
+  task capture_space_stats: :environment do
+    PgHero.capture_space_stats
+  end
+
   desc "autoindex"
   task autoindex: :environment do
     PgHero.autoindex_all(create: true)

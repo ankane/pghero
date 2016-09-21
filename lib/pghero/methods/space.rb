@@ -11,7 +11,8 @@ module PgHero
             n.nspname AS schema,
             c.relname AS name,
             CASE WHEN c.relkind = 'r' THEN 'table' ELSE 'index' END AS type,
-            pg_size_pretty(pg_table_size(c.oid)) AS size
+            pg_size_pretty(pg_table_size(c.oid)) AS size,
+            pg_table_size(c.oid) AS size_bytes
           FROM
             pg_class c
           LEFT JOIN
@@ -24,6 +25,16 @@ module PgHero
             pg_table_size(c.oid) DESC,
             name ASC
         SQL
+      end
+
+      def capture_space_stats
+        now = Time.now
+        columns = %w[database schema relation size captured_at]
+        values = []
+        relation_sizes.each do |rs|
+          values << [id, rs["schema"], rs["name"], rs["size_bytes"].to_i, now]
+        end
+        insert_stats("pghero_space_stats", columns, values)
       end
     end
   end

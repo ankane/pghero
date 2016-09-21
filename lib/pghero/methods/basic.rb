@@ -21,6 +21,11 @@ module PgHero
         ssl_used
       end
 
+      def select_all(sql)
+        # squish for logs
+        connection.select_all(squish(sql)).to_a
+      end
+
       private
 
       def friendly_value(setting, unit)
@@ -38,11 +43,6 @@ module PgHero
         else
           "#{setting}#{unit}".strip
         end
-      end
-
-      def select_all(sql)
-        # squish for logs
-        connection.select_all(squish(sql)).to_a
       end
 
       def execute(sql)
