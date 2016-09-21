@@ -6,7 +6,24 @@ module PgHero
       end
 
       def connection_sources(options = {})
-        if options[:by_database]
+        if options[:by_database_and_user]
+          select_all <<-SQL
+            SELECT
+              datname AS database,
+              usename AS user,
+              application_name AS source,
+              client_addr AS ip,
+              COUNT(*) AS total_connections
+            FROM
+              pg_stat_activity
+            WHERE
+              pid <> pg_backend_pid()
+            GROUP BY
+              1, 2, 3, 4
+            ORDER BY
+              5 DESC, 1, 2, 3, 4
+          SQL
+        elsif options[:by_database]
           select_all <<-SQL
             SELECT
               application_name AS source,
