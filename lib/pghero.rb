@@ -117,13 +117,10 @@ module PgHero
       end
     end
 
-    # Handles Rails 4 ('t') and Rails 5 (true) values.
-    def truthy?(value)
-      value == true || value == 't'
-    end
-
-    def falsey?(value)
-      value == false || value == 'f'
+    def capture_query_stats
+      databases.each do |_, database|
+        database.capture_query_stats
+      end
     end
 
     def capture_space_stats
@@ -132,56 +129,13 @@ module PgHero
       end
     end
 
-    # resetting query stats will reset across the entire Postgres instance
-    # this is problematic if multiple PgHero databases use the same Postgres instance
-    #
-    # to get around this, we capture queries for every Postgres database before we
-    # reset query stats for the Postgres instance with the `capture_query_stats` option
-    def capture_query_stats
-      # get database names
-      pg_databases = {}
-      supports_query_hash = {}
-      databases.each do |_, database|
-        pg_databases[database.id] = database.select_all("SELECT current_database()").first["current_database"]
-        supports_query_hash[database.id] = database.supports_query_hash?
-      end
+    # Handles Rails 4 ('t') and Rails 5 (true) values.
+    def truthy?(value)
+      value == true || value == 't'
+    end
 
-      databases.reject { |_, d| d.config["capture_query_stats"] && d.config["capture_query_stats"] != true }.each do |_, database|
-        mapping = {database.id => pg_databases[database.id]}
-        databases.select { |_, d| d.config["capture_query_stats"] == database.id }.each do |_, d|
-          mapping[d.id] = pg_databases[d.id]
-        end
-
-        now = Time.now
-        query_stats = {}
-        mapping.each do |db, pg_database|
-          query_stats[db] = database.query_stats(limit: 1000000, database: pg_database)
-        end
-
-        if query_stats.any? { |_, v| v.any? } && database.reset_query_stats
-          query_stats.each do |db, db_query_stats|
-            if db_query_stats.any?
-              values =
-                db_query_stats.map do |qs|
-                  values = [
-                    db,
-                    qs["query"],
-                    qs["total_minutes"].to_f * 60 * 1000,
-                    qs["calls"],
-                    now
-                  ]
-                  values << qs["query_hash"] if supports_query_hash[db]
-                  values
-                end
-
-              columns = %w[database query total_time calls captured_at]
-              columns << "query_hash" if supports_query_hash[db]
-
-              database.insert_stats("pghero_query_stats", columns, values)
-            end
-          end
-        end
-      end
+    def falsey?(value)
+      value == false || value == 'f'
     end
   end
 end

@@ -21,9 +21,8 @@ module PgHero
         ssl_used
       end
 
-      def select_all(sql)
-        # squish for logs
-        connection.select_all(squish(sql)).to_a
+      def database_name
+        select_all("SELECT current_database()").first["current_database"]
       end
 
       private
@@ -43,6 +42,11 @@ module PgHero
         else
           "#{setting}#{unit}".strip
         end
+      end
+
+      def select_all(sql)
+        # squish for logs
+        connection.select_all(squish(sql)).to_a
       end
 
       def execute(sql)
