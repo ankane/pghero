@@ -38,7 +38,12 @@
           </span>
         </td>
         <td><%= number_with_delimiter(query["average_time"].to_f.round) %> ms</td>
-        <td><%= number_with_delimiter(query["calls"].to_i) %></td>
+        <td>
+          <%= number_with_delimiter(query["calls"].to_i) %>
+          <% if query["user"] %>
+            <span class="user"><%= query["user"] %></span>
+          <% end %>
+        </td>
       </tr>
       <tr>
         <td colspan="3" style="border-top: none; padding: 0;">

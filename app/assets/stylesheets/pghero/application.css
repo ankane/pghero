@@ -102,6 +102,13 @@ hr {
   margin-left: 6px;
 }
 
+.user {
+  color: #999;
+  font-size: 12px;
+  float: right;
+  line-height: 20px;
+}
+
 .tiny {
   font-size: 12px;
   margin-left: 6px;
