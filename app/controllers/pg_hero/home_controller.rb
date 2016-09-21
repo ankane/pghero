@@ -141,8 +141,18 @@ module PgHero
       # need to prevent CSRF and DoS
       if request.post? && @query
         begin
-          @explanation = PgHero.explain("#{params[:commit] == "Analyze" ? "ANALYZE " : ""}#{@query}")
+          prefix =
+            case params[:commit]
+            when "Analyze"
+              "ANALYZE "
+            when "Visualize"
+              "(ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) "
+            else
+              ""
+            end
+          @explanation = PgHero.explain("#{prefix}#{@query}")
           @suggested_index = PgHero.suggested_indexes(queries: [@query]).first
+          @visualize = params[:commit] == "Visualize"
         rescue ActiveRecord::StatementInvalid => e
           @error = e.message
         end

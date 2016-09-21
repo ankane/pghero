@@ -3,12 +3,21 @@
 
   <%= form_tag explain_path do %>
     <%= text_area_tag :query, @query, placeholder: "Enter a SQL query" %>
-    <p><%= submit_tag "Explain", class: "btn btn-info" %> <%= submit_tag "Analyze", class: "btn btn-danger" %></p>
+    <p>
+      <%= submit_tag "Explain", class: "btn btn-info", style: "margin-right: 10px;" %>
+      <%= submit_tag "Analyze", class: "btn btn-danger", style: "margin-right: 10px;" %>
+      <%= submit_tag "Visualize", class: "btn btn-danger" %>
+    </p>
   <% end %>
 
   <% if @explanation %>
+    <% if @visualize %>
+      <p>Paste the output below into the <%= link_to "Postgres Explain Visualizer", "http://tatiyants.com/pev/#/plans/new", target: "_blank" %></p>
+    <% end %>
     <pre><%= @explanation %></pre>
-    <p><%= link_to "See how to interpret this", "http://www.postgresql.org/docs/current/static/using-explain.html", target: "_blank" %></p>
+    <% unless @visualize %>
+      <p><%= link_to "See how to interpret this", "http://www.postgresql.org/docs/current/static/using-explain.html", target: "_blank" %></p>
+    <% end %>
     <% if (index = @suggested_index) %>
       <%= render partial: "suggested_index", locals: {index: index, details: index[:details]} %>
     <% end %>
