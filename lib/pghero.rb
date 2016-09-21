@@ -121,12 +121,14 @@ module PgHero
       databases.each do |_, database|
         database.capture_query_stats
       end
+      true
     end
 
     def capture_space_stats
       databases.each do |_, database|
         database.capture_space_stats
       end
+      true
     end
 
     # Handles Rails 4 ('t') and Rails 5 (true) values.
