@@ -31,6 +31,26 @@ module PgHero
       @db_instance_identifier ||= @config["db_instance_identifier"]
     end
 
+    # TODO read from config
+    def cache_hit_rate_threshold
+      PgHero.cache_hit_rate_threshold
+    end
+
+    # TODO read from config
+    def total_connections_threshold
+      PgHero.total_connections_threshold
+    end
+
+    # TODO read from config
+    def slow_query_ms
+      PgHero.slow_query_ms
+    end
+
+    # TODO read from config
+    def slow_query_calls
+      PgHero.slow_query_calls
+    end
+
     private
 
     def connection_model

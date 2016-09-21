@@ -15,7 +15,7 @@
   <h1>Connections</h1>
   <div style="margin-bottom: 20px;"><%= line_chart connection_stats_path(path_options), colors: ["#5bc0de"] %></div>
 
-  <% if PgHero.replica? %>
+  <% if @database.replica? %>
     <h1>Replication Lag</h1>
     <div style="margin-bottom: 20px;"><%= line_chart replication_lag_stats_path(path_options), colors: ["#5bc0de"] %></div>
   <% end %>

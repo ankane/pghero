@@ -18,7 +18,7 @@
   </div>
   <div class="alert alert-<%= @good_cache_rate ? "success" : "warning" %>">
     <% if @good_cache_rate %>
-      Cache hit rate above <%= PgHero.cache_hit_rate_threshold %>%
+      Cache hit rate above <%= @database.cache_hit_rate_threshold %>%
     <% else %>
       Low cache hit rate
     <% end %>
@@ -61,7 +61,7 @@
       <% end %>
     </div>
   <% end %>
-  <% if PgHero.suggested_indexes_enabled? %>
+  <% if @database.suggested_indexes_enabled? %>
     <div class="alert alert-<%= @suggested_indexes.empty? ? "success" : "warning" %>">
       <% if @suggested_indexes.any? %>
         <%= pluralize(@suggested_indexes.size, "suggested index", "suggested indexes") %>
@@ -126,7 +126,7 @@
 <% if !@good_total_connections %>
   <div class="content">
     <h1>High Number of Connections</h1>
-    <%= render partial: "connections_table", locals: {total_connections: @total_connections, connection_sources: PgHero.connection_sources(by_database_and_user: true).first(10), show_message: true} %>
+    <%= render partial: "connections_table", locals: {total_connections: @total_connections, connection_sources: @database.connection_sources(by_database_and_user: true).first(10), show_message: true} %>
   </div>
 <% end %>
 
@@ -335,7 +335,7 @@ pg_stat_statements.track = all</pre>
   <div class="content">
     <h1>Slow Queries</h1>
 
-    <p>Slow queries take <%= PgHero.slow_query_ms %> ms or more on average and have been called at least <%= PgHero.slow_query_calls %> times.</p>
+    <p>Slow queries take <%= @database.slow_query_ms %> ms or more on average and have been called at least <%= @database.slow_query_calls %> times.</p>
     <p><%= link_to "Explain queries", explain_path %> to see where to add indexes.</p>
 
     <%= render partial: "queries_table", locals: {queries: @slow_queries} %>

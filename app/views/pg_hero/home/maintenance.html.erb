@@ -21,13 +21,13 @@
           <td>
             <% time = [table["last_autovacuum"], table["last_vacuum"]].compact.max %>
             <% if time %>
-              <%= PgHero.time_zone.parse(time).strftime("%m/%-e %l:%M %P") %>
+              <%= @time_zone.parse(time).strftime("%m/%-e %l:%M %P") %>
             <% end %>
           </td>
           <td>
             <% time = [table["last_autoanalyze"], table["last_analyze"]].compact.max %>
             <% if time %>
-              <%= PgHero.time_zone.parse(time).strftime("%m/%-e %l:%M %P") %>
+              <%= @time_zone.parse(time).strftime("%m/%-e %l:%M %P") %>
             <% end %>
           </td>
         </tr>

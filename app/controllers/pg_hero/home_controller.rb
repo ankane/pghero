@@ -7,67 +7,65 @@ module PgHero
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
     if respond_to?(:before_action)
-      around_action :set_database
-      before_action :set_current_database
+      before_action :set_database
       before_action :set_query_stats_enabled
     else
-      around_filter :set_database
-      before_filter :set_current_database
+      before_filter :set_database
       before_filter :set_query_stats_enabled
     end
 
     def index
       @title = "Overview"
-      @query_stats = PgHero.query_stats(historical: true, start_at: 3.hours.ago)
-      @slow_queries = PgHero.slow_queries(query_stats: @query_stats)
-      @long_running_queries = PgHero.long_running_queries
-      @index_hit_rate = PgHero.index_hit_rate
-      @table_hit_rate = PgHero.table_hit_rate
+      @query_stats = @database.query_stats(historical: true, start_at: 3.hours.ago)
+      @slow_queries = @database.slow_queries(query_stats: @query_stats)
+      @long_running_queries = @database.long_running_queries
+      @index_hit_rate = @database.index_hit_rate
+      @table_hit_rate = @database.table_hit_rate
       @missing_indexes =
-        if PgHero.suggested_indexes_enabled?
+        if @database.suggested_indexes_enabled?
           []
         else
-          PgHero.missing_indexes
+          @database.missing_indexes
         end
-      @unused_indexes = PgHero.unused_indexes.select { |q| q["index_scans"].to_i == 0 }
-      @invalid_indexes = PgHero.invalid_indexes
-      @duplicate_indexes = PgHero.duplicate_indexes if params[:duplicate_indexes]
-      @good_cache_rate = @table_hit_rate >= PgHero.cache_hit_rate_threshold.to_f / 100 && @index_hit_rate >= PgHero.cache_hit_rate_threshold.to_f / 100
+      @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"].to_i == 0 }
+      @invalid_indexes = @database.invalid_indexes
+      @duplicate_indexes = @database.duplicate_indexes if params[:duplicate_indexes]
+      @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100 && @index_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100
       unless @query_stats_enabled
-        @query_stats_available = PgHero.query_stats_available?
-        @query_stats_extension_enabled = PgHero.query_stats_extension_enabled? if @query_stats_available
+        @query_stats_available = @database.query_stats_available?
+        @query_stats_extension_enabled = @database.query_stats_extension_enabled? if @query_stats_available
       end
-      @total_connections = PgHero.total_connections
-      @good_total_connections = @total_connections < PgHero.total_connections_threshold
+      @total_connections = @database.total_connections
+      @good_total_connections = @total_connections < @database.total_connections_threshold
       if @replica
-        @replication_lag = PgHero.replication_lag
+        @replication_lag = @database.replication_lag
         @good_replication_lag = @replication_lag < 5
       end
-      @transaction_id_danger = PgHero.transaction_id_danger(threshold: 1500000000)
+      @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
       set_suggested_indexes((params[:min_average_time] || 20).to_f, (params[:min_calls] || 50).to_i)
       @show_migrations = PgHero.show_migrations
-      @sequence_danger = PgHero.sequence_danger(threshold: params[:sequence_threshold])
+      @sequence_danger = @database.sequence_danger(threshold: params[:sequence_threshold])
     end
 
     def index_usage
       @title = "Index Usage"
-      @index_usage = PgHero.index_usage
+      @index_usage = @database.index_usage
     end
 
     def space
       @title = "Space"
-      @database_size = PgHero.database_size
-      @relation_sizes = PgHero.relation_sizes
+      @database_size = @database.database_size
+      @relation_sizes = @database.relation_sizes
     end
 
     def live_queries
       @title = "Live Queries"
-      @running_queries = PgHero.running_queries
+      @running_queries = @database.running_queries
     end
 
     def queries
       @title = "Queries"
-      @historical_query_stats_enabled = PgHero.historical_query_stats_enabled?
+      @historical_query_stats_enabled = @database.historical_query_stats_enabled?
       @sort = %w(average_time calls).include?(params[:sort]) ? params[:sort] : nil
       @min_average_time = params[:min_average_time] ? params[:min_average_time].to_i : nil
       @min_calls = params[:min_calls] ? params[:min_calls].to_i : nil
@@ -82,7 +80,7 @@ module PgHero
           if @historical_query_stats_enabled && !request.xhr?
             []
           else
-            PgHero.query_stats(
+            @database.query_stats(
               historical: true,
               start_at: @start_at,
               end_at: @end_at,
@@ -116,21 +114,21 @@ module PgHero
     end
 
     def cpu_usage
-      render json: [{name: "CPU", data: PgHero.cpu_usage(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}]
+      render json: [{name: "CPU", data: @database.cpu_usage(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}]
     end
 
     def connection_stats
-      render json: [{name: "Connections", data: PgHero.connection_stats(system_params), library: chart_library_options}]
+      render json: [{name: "Connections", data: @database.connection_stats(system_params), library: chart_library_options}]
     end
 
     def replication_lag_stats
-      render json: [{name: "Lag", data: PgHero.replication_lag_stats(system_params), library: chart_library_options}]
+      render json: [{name: "Lag", data: @database.replication_lag_stats(system_params), library: chart_library_options}]
     end
 
     def load_stats
       render json: [
-        {name: "Read IOPS", data: PgHero.read_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options},
-        {name: "Write IOPS", data: PgHero.write_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}
+        {name: "Read IOPS", data: @database.read_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options},
+        {name: "Write IOPS", data: @database.write_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}
       ]
     end
 
@@ -150,8 +148,8 @@ module PgHero
             else
               ""
             end
-          @explanation = PgHero.explain("#{prefix}#{@query}")
-          @suggested_index = PgHero.suggested_indexes(queries: [@query]).first
+          @explanation = @database.explain("#{prefix}#{@query}")
+          @suggested_index = @database.suggested_indexes(queries: [@query]).first
           @visualize = params[:commit] == "Visualize"
         rescue ActiveRecord::StatementInvalid => e
           @error = e.message
@@ -161,21 +159,23 @@ module PgHero
 
     def tune
       @title = "Tune"
-      @settings = PgHero.settings
+      @settings = @database.settings
     end
 
     def connections
       @title = "Connections"
-      @total_connections = PgHero.total_connections
+      @total_connections = @database.total_connections
+      @connection_sources = @database.connection_sources(by_database_and_user: true)
     end
 
     def maintenance
       @title = "Maintenance"
-      @maintenance_info = PgHero.maintenance_info
+      @maintenance_info = @database.maintenance_info
+      @time_zone = PgHero.time_zone
     end
 
     def kill
-      if PgHero.kill(params[:pid])
+      if @database.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"
       else
         redirect_to :back, notice: "Query no longer running"
@@ -183,24 +183,24 @@ module PgHero
     end
 
     def kill_long_running_queries
-      PgHero.kill_long_running_queries
+      @database.kill_long_running_queries
       redirect_to :back, notice: "Queries killed"
     end
 
     def kill_all
-      PgHero.kill_all
+      @database.kill_all
       redirect_to :back, notice: "Connections killed"
     end
 
     def enable_query_stats
-      PgHero.enable_query_stats
+      @database.enable_query_stats
       redirect_to :back, notice: "Query stats enabled"
     rescue ActiveRecord::StatementInvalid
       redirect_to :back, alert: "The database user does not have permission to enable query stats"
     end
 
     def reset_query_stats
-      PgHero.reset_query_stats
+      @database.reset_query_stats
       redirect_to :back, notice: "Query stats reset"
     rescue ActiveRecord::StatementInvalid
       redirect_to :back, alert: "The database user does not have permission to reset query stats"
@@ -211,18 +211,12 @@ module PgHero
     def set_database
       @databases = PgHero.databases.values
       if params[:database]
-        PgHero.with(params[:database]) do
-          yield
-        end
+        @database = PgHero.databases[params[:database]]
       elsif @databases.size > 1
-        redirect_to url_for(params.slice(:controller, :action).merge(database: PgHero.primary_database.id))
+        redirect_to url_for(params.slice(:controller, :action).merge(database: @databases.first.id))
       else
-        yield
+        @database = @databases.first
       end
-    end
-
-    def set_current_database
-      @current_database = PgHero.current_database
     end
 
     def default_url_options
@@ -230,14 +224,14 @@ module PgHero
     end
 
     def set_query_stats_enabled
-      @query_stats_enabled = PgHero.query_stats_enabled?
-      @system_stats_enabled = PgHero.system_stats_enabled?
-      @replica = PgHero.replica?
+      @query_stats_enabled = @database.query_stats_enabled?
+      @system_stats_enabled = @database.system_stats_enabled?
+      @replica = @database.replica?
     end
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)
-      @suggested_indexes_by_query = PgHero.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs["average_time"].to_f >= min_average_time && qs["calls"].to_i >= min_calls })
-      @suggested_indexes = PgHero.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query)
+      @suggested_indexes_by_query = @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs["average_time"].to_f >= min_average_time && qs["calls"].to_i >= min_calls })
+      @suggested_indexes = @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query)
       @query_stats_by_query = @query_stats.index_by { |q| q["query"] }
       @debug = params[:debug] == "true"
     end
