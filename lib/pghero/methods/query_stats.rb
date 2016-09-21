@@ -174,7 +174,7 @@ module PgHero
               INNER JOIN
                 pg_database ON pg_database.oid = pg_stat_statements.dbid
               INNER JOIN
-                pg_authid ON pg_authid.oid = pg_stat_statements.userid
+                pg_roles ON pg_roles.oid = pg_stat_statements.userid
               WHERE
                 pg_database.datname = #{database}
             )
