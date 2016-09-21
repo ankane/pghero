@@ -1,5 +1,6 @@
-## 1.4.3 [unreleased]
+## 1.5.0 [unreleased]
 
+- Added `capture_space_stats` method and rake task
 - Better charts for system stats
 
 ## 1.4.2
