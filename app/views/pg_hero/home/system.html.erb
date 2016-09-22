@@ -4,7 +4,7 @@
       <%= link_to name, system_path(options) %>
     <% end %>
   </p>
-  <% path_options = params.slice(:duration, :period) %>
+  <% path_options = {duration: params[:duration], period: params[:period]} %>
 
   <h1>CPU</h1>
   <div style="margin-bottom: 20px;"><%= line_chart cpu_usage_path(path_options), max: 100, colors: ["#5bc0de"] %></div>
