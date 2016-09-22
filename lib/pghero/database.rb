@@ -31,6 +31,10 @@ module PgHero
       @db_instance_identifier ||= @config["db_instance_identifier"]
     end
 
+    def capture_query_stats?
+      config["capture_query_stats"] != false
+    end
+
     # TODO read from config
     def cache_hit_rate_threshold
       PgHero.cache_hit_rate_threshold

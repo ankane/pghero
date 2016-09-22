@@ -66,7 +66,7 @@ module PgHero
       # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
       def historical_query_stats_enabled?
         # TODO use schema from config
-        PgHero.truthy? stats_connection.select_all(squish <<-SQL
+        PgHero.truthy?(stats_connection.select_all(squish <<-SQL
           SELECT EXISTS (
             SELECT
               1
@@ -80,7 +80,7 @@ module PgHero
               AND c.relkind = 'r'
           )
         SQL
-        ).to_a.first["exists"]
+        ).to_a.first["exists"]) && capture_query_stats?
       end
 
       def supports_query_hash?
@@ -205,7 +205,7 @@ module PgHero
             WITH query_stats AS (
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
-                #{supports_query_stats_user? ? "user" : "NULL"} AS user,
+                #{supports_query_stats_user? ? "pghero_query_stats.user" : "NULL"} AS user,
                 array_agg(LEFT(query, 10000)) AS query,
                 (SUM(total_time) / 1000 / 60) AS total_minutes,
                 (SUM(total_time) / SUM(calls)) AS average_time,
@@ -222,7 +222,7 @@ module PgHero
             )
             SELECT
               query_hash,
-              user,
+              query_stats.user,
               query[1],
               total_minutes,
               average_time,
