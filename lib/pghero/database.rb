@@ -36,7 +36,7 @@ module PgHero
     end
 
     def cache_hit_rate_threshold
-      (config["cache_hit_rate_threshold"] || PgHero.config["cache_hit_rate_threshold"] || PgHero.cache_hit_rate_threshold).to_f
+      (config["cache_hit_rate_threshold"] || PgHero.config["cache_hit_rate_threshold"] || PgHero.cache_hit_rate_threshold).to_i
     end
 
     def total_connections_threshold
