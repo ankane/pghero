@@ -244,6 +244,14 @@ PgHero.total_connections_threshold = 100 # default
 
 ## Upgrading
 
+### 1.5.0
+
+For query stats grouping by user, create a migration with:
+
+```ruby
+add_column :pghero_query_stats, :user, :text
+```
+
 ### 1.3.0
 
 For better query stats grouping with Postgres 9.4+, create a migration with:

@@ -1,4 +1,4 @@
-## 1.5.0 [unreleased]
+## 1.5.0
 
 - Added user to query stats (opt-in)
 - Added user to connection sources
