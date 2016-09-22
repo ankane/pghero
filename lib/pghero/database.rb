@@ -35,24 +35,20 @@ module PgHero
       config["capture_query_stats"] != false
     end
 
-    # TODO read from config
     def cache_hit_rate_threshold
-      PgHero.cache_hit_rate_threshold
+      (config["cache_hit_rate_threshold"] || PgHero.config["cache_hit_rate_threshold"] || PgHero.cache_hit_rate_threshold).to_f
     end
 
-    # TODO read from config
     def total_connections_threshold
-      PgHero.total_connections_threshold
+      (config["total_connections_threshold"] || PgHero.config["total_connections_threshold"] || PgHero.total_connections_threshold).to_i
     end
 
-    # TODO read from config
     def slow_query_ms
-      PgHero.slow_query_ms
+      (config["slow_query_ms"] || PgHero.config["slow_query_ms"] || PgHero.slow_query_ms).to_i
     end
 
-    # TODO read from config
     def slow_query_calls
-      PgHero.slow_query_calls
+      (config["slow_query_calls"] || PgHero.config["slow_query_calls"] || PgHero.slow_query_calls).to_i
     end
 
     private
