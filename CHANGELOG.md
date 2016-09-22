@@ -1,6 +1,9 @@
 ## 1.5.0 [unreleased]
 
+- Added user to query stats (opt-in)
+- Added user to connection sources
 - Added `capture_space_stats` method and rake task
+- Added visualize button to explain page
 - Better charts for system stats
 
 ## 1.4.2
