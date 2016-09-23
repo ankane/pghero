@@ -1,10 +1,6 @@
 module PgHero
   module Methods
     module Basic
-      def version
-        select_all("SHOW SERVER_VERSION").first["server_version"]
-      end
-
       def settings
         if version_newer_than_9_5?
           names = %w(
@@ -79,7 +75,7 @@ module PgHero
       end
 
       def version_newer_than_9_5?
-        Gem::Version.new(version) >= Gem::Version.new('9.5.0')
+        server_version >= 90500 
       end
 
       def unquote(part)
