@@ -2,19 +2,20 @@ module PgHero
   module Methods
     module Basic
       def settings
-        if version_newer_than_9_5?
-          names = %w(
+        names = 
+          if server_version >= 90500 
+            %w(
             max_connections shared_buffers effective_cache_size work_mem
             maintenance_work_mem min_wal_size max_wal_size checkpoint_completion_target
             wal_buffers default_statistics_target
-          )
-        else
-          names = %w(
+            )
+          else
+            %w(
           max_connections shared_buffers effective_cache_size work_mem
           maintenance_work_mem checkpoint_segments checkpoint_completion_target
           wal_buffers default_statistics_target
-          )
-        end
+            )
+          end
         values = Hash[select_all(connection_model.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by { |row| names.index(row["name"]) }.map { |row| [row["name"], friendly_value(row["setting"], row["unit"])] }]
         Hash[names.map { |name| [name, values[name]] }]
       end
@@ -72,10 +73,6 @@ module PgHero
 
       def quote_table_name(value)
         connection.quote_table_name(value)
-      end
-
-      def version_newer_than_9_5?
-        server_version >= 90500 
       end
 
       def unquote(part)
