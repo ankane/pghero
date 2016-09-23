@@ -2,22 +2,21 @@ module PgHero
   module Methods
     module Basic
       def settings
-        names = 
-          if server_version >= 90500 
+        names =
+          if server_version_num >= 90500
             %w(
-            max_connections shared_buffers effective_cache_size work_mem
-            maintenance_work_mem min_wal_size max_wal_size checkpoint_completion_target
-            wal_buffers default_statistics_target
+              max_connections shared_buffers effective_cache_size work_mem
+              maintenance_work_mem min_wal_size max_wal_size checkpoint_completion_target
+              wal_buffers default_statistics_target
             )
           else
             %w(
-          max_connections shared_buffers effective_cache_size work_mem
-          maintenance_work_mem checkpoint_segments checkpoint_completion_target
-          wal_buffers default_statistics_target
+              max_connections shared_buffers effective_cache_size work_mem
+              maintenance_work_mem checkpoint_segments checkpoint_completion_target
+              wal_buffers default_statistics_target
             )
           end
-        values = Hash[select_all(connection_model.send(:sanitize_sql_array, ["SELECT name, setting, unit FROM pg_settings WHERE name IN (?)", names])).sort_by { |row| names.index(row["name"]) }.map { |row| [row["name"], friendly_value(row["setting"], row["unit"])] }]
-        Hash[names.map { |name| [name, values[name]] }]
+        Hash[names.map { |name| [name, select_all("SHOW #{name}").first[name]] }]
       end
 
       def ssl_used?
@@ -34,24 +33,11 @@ module PgHero
         select_all("SELECT current_database()").first["current_database"]
       end
 
-      private
-
-      def friendly_value(setting, unit)
-        if %w(kB 8kB).include?(unit)
-          value = setting.to_i
-          value *= 8 if unit == "8kB"
-
-          if value % (1024 * 1024) == 0
-            "#{value / (1024 * 1024)}GB"
-          elsif value % 1024 == 0
-            "#{value / 1024}MB"
-          else
-            "#{value}kB"
-          end
-        else
-          "#{setting}#{unit}".strip
-        end
+      def server_version
+        select_all("SHOW server_version").first["server_version"]
       end
+
+      private
 
       def select_all(sql)
         # squish for logs

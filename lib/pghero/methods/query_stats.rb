@@ -84,7 +84,7 @@ module PgHero
       end
 
       def supports_query_hash?
-        @supports_query_hash ||= server_version >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
+        @supports_query_hash ||= server_version_num >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
       end
 
       def supports_query_stats_user?
@@ -240,7 +240,7 @@ module PgHero
         end
       end
 
-      def server_version
+      def server_version_num
         @server_version ||= select_all("SHOW server_version_num").first["server_version_num"].to_i
       end
 

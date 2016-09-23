@@ -1,3 +1,7 @@
+## 1.5.1 [unreleased]
+
+- Better tune page for PostgreSQL 9.5
+
 ## 1.5.0
 
 - Added user to query stats (opt-in)
