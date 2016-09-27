@@ -1,4 +1,4 @@
-## 1.5.1 [unreleased]
+## 1.5.1
 
 - Better tune page for PostgreSQL 9.5
 
