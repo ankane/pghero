@@ -2,6 +2,7 @@
 
 Packaged for:
 
+- Ubuntu 16.04 (Trusty)
 - Ubuntu 14.04 (Trusty)
 - Ubuntu 12.04 (Precise)
 - Debian 7 (Wheezy)
@@ -15,11 +16,11 @@ Packaged for:
 
 ## Installation
 
-Ubuntu 14.04 (Trusty)
+Ubuntu 16.04 (Xenial)
 
 ```sh
 wget -qO - https://deb.packager.io/key | sudo apt-key add -
-echo "deb https://deb.packager.io/gh/pghero/pghero trusty master" | sudo tee /etc/apt/sources.list.d/pghero.list
+echo "deb https://deb.packager.io/gh/pghero/pghero xenial master" | sudo tee /etc/apt/sources.list.d/pghero.list
 sudo apt-get update
 sudo apt-get install pghero
 ```
