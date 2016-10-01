@@ -1,3 +1,7 @@
+## 1.5.2 [unreleased]
+
+- Fixed incorrect query start for live queries in transactions
+
 ## 1.5.1
 
 - Better tune page for PostgreSQL 9.5
