@@ -8,7 +8,7 @@ module PgHero
             state,
             application_name AS source,
             age(now(), query_start) AS duration,
-            waiting,
+            #{server_version_num >= 90600 ? "(wait_event IS NOT NULL) AS waiting" : "waiting"},
             query,
             query_start AS started_at,
             usename AS user
@@ -31,7 +31,7 @@ module PgHero
             state,
             application_name AS source,
             age(now(), query_start) AS duration,
-            waiting,
+            #{server_version_num >= 90600 ? "(wait_event IS NOT NULL) AS waiting" : "waiting"},
             query,
             query_start AS started_at,
             usename AS user
