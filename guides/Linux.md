@@ -21,7 +21,7 @@ Ubuntu 14.04 (Trusty)
 wget -qO - https://deb.packager.io/key | sudo apt-key add -
 echo "deb https://deb.packager.io/gh/pghero/pghero trusty master" | sudo tee /etc/apt/sources.list.d/pghero.list
 sudo apt-get update
-sudo apt-get install pghero
+sudo apt-get -y install pghero
 ```
 
 Ubuntu 12.04 (Precise)
@@ -30,7 +30,7 @@ Ubuntu 12.04 (Precise)
 wget -qO - https://deb.packager.io/key | sudo apt-key add -
 echo "deb https://deb.packager.io/gh/pghero/pghero precise master" | sudo tee /etc/apt/sources.list.d/pghero.list
 sudo apt-get update
-sudo apt-get install pghero
+sudo apt-get -y install pghero
 ```
 
 Debian 7 (Wheezy)
@@ -39,16 +39,17 @@ Debian 7 (Wheezy)
 wget -qO - https://deb.packager.io/key | sudo apt-key add -
 echo "deb https://deb.packager.io/gh/pghero/pghero wheezy master" | sudo tee /etc/apt/sources.list.d/pghero.list
 sudo apt-get update
-sudo apt-get install pghero
+sudo apt-get -y install pghero
 ```
 
 Debian 8 (Jesse)
 
 ```sh
+sudo apt-get -y install apt-transport-https
 wget -qO - https://deb.packager.io/key | sudo apt-key add -
 echo "deb https://deb.packager.io/gh/pghero/pghero jessie master" | sudo tee /etc/apt/sources.list.d/pghero.list
 sudo apt-get update
-sudo apt-get install pghero
+sudo apt-get -y install pghero
 ```
 
 CentOS / RHEL 6
