@@ -1,21 +1,19 @@
 <table class="table queries">
   <thead>
     <tr>
-      <th style="width: 10%;">Pid</th>
-      <th style="width: 10%;">State</th>
-      <th style="width: 15%;">Duration</th>
-      <th>Source</th>
+      <th style="width: 25%;">Pid</th>
+      <th style="width: 25%;">Duration</th>
+      <th style="width: 25%;">State</th>
       <th style="width: 25%;"></th>
     </tr>
   </thead>
   <tbody>
     <% now = Time.now %>
-    <% queries.each do |query| %>
+    <% queries.reverse.each do |query| %>
       <tr>
         <td><%= query["pid"] %></td>
-        <td><%= query["state"] %></td>
         <td><%= query["started_at"] ? "#{number_with_delimiter(((now - Time.parse(query["started_at"])) * 1000).round)} ms" : nil %></td>
-        <td><%= query["source"] %> <span class="text-muted"><%= query["user"] %></span></td>
+        <td><%= query["state"] %></td>
         <td class="text-right">
           <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: query["query"]}}] : [explain_path(query: query["query"]), {}] %>
           <%= button_to "Explain", button_path, button_options.merge(form: {target: "_blank"}, class: "btn btn-info") %>
@@ -23,7 +21,10 @@
         </td>
       </tr>
       <tr>
-        <td colspan="6" style="border-top: none; padding: 0;"><pre><%= query["query"] %></pre></td>
+        <td colspan="6" style="border-top: none; padding: 0;">
+          <%= query["source"] %> <span class="text-muted"><%= query["user"] %></span>
+          <pre><%= query["query"] %></pre>
+        </td>
       </tr>
     <% end %>
   </tbody>

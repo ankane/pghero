@@ -7,10 +7,10 @@ module PgHero
             pid,
             state,
             application_name AS source,
-            age(now(), xact_start) AS duration,
+            age(now(), query_start) AS duration,
             waiting,
             query,
-            xact_start AS started_at,
+            query_start AS started_at,
             usename AS user
           FROM
             pg_stat_activity
@@ -30,10 +30,10 @@ module PgHero
             pid,
             state,
             application_name AS source,
-            age(now(), xact_start) AS duration,
+            age(now(), query_start) AS duration,
             waiting,
             query,
-            xact_start AS started_at,
+            query_start AS started_at,
             usename AS user
           FROM
             pg_stat_activity
