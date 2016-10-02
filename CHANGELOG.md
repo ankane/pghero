@@ -1,4 +1,4 @@
-## 1.5.2 [unreleased]
+## 1.5.2
 
 - Added support for PostgreSQL 9.6
 - Fixed incorrect query start for live queries in transactions
