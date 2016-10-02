@@ -95,16 +95,17 @@ sudo pghero config:set PGHERO_USERNAME=link
 sudo pghero config:set PGHERO_PASSWORD=hyrule
 ```
 
-Start the server - defaults to port `6000`.
+Start the server
 
 ```sh
+sudo pghero config:set PORT=3001
 sudo pghero scale web=1
 ```
 
 Confirm it’s running with:
 
 ```sh
-curl -v http://localhost:6000/
+curl -v http://localhost:3001/
 ```
 
 To open to the outside world, add a proxy. Here’s how to do it with Nginx on Ubuntu.
@@ -116,7 +117,7 @@ server {
   listen          80;
   server_name     "";
   location / {
-    proxy_pass    http://localhost:6000;
+    proxy_pass    http://localhost:3001;
   }
 }
 EOF
@@ -170,12 +171,6 @@ sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
 ## Customize
-
-Change the port - you cannot use a privileged port like `80` or `443`
-
-```sh
-sudo pghero config:set PORT=6000 # default
-```
 
 Minimum time for long running queries
 
