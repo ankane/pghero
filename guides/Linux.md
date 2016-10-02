@@ -46,6 +46,7 @@ sudo apt-get -y install pghero
 Debian 7 (Wheezy)
 
 ```sh
+sudo apt-get -y install apt-transport-https
 wget -qO - https://deb.packager.io/key | sudo apt-key add -
 echo "deb https://deb.packager.io/gh/pghero/pghero wheezy master" | sudo tee /etc/apt/sources.list.d/pghero.list
 sudo apt-get update
