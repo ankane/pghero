@@ -99,6 +99,7 @@ Start the server
 
 ```sh
 sudo pghero config:set PORT=3001
+sudo pghero config:set RAILS_LOG_TO_STDOUT=disabled
 sudo pghero scale web=1
 ```
 
@@ -131,6 +132,12 @@ sudo service pghero status
 sudo service pghero start
 sudo service pghero stop
 sudo service pghero restart
+```
+
+View logs
+
+```sh
+sudo pghero logs
 ```
 
 ## Query Stats
