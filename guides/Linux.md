@@ -7,10 +7,8 @@ Packaged for:
 - Ubuntu 12.04 (Precise)
 - Debian 7 (Wheezy)
 - Debian 8 (Jesse)
-- CentOS / RHEL 6
 - CentOS / RHEL 7
-- Fedora 20
-- SUSE Linux Enterprise Server
+- SUSE Linux Enterprise Server 12
 
 64-bit only
 
@@ -63,17 +61,6 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-CentOS / RHEL 6
-
-```sh
-sudo rpm --import https://rpm.packager.io/key
-echo "[pghero]
-name=Repository for pghero/pghero application.
-baseurl=https://rpm.packager.io/gh/pghero/pghero/centos6/master
-enabled=1" | sudo tee /etc/yum.repos.d/pghero.repo
-sudo yum install pghero
-```
-
 CentOS / RHEL 7
 
 ```sh
@@ -85,18 +72,7 @@ enabled=1" | sudo tee /etc/yum.repos.d/pghero.repo
 sudo yum install pghero
 ```
 
-Fedora 20
-
-```sh
-sudo rpm --import https://rpm.packager.io/key
-echo "[pghero]
-name=Repository for pghero/pghero application.
-baseurl=https://rpm.packager.io/gh/pghero/pghero/fedora20/master
-enabled=1" | sudo tee /etc/yum.repos.d/pghero.repo
-sudo yum install pghero
-```
-
-SUSE Linux Enterprise Server
+SUSE Linux Enterprise Server 12
 
 ```sh
 sudo rpm --import https://rpm.packager.io/key
@@ -234,7 +210,7 @@ sudo apt-get update
 sudo apt-get install --only-upgrade pghero
 ```
 
-CentOS, RHEL, and Fedora
+CentOS and RHEL
 
 ```sh
 sudo yum update
