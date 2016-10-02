@@ -200,7 +200,7 @@ PgHero.replication_lag
 If you have multiple databases, specify a database with:
 
 ```ruby
-PgHero.databases[:replica].running_queries
+PgHero.databases["db2"].running_queries
 ```
 
 ## Users
