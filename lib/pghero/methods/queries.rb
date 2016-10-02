@@ -1,16 +1,17 @@
 module PgHero
   module Methods
     module Queries
-      def running_queries
+      def running_queries(options = {})
+        min_duration = options[:min_duration]
         select_all <<-SQL
           SELECT
             pid,
             state,
             application_name AS source,
-            age(now(), query_start) AS duration,
+            age(NOW(), COALESCE(query_start, xact_start)) AS duration,
             #{server_version_num >= 90600 ? "(wait_event IS NOT NULL) AS waiting" : "waiting"},
             query,
-            query_start AS started_at,
+            COALESCE(query_start, xact_start) AS started_at,
             usename AS user
           FROM
             pg_stat_activity
@@ -19,33 +20,14 @@ module PgHero
             AND state <> 'idle'
             AND pid <> pg_backend_pid()
             AND datname = current_database()
+            #{min_duration ? "AND NOW() - COALESCE(query_start, xact_start) > interval '#{min_duration.to_i} seconds'" : nil}
           ORDER BY
-            query_start DESC
+            COALESCE(query_start, xact_start) DESC
         SQL
       end
 
       def long_running_queries
-        select_all <<-SQL
-          SELECT
-            pid,
-            state,
-            application_name AS source,
-            age(now(), query_start) AS duration,
-            #{server_version_num >= 90600 ? "(wait_event IS NOT NULL) AS waiting" : "waiting"},
-            query,
-            query_start AS started_at,
-            usename AS user
-          FROM
-            pg_stat_activity
-          WHERE
-            query <> '<insufficient privilege>'
-            AND state <> 'idle'
-            AND pid <> pg_backend_pid()
-            AND now() - query_start > interval '#{PgHero.long_running_query_sec.to_i} seconds'
-            AND datname = current_database()
-          ORDER BY
-            query_start DESC
-        SQL
+        running_queries(min_duration: PgHero.long_running_query_sec)
       end
 
       def slow_queries(options = {})
