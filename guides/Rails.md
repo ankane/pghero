@@ -1,9 +1,5 @@
 # PgHero for Rails
 
-:gem:
-
-## Installation
-
 Add this line to your application’s Gemfile:
 
 ```ruby
@@ -28,7 +24,7 @@ gem 'pg_query'
 
 and make sure [query stats](#query-stats) are enabled. Read about how it works [here](Suggested-Indexes.md).
 
-## Insights
+## Methods
 
 ```ruby
 PgHero.running_queries
