@@ -33,7 +33,7 @@ CREATE INDEX ON "pghero_query_stats" ("database", "captured_at")
 Schedule the task below to run every 5 minutes.
 
 ```sh
-docker run ... bin/rake pghero:capture_query_stats
+docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_query_stats
 ```
 
 After this, a time range slider will appear on the Queries tab.
