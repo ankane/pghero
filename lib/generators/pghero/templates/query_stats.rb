@@ -2,6 +2,7 @@ class <%= migration_class_name %> < ActiveRecord::Migration
   def change
     create_table :pghero_query_stats do |t|
       t.text :database
+      t.text :user
       t.text :query
       t.integer :query_hash, limit: 8
       t.float :total_time

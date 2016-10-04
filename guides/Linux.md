@@ -149,8 +149,17 @@ Query stats can be enabled from the dashboard. If you run into issues, [view the
 To track query stats over time, create a table to store them.
 
 ```sql
-CREATE TABLE "pghero_query_stats" ("id" serial primary key, "database" text, "query" text, "total_time" float, "calls" bigint, "captured_at" timestamp)
-CREATE INDEX "index_pghero_query_stats_on_database_and_captured_at" ON "pghero_query_stats" ("database", "captured_at")
+CREATE TABLE "pghero_query_stats" (
+  "id" serial primary key,
+  "database" text,
+  "user" text,
+  "query" text,
+  "query_hash" bigint,
+  "total_time" float,
+  "calls" bigint,
+  "captured_at" timestamp
+)
+CREATE INDEX ON "pghero_query_stats" ("database", "captured_at")
 ```
 
 This table can be in the current database or another database. If another database, run:
