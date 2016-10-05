@@ -69,7 +69,7 @@ echo "[pghero]
 name=Repository for pghero/pghero application.
 baseurl=https://rpm.packager.io/gh/pghero/pghero/centos7/master
 enabled=1" | sudo tee /etc/yum.repos.d/pghero.repo
-sudo yum install pghero
+sudo yum -y install pghero
 ```
 
 SUSE Linux Enterprise Server 12
