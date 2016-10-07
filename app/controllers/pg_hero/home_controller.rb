@@ -213,7 +213,7 @@ module PgHero
       if params[:database]
         @database = PgHero.databases[params[:database]]
       elsif @databases.size > 1
-        redirect_to url_for(params.slice(:controller, :action).merge(database: @databases.first.id))
+        redirect_to url_for(controller: controller_name, action: action_name, database: @databases.first.id)
       else
         @database = @databases.first
       end
