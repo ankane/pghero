@@ -75,13 +75,14 @@ module PgHero
             blockingl.mode as blocking_mode
           FROM
             pg_catalog.pg_locks blockedl
-          JOIN
+          LEFT JOIN
             pg_stat_activity blockeda ON blockedl.pid = blockeda.pid
-          JOIN pg_catalog.pg_locks blockingl ON(
-            ( (blockingl.transactionid=blockedl.transactionid) OR
-            (blockingl.relation=blockedl.relation AND blockingl.locktype=blockedl.locktype)
-            ) AND blockedl.pid != blockingl.pid)
-          JOIN
+          LEFT JOIN
+            pg_catalog.pg_locks blockingl ON blockedl.pid != blockingl.pid AND (
+              blockingl.transactionid = blockedl.transactionid
+              OR (blockingl.relation = blockedl.relation AND blockingl.locktype = blockedl.locktype)
+            )
+          LEFT JOIN
             pg_stat_activity blockinga ON blockingl.pid = blockinga.pid AND blockinga.datid = blockeda.datid
           WHERE
             NOT blockedl.granted
