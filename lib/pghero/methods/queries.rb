@@ -57,29 +57,36 @@ module PgHero
       end
 
       # from https://wiki.postgresql.org/wiki/Lock_Monitoring
+      # and http://big-elephants.com/2013-09/exploring-query-locks-in-postgres/
       def blocked_queries
         select_all <<-SQL
           SELECT
-            bl.pid AS blocked_pid,
-            a.usename AS blocked_user,
-            a.query AS blocked_query,
-            age(now(), a.query_start) AS blocked_duration,
-            bl.mode,
-            kl.pid AS blocking_pid,
-            ka.usename AS blocking_user,
-            ka.state AS state_of_blocking_process,
-            ka.query AS current_or_recent_query_in_blocking_process,
-            age(now(), ka.query_start) AS blocking_duration
+            COALESCE(blockingl.relation::regclass::text,blockingl.locktype) as locked_item,
+            blockeda.pid AS blocked_pid,
+            blockeda.usename AS blocked_user,
+            blockeda.query as blocked_query,
+            age(now(), blockeda.query_start) AS blocked_duration,
+            blockedl.mode as blocked_mode,
+            blockinga.pid AS blocking_pid,
+            blockinga.usename AS blocking_user,
+            blockinga.state AS state_of_blocking_process,
+            blockinga.query AS current_or_recent_query_in_blocking_process,
+            age(now(), blockinga.query_start) AS blocking_duration,
+            blockingl.mode as blocking_mode
           FROM
-            pg_catalog.pg_locks bl
-          LEFT JOIN
-            pg_catalog.pg_stat_activity a ON a.pid = bl.pid
-          LEFT JOIN
-            pg_catalog.pg_locks kl ON kl.transactionid = bl.transactionid AND kl.pid != bl.pid
-          LEFT JOIN
-            pg_catalog.pg_stat_activity ka ON ka.pid = kl.pid
+            pg_catalog.pg_locks blockedl
+          JOIN
+            pg_stat_activity blockeda ON blockedl.pid = blockeda.pid
+          JOIN pg_catalog.pg_locks blockingl ON(
+            ( (blockingl.transactionid=blockedl.transactionid) OR
+            (blockingl.relation=blockedl.relation AND blockingl.locktype=blockedl.locktype)
+            ) AND blockedl.pid != blockingl.pid)
+          JOIN
+            pg_stat_activity blockinga ON blockingl.pid = blockinga.pid AND blockinga.datid = blockeda.datid
           WHERE
-            NOT bl.GRANTED
+            NOT blockedl.granted
+            AND blockeda.query <> '<insufficient privilege>'
+            AND blockeda.datname = current_database()
           ORDER BY
             blocked_duration DESC
         SQL
