@@ -27,7 +27,7 @@ module PgHero
       end
 
       def long_running_queries
-        running_queries(min_duration: PgHero.long_running_query_sec)
+        running_queries(min_duration: long_running_query_sec)
       end
 
       def slow_queries(options = {})
