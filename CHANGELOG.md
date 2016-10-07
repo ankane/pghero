@@ -1,5 +1,6 @@
 ## 1.5.3 [unreleased]
 
+- Fixed Rails 5 error with multiple databases
 - Fixed duplicate index detection with expressions
 
 ## 1.5.2
