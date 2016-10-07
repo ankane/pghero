@@ -1,3 +1,7 @@
+## 1.5.3 [unreleased]
+
+- Fixed duplicate index detection with expressions
+
 ## 1.5.2
 
 - Added support for PostgreSQL 9.6
