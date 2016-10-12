@@ -186,6 +186,26 @@ sudo pghero config:set PGHERO_SECRET_ACCESS_KEY=secret123
 sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
+## Multiple Databases
+
+Create a `pghero.yml` with:
+
+```yml
+production:
+  databases:
+    primary:
+      url: postgres://...
+    replica:
+      url: postgres://...
+```
+
+And run:
+
+```sh
+cat pghero.yml | sudo pghero run sh -c "cat > config/pghero.yml"
+sudo service pghero restart
+```
+
 ## Customize
 
 Minimum time for long running queries
