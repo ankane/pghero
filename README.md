@@ -1,6 +1,6 @@
 # PgHero
 
-A performance dashboard for Postgres
+A performance dashboard for Postgres - health checks, suggested indexes, and more :tada:
 
 [See it in action](https://pghero.herokuapp.com/)
 
