@@ -16,21 +16,19 @@ module PgHero
 
     def index
       @title = "Overview"
+      @extended = params[:extended]
       @query_stats = @database.query_stats(historical: true, start_at: 3.hours.ago)
       @slow_queries = @database.slow_queries(query_stats: @query_stats)
       @long_running_queries = @database.long_running_queries
-      @index_hit_rate = @database.index_hit_rate
-      @table_hit_rate = @database.table_hit_rate
-      @missing_indexes =
-        if @database.suggested_indexes_enabled?
-          []
-        else
-          @database.missing_indexes
-        end
+      if @extended
+        @index_hit_rate = @database.index_hit_rate
+        @table_hit_rate = @database.table_hit_rate
+        @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100 && @index_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100
+      end
+
       @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"].to_i == 0 }
       @invalid_indexes = @database.invalid_indexes
-      @duplicate_indexes = @database.duplicate_indexes if params[:duplicate_indexes]
-      @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100 && @index_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100
+      @duplicate_indexes = @database.duplicate_indexes
       unless @query_stats_enabled
         @query_stats_available = @database.query_stats_available?
         @query_stats_extension_enabled = @database.query_stats_extension_enabled? if @query_stats_available

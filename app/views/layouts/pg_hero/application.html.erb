@@ -36,7 +36,6 @@
             <% if @query_stats_enabled %>
               <li class="<%= controller.action_name == "queries" ? "active" : "" %>"><%= link_to "Queries", queries_path %></li>
             <% end %>
-            <li class="<%= controller.action_name == "index_usage" ? "active" : "" %>"><%= link_to "Index Usage", index_usage_path %></li>
             <li class="<%= controller.action_name == "space" ? "active" : "" %>"><%= link_to "Space", space_path %></li>
             <li class="<%= controller.action_name == "connections" ? "active" : "" %>"><%= link_to "Connections", connections_path %></li>
             <li class="<%= controller.action_name == "live_queries" ? "active" : "" %>"><%= link_to "Live Queries", live_queries_path %></li>
