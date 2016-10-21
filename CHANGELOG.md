@@ -1,3 +1,10 @@
+## 1.6.0 [unreleased]
+
+- Removed mostly inactionable items (cache hit rate and index usage)
+- Restored duplicate indexes to homepage
+- Fixed issue with exact duplicate indexes
+- Way better `blocked_queries` method
+
 ## 1.5.3
 
 - Fixed Rails 5 error with multiple databases
