@@ -22,12 +22,16 @@
             <% time = [table["last_autovacuum"], table["last_vacuum"]].compact.max %>
             <% if time %>
               <%= @time_zone.parse(time).strftime("%m/%-e %l:%M %P") %>
+            <% else %>
+              <span class="text-muted">Unknown</span>
             <% end %>
           </td>
           <td>
             <% time = [table["last_autoanalyze"], table["last_analyze"]].compact.max %>
             <% if time %>
               <%= @time_zone.parse(time).strftime("%m/%-e %l:%M %P") %>
+            <% else %>
+              <span class="text-muted">Unknown</span>
             <% end %>
           </td>
         </tr>
