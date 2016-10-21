@@ -1,4 +1,4 @@
-## 1.6.0 [unreleased]
+## 1.6.0
 
 - Removed mostly inactionable items (cache hit rate and index usage)
 - Restored duplicate indexes to homepage
