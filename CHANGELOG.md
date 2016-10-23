@@ -1,3 +1,7 @@
+## 1.6.1 [unreleased]
+
+- Suggest `gin` over `gist` for `LIKE` queries
+
 ## 1.6.0
 
 - Removed mostly inactionable items (cache hit rate and index usage)
