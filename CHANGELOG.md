@@ -1,6 +1,6 @@
-## 1.6.1 [unreleased]
+## 1.6.1
 
-- Suggest `gin` over `gist` for `LIKE` queries
+- Suggest GIN over GiST for `LIKE` queries
 
 ## 1.6.0
 
