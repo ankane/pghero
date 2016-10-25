@@ -267,7 +267,8 @@ remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= q
       <pre style="overflow: scroll; white-space: pre; word-break: normal;">commit_db_transaction
 <% @suggested_indexes.each do |index| %>
 <% if index[:using] && index[:using] != "btree" %>
-connection.execute("CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)")
+# run directly on production database - Rails has trouble with GIN indexes
+# connection.execute("CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)")
 <% else %>
 add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(", ") %>], algorithm: :concurrently<% end %>
 <% end %></pre>
