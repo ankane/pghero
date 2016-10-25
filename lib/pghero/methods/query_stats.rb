@@ -165,7 +165,7 @@ module PgHero
               SELECT
                 LEFT(query, 10000) AS query,
                 #{supports_query_hash? ? "queryid" : "md5(query)"} AS query_hash,
-                #{supports_query_stats_user? ? "rolname" : "NULL"} AS user,
+                #{supports_query_stats_user? ? "rolname" : "NULL::text"} AS user,
                 (total_time / 1000 / 60) AS total_minutes,
                 (total_time / calls) AS average_time,
                 calls
@@ -205,7 +205,7 @@ module PgHero
             WITH query_stats AS (
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
-                #{supports_query_stats_user? ? "pghero_query_stats.user" : "NULL"} AS user,
+                #{supports_query_stats_user? ? "pghero_query_stats.user" : "NULL::text"} AS user,
                 array_agg(LEFT(query, 10000)) AS query,
                 (SUM(total_time) / 1000 / 60) AS total_minutes,
                 (SUM(total_time) / SUM(calls)) AS average_time,
