@@ -1,4 +1,4 @@
-## 1.6.2 [unreleased]
+## 1.6.2
 
 - Suggest GiST over GIN for `LIKE` queries again (seeing better performance)
 
