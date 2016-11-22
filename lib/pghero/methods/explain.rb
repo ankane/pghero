@@ -8,6 +8,9 @@ module PgHero
 
         # use transaction for safety
         connection_model.transaction do
+          # protect the DB with a 10 second timeout
+          # this could potentially increase the timeout, but 10 seconds should be okay
+          select_all("SET LOCAL statement_timeout = 10000")
           if (sql.sub(/;\z/, "").include?(";") || sql.upcase.include?("COMMIT")) && !explain_safe
             raise ActiveRecord::StatementInvalid, "Unsafe statement"
           end
