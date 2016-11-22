@@ -8,7 +8,7 @@ module PgHero
 
         # use transaction for safety
         connection_model.transaction do
-          if !explain_safe && (sql.sub(/;\z/, "").include?(";") || sql.upcase.include?("COMMIT"))
+          if (sql.sub(/;\z/, "").include?(";") || sql.upcase.include?("COMMIT")) && !explain_safe
             raise ActiveRecord::StatementInvalid, "Unsafe statement"
           end
           explanation = select_all("EXPLAIN #{sql}").map { |v| v["QUERY PLAN"] }.join("\n")
