@@ -1,3 +1,7 @@
+## 1.6.3 [unreleased]
+
+- Added new config format
+
 ## 1.6.2
 
 - Suggest GiST over GIN for `LIKE` queries again (seeing better performance)
