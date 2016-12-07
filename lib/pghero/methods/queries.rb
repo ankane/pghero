@@ -31,11 +31,6 @@ module PgHero
         running_queries(min_duration: long_running_query_sec)
       end
 
-      def slow_queries(options = {})
-        query_stats = options[:query_stats] || self.query_stats(options.except(:query_stats))
-        query_stats.select { |q| q["calls"].to_i >= slow_query_calls.to_i && q["average_time"].to_i >= slow_query_ms.to_i }
-      end
-
       def locks
         select_all <<-SQL
           SELECT DISTINCT ON (pid)
