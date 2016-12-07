@@ -66,6 +66,7 @@ module PgHero
         path = "config/pghero.yml"
 
         config = YAML.load(ERB.new(File.read(path)).result) if File.exist?(path)
+        config ||= {}
 
         if config[env]
           config[env]
