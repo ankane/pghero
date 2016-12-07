@@ -10,19 +10,12 @@ A performance dashboard for Postgres - health checks, suggested indexes, and mor
 
 ## Installation
 
-PgHero can be installed as a standalone app or a Rails engine.
+PgHero can be installed as a Rails engine or standalone app.
 
-- [Linux](guides/Linux.md) - Ubuntu, Debian, and more
+- [Rails](guides/Rails.md)
+- [Linux](guides/Linux.md)
 - [Docker](guides/Docker.md)
 - [Heroku](guides/Heroku.md)
-- [Rails](guides/Rails.md)
-
-## Related Projects
-
-Also check out:
-
-- [pgsync](https://github.com/ankane/pgsync) - Sync Postgres data to your local machine
-- [pgslice](https://github.com/ankane/pgslice) - Postgres partitioning as easy as pie
 
 ## Credits
 
