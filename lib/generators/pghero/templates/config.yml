@@ -1,0 +1,15 @@
+databases:
+  main:
+    url: <%= ENV["PGHERO_DATABASE_URL"] %>
+
+# Thresholds
+# Can also be set on a per-database level
+#
+# long_running_query_sec: 60
+# slow_query_ms: 20
+# slow_query_calls: 100
+# total_connections_threshold: 100
+
+# Other settings
+#
+# time_zone: "Pacific Time (US & Canada)"
