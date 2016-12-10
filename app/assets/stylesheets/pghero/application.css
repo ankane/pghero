@@ -422,3 +422,10 @@ body {
 #periods a {
   margin-right: 20px;
 }
+
+.chart {
+  height: 300px;
+  line-height: 300px;
+  text-align: center;
+  color: #999;
+}
