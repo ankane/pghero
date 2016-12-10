@@ -5,6 +5,16 @@
   </p>
 <% end %>
 
+<% top_connections = Hash.new(0) %>
+<% connection_sources.each do |source| %>
+  <% top_connections[[source["database"], source["user"]]] += source["total_connections"].to_i %>
+<% end %>
+
+<div id="chart-1" class="chart" style="height: 200px; line-height: 200px;">Loading...</div>
+<script>
+  new Chartkick.ColumnChart("chart-1", <%= json_escape(top_connections.sort_by { |k, v| -v }.first(10).to_json).html_safe %>);
+</script>
+
 <table class="table">
   <thead>
     <tr>
