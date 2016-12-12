@@ -20,7 +20,7 @@ module PgHero
 
     def initialize(id, config)
       @id = id
-      @config = config
+      @config = config || {}
     end
 
     def name
