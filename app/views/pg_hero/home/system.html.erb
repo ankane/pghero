@@ -28,7 +28,7 @@
     <h1>Replication Lag</h1>
     <div id="chart-4" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
-      new Chartkick.LineChart("chart-4", <%= json_escape(replication_lag_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de"]})
+      new Chartkick.LineChart("chart-4", <%= json_escape(replication_lag_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de"]})
     </script>
   <% end %>
 </div>
