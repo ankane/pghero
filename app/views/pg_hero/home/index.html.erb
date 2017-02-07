@@ -15,6 +15,9 @@
     <% else %>
       No long running queries
     <% end %>
+    <% if @autovacuum_queries.any? %>
+      <span class="tiny"><%= @autovacuum_queries.size %> autovacuum</span>
+    <% end %>
   </div>
   <% if @extended %>
     <div class="alert alert-<%= @good_cache_rate ? "success" : "warning" %>">

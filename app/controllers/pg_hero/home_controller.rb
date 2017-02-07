@@ -19,7 +19,7 @@ module PgHero
       @extended = params[:extended]
       @query_stats = @database.query_stats(historical: true, start_at: 3.hours.ago)
       @slow_queries = @database.slow_queries(query_stats: @query_stats)
-      @long_running_queries = @database.long_running_queries.reject { |q| q["query"].starts_with?("autovacuum:") }
+      @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q["query"].starts_with?("autovacuum:") }
 
       if @extended
         @index_hit_rate = @database.index_hit_rate
