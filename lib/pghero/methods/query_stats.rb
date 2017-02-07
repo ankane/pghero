@@ -66,6 +66,8 @@ module PgHero
       # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
       def historical_query_stats_enabled?
         # TODO use schema from config
+        # make sure primary database is PostgreSQL first
+        ["PostgreSQL", "PostGIS"].include?(stats_connection.adapter_name) &&
         PgHero.truthy?(stats_connection.select_all(squish <<-SQL
           SELECT EXISTS (
             SELECT

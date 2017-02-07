@@ -1,6 +1,7 @@
 ## 1.6.3 [unreleased]
 
 - Added new config format
+- Fixed error when primary database is not PostgreSQL
 
 ## 1.6.2
 
