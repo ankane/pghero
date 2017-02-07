@@ -27,7 +27,7 @@ module PgHero
         @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100 && @index_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100
       end
 
-      @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"].to_i == 0 }
+      @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"].to_i == 0 } if @extended
       @invalid_indexes = @database.invalid_indexes
       @duplicate_indexes = @database.duplicate_indexes
       unless @query_stats_enabled

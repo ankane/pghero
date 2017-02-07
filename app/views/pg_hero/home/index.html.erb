@@ -84,6 +84,15 @@
       No slow queries
     <% end %>
   </div>
+  <% if @extended %>
+    <div class="alert alert-<%= @unused_indexes.empty? ? "success" : "warning" %>">
+      <% if @unused_indexes.any? %>
+        <%= pluralize(@unused_indexes.size, "unused index", "unused indexes") %>
+      <% else %>
+        No unused indexes
+      <% end %>
+    </div>
+  <% end %>
 </div>
 
 <% if @replica && !@good_replication_lag %>
@@ -311,5 +320,43 @@ pg_stat_statements.track = all</pre>
     <p><%= link_to "Explain queries", explain_path %> to see where to add indexes.</p>
 
     <%= render partial: "queries_table", locals: {queries: @slow_queries} %>
+  </div>
+<% end %>
+
+<% if @extended && @unused_indexes.any? %>
+  <div class="content">
+    <h1>Unused Indexes</h1>
+
+    <p>
+      Unused indexes cause unnecessary overhead. Remove them
+      <% if @show_migrations %>
+        <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
+      <% end %>
+      for faster writes.
+    </p>
+
+    <div id="migration" style="display: none;">
+      <pre>rails g migration remove_unused_indexes</pre>
+      <p>And paste</p>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.each do |query| %>
+remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s.inspect %><% end %></pre>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th style="width: 20%;">Index Size</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @unused_indexes.each do |query| %>
+          <tr>
+            <td><%= query["index"] %><div class="text-muted">on <%= query["table"] %></div></td>
+            <td><%= query["index_size"] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 <% end %>
