@@ -47,6 +47,10 @@ h1, p {
   margin-bottom: 20px;
 }
 
+h3 {
+  text-align: center;
+}
+
 ul {
   list-style-type: none;
   padding: 0;
