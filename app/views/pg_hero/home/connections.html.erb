@@ -1,5 +1,7 @@
 <div class="content">
   <h1>Connections</h1>
 
-  <%= render partial: "connections_table", locals: {total_connections: @total_connections, connection_sources: @connection_sources, show_message: false} %>
+  <p><%= pluralize(@total_connections, "connection") %></p>
+
+  <%= render partial: "connections_table", locals: {connection_sources: @connection_sources} %>
 </div>
