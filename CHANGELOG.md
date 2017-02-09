@@ -1,6 +1,10 @@
-## 1.6.3 [unreleased]
+## 1.6.3
 
+- Added 10 second timeout for explain
+- No longer show autovacuum in long running queries
+- Added charts for connections
 - Added new config format
+- Removed Chartkick gem dependency for charts
 - Fixed error when primary database is not PostgreSQL
 
 ## 1.6.2

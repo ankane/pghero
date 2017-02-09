@@ -82,7 +82,6 @@ CPU usage, IOPS, and other stats are available for Amazon RDS. Add these lines t
 
 ```ruby
 gem 'aws-sdk'
-gem 'chartkick'
 ```
 
 And add these variables to your environment:
