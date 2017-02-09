@@ -3,7 +3,7 @@
 
   <p><%= pluralize(@total_connections, "connection") %></p>
 
-  <% if @top_connections > 0 %>
+  <% if @total_connections > 0 %>
     <h3>By Database</h3>
 
     <% top_connections = Hash.new(0) %>
