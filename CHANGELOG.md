@@ -1,3 +1,7 @@
+## 1.6.4 [unreleased]
+
+- Only show connection charts if there are connections
+
 ## 1.6.3
 
 - Added 10 second timeout for explain
