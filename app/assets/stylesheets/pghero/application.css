@@ -30,6 +30,7 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
   margin-bottom: 20px;
+  table-layout: fixed;
 }
 
 th {
