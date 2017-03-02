@@ -2,7 +2,10 @@ module PgHero
   module Methods
     module Replica
       def replica?
-        select_all("SELECT setting FROM pg_settings WHERE name = 'hot_standby'").first["setting"] == "on"
+        unless defined?(@replica)
+          @replica = select_all("SELECT setting FROM pg_settings WHERE name = 'hot_standby'").first["setting"] == "on"
+        end
+        @replica
       end
 
       # http://www.postgresql.org/message-id/CADKbJJWz9M0swPT3oqe8f9+tfD4-F54uE6Xtkh4nERpVsQnjnw@mail.gmail.com
