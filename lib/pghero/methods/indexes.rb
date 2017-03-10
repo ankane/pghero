@@ -114,22 +114,25 @@ module PgHero
       def indexes
         select_all(<<-SQL
           SELECT
+            schemaname AS schema,
             t.relname AS table,
             ix.relname AS name,
-            regexp_replace(pg_get_indexdef(indexrelid), '^[^\\(]*\\((.*)\\)$', '\\1') AS columns,
-            regexp_replace(pg_get_indexdef(indexrelid), '.* USING ([^ ]*) \\(.*', '\\1') AS using,
+            regexp_replace(pg_get_indexdef(i.indexrelid), '^[^\\(]*\\((.*)\\)$', '\\1') AS columns,
+            regexp_replace(pg_get_indexdef(i.indexrelid), '.* USING ([^ ]*) \\(.*', '\\1') AS using,
             indisunique AS unique,
             indisprimary AS primary,
             indisvalid AS valid,
             indexprs::text,
             indpred::text,
-            pg_get_indexdef(indexrelid) AS definition
+            pg_get_indexdef(i.indexrelid) AS definition
           FROM
             pg_index i
           INNER JOIN
             pg_class t ON t.oid = i.indrelid
           INNER JOIN
             pg_class ix ON ix.oid = i.indexrelid
+          LEFT JOIN
+            pg_stat_user_indexes ui ON ui.indexrelid = i.indexrelid
           ORDER BY
             1, 2
         SQL
@@ -141,7 +144,7 @@ module PgHero
 
         indexes_by_table = self.indexes.group_by { |i| i["table"] }
         indexes_by_table.values.flatten.select { |i| PgHero.falsey?(i["primary"]) && PgHero.falsey?(i["unique"]) && !i["indexprs"] && !i["indpred"] && PgHero.truthy?(i["valid"]) }.each do |index|
-          covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["using"] == index["using"] && i["name"] != index["name"] && !i["indexprs"] && !i["indpred"] && PgHero.truthy?(i["valid"]) }
+          covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["using"] == index["using"] && i["name"] != index["name"] && i["schema"] == index["schema"] && !i["indexprs"] && !i["indpred"] && PgHero.truthy?(i["valid"]) }
           if covering_index && (covering_index["columns"] != index["columns"] || index["name"] > covering_index["name"])
             indexes << {"unneeded_index" => index, "covering_index" => covering_index}
           end

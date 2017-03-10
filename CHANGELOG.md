@@ -1,6 +1,7 @@
 ## 1.6.4 [unreleased]
 
 - Only show connection charts if there are connections
+- Fixed duplicate indexes for multiple schemas
 - Fixed display issue for queries without word break
 - Removed maintenance tab for replicas
 
