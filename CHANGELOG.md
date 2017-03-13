@@ -1,4 +1,4 @@
-## 1.6.4 [unreleased]
+## 1.6.4
 
 - Only show connection charts if there are connections
 - Fixed duplicate indexes for multiple schemas
