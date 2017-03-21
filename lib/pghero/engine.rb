@@ -3,7 +3,7 @@ module PgHero
     isolate_namespace PgHero
 
     initializer "pghero", group: :all do |app|
-      unless app.config.api_only
+      unless app.config.try? :api_only
         if defined?(Sprockets) && Sprockets::VERSION >= "4"
           app.config.assets.precompile << "pghero/application.js"
           app.config.assets.precompile << "pghero/application.css"
