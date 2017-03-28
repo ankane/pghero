@@ -3,7 +3,7 @@ module PgHero
     module Replica
       def replica?
         unless defined?(@replica)
-          @replica = select_all("SELECT setting FROM pg_settings WHERE name = 'hot_standby'").first["setting"] == "on"
+          @replica = PgHero.truthy?(select_all("SELECT pg_is_in_recovery()").first["pg_is_in_recovery"])
         end
         @replica
       end
