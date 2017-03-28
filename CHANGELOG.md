@@ -1,3 +1,7 @@
+## 1.6.5 [unreleased]
+
+- Fixed replica check when `hot_standby = on` for primary
+
 ## 1.6.4
 
 - Only show connection charts if there are connections
