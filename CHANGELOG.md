@@ -1,5 +1,6 @@
 ## 1.6.5 [unreleased]
 
+- Added support for Rails API
 - Fixed replica check when `hot_standby = on` for primary
 
 ## 1.6.4
