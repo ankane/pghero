@@ -6,7 +6,7 @@ module PgHero
         explanation = nil
 
         # use transaction for safety
-        with_transaction(statement_timeout: 10000, rollback: true) do
+        with_transaction(statement_timeout: (explain_timeout_sec * 1000), rollback: true) do
           if (sql.sub(/;\z/, "").include?(";") || sql.upcase.include?("COMMIT")) && !explain_safe?
             raise ActiveRecord::StatementInvalid, "Unsafe statement"
           end

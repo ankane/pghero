@@ -52,6 +52,10 @@ module PgHero
       (config["slow_query_calls"] || PgHero.config["slow_query_calls"] || PgHero.slow_query_calls).to_i
     end
 
+    def explain_timeout_sec
+      (config["explain_timeout_sec"] || PgHero.config["explain_timeout_sec"] || PgHero.explain_timeout_sec).to_i
+    end
+
     def long_running_query_sec
       (config["long_running_query_sec"] || PgHero.config["long_running_query_sec"] || PgHero.long_running_query_sec).to_i
     end
