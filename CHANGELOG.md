@@ -1,6 +1,7 @@
 ## 1.6.5 [unreleased]
 
 - Added support for Rails API
+- Added support for Amazon STS
 - Fixed replica check when `hot_standby = on` for primary
 
 ## 1.6.4
