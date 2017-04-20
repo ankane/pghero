@@ -1,4 +1,4 @@
-## 1.6.5 [unreleased]
+## 1.6.5
 
 - Added support for Rails API
 - Added support for Amazon STS
