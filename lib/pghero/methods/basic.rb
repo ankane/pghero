@@ -74,12 +74,8 @@ module PgHero
       end
 
       def with_lock_timeout(timeout)
-        if timeout
-          connection_model.transaction do
-            select_all "SET LOCAL lock_timeout = #{timeout.to_i}"
-            yield
-          end
-        else
+        connection_model.transaction do
+          select_all "SET LOCAL lock_timeout = #{timeout.to_i}"
           yield
         end
       end

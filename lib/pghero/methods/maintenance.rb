@@ -57,17 +57,17 @@ module PgHero
         SQL
       end
 
-      def analyze(table, lock_timeout: nil)
-        with_lock_timeout(lock_timeout) do
-          execute "ANALYZE #{quote_table_name(table)}"
-        end
+      def analyze(table)
+        execute "ANALYZE #{quote_table_name(table)}"
         true
       end
 
       def analyze_tables
         table_stats.reject { |s| %w(information_schema pg_catalog).include?(s["schema"]) }.map { |s| s.slice("schema", "table") }.each do |stats|
           begin
-            analyze "#{stats["schema"]}.#{stats["table"]}", lock_timeout: 5000
+            with_lock_timeout(5000) do
+              analyze "#{stats["schema"]}.#{stats["table"]}"
+            end
           rescue ActiveRecord::StatementInvalid => e
             $stderr.puts e.message
           end
