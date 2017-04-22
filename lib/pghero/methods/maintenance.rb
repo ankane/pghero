@@ -58,13 +58,20 @@ module PgHero
       end
 
       def analyze(table)
-        execute "ANALYZE #{quote_table_name(table)}"
+        connection_model.transaction do
+          select_all "SET LOCAL lock_timeout = 10000"
+          execute "ANALYZE #{quote_table_name(table)}"
+        end
         true
       end
 
       def analyze_tables
         table_stats.reject { |s| %w(information_schema pg_catalog).include?(s["schema"]) }.map { |s| s.slice("schema", "table") }.each do |stats|
-          analyze("#{stats["schema"]}.#{stats["table"]}")
+          begin
+            analyze "#{stats["schema"]}.#{stats["table"]}"
+          rescue ActiveRecord::StatementInvalid => e
+            $stderr.puts e.message
+          end
         end
       end
     end
