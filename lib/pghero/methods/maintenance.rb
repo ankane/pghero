@@ -56,6 +56,17 @@ module PgHero
             1, 2
         SQL
       end
+
+      def analyze(table)
+        execute "ANALYZE #{quote_table_name(table)}"
+        true
+      end
+
+      def analyze_tables
+        table_stats.reject { |s| %w(information_schema pg_catalog).include?(s["schema"]) }.map { |s| s.slice("schema", "table") }.each do |stats|
+          analyze("#{stats["schema"]}.#{stats["table"]}")
+        end
+      end
     end
   end
 end

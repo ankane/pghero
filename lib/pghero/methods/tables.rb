@@ -57,7 +57,7 @@ module PgHero
             pg_namespace ON pg_namespace.oid = pg_class.relnamespace
           WHERE
             relkind = 'r'
-            AND nspname = #{quote(schema)}
+            #{schema ? "AND nspname = #{quote(schema)}" : nil}
             #{tables ? "AND relname IN (#{tables.map { |t| quote(t) }.join(", ")})" : nil}
           ORDER BY
             1, 2

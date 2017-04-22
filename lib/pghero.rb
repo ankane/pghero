@@ -40,7 +40,7 @@ module PgHero
 
   class << self
     extend Forwardable
-    def_delegators :current_database, :access_key_id, :autoindex, :autoindex_all, :autovacuum_danger,
+    def_delegators :current_database, :access_key_id, :analyze, :analyze_tables, :autoindex, :autoindex_all, :autovacuum_danger,
       :best_index, :blocked_queries, :connection_sources, :connection_stats,
       :cpu_usage, :create_user, :database_size, :db_instance_identifier, :disable_query_stats, :drop_user,
       :duplicate_indexes, :enable_query_stats, :explain, :historical_query_stats_enabled?, :index_caching,
@@ -129,6 +129,13 @@ module PgHero
     def capture_space_stats
       databases.each do |_, database|
         database.capture_space_stats
+      end
+      true
+    end
+
+    def analyze_all
+      databases.each do |_, database|
+        database.analyze_tables
       end
       true
     end

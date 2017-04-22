@@ -9,6 +9,11 @@ namespace :pghero do
     PgHero.capture_space_stats
   end
 
+  desc "analyze tables"
+  task analyze: :environment do
+    PgHero.analyze_all
+  end
+
   desc "autoindex"
   task autoindex: :environment do
     PgHero.autoindex_all(create: true)

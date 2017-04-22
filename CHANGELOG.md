@@ -1,3 +1,8 @@
+## 1.7.0 [unreleased]
+
+- Added `analyze`, `analyze_tables`, and `analyze_all` methods
+- Added `pghero:analyze` rake task
+
 ## 1.6.5
 
 - Added support for Rails API
