@@ -59,7 +59,7 @@ module PgHero
 
       def analyze(table)
         connection_model.transaction do
-          select_all "SET LOCAL lock_timeout = 10000"
+          select_all "SET LOCAL lock_timeout = 5000"
           execute "ANALYZE #{quote_table_name(table)}"
         end
         true
