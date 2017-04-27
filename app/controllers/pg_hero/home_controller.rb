@@ -177,35 +177,43 @@ module PgHero
       if @database.kill(params[:pid])
         redirect_to root_path, notice: "Query killed"
       else
-        redirect_to :back, notice: "Query no longer running"
+        redirect_backward notice: "Query no longer running"
       end
     end
 
     def kill_long_running_queries
       @database.kill_long_running_queries
-      redirect_to :back, notice: "Queries killed"
+      redirect_backward notice: "Queries killed"
     end
 
     def kill_all
       @database.kill_all
-      redirect_to :back, notice: "Connections killed"
+      redirect_backward notice: "Connections killed"
     end
 
     def enable_query_stats
       @database.enable_query_stats
-      redirect_to :back, notice: "Query stats enabled"
+      redirect_backward notice: "Query stats enabled"
     rescue ActiveRecord::StatementInvalid
-      redirect_to :back, alert: "The database user does not have permission to enable query stats"
+      redirect_backward alert: "The database user does not have permission to enable query stats"
     end
 
     def reset_query_stats
       @database.reset_query_stats
-      redirect_to :back, notice: "Query stats reset"
+      redirect_backward notice: "Query stats reset"
     rescue ActiveRecord::StatementInvalid
-      redirect_to :back, alert: "The database user does not have permission to reset query stats"
+      redirect_backward alert: "The database user does not have permission to reset query stats"
     end
 
     protected
+
+    def redirect_backward(options = {})
+      if Rails.version >= "5.1"
+        redirect_back options.merge(fallback_location: root_path)
+      else
+        redirect_to :back, options
+      end
+    end
 
     def set_database
       @databases = PgHero.databases.values
