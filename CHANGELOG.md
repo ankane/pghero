@@ -2,7 +2,7 @@
 
 - Added `analyze`, `analyze_tables`, and `analyze_all` methods
 - Added `pghero:analyze` rake task
-- Fixed system stats display issue for Rails 5
+- Fixed system stats display issue
 
 ## 1.6.5
 

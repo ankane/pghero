@@ -23,17 +23,17 @@ module PgHero
 
       def rds_stats(metric_name, options = {})
         if system_stats_enabled?
-          options = {region: region}
+          aws_options = {region: region}
           if access_key_id
-            options[:access_key_id] = access_key_id
-            options[:secret_access_key] = secret_access_key
+            aws_options[:access_key_id] = access_key_id
+            aws_options[:secret_access_key] = secret_access_key
           end
 
           client =
             if defined?(Aws)
-              Aws::CloudWatch::Client.new(options)
+              Aws::CloudWatch::Client.new(aws_options)
             else
-              AWS::CloudWatch.new(options).client
+              AWS::CloudWatch.new(aws_options).client
             end
 
           duration = (options[:duration] || 1.hour).to_i
