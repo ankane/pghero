@@ -244,7 +244,7 @@ module PgHero
     end
 
     def system_params
-      params.slice(:duration, :period)
+      params.permit(:duration, :period)
     end
 
     def chart_library_options
