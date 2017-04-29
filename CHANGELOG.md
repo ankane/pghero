@@ -1,5 +1,6 @@
 ## 1.7.0 [unreleased]
 
+- Fixed migrations for Rails 5.1+
 - Added `analyze`, `analyze_tables`, and `analyze_all` methods
 - Added `pghero:analyze` rake task
 - Fixed system stats display issue

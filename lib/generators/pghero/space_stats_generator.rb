@@ -22,7 +22,13 @@ module Pghero
       end
 
       def copy_migration
-        migration_template "space_stats.rb", "db/migrate/create_pghero_space_stats.rb"
+        migration_template "space_stats.rb", "db/migrate/create_pghero_space_stats.rb", migration_version: migration_version
+      end
+
+      def migration_version
+        if ActiveRecord::VERSION::MAJOR >= 5
+          "[#{ActiveRecord::VERSION::MAJOR}.#{ActiveRecord::VERSION::MINOR}]"
+        end
       end
     end
   end
