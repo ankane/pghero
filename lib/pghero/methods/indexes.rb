@@ -133,6 +133,8 @@ module PgHero
             pg_class ix ON ix.oid = i.indexrelid
           LEFT JOIN
             pg_stat_user_indexes ui ON ui.indexrelid = i.indexrelid
+          WHERE
+            schemaname IS NOT NULL
           ORDER BY
             1, 2
         SQL
