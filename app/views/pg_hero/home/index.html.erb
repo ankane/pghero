@@ -240,9 +240,9 @@
         </tr>
       </thead>
       <tbody>
-        <% @invalid_indexes.each do |query| %>
+        <% @invalid_indexes.each do |index| %>
           <tr>
-            <td><%= query["index"] %></td>
+            <td><%= index["name"] %></td>
           </tr>
         <% end %>
       </tbody>

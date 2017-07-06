@@ -28,8 +28,11 @@ module PgHero
       end
 
       @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"].to_i == 0 } if @extended
-      @invalid_indexes = @database.invalid_indexes
-      @duplicate_indexes = @database.duplicate_indexes
+
+      @indexes = @database.indexes
+      @invalid_indexes = @indexes.select { |i| PgHero.falsey?(i["valid"]) }
+      @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
+
       unless @query_stats_enabled
         @query_stats_available = @database.query_stats_available?
         @query_stats_extension_enabled = @database.query_stats_extension_enabled? if @query_stats_available
@@ -95,6 +98,7 @@ module PgHero
           []
         end
 
+      @indexes = @database.indexes
       set_suggested_indexes
 
       # fix back button issue with caching
@@ -240,7 +244,7 @@ module PgHero
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)
       @suggested_indexes_by_query = @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs["average_time"].to_f >= min_average_time && qs["calls"].to_i >= min_calls })
-      @suggested_indexes = @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query)
+      @suggested_indexes = @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes)
       @query_stats_by_query = @query_stats.index_by { |q| q["query"] }
       @debug = params[:debug] == "true"
     end

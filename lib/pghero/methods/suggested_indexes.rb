@@ -18,7 +18,7 @@ module PgHero
 
           if best_indexes.any?
             existing_columns = Hash.new { |hash, key| hash[key] = Hash.new { |hash2, key2| hash2[key2] = [] } }
-            indexes = self.indexes
+            indexes = options[:indexes] || self.indexes
             indexes.group_by { |g| g["using"] }.each do |group, inds|
               inds.each do |i|
                 existing_columns[group][i["table"]] << i["columns"]
