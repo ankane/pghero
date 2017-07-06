@@ -1,6 +1,6 @@
 module PgHero
   module Methods
-    module Replica
+    module Replication
       def replica?
         unless defined?(@replica)
           @replica = PgHero.truthy?(select_all("SELECT pg_is_in_recovery()").first["pg_is_in_recovery"])
@@ -19,6 +19,17 @@ module PgHero
           AS replication_lag
         SQL
         ).first["replication_lag"].to_f
+      end
+
+      def replication_slots
+        select_all(<<-SQL
+          SELECT
+            slot_name,
+            database,
+            active
+          FROM pg_replication_slots
+        SQL
+        )
       end
     end
   end

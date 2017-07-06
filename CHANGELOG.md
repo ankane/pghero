@@ -1,3 +1,7 @@
+## 1.7.1 [unreleased]
+
+- Added check for inactive replication slots
+
 ## 1.7.0
 
 - Fixed migrations for Rails 5.1+

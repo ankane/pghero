@@ -8,7 +8,7 @@ module PgHero
     include Methods::Maintenance
     include Methods::Queries
     include Methods::QueryStats
-    include Methods::Replica
+    include Methods::Replication
     include Methods::Sequences
     include Methods::Space
     include Methods::SuggestedIndexes

@@ -39,6 +39,8 @@ module PgHero
       if @replica
         @replication_lag = @database.replication_lag
         @good_replication_lag = @replication_lag < 5
+      else
+        @inactive_replication_slots = @database.replication_slots.select { |r| !PgHero.truthy?(r["active"]) }
       end
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
       set_suggested_indexes((params[:min_average_time] || 20).to_f, (params[:min_calls] || 50).to_i)
