@@ -110,7 +110,7 @@
 <% if @inactive_replication_slots && @inactive_replication_slots.any? %>
   <div class="content">
     <h1>Inactive Replication Slots</h1>
-    <p>Inactive replication slots cause a lot of disk space to be consumed.</p>
+    <p>Inactive replication slots can cause a lot of disk space to be consumed.</p>
     <p>For each, run:</p>
     <code><pre>SELECT pg_drop_replication_slot('slot_name');</pre></code>
     <table class="table">
