@@ -27,6 +27,27 @@ module PgHero
         SQL
       end
 
+      def table_sizes
+        select_all <<-SQL
+          SELECT
+            n.nspname AS schema,
+            c.relname AS name,
+            pg_size_pretty(pg_total_relation_size(c.oid)) AS size,
+            pg_total_relation_size(c.oid) AS size_bytes
+          FROM
+            pg_class c
+          LEFT JOIN
+            pg_namespace n ON (n.oid = c.relnamespace)
+          WHERE
+            n.nspname NOT IN ('pg_catalog', 'information_schema')
+            AND n.nspname !~ '^pg_toast'
+            AND c.relkind = 'r'
+          ORDER BY
+            pg_total_relation_size(c.oid) DESC,
+            name ASC
+        SQL
+      end
+
       def capture_space_stats
         now = Time.now
         columns = %w[database schema relation size captured_at]

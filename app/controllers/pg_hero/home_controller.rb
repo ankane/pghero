@@ -59,7 +59,7 @@ module PgHero
     def space
       @title = "Space"
       @database_size = @database.database_size
-      @relation_sizes = @database.relation_sizes
+      @relation_sizes = params[:tables] ? @database.table_sizes : @database.relation_sizes
     end
 
     def live_queries

@@ -1,6 +1,7 @@
 ## 1.7.1 [unreleased]
 
 - Added check for inactive replication slots
+- Added `table_sizes` method for full table sizes
 
 ## 1.7.0
 
