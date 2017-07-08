@@ -74,7 +74,6 @@ ul {
 ul.list-normal {
   list-style-type: disc;
   padding-left: 20px;
-  margin-bottom: 20px;
 }
 
 table td, table th {
@@ -83,6 +82,7 @@ table td, table th {
 
 td {
   border-top: solid 1px #ddd;
+  vertical-align: top;
 }
 
 pre {
