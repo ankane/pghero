@@ -2,6 +2,7 @@
 
 - Added check for inactive replication slots
 - Added `table_sizes` method for full table sizes
+- Added syntax highlighting
 
 ## 1.7.0
 
