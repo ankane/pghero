@@ -246,7 +246,7 @@ module PgHero
       @suggested_indexes_by_query = @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs["average_time"].to_f >= min_average_time && qs["calls"].to_i >= min_calls })
       @suggested_indexes = @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes)
       @query_stats_by_query = @query_stats.index_by { |q| q["query"] }
-      @debug = params[:debug] == "true"
+      @debug = params[:debug]
     end
 
     def system_params
