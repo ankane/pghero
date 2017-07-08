@@ -39,33 +39,35 @@
   <% end %>
 
   <!-- table info -->
-  <h1>Tables</h1>
-  <table>
-    <thead>
-      <tr>
-        <th style="width: 25%;">Name</th>
-        <th style="width: 25%;">Rows</th>
-        <th>Indexes</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @tables.each do |table| %>
+  <% if @tables.any? %>
+    <h1>Tables</h1>
+    <table>
+      <thead>
         <tr>
-          <td><%= table %></td>
-          <td><%= @row_counts[table] %></td>
-          <td>
-            <ul class="list-normal">
-              <% @indexes_by_table[table].to_a.sort_by { |i| [PgHero.truthy?(i["primary"]) ? 0 : 1, i["columns"]] }.each do |i3| %>
-                <li>
-                  <%= i3["columns"].join(", ") %><% if i3["using"] != "btree" %>
-                  <%= i3["using"].to_s.upcase %><% end %>
-                  <% if PgHero.truthy?(i3["primary"]) %> PRIMARY<% elsif PgHero.truthy?(i3["unique"]) %> UNIQUE<% end %>
-                </li>
-              <% end %>
-            </ul>
-          </td>
+          <th style="width: 25%;">Name</th>
+          <th style="width: 25%;">Rows</th>
+          <th>Indexes</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% @tables.each do |table| %>
+          <tr>
+            <td><%= table %></td>
+            <td><%= @row_counts[table] %></td>
+            <td>
+              <ul class="list-normal">
+                <% @indexes_by_table[table].to_a.sort_by { |i| [PgHero.truthy?(i["primary"]) ? 0 : 1, i["columns"]] }.each do |i3| %>
+                  <li>
+                    <%= i3["columns"].join(", ") %><% if i3["using"] != "btree" %>
+                    <%= i3["using"].to_s.upcase %><% end %>
+                    <% if PgHero.truthy?(i3["primary"]) %> PRIMARY<% elsif PgHero.truthy?(i3["unique"]) %> UNIQUE<% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
 </div>
