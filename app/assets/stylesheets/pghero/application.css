@@ -71,6 +71,7 @@ pre {
   padding: 10px;
   white-space: pre-wrap;
   word-break: break-word;
+  margin-top: 0;
 }
 
 textarea {
@@ -105,6 +106,22 @@ hr {
   color: #999;
   font-size: 12px;
   margin-left: 6px;
+}
+
+.btn-explain {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: #999;
+  font-size: 12px;
+  line-height: 20px;
+  margin-left: 6px;
+}
+
+.btn-explain:hover {
+  text-decoration: underline;
 }
 
 .user {

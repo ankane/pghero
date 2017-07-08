@@ -213,7 +213,7 @@ module PgHero
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
                 #{supports_query_stats_user? ? "pghero_query_stats.user" : "NULL::text"} AS user,
-                array_agg(LEFT(query, 10000)) AS query,
+                array_agg(LEFT(query, 10000) ORDER BY REPLACE(LEFT(query, 1000), '?', '!') COLLATE "C" ASC) AS query,
                 (SUM(total_time) / 1000 / 60) AS total_minutes,
                 (SUM(total_time) / SUM(calls)) AS average_time,
                 SUM(calls) AS calls
@@ -230,7 +230,8 @@ module PgHero
             SELECT
               query_hash,
               query_stats.user,
-              query[1],
+              query[1] AS query,
+              query[array_length(query, 1)] AS explainable_query,
               total_minutes,
               average_time,
               calls,
@@ -263,9 +264,15 @@ module PgHero
             "all_queries_total_minutes" => stats2.sum { |s| s["all_queries_total_minutes"].to_f }
           }
           value["total_percent"] = value["total_minutes"] * 100.0 / value["all_queries_total_minutes"]
+          value["explainable_query"] = stats2.map { |s| s["explainable_query"] }.first || value["query"]
+          value["explainable_query"] = nil unless explainable?(value["explainable_query"])
           query_stats << value
         end
         query_stats
+      end
+
+      def explainable?(query)
+        !query.include?("(?") && !query.include?("= ?")
       end
 
       # removes comments
