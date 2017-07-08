@@ -156,13 +156,15 @@ module PgHero
       end
 
       # TODO combine with current stats
-      def query_hash_total_minutes(query_hash)
+      def query_hash_stats(query_hash)
         if historical_query_stats_enabled? && supports_query_hash?
           start_at = 24.hours.ago
           stats = stats_connection.select_all squish <<-SQL
             SELECT
               captured_at,
-              total_time / 1000 / 60 AS total_minutes
+              total_time / 1000 / 60 AS total_minutes,
+              (total_time / calls) AS average_time,
+              calls
             FROM
               pghero_query_stats
             WHERE
@@ -172,7 +174,7 @@ module PgHero
             ORDER BY
               1 ASC
           SQL
-          stats.map { |s| [s["captured_at"], s["total_minutes"]] }
+          stats
         else
           []
         end

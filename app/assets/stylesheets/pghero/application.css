@@ -51,6 +51,12 @@ h2 {
   font-weight: bold;
 }
 
+h2 small {
+  font-weight: normal;
+  font-size: 14px;
+  color: #999;
+}
+
 h1, h2, p {
   margin-bottom: 20px;
 }

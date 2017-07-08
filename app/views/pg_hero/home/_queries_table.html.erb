@@ -44,10 +44,15 @@
           <%= number_with_delimiter(query["calls"].to_i) %>
 
           <span class="user">
-          <% if query["user"] %>
-            <%= query["user"] %> &middot;
-          <% end %>
-          <%= link_to "details", show_query_path(query["query_hash"]), target: "_blank" %>
+            <% if query["user"] %>
+              <%= query["user"] %>
+              <% if @historical_query_stats_enabled %>
+                &middot;
+              <% end %>
+            <% end %>
+            <% if @historical_query_stats_enabled %>
+              <%= link_to "details", show_query_path(query["query_hash"]), target: "_blank" %>
+            <% end %>
           </span>
         </td>
       </tr>

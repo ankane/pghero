@@ -15,11 +15,29 @@
 
   <!-- chart -->
   <% if @chart_data %>
-    <h2>Past 24 Hours</h2>
+    <h2>Total Time <small>sec</small></h2>
     <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
-      new Chartkick.LineChart("chart-1", <%= json_escape(@chart_data.to_json).html_safe %>, {max: 100, colors: ["#5bc0de"]})
+      new Chartkick.LineChart("chart-1", <%= json_escape(@chart_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false})
     </script>
+
+    <h2>Average Time <small>ms</small></h2>
+    <div id="chart-2" class="chart" style="margin-bottom: 20px;">Loading...</div>
+    <script>
+      new Chartkick.LineChart("chart-2", <%= json_escape(@chart2_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false})
+    </script>
+
+    <h2>Calls</h2>
+    <div id="chart-3" class="chart" style="margin-bottom: 20px;">Loading...</div>
+    <script>
+      new Chartkick.LineChart("chart-3", <%= json_escape(@chart3_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false})
+    </script>
+  <% else %>
+    <p>
+      Enable
+      <%= link_to "historical query stats", "https://github.com/ankane/pghero", target: "_blank" %>
+      to see more details
+    </p>
   <% end %>
 
   <!-- table info -->

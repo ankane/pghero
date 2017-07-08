@@ -109,15 +109,19 @@ module PgHero
     end
 
     def show_query
-      @query_hash = params[:query_hash]
+      @query_hash = params[:query_hash].to_i
       query_stats = @database.query_stats(historical: true)
-      stats = query_stats.find { |qs| qs["query_hash"] == @query_hash }
+      stats = query_stats.find { |qs| qs["query_hash"].to_i == @query_hash }
       if stats
         @query = stats["query"]
         @explainable_query = stats["explainable_query"]
 
         if @database.historical_query_stats_enabled? && @database.supports_query_hash?
-          @chart_data = @database.query_hash_total_minutes(@query_hash)
+          query_hash_stats = @database.query_hash_stats(@query_hash)
+
+          @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], (r["total_minutes"] * 60).round(1)] }, library: chart_library_options}]
+          @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["average_time"].round(1)] }, library: chart_library_options}]
+          @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["calls"]] }, library: chart_library_options}]
         end
       else
         render text: "Unknown query"

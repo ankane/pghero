@@ -51,7 +51,7 @@
             <ul class="nav">
               <% @databases.each do |database| %>
                 <li class="<%= ("active-database" if @database.id == database.id) %>">
-                  <%= link_to database.name, database: database.id %>
+                  <%= link_to database.name, action_name == "show_query" ? root_path(database: database.id) : {database: database.id} %>
                 </li>
               <% end %>
             </ul>
