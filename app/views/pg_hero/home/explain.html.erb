@@ -14,7 +14,7 @@
     <% if @visualize %>
       <p>Paste the output below into the <%= link_to "Postgres Explain Visualizer", "http://tatiyants.com/pev/#/plans/new", target: "_blank" %></p>
     <% end %>
-    <pre><%= @explanation %></pre>
+    <pre><code><%= @explanation %></code></pre>
     <% unless @visualize %>
       <p><%= link_to "See how to interpret this", "http://www.postgresql.org/docs/current/static/using-explain.html", target: "_blank" %></p>
     <% end %>
