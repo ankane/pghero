@@ -2,9 +2,9 @@
 
 A performance dashboard for Postgres - health checks, suggested indexes, and more :tada:
 
-[See it in action](https://pghero.herokuapp.com/)
+[See it in action](https://pghero.dokkuapp.com/)
 
-[![Screenshot](https://pghero.herokuapp.com/assets/screenshot-5a368624ada55b32e7668c96926840f9.png)](https://pghero.herokuapp.com/)
+[![Screenshot](https://pghero.dokkuapp.com/assets/screenshot-5a368624ada55b32e7668c96926840f9.png)](https://pghero.herokuapp.com/)
 
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][16]=true) for new features
 
