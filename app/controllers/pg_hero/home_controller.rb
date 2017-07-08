@@ -123,6 +123,11 @@ module PgHero
           @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["average_time"].to_f.round(1)] }, library: chart_library_options}]
           @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["calls"].to_i] }, library: chart_library_options}]
         end
+
+        @tables = PgQuery.parse(@query).tables rescue []
+
+        @row_counts = Hash[@database.table_stats(table: @tables).map { |i| [i["table"], i["reltuples"]] }]
+        @indexes_by_table = @database.indexes.group_by { |i| i["table"] }
       else
         render text: "Unknown query"
       end

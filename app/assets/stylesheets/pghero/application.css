@@ -51,7 +51,7 @@ h2 {
   font-weight: bold;
 }
 
-h2 small {
+h1 small {
   font-weight: normal;
   font-size: 14px;
   color: #999;
@@ -69,6 +69,12 @@ ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
+}
+
+ul.list-normal {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-bottom: 20px;
 }
 
 table td, table th {

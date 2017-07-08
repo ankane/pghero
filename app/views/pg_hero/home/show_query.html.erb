@@ -13,19 +13,19 @@
 
   <!-- chart -->
   <% if @chart_data %>
-    <h2>Total Time <small>sec</small></h2>
+    <h1>Total Time <small>sec</small></h1>
     <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
       new Chartkick.LineChart("chart-1", <%= json_escape(@chart_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false})
     </script>
 
-    <h2>Average Time <small>ms</small></h2>
+    <h1>Average Time <small>ms</small></h1>
     <div id="chart-2" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
       new Chartkick.LineChart("chart-2", <%= json_escape(@chart2_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false})
     </script>
 
-    <h2>Calls</h2>
+    <h1>Calls</h1>
     <div id="chart-3" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
       new Chartkick.LineChart("chart-3", <%= json_escape(@chart3_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false})
@@ -39,4 +39,22 @@
   <% end %>
 
   <!-- table info -->
+  <h1>Tables</h1>
+  <% @tables.each do |table| %>
+    <h2><%= table %></h2>
+    <p>
+      Rows: <%= @row_counts[table] %>
+      <br />
+      Indexes
+    </p>
+    <ul class="list-normal">
+      <% @indexes_by_table[table].sort_by { |i| [PgHero.truthy?(i["primary"]) ? 0 : 1, i["columns"]] }.each do |i3| %>
+        <li>
+          <%= i3["columns"].join(", ") %><% if i3["using"] != "btree" %>
+          <%= i3["using"].to_s.upcase %><% end %>
+          <% if PgHero.truthy?(i3["primary"]) %> PRIMARY<% elsif PgHero.truthy?(i3["unique"]) %> UNIQUE<% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
 </div>
