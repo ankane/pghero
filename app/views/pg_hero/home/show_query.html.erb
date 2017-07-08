@@ -1,0 +1,26 @@
+<div class="content">
+  <h1><%= @query_hash %></h1>
+
+  <pre><code style="max-height: 230px; overflow: hidden;" onclick="this.style.maxHeight = 'none';"><%= @query %></code></pre>
+  <script>
+    highlightQueries()
+  </script>
+
+  <% if @explainable_query %>
+    <p>
+      <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: @explainable_query}}] : [explain_path(query: @explainable_query), {}] %>
+      <%= button_to "Explain", button_path, button_options.merge(form: {target: "_blank"}, class: "btn btn-info") %>
+    </p>
+  <% end %>
+
+  <!-- chart -->
+  <% if @chart_data %>
+    <h2>Past 24 Hours</h2>
+    <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
+    <script>
+      new Chartkick.LineChart("chart-1", <%= json_escape(@chart_data.to_json).html_safe %>, {max: 100, colors: ["#5bc0de"]})
+    </script>
+  <% end %>
+
+  <!-- table info -->
+</div>

@@ -39,17 +39,16 @@
         </td>
         <td>
           <%= number_with_delimiter(query["average_time"].to_f.round) %> ms
-          <% if query["explainable_query"] %>
-            <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: query["explainable_query"]}}] : [explain_path(query: query["explainable_query"]), {}] %>
-            <%= button_to "explain", button_path, button_options.merge(form: {target: "_blank"}, class: "btn-explain") %>
-          <% end %>
         </td>
         <td>
           <%= number_with_delimiter(query["calls"].to_i) %>
 
+          <span class="user">
           <% if query["user"] %>
-            <span class="user"><%= query["user"] %></span>
+            <%= query["user"] %> &middot;
           <% end %>
+          <%= link_to "details", show_query_path(query["query_hash"]), target: "_blank" %>
+          </span>
         </td>
       </tr>
       <tr>

@@ -4,6 +4,7 @@ PgHero::Engine.routes.draw do
     get "space", to: "home#space"
     get "live_queries", to: "home#live_queries"
     get "queries", to: "home#queries"
+    get "queries/:query_hash", to: "home#show_query", as: :show_query
     get "system", to: "home#system"
     get "cpu_usage", to: "home#cpu_usage"
     get "connection_stats", to: "home#connection_stats"

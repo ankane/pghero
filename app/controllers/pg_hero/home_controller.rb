@@ -108,6 +108,22 @@ module PgHero
       end
     end
 
+    def show_query
+      @query_hash = params[:query_hash]
+      query_stats = @database.query_stats(historical: true)
+      stats = query_stats.find { |qs| qs["query_hash"] == @query_hash }
+      if stats
+        @query = stats["query"]
+        @explainable_query = stats["explainable_query"]
+
+        if @database.historical_query_stats_enabled? && @database.supports_query_hash?
+          @chart_data = @database.query_hash_total_minutes(@query_hash)
+        end
+      else
+        render text: "Unknown query"
+      end
+    end
+
     def system
       @title = "System"
       @periods = {

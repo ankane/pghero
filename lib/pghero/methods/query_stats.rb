@@ -155,6 +155,29 @@ module PgHero
         query_stats.select { |q| q["calls"].to_i >= slow_query_calls.to_i && q["average_time"].to_i >= slow_query_ms.to_i }
       end
 
+      # TODO combine with current stats
+      def query_hash_total_minutes(query_hash)
+        if historical_query_stats_enabled? && supports_query_hash?
+          start_at = 24.hours.ago
+          stats = stats_connection.select_all squish <<-SQL
+            SELECT
+              captured_at,
+              total_time / 1000 / 60 AS total_minutes
+            FROM
+              pghero_query_stats
+            WHERE
+              database = #{quote(id)}
+              AND captured_at >= #{quote(start_at)}
+              AND query_hash = #{quote(query_hash)}
+            ORDER BY
+              1 ASC
+          SQL
+          stats.map { |s| [s["captured_at"], s["total_minutes"]] }
+        else
+          []
+        end
+      end
+
       private
 
       def stats_connection

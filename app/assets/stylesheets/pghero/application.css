@@ -45,7 +45,13 @@ h1 {
   font-weight: bold;
 }
 
-h1, p {
+h2 {
+  margin-top: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+h1, h2, p {
   margin-bottom: 20px;
 }
 
@@ -130,6 +136,10 @@ hr {
   font-size: 12px;
   float: right;
   line-height: 20px;
+}
+
+.user a {
+  color: inherit;
 }
 
 .tiny {
