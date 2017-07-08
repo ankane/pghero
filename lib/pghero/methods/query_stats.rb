@@ -272,7 +272,7 @@ module PgHero
       end
 
       def explainable?(query)
-        !query.include?("(?") && !query.include?("= ?")
+        query =~ /select/i && !query.include?("(?") && !query.include?("= ?")
       end
 
       # removes comments
