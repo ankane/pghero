@@ -22,9 +22,13 @@
       <tr>
         <td colspan="6" style="border-top: none; padding: 0;">
           <%= query["source"] %> <span class="text-muted"><%= query["user"] %></span>
-          <pre><%= query["query"] %></pre>
+          <pre style="margin-top: 1em;"><code><%= query["query"] %></code></pre>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+<script>
+  highlightQueries();
+</script>

@@ -54,7 +54,7 @@
       </tr>
       <tr>
         <td colspan="3" style="border-top: none; padding: 0;">
-          <code><pre style="max-height: 230px; overflow: hidden;" onclick="this.style.maxHeight = 'none';"><%= query["query"] %></pre></code>
+          <pre><code style="max-height: 230px; overflow: hidden;" onclick="this.style.maxHeight = 'none';"><%= query["query"] %></code></pre>
           <% if query["query"] == "<insufficient privilege>" %>
             <p class="text-muted">For security reasons, only superusers can see queries executed by other users.</p>
           <% end %>

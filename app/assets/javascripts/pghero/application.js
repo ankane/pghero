@@ -2,6 +2,13 @@
 //= require ./jquery.nouislider.min
 //= require ./Chart.bundle
 //= require ./chartkick
+//= require ./highlight.pack
+
+function highlightQueries() {
+  $("pre code").each(function(i, block) {
+    hljs.highlightBlock(block);
+  });
+}
 
 function initSlider() {
   function roundTime(time) {
@@ -122,6 +129,8 @@ function initSlider() {
     var callback = function (response, status, xhr) {
       if (status === "error" ) {
         $(".queries-info").css("color", "red").html(xhr.status + " " + xhr.statusText);
+      } else {
+        highlightQueries();
       }
     };
     $("#queries").html('<tr><td colspan="3"><p class="queries-info text-muted">...</p></td></tr>').load(path, callback);
