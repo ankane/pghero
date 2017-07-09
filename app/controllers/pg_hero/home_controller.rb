@@ -70,6 +70,7 @@ module PgHero
     def queries
       @title = "Queries"
       @historical_query_stats_enabled = @database.historical_query_stats_enabled?
+      @show_details = @historical_query_stats_enabled && @database.supports_query_hash?
       @sort = %w(average_time calls).include?(params[:sort]) ? params[:sort] : nil
       @min_average_time = params[:min_average_time] ? params[:min_average_time].to_i : nil
       @min_calls = params[:min_calls] ? params[:min_calls].to_i : nil
@@ -110,8 +111,7 @@ module PgHero
 
     def show_query
       @query_hash = params[:query_hash].to_i
-      query_stats = @database.query_stats(historical: true)
-      stats = query_stats.find { |qs| qs["query_hash"].to_i == @query_hash }
+      stats = @database.query_stats(historical: true, query_hash: @query_hash).first
       if stats
         @query = stats["query"]
         @explainable_query = stats["explainable_query"]

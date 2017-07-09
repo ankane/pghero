@@ -222,6 +222,7 @@ module PgHero
                 pg_roles ON pg_roles.oid = pg_stat_statements.userid
               WHERE
                 pg_database.datname = #{database}
+                #{options[:query_hash] ? "AND queryid = #{quote(options[:query_hash])}" : nil}
             )
             SELECT
               query,
@@ -262,6 +263,7 @@ module PgHero
                 #{supports_query_hash? ? "AND query_hash IS NOT NULL" : ""}
                 #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
                 #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
+                #{options[:query_hash] ? "AND query_hash = #{quote(options[:query_hash])}" : ""}
               GROUP BY
                 1, 2
             )
