@@ -158,7 +158,7 @@ module PgHero
       def query_hash_stats(query_hash)
         if historical_query_stats_enabled? && supports_query_hash?
           start_at = 24.hours.ago
-          historical_stats = stats_connection.select_all squish <<-SQL
+          stats_connection.select_all squish <<-SQL
             SELECT
               captured_at,
               total_time / 1000 / 60 AS total_minutes,
@@ -173,21 +173,6 @@ module PgHero
             ORDER BY
               1 ASC
           SQL
-          current_stats = select_all squish <<-SQL
-            SELECT
-              NOW() AS captured_at,
-              total_time / 1000 / 60 AS total_minutes,
-              (total_time / calls) AS average_time,
-              calls
-            FROM
-              pg_stat_statements
-            INNER JOIN
-              pg_database ON pg_database.oid = pg_stat_statements.dbid
-            WHERE
-              pg_database.datname = current_database()
-              AND queryid = #{quote(query_hash)}
-          SQL
-          historical_stats.to_a + current_stats.to_a
         else
           []
         end
