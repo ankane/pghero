@@ -13,7 +13,7 @@
 
   <!-- chart -->
   <% if @chart_data %>
-    <h1>Total Time <small>sec</small></h1>
+    <h1>Total Time <small>ms</small></h1>
     <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
       new Chartkick.LineChart("chart-1", <%= json_escape(@chart_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false})
