@@ -109,16 +109,6 @@ module PgHero
       database
     end
 
-    def with(database)
-      previous_database = current_database
-      begin
-        self.current_database = database
-        yield
-      ensure
-        self.current_database = previous_database.id
-      end
-    end
-
     def capture_query_stats
       databases.each do |_, database|
         database.capture_query_stats
