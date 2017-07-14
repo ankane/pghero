@@ -1,8 +1,7 @@
 module PgHero
   module Methods
     module Queries
-      def running_queries(options = {})
-        min_duration = options[:min_duration]
+      def running_queries(min_duration: nil)
         select_all <<-SQL
           SELECT
             pid,

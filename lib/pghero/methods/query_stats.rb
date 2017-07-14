@@ -1,7 +1,7 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(options = {})
+      def query_stats(**options)
         current_query_stats = options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)
         historical_query_stats = options[:historical] ? historical_query_stats(options) : []
 
@@ -150,8 +150,8 @@ module PgHero
         end
       end
 
-      def slow_queries(options = {})
-        query_stats = options[:query_stats] || self.query_stats(options.except(:query_stats))
+      def slow_queries(query_stats: nil, **options)
+        query_stats ||= self.query_stats(options)
         query_stats.select { |q| q["calls"].to_i >= slow_query_calls.to_i && q["average_time"].to_i >= slow_query_ms.to_i }
       end
 
@@ -185,11 +185,10 @@ module PgHero
       end
 
       # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
-      def current_query_stats(options = {})
+      def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil, **options)
         if query_stats_enabled?
-          limit = options[:limit] || 100
-          sort = options[:sort] || "total_minutes"
-          database = options[:database] ? quote(options[:database]) : "current_database()"
+          limit ||= 100
+          sort ||= "total_minutes"
           select_all <<-SQL
             WITH query_stats AS (
               SELECT
@@ -206,8 +205,8 @@ module PgHero
               INNER JOIN
                 pg_roles ON pg_roles.oid = pg_stat_statements.userid
               WHERE
-                pg_database.datname = #{database}
-                #{options[:query_hash] ? "AND queryid = #{quote(options[:query_hash])}" : nil}
+                pg_database.datname = #{database ? quote(database) : "current_database()"}
+                #{query_hash ? "AND queryid = #{quote(query_hash)}" : nil}
             )
             SELECT
               query,

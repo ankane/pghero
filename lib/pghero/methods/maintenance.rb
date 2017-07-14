@@ -5,8 +5,7 @@ module PgHero
       # "the system will shut down and refuse to start any new transactions
       # once there are fewer than 1 million transactions left until wraparound"
       # warn when 10,000,000 transactions left
-      def transaction_id_danger(options = {})
-        threshold = options[:threshold] || 10000000
+      def transaction_id_danger(threshold: 10000000)
         select_all <<-SQL
           SELECT
             c.oid::regclass::text AS table,
