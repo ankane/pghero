@@ -31,27 +31,6 @@ module PgHero
         running_queries(min_duration: long_running_query_sec)
       end
 
-      def locks
-        select_all <<-SQL
-          SELECT DISTINCT ON (pid)
-            pg_stat_activity.pid,
-            pg_stat_activity.query,
-            age(now(), pg_stat_activity.query_start) AS age
-          FROM
-            pg_stat_activity
-          INNER JOIN
-            pg_locks ON pg_locks.pid = pg_stat_activity.pid
-          WHERE
-            pg_stat_activity.query <> '<insufficient privilege>'
-            AND pg_locks.mode = 'ExclusiveLock'
-            AND pg_stat_activity.pid <> pg_backend_pid()
-            AND pg_stat_activity.datname = current_database()
-          ORDER BY
-            pid,
-            query_start
-        SQL
-      end
-
       # from https://wiki.postgresql.org/wiki/Lock_Monitoring
       # and http://big-elephants.com/2013-09/exploring-query-locks-in-postgres/
       def blocked_queries
