@@ -163,7 +163,7 @@
 
     <p><%= link_to "Use connection pooling", "http://www.craigkerstiens.com/2014/05/22/on-connection-pooling/", target: "_blank" %> for better performance. <%= link_to "PgBouncer", "https://wiki.postgresql.org/wiki/PgBouncer", target: "_blank" %> is a solid option.</p>
 
-    <%= render partial: "connections_table", locals: {connection_sources: @database.connection_sources(by_database_and_user: true).first(10)} %>
+    <%= render partial: "connections_table", locals: {connection_sources: @database.connection_sources.first(10)} %>
   </div>
 <% end %>
 

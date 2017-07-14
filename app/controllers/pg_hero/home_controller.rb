@@ -198,7 +198,7 @@ module PgHero
     def connections
       @title = "Connections"
       @total_connections = @database.total_connections
-      @connection_sources = @database.connection_sources(by_database_and_user: true)
+      @connection_sources = @database.connection_sources
     end
 
     def maintenance
