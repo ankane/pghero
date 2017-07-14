@@ -65,13 +65,17 @@ module PgHero
       Thread.current[:pghero_config] ||= begin
         path = "config/pghero.yml"
 
-        config = YAML.load(ERB.new(File.read(path)).result) if File.exist?(path)
+        config_file_exists = File.exist?(path)
+
+        config = YAML.load(ERB.new(File.read(path)).result) if config_file_exists
         config ||= {}
 
         if config[env]
           config[env]
         elsif config["databases"] # preferred format
           config
+        elsif config_file_exists
+          raise "Invalid config file"
         else
           {
             "databases" => {
