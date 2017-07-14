@@ -18,7 +18,7 @@ module PgHero
             END
           AS replication_lag
         SQL
-        ).first["replication_lag"].to_f
+        ).first["replication_lag"]
       end
 
       def replication_slots

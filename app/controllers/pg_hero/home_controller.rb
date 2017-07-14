@@ -24,10 +24,10 @@ module PgHero
       if @extended
         @index_hit_rate = @database.index_hit_rate
         @table_hit_rate = @database.table_hit_rate
-        @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100 && @index_hit_rate >= @database.cache_hit_rate_threshold.to_f / 100
+        @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold / 100 && @index_hit_rate >= @database.cache_hit_rate_threshold / 100
       end
 
-      @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"].to_i == 0 } if @extended
+      @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"] == 0 } if @extended
 
       @indexes = @database.indexes
       @invalid_indexes = @indexes.select { |i| PgHero.falsey?(i["valid"]) }
@@ -43,7 +43,7 @@ module PgHero
         @replication_lag = @database.replication_lag
         @good_replication_lag = @replication_lag < 5
       else
-        @inactive_replication_slots = @database.replication_slots.select { |r| !PgHero.truthy?(r["active"]) }
+        @inactive_replication_slots = @database.replication_slots.select { |r| !r["active"] }
       end
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
       set_suggested_indexes((params[:min_average_time] || 20).to_f, (params[:min_calls] || 50).to_i)
@@ -119,9 +119,9 @@ module PgHero
         if @database.historical_query_stats_enabled? && @database.supports_query_hash?
           query_hash_stats = @database.query_hash_stats(@query_hash)
 
-          @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], (r["total_minutes"].to_f * 60 * 1000).round] }, library: chart_library_options}]
-          @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["average_time"].to_f.round(1)] }, library: chart_library_options}]
-          @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["calls"].to_i] }, library: chart_library_options}]
+          @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], (r["total_minutes"] * 60 * 1000).round] }, library: chart_library_options}]
+          @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["average_time"].round(1)] }, library: chart_library_options}]
+          @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["calls"]] }, library: chart_library_options}]
         end
 
         @tables = PgQuery.parse(@query).tables rescue []
@@ -197,7 +197,7 @@ module PgHero
 
     def connections
       @title = "Connections"
-      @total_connections = @database.total_connections
+      @total_connections = @database.connection_sources.sum { |cs| cs["total_connections"] }
       @connection_sources = @database.connection_sources
     end
 
@@ -271,7 +271,7 @@ module PgHero
     end
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)
-      @suggested_indexes_by_query = @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs["average_time"].to_f >= min_average_time && qs["calls"].to_i >= min_calls })
+      @suggested_indexes_by_query = @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs["average_time"] >= min_average_time && qs["calls"] >= min_calls })
       @suggested_indexes = @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes)
       @query_stats_by_query = @query_stats.index_by { |q| q["query"] }
       @debug = params[:debug].present?

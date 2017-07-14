@@ -41,7 +41,13 @@ module PgHero
 
       def select_all(sql)
         # squish for logs
-        connection.select_all(squish(sql)).to_a
+        result = connection.select_all(squish(sql))
+        if ActiveRecord::VERSION::MAJOR >= 5
+          result.to_a
+        else
+          # type cast
+          result.map { |row| Hash[row.map { |col, val| [col, result.column_types[col].type_cast(val)] }] }
+        end
       end
 
       def execute(sql)

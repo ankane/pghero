@@ -11,7 +11,7 @@
     <% queries.reverse.each do |query| %>
       <tr>
         <td><%= query["pid"] %></td>
-        <td><%= number_with_delimiter(query["duration_ms"].to_f.round) %> ms</td>
+        <td><%= number_with_delimiter(query["duration_ms"].round) %> ms</td>
         <td><%= query["state"] %></td>
         <td class="text-right">
           <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: query["query"]}}] : [explain_path(query: query["query"]), {}] %>

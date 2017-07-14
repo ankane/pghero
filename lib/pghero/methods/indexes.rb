@@ -8,7 +8,7 @@ module PgHero
           FROM
             pg_statio_user_indexes
         SQL
-        ).first["rate"].to_f
+        ).first["rate"]
       end
 
       def index_caching

@@ -8,7 +8,7 @@
 
     <% top_connections = Hash.new(0) %>
     <% @connection_sources.each do |source| %>
-      <% top_connections[source["database"]] += source["total_connections"].to_i %>
+      <% top_connections[source["database"]] += source["total_connections"] %>
     <% end %>
     <% top_connections = top_connections.sort_by { |k, v| [-v, k] } %>
 
@@ -21,7 +21,7 @@
 
     <% top_connections = Hash.new(0) %>
     <% @connection_sources.each do |source| %>
-      <% top_connections[source["user"]] += source["total_connections"].to_i %>
+      <% top_connections[source["user"]] += source["total_connections"] %>
     <% end %>
     <% top_connections = top_connections.sort_by { |k, v| [-v, k] } %>
 
