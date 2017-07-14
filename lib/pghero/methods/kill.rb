@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module Kill
       def kill(pid)
-        execute("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"]
+        select_all("SELECT pg_terminate_backend(#{pid.to_i})").first["pg_terminate_backend"]
       end
 
       def kill_long_running_queries

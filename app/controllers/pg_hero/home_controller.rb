@@ -30,7 +30,7 @@ module PgHero
       @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"] == 0 } if @extended
 
       @indexes = @database.indexes
-      @invalid_indexes = @indexes.select { |i| PgHero.falsey?(i["valid"]) }
+      @invalid_indexes = @indexes.select { |i| !i["valid"] }
       @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
 
       unless @query_stats_enabled

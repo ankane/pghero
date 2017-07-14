@@ -3,7 +3,7 @@ module PgHero
     module Replication
       def replica?
         unless defined?(@replica)
-          @replica = PgHero.truthy?(select_all("SELECT pg_is_in_recovery()").first["pg_is_in_recovery"])
+          @replica = select_all("SELECT pg_is_in_recovery()").first["pg_is_in_recovery"]
         end
         @replica
       end

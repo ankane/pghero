@@ -23,7 +23,7 @@ module PgHero
         ssl_used = nil
         connection_model.transaction do
           execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
-          ssl_used = PgHero.truthy?(select_all("SELECT ssl_is_used()").first["ssl_is_used"])
+          ssl_used = select_all("SELECT ssl_is_used()").first["ssl_is_used"]
           raise ActiveRecord::Rollback
         end
         ssl_used
@@ -46,7 +46,7 @@ module PgHero
           result.to_a
         else
           # type cast
-          result.map { |row| Hash[row.map { |col, val| [col, result.column_types[col].type_cast(val)] }] }
+          result.map { |row| Hash[row.map { |col, val| [col, result.column_types[col].send(:type_cast, val)] }] }
         end
       end
 

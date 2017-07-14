@@ -133,14 +133,5 @@ module PgHero
       end
       true
     end
-
-    # Handles Rails 4 ('t') and Rails 5 (true) values.
-    def truthy?(value)
-      value == true || value == 't'
-    end
-
-    def falsey?(value)
-      value == false || value == 'f'
-    end
   end
 end

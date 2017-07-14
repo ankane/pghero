@@ -9,7 +9,7 @@ module PgHero
         query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q["query"]), q["user"]] })
 
         # add percentages
-        all_queries_total_minutes = [current_query_stats, historical_query_stats].sum { |s| (s.first || {})["all_queries_total_minutes"] }
+        all_queries_total_minutes = [current_query_stats, historical_query_stats].sum { |s| (s.first || {})["all_queries_total_minutes"] || 0 }
         query_stats.each do |query|
           query["average_time"] = query["total_minutes"] * 1000 * 60 / query["calls"]
           query["total_percent"] = query["total_minutes"] * 100.0 / all_queries_total_minutes
@@ -68,7 +68,7 @@ module PgHero
         # TODO use schema from config
         # make sure primary database is PostgreSQL first
         ["PostgreSQL", "PostGIS"].include?(stats_connection.adapter_name) &&
-        PgHero.truthy?(stats_connection.select_all(squish <<-SQL
+        stats_connection.select_all(squish <<-SQL
           SELECT EXISTS (
             SELECT
               1
@@ -82,7 +82,7 @@ module PgHero
               AND c.relkind = 'r'
           )
         SQL
-        ).to_a.first["exists"]) && capture_query_stats?
+        ).to_a.first["exists"] && capture_query_stats?
       end
 
       def supports_query_hash?
