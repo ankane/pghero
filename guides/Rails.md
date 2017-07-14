@@ -19,7 +19,7 @@ Be sure to [secure the dashboard](#security) in production.
 PgHero can suggest indexes to add. To enable, add to your Gemfile:
 
 ```ruby
-gem 'pg_query'
+gem 'pg_query', '>= 0.9.0'
 ```
 
 and make sure [query stats](#query-stats) are enabled. Read about how it works [here](Suggested-Indexes.md).
@@ -240,6 +240,30 @@ PgHero.drop_user("ganondorf")
 ```
 
 ## Upgrading
+
+### 2.0.0
+
+New features
+
+- Query details page
+
+Breaking changes
+
+- Requires pg_query 0.9.0+ for suggested indexes
+- Removed `with` option - use:
+
+```ruby
+PgHero.databases[:database2].running_queries
+```
+
+instead of
+
+```ruby
+PgHero.with(:database2) { PgHero.running_queries }
+```
+
+- Removed options from `connection_sources` method
+- Removed `locks` method
 
 ### 1.5.0
 
