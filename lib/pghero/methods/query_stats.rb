@@ -1,9 +1,9 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(**options)
-        current_query_stats = options[:historical] && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)
-        historical_query_stats = options[:historical] ? historical_query_stats(options) : []
+      def query_stats(historical: false, **options)
+        current_query_stats = historical && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)
+        historical_query_stats = historical ? historical_query_stats(options) : []
 
         query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q["query_hash"], q["user"]] })
         query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q["query"]), q["user"]] })
@@ -228,9 +228,9 @@ module PgHero
         end
       end
 
-      def historical_query_stats(options = {})
+      def historical_query_stats(sort: nil, start_at: nil, end_at: nil, query_hash: nil)
         if historical_query_stats_enabled?
-          sort = options[:sort] || "total_minutes"
+          sort ||= "total_minutes"
           stats_connection.select_all squish <<-SQL
             WITH query_stats AS (
               SELECT
@@ -245,9 +245,9 @@ module PgHero
               WHERE
                 database = #{quote(id)}
                 #{supports_query_hash? ? "AND query_hash IS NOT NULL" : ""}
-                #{options[:start_at] ? "AND captured_at >= #{quote(options[:start_at])}" : ""}
-                #{options[:end_at] ? "AND captured_at <= #{quote(options[:end_at])}" : ""}
-                #{options[:query_hash] ? "AND query_hash = #{quote(options[:query_hash])}" : ""}
+                #{start_at ? "AND captured_at >= #{quote(start_at)}" : ""}
+                #{end_at ? "AND captured_at <= #{quote(end_at)}" : ""}
+                #{query_hash ? "AND query_hash = #{quote(query_hash)}" : ""}
               GROUP BY
                 1, 2
             )

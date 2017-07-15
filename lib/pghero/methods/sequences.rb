@@ -28,8 +28,7 @@ module PgHero
         sequences
       end
 
-      def sequence_danger(options = {})
-        threshold = (options[:threshold] || 0.9).to_f
+      def sequence_danger(threshold: 0.9)
         sequences.select { |s| s["last_value"].to_i / s["max_value"].to_f > threshold }.sort_by { |s| s["max_value"].to_i - s["last_value"].to_i }
       end
     end

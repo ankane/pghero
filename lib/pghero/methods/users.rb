@@ -1,10 +1,9 @@
 module PgHero
   module Methods
     module Users
-      def create_user(user, options = {})
-        password = options[:password] || random_password
-        schema = options[:schema] || "public"
-        database = options[:database] || connection_model.connection_config[:database]
+      def create_user(user, password: nil, schema: "public", database: nil, readonly: false, tables: nil)
+        password ||= random_password
+        database ||= connection_model.connection_config[:database]
 
         commands =
           [
@@ -12,16 +11,16 @@ module PgHero
             "GRANT CONNECT ON DATABASE #{database} TO #{user}",
             "GRANT USAGE ON SCHEMA #{schema} TO #{user}"
           ]
-        if options[:readonly]
-          if options[:tables]
-            commands.concat table_grant_commands("SELECT", options[:tables], user)
+        if readonly
+          if tables
+            commands.concat table_grant_commands("SELECT", tables, user)
           else
             commands << "GRANT SELECT ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
             commands << "ALTER DEFAULT PRIVILEGES IN SCHEMA #{schema} GRANT SELECT ON TABLES TO #{user}"
           end
         else
-          if options[:tables]
-            commands.concat table_grant_commands("ALL PRIVILEGES", options[:tables], user)
+          if tables
+            commands.concat table_grant_commands("ALL PRIVILEGES", tables, user)
           else
             commands << "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA #{schema} TO #{user}"
             commands << "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA #{schema} TO #{user}"
@@ -40,9 +39,8 @@ module PgHero
         {password: password}
       end
 
-      def drop_user(user, options = {})
-        schema = options[:schema] || "public"
-        database = options[:database] || connection_model.connection_config[:database]
+      def drop_user(user, schema: "public", database: nil)
+        database ||= connection_model.connection_config[:database]
 
         # thanks shiftb
         commands =

@@ -48,7 +48,7 @@ module PgHero
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
       set_suggested_indexes((params[:min_average_time] || 20).to_f, (params[:min_calls] || 50).to_i)
       @show_migrations = PgHero.show_migrations
-      @sequence_danger = @database.sequence_danger(threshold: params[:sequence_threshold])
+      @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f)
     end
 
     def index_usage

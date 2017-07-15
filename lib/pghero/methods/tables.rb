@@ -43,9 +43,7 @@ module PgHero
          SQL
       end
 
-      def table_stats(options = {})
-        schema = options[:schema]
-        tables = options[:table] ? Array(options[:table]) : nil
+      def table_stats(schema: nil, tables: nil)
         select_all <<-SQL
           SELECT
             nspname AS schema,
@@ -58,7 +56,7 @@ module PgHero
           WHERE
             relkind = 'r'
             #{schema ? "AND nspname = #{quote(schema)}" : nil}
-            #{tables ? "AND relname IN (#{tables.map { |t| quote(t) }.join(", ")})" : nil}
+            #{tables ? "AND relname IN (#{Array(tables).map { |t| quote(t) }.join(", ")})" : nil}
           ORDER BY
             1, 2
         SQL

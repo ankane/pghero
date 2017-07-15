@@ -57,25 +57,16 @@ module PgHero
         indexes.sort_by { |i| [i[:table], i[:columns]] }
       end
 
-      def autoindex(options = {})
+      def autoindex(create: false)
         suggested_indexes.each do |index|
           p index
-          if options[:create]
+          if create
             connection.execute("CREATE INDEX CONCURRENTLY ON #{quote_table_name(index[:table])} (#{index[:columns].map { |c| quote_table_name(c) }.join(",")})")
           end
         end
       end
 
-      def autoindex_all(options = {})
-        config["databases"].keys.each do |database|
-          with(database) do
-            puts "Autoindexing #{database}..."
-            autoindex(options)
-          end
-        end
-      end
-
-      def best_index(statement, _options = {})
+      def best_index(statement)
         best_index_helper([statement])[statement]
       end
 
@@ -308,9 +299,7 @@ module PgHero
         end
       end
 
-      def column_stats(options = {})
-        schema = options[:schema]
-        tables = options[:table] ? Array(options[:table]) : nil
+      def column_stats(schema: nil, tables: nil)
         select_all <<-SQL
           SELECT
             schemaname AS schema,
@@ -321,8 +310,8 @@ module PgHero
           FROM
             pg_stats
           WHERE
-        #{tables ? "tablename IN (#{tables.map { |t| quote(t) }.join(", ")})" : "1 = 1"}
-            AND schemaname = #{quote(schema)}
+            schemaname = #{quote(schema)}
+            #{tables ? "AND tablename IN (#{Array(tables).map { |t| quote(t) }.join(", ")})" : ""}
           ORDER BY
             1, 2, 3
         SQL

@@ -133,5 +133,13 @@ module PgHero
       end
       true
     end
+
+    def autoindex_all(create: false)
+      databases.each do |_, database|
+        puts "Autoindexing #{database}..."
+        database.autoindex(create: create)
+      end
+      true
+    end
   end
 end
