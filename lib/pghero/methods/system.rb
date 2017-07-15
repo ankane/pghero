@@ -1,27 +1,27 @@
 module PgHero
   module Methods
     module System
-      def cpu_usage(options = {})
+      def cpu_usage(**options)
         rds_stats("CPUUtilization", options)
       end
 
-      def connection_stats(options = {})
+      def connection_stats(**options)
         rds_stats("DatabaseConnections", options)
       end
 
-      def replication_lag_stats(options = {})
+      def replication_lag_stats(**options)
         rds_stats("ReplicaLag", options)
       end
 
-      def read_iops_stats(options = {})
+      def read_iops_stats(**options)
         rds_stats("ReadIOPS", options)
       end
 
-      def write_iops_stats(options = {})
+      def write_iops_stats(**options)
         rds_stats("WriteIOPS", options)
       end
 
-      def rds_stats(metric_name, options = {})
+      def rds_stats(metric_name, duration: nil, period: nil, offset: nil)
         if system_stats_enabled?
           aws_options = {region: region}
           if access_key_id
@@ -36,9 +36,9 @@ module PgHero
               AWS::CloudWatch.new(aws_options).client
             end
 
-          duration = (options[:duration] || 1.hour).to_i
-          period = (options[:period] || 1.minute).to_i
-          offset = (options[:offset] || 0).to_i
+          duration = (duration || 1.hour).to_i
+          period = (period || 1.minute).to_i
+          offset = (offset || 0).to_i
 
           end_time = (Time.now - offset)
           # ceil period

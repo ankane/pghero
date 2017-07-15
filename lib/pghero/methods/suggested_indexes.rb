@@ -6,19 +6,19 @@ module PgHero
       end
 
       # TODO clean this mess
-      def suggested_indexes_by_query(options = {})
+      def suggested_indexes_by_query(queries: nil, query_stats: nil, indexes: nil)
         best_indexes = {}
 
         if suggested_indexes_enabled?
           # get most time-consuming queries
-          queries = options[:queries] || (options[:query_stats] || query_stats(historical: true, start_at: 24.hours.ago)).map { |qs| qs["query"] }
+          queries ||= (query_stats || self.query_stats(historical: true, start_at: 24.hours.ago)).map { |qs| qs["query"] }
 
           # get best indexes for queries
           best_indexes = best_index_helper(queries)
 
           if best_indexes.any?
             existing_columns = Hash.new { |hash, key| hash[key] = Hash.new { |hash2, key2| hash2[key2] = [] } }
-            indexes = options[:indexes] || self.indexes
+            indexes ||= self.indexes
             indexes.group_by { |g| g["using"] }.each do |group, inds|
               inds.each do |i|
                 existing_columns[group][i["table"]] << i["columns"]
@@ -43,10 +43,10 @@ module PgHero
         best_indexes
       end
 
-      def suggested_indexes(options = {})
+      def suggested_indexes(suggested_indexes_by_query: nil, **options)
         indexes = []
 
-        (options[:suggested_indexes_by_query] || suggested_indexes_by_query(options)).select { |_s, i| i[:found] && !i[:covering_index] }.group_by { |_s, i| i[:index] }.each do |index, group|
+        (suggested_indexes_by_query || self.suggested_indexes_by_query(options)).select { |_s, i| i[:found] && !i[:covering_index] }.group_by { |_s, i| i[:index] }.each do |index, group|
           details = {}
           group.map(&:second).each do |g|
             details = details.except(:index).deep_merge(g)
