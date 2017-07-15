@@ -1,9 +1,9 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(historical: false, start_at: nil, **options)
-        current_query_stats = historical && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)
-        historical_query_stats = historical ? historical_query_stats(start_at: start_at, **options) : []
+      def query_stats(historical: false, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, **options)
+        current_query_stats = historical && end_at && end_at < Time.now ? [] : current_query_stats(options)
+        historical_query_stats = historical ? historical_query_stats(start_at: start_at, end_at: end_at, **options) : []
 
         query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q["query_hash"], q["user"]] })
         query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q["query"]), q["user"]] })
@@ -17,11 +17,11 @@ module PgHero
 
         sort = options[:sort] || "total_minutes"
         query_stats = query_stats.sort_by { |q| -q[sort] }.first(100)
-        if options[:min_average_time]
-          query_stats.reject! { |q| q["average_time"] < options[:min_average_time] }
+        if min_average_time
+          query_stats.reject! { |q| q["average_time"] < min_average_time }
         end
-        if options[:min_calls]
-          query_stats.reject! { |q| q["calls"] < options[:min_calls] }
+        if min_calls
+          query_stats.reject! { |q| q["calls"] < min_calls }
         end
         query_stats
       end

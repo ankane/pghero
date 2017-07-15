@@ -75,28 +75,27 @@ module PgHero
       @min_average_time = params[:min_average_time] ? params[:min_average_time].to_i : nil
       @min_calls = params[:min_calls] ? params[:min_calls].to_i : nil
 
-      @query_stats =
+      if @historical_query_stats_enabled
         begin
-          if @historical_query_stats_enabled
             @start_at = params[:start_at] ? Time.zone.parse(params[:start_at]) : 24.hours.ago
             @end_at = Time.zone.parse(params[:end_at]) if params[:end_at]
-          end
-
-          if @historical_query_stats_enabled && !request.xhr?
-            []
-          else
-            @database.query_stats(
-              historical: true,
-              start_at: @start_at,
-              end_at: @end_at,
-              sort: @sort,
-              min_average_time: @min_average_time,
-              min_calls: @min_calls
-            )
-          end
         rescue
           @error = true
+        end
+      end
+
+      @query_stats =
+        if @historical_query_stats_enabled && !request.xhr?
           []
+        else
+          @database.query_stats(
+            historical: true,
+            start_at: @start_at,
+            end_at: @end_at,
+            sort: @sort,
+            min_average_time: @min_average_time,
+            min_calls: @min_calls
+          )
         end
 
       @indexes = @database.indexes
