@@ -299,7 +299,7 @@ module PgHero
         end
       end
 
-      def column_stats(schema: nil, tables: nil)
+      def column_stats(schema: nil, table: nil)
         select_all <<-SQL
           SELECT
             schemaname AS schema,
@@ -311,7 +311,7 @@ module PgHero
             pg_stats
           WHERE
             schemaname = #{quote(schema)}
-            #{tables ? "AND tablename IN (#{Array(tables).map { |t| quote(t) }.join(", ")})" : ""}
+            #{table ? "AND tablename IN (#{Array(table).map { |t| quote(t) }.join(", ")})" : ""}
           ORDER BY
             1, 2, 3
         SQL

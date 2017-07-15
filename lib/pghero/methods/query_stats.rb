@@ -1,9 +1,9 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(historical: false, **options)
+      def query_stats(historical: false, start_at: nil, **options)
         current_query_stats = historical && options[:end_at] && options[:end_at] < Time.now ? [] : current_query_stats(options)
-        historical_query_stats = historical ? historical_query_stats(options) : []
+        historical_query_stats = historical ? historical_query_stats(start_at: start_at, **options) : []
 
         query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q["query_hash"], q["user"]] })
         query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q["query"]), q["user"]] })
@@ -185,7 +185,7 @@ module PgHero
       end
 
       # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
-      def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil, **options)
+      def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil)
         if query_stats_enabled?
           limit ||= 100
           sort ||= "total_minutes"

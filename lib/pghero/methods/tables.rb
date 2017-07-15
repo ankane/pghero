@@ -43,7 +43,7 @@ module PgHero
          SQL
       end
 
-      def table_stats(schema: nil, tables: nil)
+      def table_stats(schema: nil, table: nil)
         select_all <<-SQL
           SELECT
             nspname AS schema,
@@ -56,7 +56,7 @@ module PgHero
           WHERE
             relkind = 'r'
             #{schema ? "AND nspname = #{quote(schema)}" : nil}
-            #{tables ? "AND relname IN (#{Array(tables).map { |t| quote(t) }.join(", ")})" : nil}
+            #{table ? "AND relname IN (#{Array(table).map { |t| quote(t) }.join(", ")})" : nil}
           ORDER BY
             1, 2
         SQL
