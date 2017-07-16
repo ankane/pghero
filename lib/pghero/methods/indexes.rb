@@ -68,7 +68,7 @@ module PgHero
          SQL
       end
 
-      def unused_indexes
+      def unused_indexes(max_scans: 50)
         select_all <<-SQL
           SELECT
             schemaname AS schema,
@@ -82,7 +82,7 @@ module PgHero
             pg_index i ON ui.indexrelid = i.indexrelid
           WHERE
             NOT indisunique
-            AND idx_scan < 50
+            AND idx_scan <= #{max_scans.to_i}
           ORDER BY
             pg_relation_size(i.indexrelid) DESC,
             relname ASC

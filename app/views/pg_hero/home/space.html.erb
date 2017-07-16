@@ -16,10 +16,13 @@
     <tbody>
       <% @relation_sizes.each do |query| %>
         <tr>
-          <td style="word-break: break-all; <%= query["type"] == "index" ? "font-style: italic;" : "" %>>
+          <td style="word-break: break-all; <%= query["type"] == "index" ? "font-style: italic;" : "" %>">
             <%= query["name"] %>
             <% if query["schema"] != "public" %>
               <span class="text-muted"><%= query["schema"] %></span>
+            <% end %>
+            <% if @unused_indexes.include?(query["name"]) %>
+              <span class="unused-index">UNUSED</span>
             <% end %>
           </td>
           <td><%= query["size"] %></td>

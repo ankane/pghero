@@ -27,7 +27,7 @@ module PgHero
         @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold / 100 && @index_hit_rate >= @database.cache_hit_rate_threshold / 100
       end
 
-      @unused_indexes = @database.unused_indexes.select { |q| q["index_scans"] == 0 } if @extended
+      @unused_indexes = @database.unused_indexes(max_scans: 0) if @extended
 
       @indexes = @database.indexes
       @invalid_indexes = @indexes.select { |i| !i["valid"] }
@@ -71,6 +71,8 @@ module PgHero
           @relation_sizes.sort_by! { |r| r["name"] }
         end
       end
+
+      @unused_indexes = Set.new(@database.unused_indexes(max_scans: 0).map { |r| r["index"] })
     end
 
     def live_queries
@@ -88,8 +90,8 @@ module PgHero
 
       if @historical_query_stats_enabled
         begin
-            @start_at = params[:start_at] ? Time.zone.parse(params[:start_at]) : 24.hours.ago
-            @end_at = Time.zone.parse(params[:end_at]) if params[:end_at]
+          @start_at = params[:start_at] ? Time.zone.parse(params[:start_at]) : 24.hours.ago
+          @end_at = Time.zone.parse(params[:end_at]) if params[:end_at]
         rescue
           @error = true
         end
