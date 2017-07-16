@@ -7,7 +7,7 @@
     <thead>
       <tr>
         <th>Relation</th>
-        <th style="width: 15%;"></th>
+        <th style="width: 10%;"></th>
         <th style="width: 15%;"><%= link_to "Size", {} %></th>
         <% if @space_stats_enabled %>
           <th style="width: 15%;"><%= link_to "#{@days}d Growth", {sort: "growth"} %></th>
@@ -17,7 +17,7 @@
     <tbody>
       <% @relation_sizes.each do |query| %>
         <tr>
-          <td>
+          <td style="word-break: break-all;">
             <%= query["name"] %>
             <% if query["schema"] != "public" %>
               <span class="text-muted"><%= query["schema"] %></span>
