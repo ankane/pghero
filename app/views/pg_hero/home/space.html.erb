@@ -6,7 +6,7 @@
   <table class="table space-table">
     <thead>
       <tr>
-        <th>Relation</th>
+        <th><%= link_to "Relation", {sort: "name"} %></th>
         <th style="width: 15%;"><%= link_to "Size", {} %></th>
         <% if @space_stats_enabled %>
           <th style="width: 15%;"><%= link_to "#{@days}d Growth", {sort: "growth"} %></th>
