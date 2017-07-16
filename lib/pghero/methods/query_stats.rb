@@ -67,22 +67,7 @@ module PgHero
       def historical_query_stats_enabled?
         # TODO use schema from config
         # make sure primary database is PostgreSQL first
-        ["PostgreSQL", "PostGIS"].include?(stats_connection.adapter_name) &&
-        stats_connection.select_all(squish <<-SQL
-          SELECT EXISTS (
-            SELECT
-              1
-            FROM
-              pg_catalog.pg_class c
-            INNER JOIN
-              pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-            WHERE
-              n.nspname = 'public'
-              AND c.relname = 'pghero_query_stats'
-              AND c.relkind = 'r'
-          )
-        SQL
-        ).to_a.first["exists"] && capture_query_stats?
+        table_exists?("pghero_query_stats") && capture_query_stats?
       end
 
       def supports_query_hash?

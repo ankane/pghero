@@ -3,12 +3,15 @@
 
   <p>Database Size: <%= @database_size %></p>
 
-  <table class="table">
+  <table class="table space-table">
     <thead>
       <tr>
         <th>Relation</th>
         <th style="width: 15%;"></th>
-        <th style="width: 15%;">Size</th>
+        <th style="width: 15%;"><%= link_to "Size", {} %></th>
+        <% if @space_stats_enabled %>
+          <th style="width: 15%;"><%= link_to "#{@days}d Growth", {sort: "growth"} %></th>
+        <% end %>
       </tr>
     </thead>
     <tbody>
@@ -22,6 +25,9 @@
           </td>
           <td> <span class="text-muted"><%= query["type"] == "index" ? "index" : "" %></span></td>
           <td><%= query["size"] %></td>
+          <% if @space_stats_enabled %>
+            <td><%= @growth_by_relation[query["name"]] %></td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>

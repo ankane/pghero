@@ -49,7 +49,7 @@ module PgHero
       :query_stats_available?, :query_stats_enabled?, :query_stats_extension_enabled?, :query_stats_readable?,
       :rds_stats, :read_iops_stats, :region, :relation_sizes, :replica?, :replication_lag, :replication_lag_stats,
       :reset_query_stats, :running_queries, :secret_access_key, :sequence_danger, :sequences, :settings,
-      :slow_queries, :ssl_used?, :stats_connection, :suggested_indexes, :suggested_indexes_by_query,
+      :slow_queries, :space_growth, :ssl_used?, :stats_connection, :suggested_indexes, :suggested_indexes_by_query,
       :suggested_indexes_enabled?, :system_stats_enabled?, :table_caching, :table_hit_rate, :table_stats,
       :total_connections, :transaction_id_danger, :unused_indexes, :unused_tables, :write_iops_stats
 

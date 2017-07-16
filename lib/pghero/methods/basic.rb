@@ -85,6 +85,25 @@ module PgHero
           yield
         end
       end
+
+      def table_exists?(table)
+        ["PostgreSQL", "PostGIS"].include?(stats_connection.adapter_name) &&
+        stats_connection.select_all(squish <<-SQL
+          SELECT EXISTS (
+            SELECT
+              1
+            FROM
+              pg_catalog.pg_class c
+            INNER JOIN
+              pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE
+              n.nspname = 'public'
+              AND c.relname = #{quote(table)}
+              AND c.relkind = 'r'
+          )
+        SQL
+        ).to_a.first["exists"]
+      end
     end
   end
 end

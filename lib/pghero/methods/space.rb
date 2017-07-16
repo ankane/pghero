@@ -48,6 +48,35 @@ module PgHero
         SQL
       end
 
+      def space_growth(days: 7)
+        if space_stats_enabled?
+          stats_connection.select_all <<-SQL
+            WITH t AS (
+              SELECT
+                relation,
+                array_agg(size) AS sizes
+              FROM
+                pghero_space_stats
+              WHERE
+                database = #{quote(id)}
+                AND captured_at > NOW() - INTERVAL '#{days.to_i} days'
+              GROUP BY
+                1
+            )
+            SELECT
+              relation,
+              pg_size_pretty(sizes[array_length(sizes, 1)] - sizes[1]) AS growth,
+              sizes[array_length(sizes, 1)] - sizes[1] AS growth_bytes
+            FROM
+              t
+            ORDER BY
+              1
+          SQL
+        else
+          []
+        end
+      end
+
       def capture_space_stats
         now = Time.now
         columns = %w[database schema relation size captured_at]
@@ -56,6 +85,10 @@ module PgHero
           values << [id, rs["schema"], rs["name"], rs["size_bytes"].to_i, now]
         end
         insert_stats("pghero_space_stats", columns, values)
+      end
+
+      def space_stats_enabled?
+        table_exists?("pghero_space_stats")
       end
     end
   end

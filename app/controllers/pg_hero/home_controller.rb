@@ -58,8 +58,16 @@ module PgHero
 
     def space
       @title = "Space"
+      @days = (params[:days] || 7).to_i
       @database_size = @database.database_size
       @relation_sizes = params[:tables] ? @database.table_sizes : @database.relation_sizes
+      @space_stats_enabled = @database.space_stats_enabled?
+      if @space_stats_enabled
+        @growth_by_relation = Hash[ @database.space_growth(days: @days).map { |r| [r["relation"], r["growth"]] } ]
+        if params[:sort] == "growth"
+          @relation_sizes.sort_by! { |r| [r["size_bytes"], r["name"]] }
+        end
+      end
     end
 
     def live_queries
