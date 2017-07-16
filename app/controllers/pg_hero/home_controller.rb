@@ -65,7 +65,7 @@ module PgHero
       if @space_stats_enabled
         @growth_by_relation = Hash[ @database.space_growth(days: @days).map { |r| [r["relation"], r["growth"]] } ]
         if params[:sort] == "growth"
-          @relation_sizes.sort_by! { |r| [r["size_bytes"], r["name"]] }
+          @relation_sizes.sort_by! { |r| [r["growth_bytes"].to_i, r["name"]] }
         end
       end
     end
