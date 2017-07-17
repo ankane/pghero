@@ -1,7 +1,7 @@
 <div class="content">
   <h1>Space</h1>
 
-  <p>Database Size: <%= pghero_size(@database_size_bytes) %></p>
+  <p>Database Size: <%= number_to_human_size(@database_size_bytes, precision: 3) %></p>
 
   <% if @system_stats_enabled %>
     <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
