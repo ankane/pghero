@@ -4,9 +4,8 @@
   <p>Database Size: <%= @database_size %></p>
 
   <% if @unused_indexes.any? %>
-    <p><%= pluralize(@unused_indexes.size, "unused index") %><% if @last_stats_reset_time %> since <%= @last_stats_reset_time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %><% end %>.</p>
     <p>
-      Unused indexes cause unnecessary overhead. Remove them
+      <%= pluralize(@unused_indexes.size, "unused index") %><% if @last_stats_reset_time %> since <%= @last_stats_reset_time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %><% end %>. Remove them
       <% if @show_migrations %>
         <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
       <% end %>
