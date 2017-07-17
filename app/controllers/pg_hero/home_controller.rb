@@ -68,7 +68,7 @@ module PgHero
         case params[:sort]
         when "growth"
           growth_bytes_by_relation = Hash[ space_growth.map { |r| [r["relation"], r["growth_bytes"]] } ]
-          @relation_sizes.sort_by! { |r| [growth_bytes_by_relation[r["name"]].to_i, r["name"]] }
+          @relation_sizes.sort_by! { |r| [-growth_bytes_by_relation[r["name"]].to_i, r["name"]] }
         when "name"
           @relation_sizes.sort_by! { |r| r["name"] }
         end

@@ -43,8 +43,8 @@ module PgHero
         conn ||= connection
         # squish for logs
         result = conn.select_all(squish(sql))
-        cast_method = Rails::VERSION::MAJOR < 5 ? :type_cast : :cast_value
-        result.map { |row| Hash[row.map { |col, val| [col, result.column_types[col].send(:type_cast, val)] }] }
+        cast_method = ActiveRecord::VERSION::MAJOR < 5 ? :type_cast : :cast_value
+        result.map { |row| Hash[row.map { |col, val| [col, result.column_types[col].send(cast_method, val)] }] }
       end
 
       def select_all_stats(sql)
