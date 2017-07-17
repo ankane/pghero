@@ -59,16 +59,15 @@ module PgHero
     def space
       @title = "Space"
       @days = (params[:days] || 7).to_i
-      @database_size = @database.database_size
+      @database_size_bytes = @database.database_size_bytes
       @relation_sizes = params[:tables] ? @database.table_sizes : @database.relation_sizes
       @space_stats_enabled = @database.space_stats_enabled?
       if @space_stats_enabled
-        space_growth = @database.space_growth(days: @days)
-        @growth_by_relation = Hash[ space_growth.map { |r| [r["relation"], r["growth"]] } ]
+        space_growth = @database.space_growth(days: @days, relation_sizes: @relation_sizes)
+        @growth_bytes_by_relation = Hash[ space_growth.map { |r| [r["relation"], r["growth_bytes"]] } ]
         case params[:sort]
         when "growth"
-          growth_bytes_by_relation = Hash[ space_growth.map { |r| [r["relation"], r["growth_bytes"]] } ]
-          @relation_sizes.sort_by! { |r| [-growth_bytes_by_relation[r["name"]].to_i, r["name"]] }
+          @relation_sizes.sort_by! { |r| s = @growth_bytes_by_relation[r["name"]]; [s ? 0 : 1, -s.to_i, r["name"]] }
         when "name"
           @relation_sizes.sort_by! { |r| r["name"] }
         end

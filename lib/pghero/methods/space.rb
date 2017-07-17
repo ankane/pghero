@@ -5,6 +5,10 @@ module PgHero
         select_all("SELECT pg_size_pretty(pg_database_size(current_database()))").first["pg_size_pretty"]
       end
 
+      def database_size_bytes
+        select_all("SELECT pg_database_size(current_database())").first["pg_database_size"]
+      end
+
       def relation_sizes
         select_all <<-SQL
           SELECT
@@ -48,9 +52,12 @@ module PgHero
         SQL
       end
 
-      def space_growth(days: 7)
+      def space_growth(days: 7, relation_sizes: nil)
         if space_stats_enabled?
-          select_all_stats <<-SQL
+          relation_sizes ||= self.relation_sizes
+          sizes = Hash[ relation_sizes.map { |r| [r["name"], r["size_bytes"]] } ]
+
+          stats = select_all_stats <<-SQL
             WITH t AS (
               SELECT
                 relation,
@@ -65,13 +72,21 @@ module PgHero
             )
             SELECT
               relation,
-              pg_size_pretty(sizes[array_length(sizes, 1)] - sizes[1]) AS growth,
-              sizes[array_length(sizes, 1)] - sizes[1] AS growth_bytes
+              sizes[1] AS size_bytes
             FROM
               t
             ORDER BY
               1
           SQL
+
+          stats.each do |r|
+            relation = r["relation"]
+            if sizes[relation]
+              r["growth_bytes"] = sizes[relation] - r["size_bytes"]
+            end
+            r.delete("size_bytes")
+          end
+          stats
         else
           []
         end
