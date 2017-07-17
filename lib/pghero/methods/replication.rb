@@ -31,6 +31,10 @@ module PgHero
         SQL
         )
       end
+
+      def replicating?
+        select_all("SELECT state FROM pg_stat_replication").any?
+      end
     end
   end
 end

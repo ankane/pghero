@@ -25,6 +25,10 @@
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| q["index"] }.each do |query| %>
 remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s.inspect %><% end %></pre>
     </div>
+
+    <% if @database.replicating? || true %>
+      <p>Make sure they aren’t used on replicas as well.</p>
+    <% end %>
   <% end %>
 
   <table class="table space-table">
