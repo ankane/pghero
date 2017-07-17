@@ -12,11 +12,15 @@
 
   <% if @unused_indexes.any? %>
     <p>
-      <%= pluralize(@unused_indexes.size, "unused index") %><% if @last_stats_reset_time %> since <%= @last_stats_reset_time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %><% end %>. Remove them
+      <%= pluralize(@unused_indexes.size, "unused index") %>. Remove them
       <% if @show_migrations %>
         <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
       <% end %>
       for faster writes.
+
+      <% if @database.replicating? %>
+        Check they aren’t used on replicas.
+      <% end %>
     </p>
 
     <div id="migration" style="display: none;">
@@ -25,10 +29,6 @@
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| q["index"] }.each do |query| %>
 remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s.inspect %><% end %></pre>
     </div>
-
-    <% if @database.replicating? || true %>
-      <p>Make sure they aren’t used on replicas as well.</p>
-    <% end %>
   <% end %>
 
   <table class="table space-table">
