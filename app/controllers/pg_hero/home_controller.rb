@@ -79,6 +79,7 @@ module PgHero
       @show_migrations = PgHero.show_migrations
       @last_stats_reset_time = @database.last_stats_reset_time
       @time_zone = PgHero.time_zone
+      @system_stats_enabled = @database.system_stats_enabled?
     end
 
     def live_queries
@@ -180,6 +181,12 @@ module PgHero
       render json: [
         {name: "Read IOPS", data: @database.read_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options},
         {name: "Write IOPS", data: @database.write_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}
+      ]
+    end
+
+    def free_space_stats
+      render json: [
+        {name: "Free Space", data: @database.free_space_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options},
       ]
     end
 

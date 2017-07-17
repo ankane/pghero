@@ -21,6 +21,10 @@ module PgHero
         rds_stats("WriteIOPS", options)
       end
 
+      def free_space_stats(**options)
+        rds_stats("FreeStorageSpace", options)
+      end
+
       def rds_stats(metric_name, duration: nil, period: nil, offset: nil)
         if system_stats_enabled?
           aws_options = {region: region}

@@ -3,6 +3,13 @@
 
   <p>Database Size: <%= @database_size %></p>
 
+  <% if @system_stats_enabled %>
+    <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
+    <script>
+      new Chartkick.LineChart("chart-1", <%= json_escape(free_space_path.to_json).html_safe %>, {colors: ["#5bc0de"]})
+    </script>
+  <% end %>
+
   <% if @unused_indexes.any? %>
     <p>
       <%= pluralize(@unused_indexes.size, "unused index") %><% if @last_stats_reset_time %> since <%= @last_stats_reset_time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %><% end %>. Remove them

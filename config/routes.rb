@@ -10,6 +10,7 @@ PgHero::Engine.routes.draw do
     get "connection_stats", to: "home#connection_stats"
     get "replication_lag_stats", to: "home#replication_lag_stats"
     get "load_stats", to: "home#load_stats"
+    get "free_space_stats", to: "home#free_space_stats"
     get "explain", to: "home#explain"
     get "tune", to: "home#tune"
     get "connections", to: "home#connections"
