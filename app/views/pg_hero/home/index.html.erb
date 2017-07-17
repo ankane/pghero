@@ -384,7 +384,7 @@ remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s
         <% @unused_indexes.each do |query| %>
           <tr>
             <td><%= query["index"] %><div class="text-muted">on <%= query["table"] %></div></td>
-            <td><%= query["index_size"] %></td>
+            <td><%= pghero_size(query["size_bytes"]) %></td>
           </tr>
         <% end %>
       </tbody>
