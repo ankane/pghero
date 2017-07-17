@@ -74,7 +74,11 @@ module PgHero
         end
       end
 
-      @unused_indexes = Set.new(@database.unused_indexes(max_scans: 0).map { |r| r["index"] })
+      @unused_indexes = @database.unused_indexes(max_scans: 0)
+      @unused_index_names = Set.new(@unused_indexes.map { |r| r["index"] })
+      @show_migrations = PgHero.show_migrations
+      @last_stats_reset_time = @database.last_stats_reset_time
+      @time_zone = PgHero.time_zone
     end
 
     def live_queries

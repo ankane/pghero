@@ -89,6 +89,23 @@ module PgHero
         SQL
       end
 
+      def reset_stats
+        execute("SELECT pg_stat_reset()")
+        true
+      end
+
+      def last_stats_reset_time
+        select_all(<<-SQL
+          SELECT
+            pg_stat_get_db_stat_reset_time(oid) AS reset_time
+          FROM
+            pg_database
+          WHERE
+            datname = current_database()
+        SQL
+        ).first["reset_time"]
+      end
+
       def invalid_indexes
         select_all <<-SQL
           SELECT

@@ -3,6 +3,24 @@
 
   <p>Database Size: <%= @database_size %></p>
 
+  <% if @unused_indexes.any? %>
+    <p><%= pluralize(@unused_indexes.size, "unused index") %><% if @last_stats_reset_time %> since <%= @last_stats_reset_time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %><% end %>.</p>
+    <p>
+      Unused indexes cause unnecessary overhead. Remove them
+      <% if @show_migrations %>
+        <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
+      <% end %>
+      for faster writes.
+    </p>
+
+    <div id="migration" style="display: none;">
+      <pre>rails g migration remove_unused_indexes</pre>
+      <p>And paste</p>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| q["index"] }.each do |query| %>
+remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s.inspect %><% end %></pre>
+    </div>
+  <% end %>
+
   <table class="table space-table">
     <thead>
       <tr>
@@ -21,7 +39,7 @@
             <% if query["schema"] != "public" %>
               <span class="text-muted"><%= query["schema"] %></span>
             <% end %>
-            <% if @unused_indexes.include?(query["name"]) %>
+            <% if @unused_index_names.include?(query["name"]) %>
               <span class="unused-index">UNUSED</span>
             <% end %>
           </td>
