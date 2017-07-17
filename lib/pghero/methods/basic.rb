@@ -39,15 +39,16 @@ module PgHero
 
       private
 
-      def select_all(sql)
+      def select_all(sql, conn = nil)
+        conn ||= connection
         # squish for logs
-        result = connection.select_all(squish(sql))
-        if ActiveRecord::VERSION::MAJOR >= 5
-          result.to_a
-        else
-          # type cast
-          result.map { |row| Hash[row.map { |col, val| [col, result.column_types[col].send(:type_cast, val)] }] }
-        end
+        result = conn.select_all(squish(sql))
+        cast_method = Rails::VERSION::MAJOR < 5 ? :type_cast : :cast_value
+        result.map { |row| Hash[row.map { |col, val| [col, result.column_types[col].send(:type_cast, val)] }] }
+      end
+
+      def select_all_stats(sql)
+        select_all(sql, stats_connection)
       end
 
       def execute(sql)
@@ -88,7 +89,7 @@ module PgHero
 
       def table_exists?(table)
         ["PostgreSQL", "PostGIS"].include?(stats_connection.adapter_name) &&
-        stats_connection.select_all(squish <<-SQL
+        select_all_stats(squish <<-SQL
           SELECT EXISTS (
             SELECT
               1

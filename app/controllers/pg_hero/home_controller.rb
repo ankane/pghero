@@ -63,10 +63,12 @@ module PgHero
       @relation_sizes = params[:tables] ? @database.table_sizes : @database.relation_sizes
       @space_stats_enabled = @database.space_stats_enabled?
       if @space_stats_enabled
-        @growth_by_relation = Hash[ @database.space_growth(days: @days).map { |r| [r["relation"], r["growth"]] } ]
+        space_growth = @database.space_growth(days: @days)
+        @growth_by_relation = Hash[ space_growth.map { |r| [r["relation"], r["growth"]] } ]
         case params[:sort]
         when "growth"
-          @relation_sizes.sort_by! { |r| [r["growth_bytes"].to_i, r["name"]] }
+          growth_bytes_by_relation = Hash[ space_growth.map { |r| [r["relation"], r["growth_bytes"]] } ]
+          @relation_sizes.sort_by! { |r| [growth_bytes_by_relation[r["name"]].to_i, r["name"]] }
         when "name"
           @relation_sizes.sort_by! { |r| r["name"] }
         end

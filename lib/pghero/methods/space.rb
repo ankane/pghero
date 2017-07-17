@@ -50,7 +50,7 @@ module PgHero
 
       def space_growth(days: 7)
         if space_stats_enabled?
-          stats_connection.select_all <<-SQL
+          select_all_stats <<-SQL
             WITH t AS (
               SELECT
                 relation,

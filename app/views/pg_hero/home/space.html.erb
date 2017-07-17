@@ -27,7 +27,13 @@
           </td>
           <td><%= query["size"] %></td>
           <% if @space_stats_enabled %>
-            <td><%= @growth_by_relation[query["name"]] %></td>
+            <td>
+              <% if @growth_by_relation[query["name"]] %>
+                <%= @growth_by_relation[query["name"]] %>
+              <% else %>
+                <span class="text-muted">Unknown</span>
+              <% end %>
+            </td>
           <% end %>
         </tr>
       <% end %>

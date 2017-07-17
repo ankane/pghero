@@ -143,7 +143,7 @@ module PgHero
       def query_hash_stats(query_hash)
         if historical_query_stats_enabled? && supports_query_hash?
           start_at = 24.hours.ago
-          stats_connection.select_all squish <<-SQL
+          select_all_stats <<-SQL
             SELECT
               captured_at,
               total_time / 1000 / 60 AS total_minutes,
@@ -216,7 +216,7 @@ module PgHero
       def historical_query_stats(sort: nil, start_at: nil, end_at: nil, query_hash: nil)
         if historical_query_stats_enabled?
           sort ||= "total_minutes"
-          stats_connection.select_all squish <<-SQL
+          select_all_stats <<-SQL
             WITH query_stats AS (
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
