@@ -22,9 +22,9 @@ module PgHero
       @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q["query"].starts_with?("autovacuum:") }
 
       if @extended
-        @index_hit_rate = @database.index_hit_rate
-        @table_hit_rate = @database.table_hit_rate
-        @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold / 100 && @index_hit_rate >= @database.cache_hit_rate_threshold / 100
+        @index_hit_rate = @database.index_hit_rate || 0
+        @table_hit_rate = @database.table_hit_rate || 0
+        @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold / 100.0 && @index_hit_rate >= @database.cache_hit_rate_threshold / 100.0
       end
 
       @unused_indexes = @database.unused_indexes(max_scans: 0) if @extended
