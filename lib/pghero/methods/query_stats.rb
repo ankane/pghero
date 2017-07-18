@@ -269,7 +269,7 @@ module PgHero
             "user" => (stats2.find { |s| s["user"] } || {})["user"],
             "query_hash" => (stats2.find { |s| s["query"] } || {})["query_hash"],
             "total_minutes" => stats2.sum { |s| s["total_minutes"] },
-            "calls" => stats2.sum { |s| s["calls"] },
+            "calls" => stats2.sum { |s| s["calls"] }.to_i,
             "all_queries_total_minutes" => stats2.sum { |s| s["all_queries_total_minutes"] }
           }
           value["total_percent"] = value["total_minutes"] * 100.0 / value["all_queries_total_minutes"]
