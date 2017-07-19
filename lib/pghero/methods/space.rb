@@ -61,7 +61,7 @@ module PgHero
             WITH t AS (
               SELECT
                 relation,
-                array_agg(size) AS sizes
+                array_agg(size ORDER BY captured_at) AS sizes
               FROM
                 pghero_space_stats
               WHERE
