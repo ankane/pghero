@@ -300,7 +300,10 @@ module PgHero
     end
 
     def system_params
-      params.permit(:duration, :period)
+      {
+        duration: params[:duration],
+        period: params[:period]
+      }.delete_if { |_, v| v.nil? }
     end
 
     def chart_library_options
