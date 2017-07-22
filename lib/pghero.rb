@@ -128,7 +128,7 @@ module PgHero
     end
 
     def analyze_all(**options)
-      databases.each do |_, database|
+      databases.reject { |_, d| d.replica? }.each do |_, database|
         database.analyze_tables(**options)
       end
       true
