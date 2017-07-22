@@ -66,7 +66,7 @@ module PgHero
         tables = tables.select { |s| s["size"] > min_size_gb.gigabytes } if min_size_gb
         tables.map { |s| s.slice("schema", "table") }.each do |stats|
           begin
-            with_lock_timeout(5000) do
+            with_timeout(lock_timeout: 5000, statement_timeout: 120000) do
               analyze "#{stats["schema"]}.#{stats["table"]}", verbose: verbose
             end
           rescue ActiveRecord::StatementInvalid => e
