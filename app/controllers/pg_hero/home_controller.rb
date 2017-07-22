@@ -9,9 +9,11 @@ module PgHero
     if respond_to?(:before_action)
       before_action :set_database
       before_action :set_query_stats_enabled
+      before_action :set_show_details, only: [:index, :queries, :show_query]
     else
       before_filter :set_database
       before_filter :set_query_stats_enabled
+      before_filter :set_show_details, only: [:index, :queries, :show_query]
     end
 
     def index
@@ -86,8 +88,6 @@ module PgHero
 
     def queries
       @title = "Queries"
-      @historical_query_stats_enabled = @database.historical_query_stats_enabled?
-      @show_details = @historical_query_stats_enabled && @database.supports_query_hash?
       @sort = %w(average_time calls).include?(params[:sort]) ? params[:sort] : nil
       @min_average_time = params[:min_average_time] ? params[:min_average_time].to_i : nil
       @min_calls = params[:min_calls] ? params[:min_calls].to_i : nil
@@ -127,12 +127,14 @@ module PgHero
 
     def show_query
       @query_hash = params[:query_hash].to_i
+      @title = @query_hash
+
       stats = @database.query_stats(historical: true, query_hash: @query_hash, start_at: 24.hours.ago).first
       if stats
         @query = stats["query"]
         @explainable_query = stats["explainable_query"]
 
-        if @database.historical_query_stats_enabled? && @database.supports_query_hash?
+        if @show_details
           query_hash_stats = @database.query_hash_stats(@query_hash)
 
           @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], (r["total_minutes"] * 60 * 1000).round] }, library: chart_library_options}]
@@ -308,6 +310,11 @@ module PgHero
 
     def chart_library_options
       {pointRadius: 0, pointHitRadius: 5, borderWidth: 4}
+    end
+
+    def set_show_details
+      @historical_query_stats_enabled = @database.historical_query_stats_enabled?
+      @show_details = @historical_query_stats_enabled && @database.supports_query_hash?
     end
   end
 end
