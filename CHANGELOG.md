@@ -1,8 +1,9 @@
-## 1.7.1 [unreleased]
+## 2.0.0 [unreleased]
 
 - Added check for inactive replication slots
 - Added `table_sizes` method for full table sizes
 - Added syntax highlighting
+- Added `min_size_gb` option to `analyze_tables`
 
 ## 1.7.0
 

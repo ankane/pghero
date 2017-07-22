@@ -127,9 +127,9 @@ module PgHero
       true
     end
 
-    def analyze_all
+    def analyze_all(**options)
       databases.each do |_, database|
-        database.analyze_tables
+        database.analyze_tables(**options)
       end
       true
     end

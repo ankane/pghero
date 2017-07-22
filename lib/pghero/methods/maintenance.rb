@@ -56,16 +56,18 @@ module PgHero
         SQL
       end
 
-      def analyze(table)
-        execute "ANALYZE #{quote_table_name(table)}"
+      def analyze(table, verbose: false)
+        execute "ANALYZE #{verbose ? "VERBOSE " : ""}#{quote_table_name(table)}"
         true
       end
 
-      def analyze_tables
-        table_stats.reject { |s| %w(information_schema pg_catalog).include?(s["schema"]) }.map { |s| s.slice("schema", "table") }.each do |stats|
+      def analyze_tables(verbose: false, min_size_gb: nil)
+        tables = table_stats.reject { |s| %w(information_schema pg_catalog).include?(s["schema"]) }
+        tables = tables.select { |s| s["size"] > min_size_gb.gigabytes } if min_size_gb
+        tables.map { |s| s.slice("schema", "table") }.each do |stats|
           begin
             with_lock_timeout(5000) do
-              analyze "#{stats["schema"]}.#{stats["table"]}"
+              analyze "#{stats["schema"]}.#{stats["table"]}", verbose: verbose
             end
           rescue ActiveRecord::StatementInvalid => e
             $stderr.puts e.message
