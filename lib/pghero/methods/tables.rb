@@ -49,7 +49,7 @@ module PgHero
             nspname AS schema,
             relname AS table,
             reltuples::bigint,
-            pg_table_size(pg_class.oid) AS size
+            pg_total_relation_size(pg_class.oid) AS size
           FROM
             pg_class
           INNER JOIN
