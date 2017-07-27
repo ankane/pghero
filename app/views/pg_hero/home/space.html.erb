@@ -45,7 +45,13 @@ remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s
       <% @relation_sizes.each do |query| %>
         <tr>
           <td style="<%= query["type"] == "index" ? "font-style: italic;" : "" %>">
-            <span style="word-break: break-all;"><%= query["name"] %></span>
+            <span style="word-break: break-all;">
+              <% if @space_stats_enabled %>
+                <%= link_to query["name"], relation_space_path(query["name"]), target: "_blank", style: "color: inherit;" %>
+              <% else %>
+                <%= query["name"] %>
+              <% end %>
+            </span>
             <% if query["schema"] != "public" %>
               <span class="text-muted"><%= query["schema"] %></span>
             <% end %>

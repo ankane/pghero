@@ -56,6 +56,7 @@ module PgHero
         if space_stats_enabled?
           relation_sizes ||= self.relation_sizes
           sizes = Hash[ relation_sizes.map { |r| [r["name"], r["size_bytes"]] } ]
+          start_at = days.days.ago
 
           stats = select_all_stats <<-SQL
             WITH t AS (
@@ -66,7 +67,7 @@ module PgHero
                 pghero_space_stats
               WHERE
                 database = #{quote(id)}
-                AND captured_at > NOW() - INTERVAL '#{days.to_i} days'
+                AND captured_at >= #{quote(start_at)}
               GROUP BY
                 1
             )
@@ -87,6 +88,35 @@ module PgHero
             r.delete("size_bytes")
           end
           stats
+        else
+          []
+        end
+      end
+
+      def relation_space_stats(relation)
+        if space_stats_enabled?
+          relation_sizes ||= self.relation_sizes
+          sizes = Hash[ relation_sizes.map { |r| [r["name"], r["size_bytes"]] } ]
+          start_at = 30.days.ago
+
+          stats = select_all_stats <<-SQL
+            SELECT
+              captured_at,
+              size
+            FROM
+              pghero_space_stats
+            WHERE
+              database = #{quote(id)}
+              AND captured_at >= #{quote(start_at)}
+              AND relation = #{quote(relation)}
+            ORDER BY
+              1 ASC
+          SQL
+
+          stats << {
+            "captured_at" => Time.now,
+            "size" => sizes[relation].to_i
+          }
         else
           []
         end
