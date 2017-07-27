@@ -11,6 +11,40 @@
     </p>
   <% end %>
 
+  <% if @origins && @origins.keys.map { |k| k.length > 0 }.any? %>
+    <table style="table-layout: auto;">
+      <thead>
+        <tr>
+          <th colspan="2">
+            <div style="float: right;">Approximate Time</div>
+            Origin
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @origins.sort_by { |o, c| [-c, o.to_s] }.each do |origin, count| %>
+          <tr>
+            <td class="origin" style="width: 90%;">
+              <% if origin.length > 0 %>
+                <%= origin %>
+              <% else %>
+                <span class="text-muted">Unknown</span>
+              <% end %>
+            </td>
+            <td style="text-align: right; width: 10%;">
+              <% pct = (100.0 * count / @total_count).round %>
+              <% if pct == 0 %>
+                &lt; 1%
+              <% else %>
+                <%= pct %>%
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
   <!-- chart -->
   <% if @chart_data %>
     <h1>Total Time <small>ms</small></h1>

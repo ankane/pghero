@@ -140,6 +140,9 @@ module PgHero
           @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], (r["total_minutes"] * 60 * 1000).round] }, library: chart_library_options}]
           @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["average_time"].round(1)] }, library: chart_library_options}]
           @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["calls"]] }, library: chart_library_options}]
+
+          @origins = query_hash_stats.count_by { |r| r["origin"] }
+          @total_count = query_hash_stats.size
         end
 
         @tables = PgQuery.parse(@query).tables rescue []
