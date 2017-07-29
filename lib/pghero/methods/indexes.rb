@@ -2,13 +2,12 @@ module PgHero
   module Methods
     module Indexes
       def index_hit_rate
-        select_one(<<-SQL
+        select_one <<-SQL
           SELECT
             (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read), 0) AS rate
           FROM
             pg_statio_user_indexes
         SQL
-        )
       end
 
       def index_caching
@@ -96,7 +95,7 @@ module PgHero
       end
 
       def last_stats_reset_time
-        select_one(<<-SQL
+        select_one <<-SQL
           SELECT
             pg_stat_get_db_stat_reset_time(oid) AS reset_time
           FROM
@@ -104,7 +103,6 @@ module PgHero
           WHERE
             datname = current_database()
         SQL
-        )
       end
 
       def invalid_indexes
