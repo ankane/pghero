@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module Connections
       def total_connections
-        select_all("SELECT COUNT(*) FROM pg_stat_activity").first["count"]
+        select_one("SELECT COUNT(*) FROM pg_stat_activity")
       end
 
       def connection_sources

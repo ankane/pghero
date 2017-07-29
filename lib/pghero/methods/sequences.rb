@@ -21,15 +21,15 @@ module PgHero
             sequence_name ASC
         SQL
 
-        select_all(sequences.map { |s| "SELECT last_value FROM #{s["sequence"]}" }.join(" UNION ALL ")).each_with_index do |row, i|
-          sequences[i]["last_value"] = row["last_value"]
+        select_all(sequences.map { |s| "SELECT last_value FROM #{s[:sequence]}" }.join(" UNION ALL ")).each_with_index do |row, i|
+          sequences[i][:last_value] = row[:last_value]
         end
 
         sequences
       end
 
       def sequence_danger(threshold: 0.9)
-        sequences.select { |s| s["last_value"].to_i / s["max_value"].to_f > threshold }.sort_by { |s| s["max_value"].to_i - s["last_value"].to_i }
+        sequences.select { |s| s[:last_value] / s[:max_value].to_f > threshold }.sort_by { |s| s[:max_value] - s[:last_value] }
       end
     end
   end
