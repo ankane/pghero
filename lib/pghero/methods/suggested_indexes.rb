@@ -11,7 +11,7 @@ module PgHero
 
         if suggested_indexes_enabled?
           # get most time-consuming queries
-          queries ||= (query_stats || self.query_stats(historical: true, start_at: 24.hours.ago)).map { |qs| qs["query"] }
+          queries ||= (query_stats || self.query_stats(historical: true, start_at: 24.hours.ago)).map { |qs| qs[:query] }
 
           # get best indexes for queries
           best_indexes = best_index_helper(queries)
@@ -19,12 +19,12 @@ module PgHero
           if best_indexes.any?
             existing_columns = Hash.new { |hash, key| hash[key] = Hash.new { |hash2, key2| hash2[key2] = [] } }
             indexes ||= self.indexes
-            indexes.group_by { |g| g["using"] }.each do |group, inds|
+            indexes.group_by { |g| g[:using] }.each do |group, inds|
               inds.each do |i|
-                existing_columns[group][i["table"]] << i["columns"]
+                existing_columns[group][i[:table]] << i[:columns]
               end
             end
-            indexes_by_table = indexes.group_by { |i| i["table"] }
+            indexes_by_table = indexes.group_by { |i| i[:table] }
 
             best_indexes.each do |_query, best_index|
               if best_index[:found]
