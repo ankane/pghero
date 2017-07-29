@@ -11,7 +11,7 @@
     </p>
   <% end %>
 
-  <% if @origins && @origins.keys.map { |k| k.length > 0 }.any? %>
+  <% if @origins && @origins.keys.select { |k| k.length > 0 }.any? %>
     <table style="table-layout: auto;">
       <thead>
         <tr>

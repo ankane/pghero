@@ -148,7 +148,7 @@ module PgHero
           @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["average_time"].round(1)] }, library: chart_library_options}]
           @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r["captured_at"], r["calls"]] }, library: chart_library_options}]
 
-          @origins = query_hash_stats.count_by { |r| r["origin"] }
+          @origins = Hash[query_hash_stats.group_by { |r| r["origin"].to_s }.map { |k, v| [k, v.size] }]
           @total_count = query_hash_stats.size
         end
 
