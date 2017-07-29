@@ -13,13 +13,13 @@
       <% @maintenance_info.each do |table| %>
         <tr>
           <td>
-            <%= table["table"] %>
-            <% if table["schema"] != "public" %>
+            <%= table[:table] %>
+            <% if table[:schema] != "public" %>
               <span class="text-muted"><%= table["schema"] %></span>
             <% end %>
           </td>
           <td>
-            <% time = [table["last_autovacuum"], table["last_vacuum"]].compact.max %>
+            <% time = [table[:last_autovacuum], table[:last_vacuum]].compact.max %>
             <% if time %>
               <%= time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %>
             <% else %>
@@ -27,7 +27,7 @@
             <% end %>
           </td>
           <td>
-            <% time = [table["last_autoanalyze"], table["last_analyze"]].compact.max %>
+            <% time = [table[:last_autoanalyze], table[:last_analyze]].compact.max %>
             <% if time %>
               <%= time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %>
             <% else %>
