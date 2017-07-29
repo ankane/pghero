@@ -231,8 +231,11 @@ module PgHero
 
     def connections
       @title = "Connections"
-      @total_connections = @database.connection_sources.sum { |cs| cs["total_connections"] }
       @connection_sources = @database.connection_sources
+      @total_connections = @connection_sources.sum { |cs| cs[:total_connections] }
+
+      @connections_by_database = group_connections(@connection_sources, :database)
+      @connections_by_user = group_connections(@connection_sources, :user)
     end
 
     def maintenance
@@ -325,6 +328,14 @@ module PgHero
     def set_show_details
       @historical_query_stats_enabled = @database.historical_query_stats_enabled?
       @show_details = @historical_query_stats_enabled && @database.supports_query_hash?
+    end
+
+    def group_connections(connection_sources, key)
+      top_connections = Hash.new(0)
+      connection_sources.each do |source|
+        top_connections[source[key]] += source[:total_connections]
+      end
+      top_connections.sort_by { |k, v| [-v, k] }
     end
   end
 end
