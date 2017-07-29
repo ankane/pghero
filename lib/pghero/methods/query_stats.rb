@@ -78,12 +78,6 @@ module PgHero
         @supports_query_stats_user ||= historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("user")
       end
 
-      def insert_stats(table, columns, values)
-        values = values.map { |v| "(#{v.map { |v2| quote(v2) }.join(",")})" }.join(",")
-        columns = columns.map { |v| quote_table_name(v) }.join(",")
-        stats_connection.execute("INSERT INTO #{quote_table_name(table)} (#{columns}) VALUES #{values}")
-      end
-
       # resetting query stats will reset across the entire Postgres instance
       # this is problematic if multiple PgHero databases use the same Postgres instance
       #
@@ -165,10 +159,6 @@ module PgHero
       end
 
       private
-
-      def stats_connection
-        ::PgHero::QueryStats.connection
-      end
 
       # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
       def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil)
