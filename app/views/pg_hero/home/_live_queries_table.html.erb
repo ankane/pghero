@@ -10,19 +10,19 @@
   <tbody>
     <% queries.reverse.each do |query| %>
       <tr>
-        <td><%= query["pid"] %></td>
-        <td><%= number_with_delimiter(query["duration_ms"].round) %> ms</td>
-        <td><%= query["state"] %></td>
+        <td><%= query[:pid] %></td>
+        <td><%= number_with_delimiter(query[:duration_ms].round) %> ms</td>
+        <td><%= query[:state] %></td>
         <td class="text-right">
-          <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: query["query"]}}] : [explain_path(query: query["query"]), {}] %>
+          <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: query[:query]}}] : [explain_path(query: query[:query]), {}] %>
           <%= button_to "Explain", button_path, button_options.merge(form: {target: "_blank"}, class: "btn btn-info") %>
-          <%= button_to "Kill", kill_path(pid: query["pid"]), class: "btn btn-danger" %>
+          <%= button_to "Kill", kill_path(pid: query[:pid]), class: "btn btn-danger" %>
         </td>
       </tr>
       <tr>
         <td colspan="6" style="border-top: none; padding: 0;">
-          <%= query["source"] %> <span class="text-muted"><%= query["user"] %></span>
-          <pre style="margin-top: 1em;"><code><%= query["query"] %></code></pre>
+          <%= query[:source] %> <span class="text-muted"><%= query[:user] %></span>
+          <pre style="margin-top: 1em;"><code><%= query[:query] %></code></pre>
         </td>
       </tr>
     <% end %>
