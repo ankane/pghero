@@ -122,7 +122,7 @@
       <tbody>
         <% @inactive_replication_slots.each do |slot| %>
           <tr>
-            <td><%= slot["slot_name"] %></td>
+            <td><%= slot[:slot_name] %></td>
           </tr>
         <% end %>
       </tbody>
@@ -183,8 +183,8 @@
       <tbody>
         <% @transaction_id_danger.each do |query| %>
           <tr>
-            <td><%= query["table"] %></td>
-            <td><%= number_with_delimiter(query["transactions_before_shutdown"]) %></td>
+            <td><%= query[:table] %></td>
+            <td><%= number_with_delimiter(query[:transactions_before_shutdown]) %></td>
           </tr>
         <% end %>
       </tbody>
@@ -206,19 +206,19 @@
         </tr>
       </thead>
       <tbody>
-        <% @sequence_danger.sort_by { |s| [s["table"], s["column"]] }.each do |query| %>
+        <% @sequence_danger.sort_by { |s| [s[:table], s[:column]] }.each do |query| %>
           <tr>
             <td>
-              <%= query["table"] %>.<%= query["column"] %>
+              <%= query[:table] %>.<%= query[:column] %>
             </td>
             <td>
-              <%= query["column_type"] %>
+              <%= query[:column_type] %>
             </td>
             <td>
-              <%= number_with_delimiter(query["max_value"].to_i - query["last_value"].to_i) %>
+              <%= number_with_delimiter(query[:max_value] - query[:last_value]) %>
             </td>
             <td>
-              <%= number_to_percentage((query["max_value"].to_i - query["last_value"].to_i) * 100.0 / query["max_value"].to_i, precision: 2, significant: true) %>
+              <%= number_to_percentage((query[:max_value] - query[:last_value]) * 100.0 / query[:max_value], precision: 2, significant: true) %>
             </td>
           </tr>
         <% end %>
@@ -242,7 +242,7 @@
       <tbody>
         <% @invalid_indexes.each do |index| %>
           <tr>
-            <td><%= index["name"] %></td>
+            <td><%= index[:name] %></td>
           </tr>
         <% end %>
       </tbody>
@@ -266,7 +266,7 @@
       <pre>rails g migration remove_unneeded_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @duplicate_indexes.each do |query| %>
-remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= query["unneeded_index"]["name"].to_s.inspect %><% end %></pre>
+remove_index <%= query[:unneeded_index][:table].to_sym.inspect %>, name: <%= query[:unneeded_index][:name].to_s.inspect %><% end %></pre>
     </div>
 
     <table class="table">
@@ -277,14 +277,14 @@ remove_index <%= query["unneeded_index"]["table"].to_sym.inspect %>, name: <%= q
       </thead>
       <tbody>
         <% @duplicate_indexes.each do |index| %>
-          <% unneeded_index = index["unneeded_index"] %>
-          <% covering_index = index["covering_index"] %>
+          <% unneeded_index = index[:unneeded_index] %>
+          <% covering_index = index[:covering_index] %>
           <tr>
             <td style="padding-top: 15px; padding-bottom: 5px;">
-              On <%= unneeded_index["table"] %>
-              <pre><%= unneeded_index["name"] %> (<%= unneeded_index["columns"].join(", ") %>)</pre>
+              On <%= unneeded_index[:table] %>
+              <pre><%= unneeded_index[:name] %> (<%= unneeded_index[:columns].join(", ") %>)</pre>
               is covered by
-              <pre><%= covering_index["name"] %> (<%= covering_index["columns"].join(", ") %>)</pre>
+              <pre><%= covering_index[:name] %> (<%= covering_index[:columns].join(", ") %>)</pre>
             </td>
           </tr>
         <% end %>
@@ -370,7 +370,7 @@ pg_stat_statements.track = all</pre>
       <pre>rails g migration remove_unused_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.each do |query| %>
-remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s.inspect %><% end %></pre>
+remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.inspect %><% end %></pre>
     </div>
 
     <table class="table">
@@ -383,8 +383,8 @@ remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s
       <tbody>
         <% @unused_indexes.each do |query| %>
           <tr>
-            <td><%= query["index"] %><div class="text-muted">on <%= query["table"] %></div></td>
-            <td><%= pghero_size(query["size_bytes"]) %></td>
+            <td><%= query[:index] %><div class="text-muted">on <%= query[:table] %></div></td>
+            <td><%= pghero_size(query[:size_bytes]) %></td>
           </tr>
         <% end %>
       </tbody>
