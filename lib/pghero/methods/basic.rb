@@ -4,37 +4,36 @@ module PgHero
       def settings
         names =
           if server_version_num >= 90500
-            %w(
+            %i(
               max_connections shared_buffers effective_cache_size work_mem
               maintenance_work_mem min_wal_size max_wal_size checkpoint_completion_target
               wal_buffers default_statistics_target
             )
           else
-            %w(
+            %i(
               max_connections shared_buffers effective_cache_size work_mem
               maintenance_work_mem checkpoint_segments checkpoint_completion_target
               wal_buffers default_statistics_target
             )
           end
-        Hash[names.map { |name| [name, select_all("SHOW #{name}").first[name]] }]
+        Hash[names.map { |name| [name, select_one("SHOW #{name}")] }]
       end
 
       def ssl_used?
         ssl_used = nil
-        connection_model.transaction do
+        with_transaction do
           execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
-          ssl_used = select_all("SELECT ssl_is_used()").first["ssl_is_used"]
-          raise ActiveRecord::Rollback
+          ssl_used = select_one("SELECT ssl_is_used()")
         end
         ssl_used
       end
 
       def database_name
-        select_all("SELECT current_database()").first["current_database"]
+        select_one("SELECT current_database()")
       end
 
       def server_version
-        select_all("SHOW server_version").first["server_version"]
+        select_one("SHOW server_version")
       end
 
       private
@@ -44,11 +43,15 @@ module PgHero
         # squish for logs
         result = conn.select_all(squish(sql))
         cast_method = ActiveRecord::VERSION::MAJOR < 5 ? :type_cast : :cast_value
-        result.map { |row| Hash[row.map { |col, val| [col, result.column_types[col].send(cast_method, val)] }] }
+        result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(cast_method, val)] }] }
       end
 
       def select_all_stats(sql)
         select_all(sql, stats_connection)
+      end
+
+      def select_one(sql, conn = nil)
+        select_all(sql, conn).first.values.first
       end
 
       def execute(sql)
@@ -80,11 +83,12 @@ module PgHero
         end
       end
 
-      def with_timeout(lock_timeout: nil, statement_timeout: nil)
+      def with_transaction(lock_timeout: nil, statement_timeout: nil, rollback: false)
         connection_model.transaction do
           select_all "SET LOCAL statement_timeout = #{statement_timeout.to_i}" if statement_timeout
           select_all "SET LOCAL lock_timeout = #{lock_timeout.to_i}" if lock_timeout
           yield
+          raise ActiveRecord::Rollback if rollback
         end
       end
 
@@ -104,7 +108,7 @@ module PgHero
               AND c.relkind = 'r'
           )
         SQL
-        ).to_a.first["exists"]
+        ).first[:exists]
       end
     end
   end

@@ -32,7 +32,7 @@ module PgHero
           SELECT
             schemaname AS schema,
             relname AS table,
-            n_live_tup rows_in_table
+            n_live_tup AS estimated_rows
           FROM
             pg_stat_user_tables
           WHERE
@@ -48,8 +48,8 @@ module PgHero
           SELECT
             nspname AS schema,
             relname AS table,
-            reltuples::bigint,
-            pg_total_relation_size(pg_class.oid) AS size
+            reltuples::bigint AS estimated_rows,
+            pg_total_relation_size(pg_class.oid) AS size_bytes
           FROM
             pg_class
           INNER JOIN

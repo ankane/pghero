@@ -156,8 +156,8 @@ module PgHero
         @tables.sort!
 
         if @tables.any?
-          @row_counts = Hash[@database.table_stats(table: @tables).map { |i| [i["table"], i["reltuples"]] }]
-          @indexes_by_table = @database.indexes.group_by { |i| i["table"] }
+          @row_counts = Hash[@database.table_stats(table: @tables).map { |i| [i[:table], i[:estimated_rows]] }]
+          @indexes_by_table = @database.indexes.group_by { |i| i[:table] }
         end
       else
         render text: "Unknown query"

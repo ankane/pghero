@@ -40,7 +40,7 @@ module PgHero
 
   class << self
     extend Forwardable
-    def_delegators :current_database, :access_key_id, :analyze, :analyze_tables, :autoindex, :autovacuum_danger,
+    def_delegators :primary_database, :access_key_id, :analyze, :analyze_tables, :autoindex, :autovacuum_danger,
       :best_index, :blocked_queries, :connection_sources, :connection_stats,
       :cpu_usage, :create_user, :database_size, :db_instance_identifier, :disable_query_stats, :drop_user,
       :duplicate_indexes, :enable_query_stats, :explain, :historical_query_stats_enabled?, :index_caching,
@@ -62,7 +62,7 @@ module PgHero
     end
 
     def config
-      Thread.current[:pghero_config] ||= begin
+      @config ||= begin
         path = "config/pghero.yml"
 
         config_file_exists = File.exist?(path)
@@ -101,16 +101,6 @@ module PgHero
 
     def primary_database
       databases.values.first
-    end
-
-    def current_database
-      Thread.current[:pghero_current_database] ||= primary_database
-    end
-
-    def current_database=(database)
-      raise "Database not found" unless databases[database.to_s]
-      Thread.current[:pghero_current_database] = databases[database.to_s]
-      database
     end
 
     def capture_query_stats

@@ -15,4 +15,8 @@ class ExplainTest < Minitest::Test
     City.create!
     assert_raises(ActiveRecord::StatementInvalid) { PgHero.explain("ANALYZE DELETE FROM cities; DELETE FROM cities; COMMIT") }
   end
+
+  def test_analyze_tables
+    assert PgHero.analyze_tables
+  end
 end

@@ -86,8 +86,8 @@ module PgHero
         # TODO get schema from query structure, then try search path
         schema = connection_model.connection_config[:schema] || "public"
         if tables.any?
-          row_stats = Hash[table_stats(table: tables, schema: schema).map { |i| [i["table"], i["reltuples"]] }]
-          col_stats = column_stats(table: tables, schema: schema).group_by { |i| i["table"] }
+          row_stats = Hash[table_stats(table: tables, schema: schema).map { |i| [i[:table], i[:estimated_rows]] }]
+          col_stats = column_stats(table: tables, schema: schema).group_by { |i| i[:table] }
         end
 
         # find best index based on query structure and column stats
@@ -108,7 +108,7 @@ module PgHero
             total_rows = row_stats[table].to_i
             index[:rows] = total_rows
 
-            ranks = Hash[col_stats[table].to_a.map { |r| [r["column"], r] }]
+            ranks = Hash[col_stats[table].to_a.map { |r| [r[:column], r] }]
             columns = (where + sort).map { |c| c[:column] }.uniq
 
             if columns.any?
@@ -224,22 +224,22 @@ module PgHero
       def row_estimates(stats, total_rows, rows_left, op)
         case op
         when "null"
-          rows_left * stats["null_frac"].to_f
+          rows_left * stats[:null_frac].to_f
         when "not_null"
-          rows_left * (1 - stats["null_frac"].to_f)
+          rows_left * (1 - stats[:null_frac].to_f)
         else
-          rows_left *= (1 - stats["null_frac"].to_f)
+          rows_left *= (1 - stats[:null_frac].to_f)
           ret =
-            if stats["n_distinct"].to_f == 0
+            if stats[:n_distinct].to_f == 0
               0
-            elsif stats["n_distinct"].to_f < 0
+            elsif stats[:n_distinct].to_f < 0
               if total_rows > 0
-                (-1 / stats["n_distinct"].to_f) * (rows_left / total_rows.to_f)
+                (-1 / stats[:n_distinct].to_f) * (rows_left / total_rows.to_f)
               else
                 0
               end
             else
-              rows_left / stats["n_distinct"].to_f
+              rows_left / stats[:n_distinct].to_f
             end
 
           case op

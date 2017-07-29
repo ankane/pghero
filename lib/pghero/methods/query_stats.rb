@@ -259,7 +259,7 @@ module PgHero
       end
 
       def server_version_num
-        @server_version ||= select_all("SHOW server_version_num").first["server_version_num"].to_i
+        @server_version ||= select_one("SHOW server_version_num").to_i
       end
 
       def combine_query_stats(grouped_stats)
