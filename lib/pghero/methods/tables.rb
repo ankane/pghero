@@ -2,13 +2,13 @@ module PgHero
   module Methods
     module Tables
       def table_hit_rate
-        select_all(<<-SQL
+        select_one(<<-SQL
           SELECT
             sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read), 0) AS rate
           FROM
             pg_statio_user_tables
         SQL
-        ).first["rate"]
+        )
       end
 
       def table_caching

@@ -2,13 +2,13 @@ module PgHero
   module Methods
     module Indexes
       def index_hit_rate
-        select_all(<<-SQL
+        select_one(<<-SQL
           SELECT
             (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read), 0) AS rate
           FROM
             pg_statio_user_indexes
         SQL
-        ).first["rate"]
+        )
       end
 
       def index_caching
@@ -96,7 +96,7 @@ module PgHero
       end
 
       def last_stats_reset_time
-        select_all(<<-SQL
+        select_one(<<-SQL
           SELECT
             pg_stat_get_db_stat_reset_time(oid) AS reset_time
           FROM
@@ -104,7 +104,7 @@ module PgHero
           WHERE
             datname = current_database()
         SQL
-        ).first["reset_time"]
+        )
       end
 
       def invalid_indexes
@@ -156,21 +156,21 @@ module PgHero
           ORDER BY
             1, 2
         SQL
-        ).map { |v| v["columns"] = v["columns"].sub(") WHERE (", " WHERE ").split(", ").map { |c| unquote(c) }; v }
+        ).map { |v| v[:columns] = v[:columns].sub(") WHERE (", " WHERE ").split(", ").map { |c| unquote(c) }; v }
       end
 
       def duplicate_indexes(indexes: nil)
         indexes = []
 
-        indexes_by_table = (indexes || self.indexes).group_by { |i| i["table"] }
-        indexes_by_table.values.flatten.select { |i| !i["primary"] && !i["unique"] && !i["indexprs"] && !i["indpred"] && i["valid"] }.each do |index|
-          covering_index = indexes_by_table[index["table"]].find { |i| index_covers?(i["columns"], index["columns"]) && i["using"] == index["using"] && i["name"] != index["name"] && i["schema"] == index["schema"] && !i["indexprs"] && !i["indpred"] && i["valid"] }
-          if covering_index && (covering_index["columns"] != index["columns"] || index["name"] > covering_index["name"])
-            indexes << {"unneeded_index" => index, "covering_index" => covering_index}
+        indexes_by_table = (indexes || self.indexes).group_by { |i| i[:table] }
+        indexes_by_table.values.flatten.select { |i| !i[:primary] && !i[:unique] && !i[:indexprs] && !i[:indpred] && i[:valid] }.each do |index|
+          covering_index = indexes_by_table[index[:table]].find { |i| index_covers?(i[:columns], index[:columns]) && i[:using] == index[:using] && i[:name] != index[:name] && i[:schema] == index[:schema] && !i[:indexprs] && !i[:indpred] && i[:valid] }
+          if covering_index && (covering_index[:columns] != index[:columns] || index[:name] > covering_index[:name])
+            indexes << {unneeded_index: index, covering_index: covering_index}
           end
         end
 
-        indexes.sort_by { |i| ui = i["unneeded_index"]; [ui["table"], ui["columns"]] }
+        indexes.sort_by { |i| ui = i[:unneeded_index]; [ui[:table], ui[:columns]] }
       end
     end
   end

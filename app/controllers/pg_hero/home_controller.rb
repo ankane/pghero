@@ -21,7 +21,7 @@ module PgHero
       @extended = params[:extended]
       @query_stats = @database.query_stats(historical: true, start_at: 3.hours.ago)
       @slow_queries = @database.slow_queries(query_stats: @query_stats)
-      @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q["query"].starts_with?("autovacuum:") }
+      @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q[:query].starts_with?("autovacuum:") }
 
       if @extended
         @index_hit_rate = @database.index_hit_rate || 0
@@ -32,7 +32,7 @@ module PgHero
       @unused_indexes = @database.unused_indexes(max_scans: 0) if @extended
 
       @indexes = @database.indexes
-      @invalid_indexes = @indexes.select { |i| !i["valid"] }
+      @invalid_indexes = @indexes.select { |i| !i[:valid] }
       @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
 
       unless @query_stats_enabled
@@ -45,7 +45,7 @@ module PgHero
         @replication_lag = @database.replication_lag
         @good_replication_lag = @replication_lag < 5
       else
-        @inactive_replication_slots = @database.replication_slots.select { |r| !r["active"] }
+        @inactive_replication_slots = @database.replication_slots.select { |r| !r[:active] }
       end
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
       set_suggested_indexes((params[:min_average_time] || 20).to_f, (params[:min_calls] || 50).to_i)

@@ -27,7 +27,7 @@ module PgHero
       end
 
       def query_stats_available?
-        select_all("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'").first["count"].to_i > 0
+        select_one("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'") > 0
       end
 
       def query_stats_enabled?
@@ -35,7 +35,7 @@ module PgHero
       end
 
       def query_stats_extension_enabled?
-        select_all("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'").first["count"].to_i > 0
+        select_one("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_stat_statements'") > 0
       end
 
       def query_stats_readable?
