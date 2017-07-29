@@ -26,8 +26,8 @@
     <div id="migration" style="display: none;">
       <pre>rails g migration remove_unused_indexes</pre>
       <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| q["index"] }.each do |query| %>
-remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s.inspect %><% end %></pre>
+      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| q[:index] }.each do |query| %>
+remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.inspect %><% end %></pre>
     </div>
   <% end %>
 
@@ -44,26 +44,26 @@ remove_index <%= query["table"].to_sym.inspect %>, name: <%= query["index"].to_s
     <tbody>
       <% @relation_sizes.each do |query| %>
         <tr>
-          <td style="<%= query["type"] == "index" ? "font-style: italic;" : "" %>">
+          <td style="<%= query[:type] == "index" ? "font-style: italic;" : "" %>">
             <span style="word-break: break-all;">
               <% if @space_stats_enabled %>
-                <%= link_to query["name"], relation_space_path(query["name"]), target: "_blank", style: "color: inherit;" %>
+                <%= link_to query[:name], relation_space_path(query[:name]), target: "_blank", style: "color: inherit;" %>
               <% else %>
-                <%= query["name"] %>
+                <%= query[:name] %>
               <% end %>
             </span>
-            <% if query["schema"] != "public" %>
-              <span class="text-muted"><%= query["schema"] %></span>
+            <% if query[:schema] != "public" %>
+              <span class="text-muted"><%= query[:schema] %></span>
             <% end %>
-            <% if @unused_index_names.include?(query["name"]) %>
+            <% if @unused_index_names.include?(query[:name]) %>
               <span class="unused-index">UNUSED</span>
             <% end %>
           </td>
-          <td><%= pghero_size(query["size_bytes"]) %></td>
+          <td><%= pghero_size(query[:size_bytes]) %></td>
           <% if @space_stats_enabled %>
             <td>
-              <% if @growth_bytes_by_relation[query["name"]] %>
-                <% if @growth_bytes_by_relation[query["name"]] < 0 %>-<% end %><%= pghero_size(@growth_bytes_by_relation[query["name"]].abs) %>
+              <% if @growth_bytes_by_relation[query[:name]] %>
+                <% if @growth_bytes_by_relation[query[:name]] < 0 %>-<% end %><%= pghero_size(@growth_bytes_by_relation[query[:name]].abs) %>
               <% else %>
                 <span class="text-muted">Unknown</span>
               <% end %>

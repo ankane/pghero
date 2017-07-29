@@ -66,17 +66,17 @@ module PgHero
       @space_stats_enabled = @database.space_stats_enabled?
       if @space_stats_enabled
         space_growth = @database.space_growth(days: @days, relation_sizes: @relation_sizes)
-        @growth_bytes_by_relation = Hash[ space_growth.map { |r| [r["relation"], r["growth_bytes"]] } ]
+        @growth_bytes_by_relation = Hash[ space_growth.map { |r| [r[:relation], r[:growth_bytes]] } ]
         case params[:sort]
         when "growth"
-          @relation_sizes.sort_by! { |r| s = @growth_bytes_by_relation[r["name"]]; [s ? 0 : 1, -s.to_i, r["name"]] }
+          @relation_sizes.sort_by! { |r| s = @growth_bytes_by_relation[r[:name]]; [s ? 0 : 1, -s.to_i, r[:name]] }
         when "name"
-          @relation_sizes.sort_by! { |r| r["name"] }
+          @relation_sizes.sort_by! { |r| r[:name] }
         end
       end
 
       @unused_indexes = @database.unused_indexes(max_scans: 0)
-      @unused_index_names = Set.new(@unused_indexes.map { |r| r["index"] })
+      @unused_index_names = Set.new(@unused_indexes.map { |r| r[:index] })
       @show_migrations = PgHero.show_migrations
       @system_stats_enabled = @database.system_stats_enabled?
     end
@@ -85,7 +85,7 @@ module PgHero
       @relation = params[:relation]
       @title = @relation
       relation_space_stats = @database.relation_space_stats(@relation)
-      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r["captured_at"], (r["size"].to_f / 1.megabyte).round(1)] }, library: chart_library_options}]
+      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at], (r[:size].to_f / 1.megabyte).round(1)] }, library: chart_library_options}]
     end
 
     def live_queries

@@ -2,11 +2,11 @@ module PgHero
   module Methods
     module Space
       def database_size
-        select_all("SELECT pg_size_pretty(pg_database_size(current_database()))").first["pg_size_pretty"]
+        select_one("SELECT pg_size_pretty(pg_database_size(current_database()))")
       end
 
       def database_size_bytes
-        select_all("SELECT pg_database_size(current_database())").first["pg_database_size"]
+        select_one("SELECT pg_database_size(current_database())")
       end
 
       def relation_sizes
@@ -55,7 +55,7 @@ module PgHero
       def space_growth(days: 7, relation_sizes: nil)
         if space_stats_enabled?
           relation_sizes ||= self.relation_sizes
-          sizes = Hash[ relation_sizes.map { |r| [r["name"], r["size_bytes"]] } ]
+          sizes = Hash[ relation_sizes.map { |r| [r[:name], r[:size_bytes]] } ]
           start_at = days.days.ago
 
           stats = select_all_stats <<-SQL
@@ -81,11 +81,11 @@ module PgHero
           SQL
 
           stats.each do |r|
-            relation = r["relation"]
+            relation = r[:relation]
             if sizes[relation]
-              r["growth_bytes"] = sizes[relation] - r["size_bytes"]
+              r[:growth_bytes] = sizes[relation] - r[:size_bytes]
             end
-            r.delete("size_bytes")
+            r.delete(:size_bytes)
           end
           stats
         else
@@ -96,7 +96,7 @@ module PgHero
       def relation_space_stats(relation)
         if space_stats_enabled?
           relation_sizes ||= self.relation_sizes
-          sizes = Hash[ relation_sizes.map { |r| [r["name"], r["size_bytes"]] } ]
+          sizes = Hash[ relation_sizes.map { |r| [r[:name], r[:size_bytes]] } ]
           start_at = 30.days.ago
 
           stats = select_all_stats <<-SQL
@@ -114,8 +114,8 @@ module PgHero
           SQL
 
           stats << {
-            "captured_at" => Time.now,
-            "size" => sizes[relation].to_i
+            captured_at: Time.now,
+            size: sizes[relation].to_i
           }
         else
           []
@@ -124,10 +124,10 @@ module PgHero
 
       def capture_space_stats
         now = Time.now
-        columns = %w[database schema relation size captured_at]
+        columns = %w(database schema relation size captured_at)
         values = []
         relation_sizes.each do |rs|
-          values << [id, rs["schema"], rs["name"], rs["size_bytes"].to_i, now]
+          values << [id, rs[:schema], rs[:name], rs[:size_bytes].to_i, now]
         end
         insert_stats("pghero_space_stats", columns, values)
       end
