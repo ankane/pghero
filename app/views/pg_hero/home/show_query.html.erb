@@ -90,11 +90,11 @@
             <td><%= @row_counts[table] %></td>
             <td>
               <ul class="list-normal">
-                <% @indexes_by_table[table].to_a.sort_by { |i| [i["primary"] ? 0 : 1, i["columns"]] }.each do |i3| %>
+                <% @indexes_by_table[table].to_a.sort_by { |i| [i[:primary] ? 0 : 1, i[:columns]] }.each do |i3| %>
                   <li>
-                    <%= i3["columns"].join(", ") %><% if i3["using"] != "btree" %>
-                    <%= i3["using"].to_s.upcase %><% end %>
-                    <% if i3["primary"] %> PRIMARY<% elsif i3["unique"] %> UNIQUE<% end %>
+                    <%= i3[:columns].join(", ") %><% if i3[:using] != "btree" %>
+                    <%= i3[:using].to_s.upcase %><% end %>
+                    <% if i3[:primary] %> PRIMARY<% elsif i3[:unique] %> UNIQUE<% end %>
                   </li>
                 <% end %>
               </ul>
