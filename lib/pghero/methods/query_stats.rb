@@ -5,23 +5,23 @@ module PgHero
         current_query_stats = historical && end_at && end_at < Time.now ? [] : current_query_stats(options)
         historical_query_stats = historical ? historical_query_stats(start_at: start_at, end_at: end_at, **options) : []
 
-        query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q["query_hash"], q["user"]] })
-        query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q["query"]), q["user"]] })
+        query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q[:query_hash], q[:user]] })
+        query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q[:query]), q[:user]] })
 
         # add percentages
-        all_queries_total_minutes = [current_query_stats, historical_query_stats].sum { |s| (s.first || {})["all_queries_total_minutes"] || 0 }
+        all_queries_total_minutes = [current_query_stats, historical_query_stats].sum { |s| (s.first || {})[:all_queries_total_minutes] || 0 }
         query_stats.each do |query|
-          query["average_time"] = query["total_minutes"] * 1000 * 60 / query["calls"]
-          query["total_percent"] = query["total_minutes"] * 100.0 / all_queries_total_minutes
+          query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
+          query[:total_percent] = query[:total_minutes] * 100.0 / all_queries_total_minutes
         end
 
         sort = options[:sort] || "total_minutes"
-        query_stats = query_stats.sort_by { |q| -q[sort] }.first(100)
+        query_stats = query_stats.sort_by { |q| -q[sort.to_sym] }.first(100)
         if min_average_time
-          query_stats.reject! { |q| q["average_time"] < min_average_time }
+          query_stats.reject! { |q| q[:average_time] < min_average_time }
         end
         if min_calls
-          query_stats.reject! { |q| q["calls"] < min_calls }
+          query_stats.reject! { |q| q[:calls] < min_calls }
         end
         query_stats
       end
@@ -115,13 +115,13 @@ module PgHero
                 db_query_stats.map do |qs|
                   values = [
                     db_id,
-                    qs["query"],
-                    qs["total_minutes"] * 60 * 1000,
-                    qs["calls"],
+                    qs[:query],
+                    qs[:total_minutes] * 60 * 1000,
+                    qs[:calls],
                     now
                   ]
-                  values << qs["query_hash"] if supports_query_hash
-                  values << qs["user"] if supports_query_stats_user
+                  values << qs[:query_hash] if supports_query_hash
+                  values << qs[:user] if supports_query_stats_user
                   values
                 end
 
@@ -137,7 +137,7 @@ module PgHero
 
       def slow_queries(query_stats: nil, **options)
         query_stats ||= self.query_stats(options)
-        query_stats.select { |q| q["calls"].to_i >= slow_query_calls.to_i && q["average_time"].to_i >= slow_query_ms.to_i }
+        query_stats.select { |q| q[:calls].to_i >= slow_query_calls.to_i && q[:average_time].to_f >= slow_query_ms.to_f }
       end
 
       def query_hash_stats(query_hash)
@@ -266,15 +266,15 @@ module PgHero
         query_stats = []
         grouped_stats.each do |_, stats2|
           value = {
-            "query" => (stats2.find { |s| s["query"] } || {})["query"],
-            "user" => (stats2.find { |s| s["user"] } || {})["user"],
-            "query_hash" => (stats2.find { |s| s["query"] } || {})["query_hash"],
-            "total_minutes" => stats2.sum { |s| s["total_minutes"] },
-            "calls" => stats2.sum { |s| s["calls"] }.to_i,
-            "all_queries_total_minutes" => stats2.sum { |s| s["all_queries_total_minutes"] }
+            query: (stats2.find { |s| s[:query] } || {})[:query],
+            user: (stats2.find { |s| s[:user] } || {})[:user],
+            query_hash: (stats2.find { |s| s[:query_hash] } || {})[:query_hash],
+            total_minutes: stats2.sum { |s| s[:total_minutes] },
+            calls: stats2.sum { |s| s[:calls] }.to_i,
+            all_queries_total_minutes: stats2.sum { |s| s[:all_queries_total_minutes] }
           }
-          value["total_percent"] = value["total_minutes"] * 100.0 / value["all_queries_total_minutes"]
-          value["explainable_query"] = stats2.map { |s| s["explainable_query"] }.select { |q| q && explainable?(q) }.first
+          value[:total_percent] = value[:total_minutes] * 100.0 / value[:all_queries_total_minutes]
+          value[:explainable_query] = stats2.map { |s| s[:explainable_query] }.select { |q| q && explainable?(q) }.first
           query_stats << value
         end
         query_stats
