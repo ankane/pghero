@@ -30,8 +30,9 @@ module PgHero
         select_one("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'") > 0
       end
 
+      # only cache if true
       def query_stats_enabled?
-        query_stats_readable?
+        @query_stats_enabled ||= query_stats_readable?
       end
 
       def query_stats_extension_enabled?
