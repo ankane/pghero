@@ -152,7 +152,7 @@ module PgHero
               1 ASC
           SQL
         else
-          []
+          raise MissingRequirement, "Query hash stats not enabled"
         end
       end
 

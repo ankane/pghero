@@ -63,7 +63,7 @@ module PgHero
           end
           data
         else
-          {}
+          raise MissingRequirement, "System stats not enabled"
         end
       end
 

@@ -89,7 +89,7 @@ module PgHero
           end
           stats
         else
-          []
+          raise MissingRequirement, "Space stats not enabled"
         end
       end
 
@@ -118,7 +118,7 @@ module PgHero
             size: sizes[relation].to_i
           }
         else
-          []
+          raise MissingRequirement, "Space stats not enabled"
         end
       end
 
