@@ -249,6 +249,8 @@ New features
 
 Breaking changes
 
+- Methods now return symbols for keys instead of strings
+- Methods throw `PgHero::RequirementMissing` error when missing requirements
 - Requires pg_query 0.9.0+ for suggested indexes
 - Removed `with` option - use:
 
