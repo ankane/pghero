@@ -31,7 +31,7 @@ module PgHero
       end
 
       def query_stats_enabled?
-        query_stats_extension_enabled? && query_stats_readable?
+        query_stats_readable?
       end
 
       def query_stats_extension_enabled?
