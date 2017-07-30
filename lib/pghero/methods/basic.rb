@@ -22,8 +22,11 @@ module PgHero
       def ssl_used?
         ssl_used = nil
         with_transaction(rollback: true) do
-          # rescue if not superuser
-          execute("CREATE EXTENSION IF NOT EXISTS sslinfo") rescue nil
+          begin
+            execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
+          rescue ActiveRecord::StatementInvalid
+            # not superuser
+          end
           ssl_used = select_one("SELECT ssl_is_used()")
         end
         ssl_used
