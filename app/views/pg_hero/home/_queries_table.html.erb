@@ -62,7 +62,7 @@
           <% if query[:query] == "<insufficient privilege>" %>
             <p class="text-muted">For security reasons, only superusers can see queries executed by other users.</p>
           <% end %>
-          <% if local_assigns[:suggested_indexes] != false && (details = @suggested_indexes_by_query[query[:query]]) %>
+          <% if local_assigns[:suggested_indexes] != false && (details = @suggested_indexes_by_query[query[:query]]) && (details[:index] || @debug) %>
             <%= render partial: "suggested_index", locals: {index: details[:index], details: details} %>
           <% end %>
         </td>

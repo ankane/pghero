@@ -19,38 +19,44 @@ module PgHero
     def index
       @title = "Overview"
       @extended = params[:extended]
-      @query_stats = @database.query_stats(historical: true, start_at: 3.hours.ago)
-      @slow_queries = @database.slow_queries(query_stats: @query_stats)
-      @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q[:query].starts_with?("autovacuum:") }
 
-      if @extended
-        @index_hit_rate = @database.index_hit_rate || 0
-        @table_hit_rate = @database.table_hit_rate || 0
-        @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold / 100.0 && @index_hit_rate >= @database.cache_hit_rate_threshold / 100.0
-      end
-
-      @unused_indexes = @database.unused_indexes(max_scans: 0) if @extended
-
-      @indexes = @database.indexes
-      @invalid_indexes = @indexes.select { |i| !i[:valid] }
-      @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
-
-      unless @query_stats_enabled
-        @query_stats_available = @database.query_stats_available?
-        @query_stats_extension_enabled = @database.query_stats_extension_enabled? if @query_stats_available
-      end
-      @total_connections = @database.total_connections
-      @good_total_connections = @total_connections < @database.total_connections_threshold
       if @replica
         @replication_lag = @database.replication_lag
         @good_replication_lag = @replication_lag < 5
       else
         @inactive_replication_slots = @database.replication_slots.select { |r| !r[:active] }
       end
+
+      @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q[:query].starts_with?("autovacuum:") }
+
+      @total_connections = @database.total_connections
+      @good_total_connections = @total_connections < @database.total_connections_threshold
+
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
-      set_suggested_indexes((params[:min_average_time] || 20).to_f, (params[:min_calls] || 50).to_i)
-      @show_migrations = PgHero.show_migrations
       @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f)
+
+      @indexes = @database.indexes
+      @invalid_indexes = @indexes.select { |i| !i[:valid] }
+      @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
+
+      if @query_stats_enabled
+        @query_stats = @database.query_stats(historical: true, start_at: 3.hours.ago)
+        @slow_queries = @database.slow_queries(query_stats: @query_stats)
+        set_suggested_indexes((params[:min_average_time] || 20).to_f, (params[:min_calls] || 50).to_i)
+      else
+        @query_stats_available = @database.query_stats_available?
+        @query_stats_extension_enabled = @database.query_stats_extension_enabled? if @query_stats_available
+        @suggested_indexes = []
+      end
+
+      if @extended
+        @index_hit_rate = @database.index_hit_rate || 0
+        @table_hit_rate = @database.table_hit_rate || 0
+        @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold / 100.0 && @index_hit_rate >= @database.cache_hit_rate_threshold / 100.0
+        @unused_indexes = @database.unused_indexes(max_scans: 0)
+      end
+
+      @show_migrations = PgHero.show_migrations
     end
 
     def index_usage
@@ -326,7 +332,7 @@ module PgHero
     end
 
     def set_show_details
-      @historical_query_stats_enabled = @database.historical_query_stats_enabled?
+      @historical_query_stats_enabled = @query_stats_enabled && @database.historical_query_stats_enabled?
       @show_details = @historical_query_stats_enabled && @database.supports_query_hash?
     end
 
