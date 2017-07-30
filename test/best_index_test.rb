@@ -11,9 +11,9 @@ class BestIndexTest < Minitest::Test
       found: true,
       structure: {table: "users", where: [{column: "login_attempts", op: "="}], sort: [{column: "created_at", direction: "asc"}]},
       index: {table: "users", columns: ["login_attempts", "created_at"]},
-      rows: 10000,
-      row_estimates: {"login_attempts (=)" => 333, "created_at (sort)" => 1},
-      row_progression: [10000, 333, 0]
+      rows: 5000,
+      row_estimates: {"login_attempts (=)" => 167, "created_at (sort)" => 1},
+      row_progression: [5000, 167, 0]
     }
     assert_equal expected, index
   end
