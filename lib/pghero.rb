@@ -26,6 +26,8 @@ require "pghero/connection"
 require "pghero/query_stats"
 
 module PgHero
+  class MissingRequirement < StandardError; end
+
   # settings
   class << self
     attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :total_connections_threshold, :cache_hit_rate_threshold, :env, :show_migrations

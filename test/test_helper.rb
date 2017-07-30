@@ -10,6 +10,8 @@ Minitest::Test = MiniTest::Unit::TestCase unless defined?(Minitest::Test)
 
 ActiveRecord::Base.establish_connection adapter: "postgresql", database: "pghero_test"
 
+ActiveRecord::Migration.enable_extension "pg_stat_statements"
+
 ActiveRecord::Migration.create_table :cities, force: true do |t|
   t.string :name
 end

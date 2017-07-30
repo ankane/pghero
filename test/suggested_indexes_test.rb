@@ -2,9 +2,6 @@ require_relative "test_helper"
 
 class SuggestedIndexesTest < Minitest::Test
   def setup
-    # no pg_stat_statements
-    skip if ENV["TRAVIS_CI"]
-
     PgHero.reset_query_stats
   end
 

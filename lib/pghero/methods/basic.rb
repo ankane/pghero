@@ -21,8 +21,9 @@ module PgHero
 
       def ssl_used?
         ssl_used = nil
-        with_transaction do
-          execute("CREATE EXTENSION IF NOT EXISTS sslinfo")
+        with_transaction(rollback: true) do
+          # rescue if not superuser
+          execute("CREATE EXTENSION IF NOT EXISTS sslinfo") rescue nil
           ssl_used = select_one("SELECT ssl_is_used()")
         end
         ssl_used
@@ -33,7 +34,11 @@ module PgHero
       end
 
       def server_version
-        select_one("SHOW server_version")
+        @server_version ||= select_one("SHOW server_version")
+      end
+
+      def server_version_num
+        @server_version_num ||= select_one("SHOW server_version_num").to_i
       end
 
       private

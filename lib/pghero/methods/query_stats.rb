@@ -3,7 +3,7 @@ module PgHero
     module QueryStats
       def query_stats(historical: false, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, **options)
         current_query_stats = historical && end_at && end_at < Time.now ? [] : current_query_stats(options)
-        historical_query_stats = historical ? historical_query_stats(start_at: start_at, end_at: end_at, **options) : []
+        historical_query_stats = historical && historical_query_stats_enabled? ? historical_query_stats(start_at: start_at, end_at: end_at, **options) : []
 
         query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q[:query_hash], q[:user]] })
         query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q[:query]), q[:user]] })
@@ -55,12 +55,10 @@ module PgHero
       end
 
       def reset_query_stats
-        if query_stats_enabled?
-          execute("SELECT pg_stat_statements_reset()")
-          true
-        else
-          false
-        end
+        execute("SELECT pg_stat_statements_reset()")
+        true
+      rescue ActiveRecord::StatementInvalid
+        false
       end
 
       # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
@@ -200,7 +198,7 @@ module PgHero
             LIMIT #{limit.to_i}
           SQL
         else
-          []
+          raise MissingRequirement, "Query stats not enabled"
         end
       end
 
@@ -244,12 +242,8 @@ module PgHero
             LIMIT 100
           SQL
         else
-          []
+          raise MissingRequirement, "Historical query stats not enabled"
         end
-      end
-
-      def server_version_num
-        @server_version ||= select_one("SHOW server_version_num").to_i
       end
 
       def combine_query_stats(grouped_stats)
