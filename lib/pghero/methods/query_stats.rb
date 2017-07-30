@@ -46,7 +46,8 @@ module PgHero
       end
 
       def enable_query_stats
-        execute("CREATE EXTENSION pg_stat_statements")
+        execute("CREATE EXTENSION IF NOT EXISTS pg_stat_statements")
+        true
       end
 
       def disable_query_stats
