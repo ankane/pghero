@@ -478,3 +478,11 @@ body {
 .origin {
   word-break: break-word;
 }
+
+.duplicate-indexes td {
+  padding: 15px 0 5px 0;
+}
+
+.duplicate-indexes pre {
+  margin-top: 10px;
+}

@@ -269,7 +269,7 @@
 remove_index <%= query[:unneeded_index][:table].to_sym.inspect %>, name: <%= query[:unneeded_index][:name].to_s.inspect %><% end %></pre>
     </div>
 
-    <table class="table">
+    <table class="table duplicate-indexes">
       <thead>
         <tr>
           <th>Details</th>
@@ -280,7 +280,7 @@ remove_index <%= query[:unneeded_index][:table].to_sym.inspect %>, name: <%= que
           <% unneeded_index = index[:unneeded_index] %>
           <% covering_index = index[:covering_index] %>
           <tr>
-            <td style="padding-top: 15px; padding-bottom: 5px;">
+            <td>
               On <%= unneeded_index[:table] %>
               <pre><%= unneeded_index[:name] %> (<%= unneeded_index[:columns].join(", ") %>)</pre>
               is covered by
