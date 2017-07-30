@@ -16,13 +16,8 @@ ActiveRecord::Migration.create_table :cities, force: true do |t|
   t.string :name
 end
 
-class City < ActiveRecord::Base
-end
-
-class State < ActiveRecord::Base
-end
-
-class User < ActiveRecord::Base
+ActiveRecord::Migration.create_table :states, force: true do |t|
+  t.string :name
 end
 
 ActiveRecord::Migration.create_table :users, force: true do |t|
@@ -35,6 +30,24 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.timestamp :updated_at
 end
 ActiveRecord::Migration.add_index :users, :updated_at
+
+class City < ActiveRecord::Base
+end
+
+class State < ActiveRecord::Base
+end
+
+class User < ActiveRecord::Base
+end
+
+states =
+  50.times.map do |i|
+    {
+      name: "State #{i}"
+    }
+  end
+State.import states, validate: false
+ActiveRecord::Base.connection.execute("ANALYZE states")
 
 users =
   5000.times.map do |i|
@@ -51,18 +64,3 @@ users =
   end
 User.import users, validate: false
 ActiveRecord::Base.connection.execute("ANALYZE users")
-
-ActiveRecord::Migration.create_table :states, force: true do |t|
-  t.string :name
-end
-
-State.transaction do
-  states =
-    50.times.map do |i|
-      {
-        name: "State #{i}"
-      }
-    end
-  State.import states, validate: false
-end
-ActiveRecord::Base.connection.execute("ANALYZE states")
