@@ -7,11 +7,13 @@ module PgHero
       # warn when 10,000,000 transactions left
       def transaction_id_danger(threshold: 10000000, max_value: 2146483648)
         max_value = max_value.to_i
+        threshold = threshold.to_i
+
         select_all <<-SQL
           SELECT
             n.nspname AS schema,
             c.relname AS table,
-            #{max_value} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_left
+            #{quote(max_value)} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_left
           FROM
             pg_class c
           INNER JOIN
@@ -20,7 +22,7 @@ module PgHero
             pg_class t ON c.reltoastrelid = t.oid
           WHERE
             c.relkind = 'r'
-            AND (#{max_value} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < #{threshold}
+            AND (#{quote(max_value)} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < #{quote(threshold)}
           ORDER BY
            2, 1
         SQL
