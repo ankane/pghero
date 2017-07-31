@@ -291,7 +291,7 @@ module PgHero
       @databases = PgHero.databases.values
       if params[:database]
         # don't do direct lookup, since you don't want to call to_sym on user input
-        @database = PgHero.databases.values.find { |d| d.id == params[:database] }
+        @database = @databases.find { |d| d.id == params[:database] }
       elsif @databases.size > 1
         redirect_to url_for(controller: controller_name, action: action_name, database: @databases.first.id)
       else
