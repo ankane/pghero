@@ -11,7 +11,7 @@ namespace :pghero do
 
   desc "analyze tables"
   task analyze: :environment do
-    PgHero.analyze_all(verbose: true, min_size_gb: ENV["MIN_SIZE_GB"].to_f)
+    PgHero.analyze_all(verbose: true, min_size: ENV["MIN_SIZE_GB"].to_f.gigabytes)
   end
 
   desc "autoindex"
