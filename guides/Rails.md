@@ -241,7 +241,7 @@ PgHero.drop_user("ganondorf")
 
 ## Upgrading
 
-### 2.0.0
+### 2.0.0 [unreleased]
 
 New features
 
@@ -252,6 +252,7 @@ Breaking changes
 - Methods now return symbols for keys instead of strings
 - Methods throw `PgHero::RequirementMissing` error when missing requirements
 - Requires pg_query 0.9.0+ for suggested indexes
+- Historical query stats require the `pghero_query_stats` table to have `query_hash` and `user` columns
 - Removed `with` option - use:
 
 ```ruby
