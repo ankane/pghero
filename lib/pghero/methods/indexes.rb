@@ -13,8 +13,9 @@ module PgHero
       def index_caching
         select_all <<-SQL
           SELECT
-            indexrelname AS index,
+            schemaname AS schema,
             relname AS table,
+            indexrelname AS index,
             CASE WHEN idx_blks_hit + idx_blks_read = 0 THEN
               0
             ELSE

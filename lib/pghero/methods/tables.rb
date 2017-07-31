@@ -14,6 +14,7 @@ module PgHero
       def table_caching
         select_all <<-SQL
           SELECT
+            schemaname AS schema,
             relname AS table,
             CASE WHEN heap_blks_hit + heap_blks_read = 0 THEN
               0
