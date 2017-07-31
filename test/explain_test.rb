@@ -23,4 +23,12 @@ class ExplainTest < Minitest::Test
   def test_relation_sizes
     assert PgHero.relation_sizes
   end
+
+  def test_transaction_id_danger
+    assert PgHero.transaction_id_danger(threshold: 10000000000)
+  end
+
+  def test_autovacuum_danger
+    assert PgHero.autovacuum_danger
+  end
 end

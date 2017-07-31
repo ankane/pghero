@@ -5,39 +5,30 @@ module PgHero
       # "the system will shut down and refuse to start any new transactions
       # once there are fewer than 1 million transactions left until wraparound"
       # warn when 10,000,000 transactions left
-      def transaction_id_danger(threshold: 10000000)
+      def transaction_id_danger(threshold: 10000000, max_value: 2146483648)
+        max_value = max_value.to_i
         select_all <<-SQL
           SELECT
-            c.oid::regclass::text AS table,
-            2146483648 - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_before_shutdown
+            n.nspname AS schema,
+            c.relname AS table,
+            #{max_value} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_left
           FROM
             pg_class c
+          INNER JOIN
+            pg_catalog.pg_namespace n ON n.oid = c.relnamespace
           LEFT JOIN
             pg_class t ON c.reltoastrelid = t.oid
           WHERE
             c.relkind = 'r'
-            AND (2146483648 - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < #{threshold}
+            AND (#{max_value} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < #{threshold}
           ORDER BY
            2, 1
         SQL
       end
 
       def autovacuum_danger
-        select_all <<-SQL
-          SELECT
-            c.oid::regclass::text as table,
-            (SELECT setting FROM pg_settings WHERE name = 'autovacuum_freeze_max_age')::int -
-            GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_before_autovacuum
-          FROM
-            pg_class c
-          LEFT JOIN
-            pg_class t ON c.reltoastrelid = t.oid
-          WHERE
-            c.relkind = 'r'
-            AND (SELECT setting FROM pg_settings WHERE name = 'autovacuum_freeze_max_age')::int - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) < 2000000
-          ORDER BY
-            transactions_before_autovacuum
-        SQL
+        max_value = select_one("SHOW autovacuum_freeze_max_age").to_i
+        transaction_id_danger(threshold: 2000000, max_value: max_value)
       end
 
       def maintenance_info

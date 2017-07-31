@@ -183,8 +183,13 @@
       <tbody>
         <% @transaction_id_danger.each do |query| %>
           <tr>
-            <td><%= query[:table] %></td>
-            <td><%= number_with_delimiter(query[:transactions_before_shutdown]) %></td>
+            <td>
+              <%= query[:table] %>
+              <% if query[:schema] != "public" %>
+                <span class="text-muted"><%= query[:schema] %></span>
+              <% end %>
+            </td>
+            <td><%= number_with_delimiter(query[:transactions_left]) %></td>
           </tr>
         <% end %>
       </tbody>
