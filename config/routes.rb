@@ -1,6 +1,5 @@
 PgHero::Engine.routes.draw do
   scope "(:database)", constraints: proc { |req| (PgHero.config["databases"].keys + [nil]).include?(req.params[:database]) } do
-    get "index_usage", to: "home#index_usage"
     get "space", to: "home#space"
     get "space/:relation", to: "home#relation_space", as: :relation_space
     get "live_queries", to: "home#live_queries"

@@ -59,11 +59,6 @@ module PgHero
       @show_migrations = PgHero.show_migrations
     end
 
-    def index_usage
-      @title = "Index Usage"
-      @index_usage = @database.index_usage
-    end
-
     def space
       @title = "Space"
       @days = (params[:days] || 7).to_i
