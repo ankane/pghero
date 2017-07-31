@@ -70,6 +70,10 @@ module PgHero
         select_all(sql, conn).first.values.first
       end
 
+      def select_one_stats(sql)
+        select_one(sql, stats_connection)
+      end
+
       def execute(sql)
         connection.execute(sql)
       end
@@ -120,7 +124,7 @@ module PgHero
 
       def table_exists?(table)
         ["PostgreSQL", "PostGIS"].include?(stats_connection.adapter_name) &&
-        select_all_stats(squish <<-SQL
+        select_one_stats(<<-SQL
           SELECT EXISTS (
             SELECT
               1
@@ -134,7 +138,7 @@ module PgHero
               AND c.relkind = 'r'
           )
         SQL
-        ).first[:exists]
+        )
       end
     end
   end
