@@ -7,6 +7,13 @@
 
   <% if @historical_query_stats_enabled %>
     <%= render partial: "query_stats_slider" %>
+  <% elsif @database.query_stats_table_exists? && (columns = @database.missing_query_stats_columns).any? %>
+    <div style="clear: both;">
+      <p>Add missing columns to re-enable historical query stats.</p>
+      <pre><code><% @database.missing_query_stats_columns.each do |column| %>ALTER TABLE pghero_query_stats ADD COLUMN "<%= column %>" <%= column == "query_hash" ? "bigint" : "text" %>;
+<% end %></code></pre>
+      <p>Then restart the web server.</p>
+    </div>
   <% end %>
 
   <% if @query_stats_enabled %>

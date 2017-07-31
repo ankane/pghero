@@ -67,15 +67,19 @@ module PgHero
       def historical_query_stats_enabled?
         # TODO use schema from config
         # make sure primary database is PostgreSQL first
-        table_exists?("pghero_query_stats") && capture_query_stats?
+        query_stats_table_exists? && capture_query_stats? && !missing_query_stats_columns.any?
+      end
+
+      def query_stats_table_exists?
+        table_exists?("pghero_query_stats")
+      end
+
+      def missing_query_stats_columns
+        %w(query_hash user) - PgHero::QueryStats.column_names
       end
 
       def supports_query_hash?
-        @supports_query_hash ||= server_version_num >= 90400 && historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("query_hash")
-      end
-
-      def supports_query_stats_user?
-        @supports_query_stats_user ||= historical_query_stats_enabled? && PgHero::QueryStats.column_names.include?("user")
+        server_version_num >= 90400
       end
 
       # resetting query stats will reset across the entire Postgres instance
@@ -102,27 +106,20 @@ module PgHero
         if query_stats.any? { |_, v| v.any? } && reset_query_stats
           query_stats.each do |db_id, db_query_stats|
             if db_query_stats.any?
-              supports_query_hash = PgHero.databases[db_id].supports_query_hash?
-              supports_query_stats_user = PgHero.databases[db_id].supports_query_stats_user?
-
               values =
                 db_query_stats.map do |qs|
-                  values = [
+                  [
                     db_id,
                     qs[:query],
                     qs[:total_minutes] * 60 * 1000,
                     qs[:calls],
-                    now
+                    now,
+                    qs[:query_hash],
+                    qs[:user]
                   ]
-                  values << qs[:query_hash] if supports_query_hash
-                  values << qs[:user] if supports_query_stats_user
-                  values
                 end
 
-              columns = %w[database query total_time calls captured_at]
-              columns << "query_hash" if supports_query_hash
-              columns << "user" if supports_query_stats_user
-
+              columns = %w[database query total_time calls captured_at query_hash user]
               insert_stats("pghero_query_stats", columns, values)
             end
           end
@@ -170,7 +167,7 @@ module PgHero
               SELECT
                 LEFT(query, 10000) AS query,
                 #{supports_query_hash? ? "queryid" : "md5(query)"} AS query_hash,
-                #{supports_query_stats_user? ? "rolname" : "NULL::text"} AS user,
+                rolname AS user,
                 (total_time / 1000 / 60) AS total_minutes,
                 (total_time / calls) AS average_time,
                 calls
@@ -211,7 +208,7 @@ module PgHero
             WITH query_stats AS (
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
-                #{supports_query_stats_user? ? "pghero_query_stats.user" : "NULL::text"} AS user,
+                pghero_query_stats.user AS user,
                 array_agg(LEFT(query, 10000) ORDER BY REPLACE(LEFT(query, 1000), '?', '!') COLLATE "C" ASC) AS query,
                 (SUM(total_time) / 1000 / 60) AS total_minutes,
                 (SUM(total_time) / SUM(calls)) AS average_time,
