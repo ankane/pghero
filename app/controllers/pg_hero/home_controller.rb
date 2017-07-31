@@ -86,7 +86,7 @@ module PgHero
       @relation = params[:relation]
       @title = @relation
       relation_space_stats = @database.relation_space_stats(@relation)
-      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at], (r[:size].to_f / 1.megabyte).round(1)] }, library: chart_library_options}]
+      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at], (r[:size_bytes].to_f / 1.megabyte).round(1)] }, library: chart_library_options}]
     end
 
     def live_queries

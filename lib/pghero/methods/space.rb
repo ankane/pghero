@@ -96,7 +96,7 @@ module PgHero
           stats = select_all_stats <<-SQL
             SELECT
               captured_at,
-              size
+              size AS size_bytes
             FROM
               pghero_space_stats
             WHERE
@@ -109,7 +109,7 @@ module PgHero
 
           stats << {
             captured_at: Time.now,
-            size: sizes[relation].to_i
+            size_bytes: sizes[relation].to_i
           }
         else
           raise MissingRequirement, "Space stats not enabled"
