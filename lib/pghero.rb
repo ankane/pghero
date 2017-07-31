@@ -95,7 +95,7 @@ module PgHero
       @databases ||= begin
         Hash[
           config["databases"].map do |id, c|
-            [id, PgHero::Database.new(id, c)]
+            [id.to_sym, PgHero::Database.new(id, c)]
           end
         ]
       end

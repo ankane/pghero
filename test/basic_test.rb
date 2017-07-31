@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class ExplainTest < Minitest::Test
+class BasicTest < Minitest::Test
   def setup
     City.delete_all
   end
@@ -30,5 +30,9 @@ class ExplainTest < Minitest::Test
 
   def test_autovacuum_danger
     assert PgHero.autovacuum_danger
+  end
+
+  def test_databases
+    assert PgHero.databases[:primary].running_queries
   end
 end
