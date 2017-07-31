@@ -19,4 +19,8 @@ class ExplainTest < Minitest::Test
   def test_analyze_tables
     assert PgHero.analyze_tables
   end
+
+  def test_relation_sizes
+    assert PgHero.relation_sizes
+  end
 end

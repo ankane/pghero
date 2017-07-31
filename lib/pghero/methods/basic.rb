@@ -58,6 +58,14 @@ module PgHero
         select_all(sql, stats_connection)
       end
 
+      def select_all_size(sql)
+        result = select_all(sql)
+        result.each do |row|
+          row[:size] = PgHero.pretty_size(row[:size_bytes])
+        end
+        result
+      end
+
       def select_one(sql, conn = nil)
         select_all(sql, conn).first.values.first
       end

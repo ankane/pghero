@@ -133,5 +133,9 @@ module PgHero
       end
       true
     end
+
+    def pretty_size(value)
+      ActiveSupport::NumberHelper.number_to_human_size(value, precision: 3)
+    end
   end
 end

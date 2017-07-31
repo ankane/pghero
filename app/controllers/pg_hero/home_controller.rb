@@ -67,7 +67,7 @@ module PgHero
     def space
       @title = "Space"
       @days = (params[:days] || 7).to_i
-      @database_size_bytes = @database.database_size_bytes
+      @database_size = @database.database_size
       @relation_sizes = params[:tables] ? @database.table_sizes : @database.relation_sizes
       @space_stats_enabled = @database.space_stats_enabled?
       if @space_stats_enabled

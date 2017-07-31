@@ -36,7 +36,7 @@ module PgHero
               WHEN 0 THEN 'Insufficient data'
               ELSE (100 * idx_scan / (seq_scan + idx_scan))::text
             END percent_of_times_index_used,
-            n_live_tup rows_in_table
+            n_live_tup AS estimated_rows
           FROM
             pg_stat_user_tables
           ORDER BY
@@ -54,7 +54,7 @@ module PgHero
               WHEN 0 THEN 'Insufficient data'
               ELSE (100 * idx_scan / (seq_scan + idx_scan))::text
             END percent_of_times_index_used,
-            n_live_tup rows_in_table
+            n_live_tup AS estimated_rows
           FROM
             pg_stat_user_tables
           WHERE
@@ -68,12 +68,11 @@ module PgHero
       end
 
       def unused_indexes(max_scans: 50)
-        select_all <<-SQL
+        select_all_size <<-SQL
           SELECT
             schemaname AS schema,
             relname AS table,
             indexrelname AS index,
-            pg_size_pretty(pg_relation_size(i.indexrelid)) AS index_size,
             pg_relation_size(i.indexrelid) AS size_bytes,
             idx_scan as index_scans
           FROM

@@ -2,20 +2,15 @@ module PgHero
   module Methods
     module Space
       def database_size
-        select_one("SELECT pg_size_pretty(pg_database_size(current_database()))")
-      end
-
-      def database_size_bytes
-        select_one("SELECT pg_database_size(current_database())")
+        PgHero.pretty_size select_one("SELECT pg_database_size(current_database())")
       end
 
       def relation_sizes
-        select_all <<-SQL
+        select_all_size <<-SQL
           SELECT
             n.nspname AS schema,
             c.relname AS name,
             CASE WHEN c.relkind = 'r' THEN 'table' ELSE 'index' END AS type,
-            pg_size_pretty(pg_table_size(c.oid)) AS size,
             pg_table_size(c.oid) AS size_bytes
           FROM
             pg_class c
@@ -32,11 +27,10 @@ module PgHero
       end
 
       def table_sizes
-        select_all <<-SQL
+        select_all_size <<-SQL
           SELECT
             n.nspname AS schema,
             c.relname AS name,
-            pg_size_pretty(pg_total_relation_size(c.oid)) AS size,
             pg_total_relation_size(c.oid) AS size_bytes
           FROM
             pg_class c
