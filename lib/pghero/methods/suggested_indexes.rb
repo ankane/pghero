@@ -192,16 +192,12 @@ module PgHero
         unless table
           error =
             case tree.keys.first
-            when "InsertStmt", "INSERT INTO"
+            when "InsertStmt"
               "INSERT statement"
-            when "VariableSetStmt", "SET"
+            when "VariableSetStmt"
               "SET statement"
             when "SelectStmt"
               if (tree["SelectStmt"]["fromClause"].first["JoinExpr"] rescue false)
-                "JOIN not supported yet"
-              end
-            when "SELECT"
-              if (tree["SELECT"]["fromClause"].first["JOINEXPR"] rescue false)
                 "JOIN not supported yet"
               end
             end
@@ -263,12 +259,6 @@ module PgHero
           tree["DeleteStmt"]["relation"]["RangeVar"]["relname"]
         when "UpdateStmt"
           tree["UpdateStmt"]["relation"]["RangeVar"]["relname"]
-        when "SELECT"
-          tree["SELECT"]["fromClause"].first["RANGEVAR"]["relname"]
-        when "DELETE FROM"
-          tree["DELETE FROM"]["relation"]["RANGEVAR"]["relname"]
-        when "UPDATE"
-          tree["UPDATE"]["relation"]["RANGEVAR"]["relname"]
         end
       end
 
