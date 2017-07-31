@@ -25,7 +25,6 @@ PgHero::Engine.routes.draw do
     # legacy routes
     get "system_stats" => redirect("system")
     get "query_stats" => redirect("queries")
-    get "indexes" => redirect("index_usage")
 
     root to: "home#index"
   end
