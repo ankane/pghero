@@ -9,20 +9,20 @@ module PgHero
         select_all_size <<-SQL
           SELECT
             n.nspname AS schema,
-            c.relname AS name,
+            c.relname AS relation,
             CASE WHEN c.relkind = 'r' THEN 'table' ELSE 'index' END AS type,
             pg_table_size(c.oid) AS size_bytes
           FROM
             pg_class c
           LEFT JOIN
-            pg_namespace n ON (n.oid = c.relnamespace)
+            pg_namespace n ON n.oid = c.relnamespace
           WHERE
             n.nspname NOT IN ('pg_catalog', 'information_schema')
             AND n.nspname !~ '^pg_toast'
             AND c.relkind IN ('r', 'i')
           ORDER BY
             pg_table_size(c.oid) DESC,
-            name ASC
+            2 ASC
         SQL
       end
 
@@ -30,19 +30,19 @@ module PgHero
         select_all_size <<-SQL
           SELECT
             n.nspname AS schema,
-            c.relname AS name,
+            c.relname AS table,
             pg_total_relation_size(c.oid) AS size_bytes
           FROM
             pg_class c
           LEFT JOIN
-            pg_namespace n ON (n.oid = c.relnamespace)
+            pg_namespace n ON n.oid = c.relnamespace
           WHERE
             n.nspname NOT IN ('pg_catalog', 'information_schema')
             AND n.nspname !~ '^pg_toast'
             AND c.relkind = 'r'
           ORDER BY
             pg_total_relation_size(c.oid) DESC,
-            name ASC
+            2 ASC
         SQL
       end
 

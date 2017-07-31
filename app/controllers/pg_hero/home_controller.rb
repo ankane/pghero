@@ -72,7 +72,7 @@ module PgHero
         when "growth"
           @relation_sizes.sort_by! { |r| s = @growth_bytes_by_relation[r[:name]]; [s ? 0 : 1, -s.to_i, r[:name]] }
         when "name"
-          @relation_sizes.sort_by! { |r| r[:name] }
+          @relation_sizes.sort_by! { |r| r[:relation] || r[:table] }
         end
       end
 
