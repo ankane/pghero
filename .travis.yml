@@ -3,6 +3,8 @@ rvm: 2.2.4
 cache: bundler
 sudo: false
 script: bundle exec rake test
+addons:
+  postgresql: "9.4"
 before_script:
   - psql -c 'create database pghero_test;' -U postgres
 notifications:
