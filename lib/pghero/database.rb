@@ -55,6 +55,10 @@ module PgHero
       (config["long_running_query_sec"] || PgHero.config["long_running_query_sec"] || PgHero.long_running_query_sec).to_i
     end
 
+    def index_bloat_bytes
+      (config["index_bloat_bytes"] || PgHero.config["index_bloat_bytes"] || 100.megabytes).to_i
+    end
+
     private
 
     def connection_model

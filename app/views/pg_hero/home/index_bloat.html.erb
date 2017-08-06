@@ -7,11 +7,10 @@
 
     <p>For each index, run:</p>
     <pre><code>CREATE INDEX CONCURRENTLY new_index ...;
-  ANALYZE table;
-  DROP INDEX CONCURRENTLY index;
-  ANALYZE table;
-  ALTER INDEX new_index RENAME TO index;
-  </code></pre>
+ANALYZE table;
+DROP INDEX CONCURRENTLY index;
+ANALYZE table;
+ALTER INDEX new_index RENAME TO index;</code></pre>
 
     <p>
       <% if @show_sql %>
@@ -44,16 +43,15 @@
                 <% new_index = "new_#{index[:index]}".first(63) %>
                 <pre><code><%= index[:definition].sub(" INDEX ", " INDEX CONCURRENTLY \n    ").sub(index[:index], new_index) %>;
 
-  ANALYZE <%= pghero_pretty_ident(index[:table], schema: index[:schema]) %>;
+ANALYZE <%= pghero_pretty_ident(index[:table], schema: index[:schema]) %>;
 
-  DROP INDEX CONCURRENTLY
-      <%= pghero_pretty_ident(index[:index]) %>;
+DROP INDEX CONCURRENTLY
+    <%= pghero_pretty_ident(index[:index]) %>;
 
-  ANALYZE <%= pghero_pretty_ident(index[:table], schema: index[:schema]) %>;
+ANALYZE <%= pghero_pretty_ident(index[:table], schema: index[:schema]) %>;
 
-  ALTER INDEX <%= pghero_pretty_ident(new_index) %>
-      RENAME TO <%= pghero_pretty_ident(index[:index]) %>;
-  </code></pre>
+ALTER INDEX <%= pghero_pretty_ident(new_index) %>
+    RENAME TO <%= pghero_pretty_ident(index[:index]) %>;</code></pre>
               </td>
             </tr>
           <% end %>

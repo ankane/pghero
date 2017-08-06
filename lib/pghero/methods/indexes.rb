@@ -173,7 +173,8 @@ module PgHero
 
       # https://gist.github.com/mbanck/9976015/71888a24e464e2f772182a7eb54f15a125edf398
       # thanks @jberkus and @mbanck
-      def index_bloat(min_size: 0)
+      def index_bloat(min_size: nil)
+        min_size ||= index_bloat_bytes
         select_all <<-SQL
           WITH btree_index_atts AS (
             SELECT
