@@ -89,6 +89,11 @@ module PgHero
       @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at], (r[:size_bytes].to_f / 1.megabyte).round(1)] }, library: chart_library_options}]
     end
 
+    def index_bloat
+      @title = "Index Bloat"
+      @index_bloat = @database.index_bloat.select { |i| i[:bloat_bytes] > 0 }
+    end
+
     def live_queries
       @title = "Live Queries"
       @running_queries = @database.running_queries

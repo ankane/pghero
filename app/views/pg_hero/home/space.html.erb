@@ -10,6 +10,8 @@
     </script>
   <% end %>
 
+  <p>Check out <%= link_to "index bloat", index_bloat_path %> for an easy way to reclaim space.</p>
+
   <% if @unused_indexes.any? %>
     <p>
       <%= pluralize(@unused_indexes.size, "unused index") %>. Remove them

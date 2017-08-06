@@ -2,6 +2,7 @@ PgHero::Engine.routes.draw do
   scope "(:database)", constraints: proc { |req| (PgHero.config["databases"].keys + [nil]).include?(req.params[:database]) } do
     get "space", to: "home#space"
     get "space/:relation", to: "home#relation_space", as: :relation_space
+    get "index_bloat", to: "home#index_bloat"
     get "live_queries", to: "home#live_queries"
     get "queries", to: "home#queries"
     get "queries/:query_hash", to: "home#show_query", as: :show_query
