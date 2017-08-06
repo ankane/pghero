@@ -112,7 +112,7 @@
     <h1>Inactive Replication Slots</h1>
     <p>Inactive replication slots can cause a lot of disk space to be consumed.</p>
     <p>For each, run:</p>
-    <code><pre>SELECT pg_drop_replication_slot('slot_name');</pre></code>
+    <pre><code>SELECT pg_drop_replication_slot('slot_name');</code></pre>
     <table class="table">
       <thead>
         <tr>
@@ -172,7 +172,7 @@
     <h2>Vacuuming Needed</h2>
     <p>The database <strong>will shutdown</strong> when there are fewer than 1,000,000 transactions left. <%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %>.</p>
     <p>For each table, run:</p>
-    <code><pre>VACUUM FREEZE VERBOSE table;</pre></code>
+    <pre><code>VACUUM FREEZE VERBOSE table;</code></pre>
     <table class="table">
       <thead>
         <tr>

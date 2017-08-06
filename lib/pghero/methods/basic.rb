@@ -44,6 +44,10 @@ module PgHero
         @server_version_num ||= select_one("SHOW server_version_num").to_i
       end
 
+      def quote_ident(value)
+        quote_table_name(value)
+      end
+
       private
 
       def select_all(sql, conn = nil)

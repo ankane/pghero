@@ -281,7 +281,8 @@ module PgHero
                 THEN 0 ELSE bs*(sub.relpages-otta)::bigint * 100 / (bs*(sub.relpages)::bigint) END
                 AS realbloat,
               pg_relation_size(sub.table_oid) as table_bytes,
-              stat.idx_scan as index_scans
+              stat.idx_scan as index_scans,
+              stat.indexrelid
             FROM
               otta_calc AS sub
             JOIN
@@ -294,7 +295,8 @@ module PgHero
             table_name AS table,
             index_name AS index,
             wastedbytes AS bloat_bytes,
-            totalbytes AS index_bytes
+            totalbytes AS index_bytes,
+            pg_get_indexdef(indexrelid) AS definition
           FROM
             raw_bloat
           ORDER BY

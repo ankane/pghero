@@ -92,6 +92,7 @@ module PgHero
     def index_bloat
       @title = "Index Bloat"
       @index_bloat = @database.index_bloat.select { |i| i[:bloat_bytes] > 0 }
+      @show_sql = params[:sql]
     end
 
     def live_queries

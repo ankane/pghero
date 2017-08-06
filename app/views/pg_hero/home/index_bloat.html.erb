@@ -4,12 +4,20 @@
   <p>Indexes can become bloated over time. Recreate them to remove bloat.</p>
 
   <p>For each index, run:</p>
-  <code><pre>CREATE INDEX CONCURRENTLY new_index ...;
+  <pre><code>CREATE INDEX CONCURRENTLY new_index ...;
 ANALYZE table;
 DROP INDEX CONCURRENTLY index;
 ANALYZE table;
 ALTER INDEX new_index RENAME TO index;
-</pre></code>
+</code></pre>
+
+  <p>
+    <% if @show_sql %>
+      <%= link_to "Hide SQL for each index", {} %>
+    <% else %>
+      <%= link_to "Show SQL for each index", {sql: "t"} %>
+    <% end %>
+  </p>
 
   <table class="table">
     <thead>
@@ -28,7 +36,30 @@ ALTER INDEX new_index RENAME TO index;
           <td><%= PgHero.pretty_size(index[:bloat_bytes]) %></td>
           <td><%= PgHero.pretty_size(index[:index_bytes]) %></td>
         </tr>
+        <% if @show_sql %>
+          <tr>
+            <td colspan="3" style="border-top: none; padding: 0;">
+              <% new_index = "new_#{index[:index]}".first(63) %>
+              <pre><code><%= index[:definition].sub(" INDEX ", " INDEX CONCURRENTLY \n    ").sub(index[:index], new_index) %>;
+
+ANALYZE <%= pghero_pretty_ident(index[:table], schema: index[:schema]) %>;
+
+DROP INDEX CONCURRENTLY
+    <%= pghero_pretty_ident(index[:index]) %>;
+
+ANALYZE <%= pghero_pretty_ident(index[:table], schema: index[:schema]) %>;
+
+ALTER INDEX <%= pghero_pretty_ident(new_index) %>
+    RENAME TO <%= pghero_pretty_ident(index[:index]) %>;
+</code></pre>
+            </td>
+          </tr>
+        <% end %>
       <% end %>
     </tbody>
   </table>
 </div>
+
+<script>
+  highlightQueries();
+</script>
