@@ -3,7 +3,7 @@
 
   <% if @index_bloat.any? %>
 
-    <p>Indexes can become bloated over time. Recreate them to remove bloat.</p>
+    <p>Indexes can become <%= link_to "bloated over time", "https://www.compose.com/articles/postgresql-bloat-origins-monitoring-and-managing/", target: "_blank" %>. Recreate them to remove bloat.</p>
 
     <p>For each index, run:</p>
     <pre><code>CREATE INDEX CONCURRENTLY new_index ...;
@@ -14,10 +14,11 @@ ALTER INDEX new_index RENAME TO index;</code></pre>
 
     <p>
       <% if @show_sql %>
-        <%= link_to "Hide SQL for each index", {} %>
+        <%= link_to "Hide SQL", {} %>
       <% else %>
-        <%= link_to "Show SQL for each index", {sql: "t"} %>
+        <%= link_to "Show SQL", {sql: "t"} %>
       <% end %>
+      for each index
     </p>
 
     <table class="table">
