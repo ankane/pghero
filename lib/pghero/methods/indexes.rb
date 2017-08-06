@@ -173,7 +173,7 @@ module PgHero
 
       # https://gist.github.com/mbanck/9976015/71888a24e464e2f772182a7eb54f15a125edf398
       # thanks @jberkus and @mbanck
-      def index_bloat
+      def index_bloat(min_size: 0)
         select_all <<-SQL
           WITH btree_index_atts AS (
             SELECT
@@ -299,6 +299,8 @@ module PgHero
             pg_get_indexdef(indexrelid) AS definition
           FROM
             raw_bloat
+          WHERE
+            wastedbytes >= #{min_size.to_i}
           ORDER BY
             wastedbytes DESC,
             index_name

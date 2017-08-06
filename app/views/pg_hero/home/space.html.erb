@@ -10,7 +10,9 @@
     </script>
   <% end %>
 
-  <p>Check out <%= link_to "index bloat", index_bloat_path %> for an easy way to reclaim space.</p>
+  <% if @index_bloat.any? %>
+    <p>Check out <%= link_to "index bloat", index_bloat_path %> for an easy way to reclaim space.</p>
+  <% end %>
 
   <% if @unused_indexes.any? %>
     <p>
