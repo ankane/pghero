@@ -69,8 +69,8 @@ remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.i
           <td><%= query[:size] %></td>
           <% if @space_stats_enabled %>
             <td>
-              <% if @growth_bytes_by_relation[query[:name]] %>
-                <% if @growth_bytes_by_relation[query[:name]] < 0 %>-<% end %><%= PgHero.pretty_size(@growth_bytes_by_relation[query[:name]].abs) %>
+              <% if @growth_bytes_by_relation[query[:relation]] %>
+                <% if @growth_bytes_by_relation[query[:relation]] < 0 %>-<% end %><%= PgHero.pretty_size(@growth_bytes_by_relation[query[:relation]].abs) %>
               <% else %>
                 <span class="text-muted">Unknown</span>
               <% end %>
