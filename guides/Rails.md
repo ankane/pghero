@@ -250,7 +250,7 @@ New features
 Breaking changes
 
 - Methods now return symbols for keys instead of strings
-- Methods throw `PgHero::MissingRequirement` error when missing requirements
+- Methods raise `PgHero::NotEnabled` error when a feature isn’t enabled
 - Requires pg_query 0.9.0+ for suggested indexes
 - Historical query stats require the `pghero_query_stats` table to have `query_hash` and `user` columns
 - Removed `with` option - use:

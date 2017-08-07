@@ -39,7 +39,7 @@ module PgHero
             end
           end
         else
-          raise MissingRequirement, "Suggested indexes not enabled"
+          raise NotEnabled, "Suggested indexes not enabled"
         end
 
         best_indexes

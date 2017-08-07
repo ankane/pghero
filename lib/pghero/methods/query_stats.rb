@@ -151,7 +151,7 @@ module PgHero
               1 ASC
           SQL
         else
-          raise MissingRequirement, "Query hash stats not enabled"
+          raise NotEnabled, "Query hash stats not enabled"
         end
       end
 
@@ -197,7 +197,7 @@ module PgHero
             LIMIT #{limit.to_i}
           SQL
         else
-          raise MissingRequirement, "Query stats not enabled"
+          raise NotEnabled, "Query stats not enabled"
         end
       end
 
@@ -241,7 +241,7 @@ module PgHero
             LIMIT 100
           SQL
         else
-          raise MissingRequirement, "Historical query stats not enabled"
+          raise NotEnabled, "Historical query stats not enabled"
         end
       end
 
