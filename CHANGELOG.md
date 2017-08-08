@@ -1,3 +1,7 @@
+## 2.0.2 [unreleased]
+
+- Fixed error with `pg_replication_slots`
+
 ## 2.0.1
 
 - Fixed capture space stats

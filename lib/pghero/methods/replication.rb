@@ -21,13 +21,17 @@ module PgHero
       end
 
       def replication_slots
-        select_all <<-SQL
-          SELECT
-            slot_name,
-            database,
-            active
-          FROM pg_replication_slots
-        SQL
+        if server_version_num >= 90400
+          select_all <<-SQL
+            SELECT
+              slot_name,
+              database,
+              active
+            FROM pg_replication_slots
+          SQL
+        else
+          []
+        end
       end
 
       def replicating?
