@@ -1,5 +1,10 @@
 <div class="content">
-  <h1><%= @relation %></h1>
+  <h1>
+    <%= @relation %>
+    <% if @schema != "public" %>
+      <small><%= @schema %></small>
+    <% end %>
+  </h1>
 
   <h1>Size <small>MB</small></h1>
   <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
