@@ -121,7 +121,7 @@ module PgHero
         columns = %w(database schema relation size captured_at)
         values = []
         relation_sizes.each do |rs|
-          values << [id, rs[:schema], rs[:name], rs[:size_bytes].to_i, now]
+          values << [id, rs[:schema], rs[:relation], rs[:size_bytes].to_i, now]
         end
         insert_stats("pghero_space_stats", columns, values)
       end
