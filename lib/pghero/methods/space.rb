@@ -49,12 +49,13 @@ module PgHero
       def space_growth(days: 7, relation_sizes: nil)
         if space_stats_enabled?
           relation_sizes ||= self.relation_sizes
-          sizes = Hash[ relation_sizes.map { |r| [r[:relation], r[:size_bytes]] } ]
+          sizes = Hash[ relation_sizes.map { |r| [[r[:schema], r[:relation]], r[:size_bytes]] } ]
           start_at = days.days.ago
 
           stats = select_all_stats <<-SQL
             WITH t AS (
               SELECT
+                schema,
                 relation,
                 array_agg(size ORDER BY captured_at) AS sizes
               FROM
@@ -63,19 +64,20 @@ module PgHero
                 database = #{quote(id)}
                 AND captured_at >= #{quote(start_at)}
               GROUP BY
-                1
+                1, 2
             )
             SELECT
+              schema,
               relation,
               sizes[1] AS size_bytes
             FROM
               t
             ORDER BY
-              1
+              1, 2
           SQL
 
           stats.each do |r|
-            relation = r[:relation]
+            relation = [r[:schema], r[:relation]]
             if sizes[relation]
               r[:growth_bytes] = sizes[relation] - r[:size_bytes]
             end
@@ -87,10 +89,10 @@ module PgHero
         end
       end
 
-      def relation_space_stats(relation)
+      def relation_space_stats(relation, schema: "public")
         if space_stats_enabled?
           relation_sizes ||= self.relation_sizes
-          sizes = Hash[ relation_sizes.map { |r| [r[:relation], r[:size_bytes]] } ]
+          sizes = Hash[ relation_sizes.map { |r| [[r[:schema], r[:relation]], r[:size_bytes]] } ]
           start_at = 30.days.ago
 
           stats = select_all_stats <<-SQL
@@ -102,6 +104,7 @@ module PgHero
             WHERE
               database = #{quote(id)}
               AND captured_at >= #{quote(start_at)}
+              AND schema = #{quote(schema)}
               AND relation = #{quote(relation)}
             ORDER BY
               1 ASC
@@ -109,7 +112,7 @@ module PgHero
 
           stats << {
             captured_at: Time.now,
-            size_bytes: sizes[relation].to_i
+            size_bytes: sizes[[schema, relation]].to_i
           }
         else
           raise NotEnabled, "Space stats not enabled"

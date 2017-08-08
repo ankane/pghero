@@ -54,7 +54,7 @@ remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.i
             <span style="word-break: break-all;">
               <% name = query[:relation] || query[:table] %>
               <% if @space_stats_enabled %>
-                <%= link_to name, relation_space_path(name), target: "_blank", style: "color: inherit;" %>
+                <%= link_to name, relation_space_path(name, schema: query[:schema]), target: "_blank", style: "color: inherit;" %>
               <% else %>
                 <%= name %>
               <% end %>
@@ -69,8 +69,8 @@ remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.i
           <td><%= query[:size] %></td>
           <% if @space_stats_enabled %>
             <td>
-              <% if @growth_bytes_by_relation[query[:relation]] %>
-                <% if @growth_bytes_by_relation[query[:relation]] < 0 %>-<% end %><%= PgHero.pretty_size(@growth_bytes_by_relation[query[:relation]].abs) %>
+              <% if @growth_bytes_by_relation[[query[:schema], query[:relation]]] %>
+                <% if @growth_bytes_by_relation[[query[:schema], query[:relation]]] < 0 %>-<% end %><%= PgHero.pretty_size(@growth_bytes_by_relation[[query[:schema], query[:relation]]].abs) %>
               <% else %>
                 <span class="text-muted">Unknown</span>
               <% end %>
