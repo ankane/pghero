@@ -241,7 +241,7 @@ PgHero.drop_user("ganondorf")
 
 ## Upgrading
 
-### 2.0.0 [unreleased]
+### 2.0.0
 
 New features
 
