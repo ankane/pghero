@@ -176,6 +176,27 @@ sudo pghero run rake pghero:capture_query_stats
 
 After this, a time range slider will appear on the Queries tab.
 
+## Historical Space Stats
+
+To track space stats over time, create a table to store them.
+
+```sql
+CREATE TABLE "pghero_space_stats" (
+  "id" serial primary key,
+  "database" text,
+  "schema" text,
+  "relation" text,
+  "size" bigint,
+  "captured_at" timestamp
+)
+CREATE INDEX ON "pghero_space_stats" ("database", "captured_at")
+```
+
+Schedule the task below to run once a day.
+
+```sh
+sudo pghero run rake pghero:capture_space_stats
+
 ## System Stats
 
 CPU usage is available for Amazon RDS.  Add these variables to your environment:

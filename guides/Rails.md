@@ -76,6 +76,27 @@ By default, query stats are stored in your app’s database. Change this with:
 ENV["PGHERO_STATS_DATABASE_URL"]
 ```
 
+## Historical Space Stats
+
+To track space stats over time, run:
+
+```sh
+rails generate pghero:space_stats
+rake db:migrate
+```
+
+And schedule the task below to run once a day.
+
+```sh
+rake pghero:capture_space_stats
+```
+
+Or with a scheduler like Clockwork, use:
+
+```ruby
+PgHero.capture_space_stats
+```
+
 ## System Stats
 
 CPU usage, IOPS, and other stats are available for Amazon RDS. Add these lines to your application’s Gemfile:
