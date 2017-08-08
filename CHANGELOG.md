@@ -1,9 +1,33 @@
 ## 2.0.0 [unreleased]
 
+New features
+
+- Query details page
 - Added check for inactive replication slots
 - Added `table_sizes` method for full table sizes
 - Added syntax highlighting
 - Added `min_size` option to `analyze_tables`
+
+Breaking changes
+
+- Methods now return symbols for keys instead of strings
+- Methods raise `PgHero::NotEnabled` error when a feature isn’t enabled
+- Requires pg_query 0.9.0+ for suggested indexes
+- Historical query stats require the `pghero_query_stats` table to have `query_hash` and `user` columns
+- Removed `with` option - use:
+
+```ruby
+PgHero.databases[:database2].running_queries
+```
+
+instead of
+
+```ruby
+PgHero.with(:database2) { PgHero.running_queries }
+```
+
+- Removed options from `connection_sources` method
+- Removed `locks` method
 
 ## 1.7.0
 
