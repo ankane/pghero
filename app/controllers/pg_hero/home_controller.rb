@@ -84,9 +84,10 @@ module PgHero
     end
 
     def relation_space
+      @schema = params[:schema] || "public"
       @relation = params[:relation]
       @title = @relation
-      relation_space_stats = @database.relation_space_stats(@relation)
+      relation_space_stats = @database.relation_space_stats(@relation, schema: @schema)
       @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at], (r[:size_bytes].to_f / 1.megabyte).round(1)] }, library: chart_library_options}]
     end
 
