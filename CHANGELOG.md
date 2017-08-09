@@ -1,5 +1,6 @@
-## 2.0.2 [unreleased]
+## 2.0.2
 
+- Fixed error with suggested indexes
 - Fixed error with `pg_replication_slots`
 
 ## 2.0.1
