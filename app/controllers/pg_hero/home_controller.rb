@@ -318,7 +318,13 @@ module PgHero
     end
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)
-      @suggested_indexes_by_query = @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs[:average_time] >= min_average_time && qs[:calls] >= min_calls })
+      @suggested_indexes_by_query =
+        if @database.suggested_indexes_enabled?
+          @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs[:average_time] >= min_average_time && qs[:calls] >= min_calls })
+        else
+          {}
+        end
+
       @suggested_indexes = @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes)
       @query_stats_by_query = @query_stats.index_by { |q| q[:query] }
       @debug = params[:debug].present?
