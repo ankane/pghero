@@ -107,15 +107,7 @@ module PgHero
 
     def capture_query_stats
       databases.each do |_, database|
-        if !database.capture_query_stats?
-          # do nothing
-        elsif !database.query_stats_enabled?
-          $stderr.puts "Query stats not enabled for #{database.id}"
-        elsif !database.historical_query_stats_enabled?
-          $stderr.puts "Historical query stats not enabled for #{database.id}"
-        else
-          database.capture_query_stats
-        end
+        database.capture_query_stats
       end
       true
     end
