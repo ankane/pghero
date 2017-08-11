@@ -1,3 +1,7 @@
+## 2.0.3 [unreleased]
+
+- Improved error messages for `capture_query_stats`
+
 ## 2.0.2
 
 - Fixed error with suggested indexes
