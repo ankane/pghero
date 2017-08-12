@@ -23,6 +23,7 @@
       </tr>
     <% end %>
     <% queries.each do |query| %>
+
       <tr>
         <td>
           <%= number_with_delimiter(query[:total_minutes].round) %> min
@@ -51,7 +52,7 @@
               <% end %>
             <% end %>
             <% if @show_details %>
-              <%= link_to "details", show_query_path(query[:query_hash]), target: "_blank" %>
+              <%= link_to "details", show_query_path(query[:query_hash]), target: "_blank" unless query[:query] == "<insufficient privilege>" %>
             <% end %>
           </span>
         </td>
