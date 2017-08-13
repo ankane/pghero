@@ -118,18 +118,11 @@ PGHERO_DB_INSTANCE_IDENTIFIER=epona
 Create `config/pghero.yml` with:
 
 ```yml
-default: &default
-  databases:
-    primary:
-      url: <%= ENV["PGHERO_DATABASE_URL"] %>
-    replica:
-      url: <%= ENV["REPLICA_DATABASE_URL"] %>
-
-development:
-  <<: *default
-
-production:
-  <<: *default
+databases:
+  primary:
+    url: <%= ENV["PGHERO_DATABASE_URL"] %>
+  replica:
+    url: <%= ENV["REPLICA_DATABASE_URL"] %>
 ```
 
 ## Customize

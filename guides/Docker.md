@@ -60,6 +60,18 @@ Schedule the task below to run once a day.
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
 ```
 
+## Multiple Databases
+
+Create a file at `/app/config/pghero.yml` with:
+
+```yml
+databases:
+  primary:
+    url: postgres://...
+  replica:
+    url: postgres://...
+```
+
 ## Credits
 
 Thanks to [Brian Morton](https://github.com/bmorton) for the [original Docker image](https://github.com/bmorton/pghero_solo).

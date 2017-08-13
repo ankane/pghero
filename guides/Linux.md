@@ -212,12 +212,11 @@ sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
 Create a `pghero.yml` with:
 
 ```yml
-production:
-  databases:
-    primary:
-      url: postgres://...
-    replica:
-      url: postgres://...
+databases:
+  primary:
+    url: postgres://...
+  replica:
+    url: postgres://...
 ```
 
 And run:
