@@ -158,8 +158,8 @@ CREATE TABLE "pghero_query_stats" (
   "total_time" float,
   "calls" bigint,
   "captured_at" timestamp
-)
-CREATE INDEX ON "pghero_query_stats" ("database", "captured_at")
+);
+CREATE INDEX ON "pghero_query_stats" ("database", "captured_at");
 ```
 
 This table can be in the current database or another database. If another database, run:
@@ -188,8 +188,8 @@ CREATE TABLE "pghero_space_stats" (
   "relation" text,
   "size" bigint,
   "captured_at" timestamp
-)
-CREATE INDEX ON "pghero_space_stats" ("database", "captured_at")
+);
+CREATE INDEX ON "pghero_space_stats" ("database", "captured_at");
 ```
 
 Schedule the task below to run once a day.
