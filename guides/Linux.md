@@ -1,20 +1,20 @@
 # PgHero for Linux
 
-Packaged for:
+Distributions
 
-- Ubuntu 16.04 (Xenial)
-- Ubuntu 14.04 (Trusty)
-- Ubuntu 12.04 (Precise)
-- Debian 8 (Jesse)
-- Debian 7 (Wheezy)
-- CentOS / RHEL 7
-- SUSE Linux Enterprise Server 12
+- [Ubuntu 16.04 (Xenial)](#ubuntu-1604-xenial)
+- [Ubuntu 14.04 (Trusty)](#ubuntu-1404-trusty)
+- [Ubuntu 12.04 (Precise)](#ubuntu-1204-precise)
+- [Debian 8 (Jesse)](#debian-8-jesse)
+- [Debian 7 (Wheezy)](#debian-7-wheezy)
+- [CentOS / RHEL 7](#centos--rhel-7)
+- [SUSE Linux Enterprise Server 12](#suse-linux-enterprise-server-12)
 
 64-bit only
 
 ## Installation
 
-Ubuntu 16.04 (Xenial)
+### Ubuntu 16.04 (Xenial)
 
 ```sh
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
@@ -24,7 +24,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Ubuntu 14.04 (Trusty)
+### Ubuntu 14.04 (Trusty)
 
 ```sh
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
@@ -34,7 +34,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Ubuntu 12.04 (Precise)
+### Ubuntu 12.04 (Precise)
 
 ```sh
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
@@ -44,7 +44,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Debian 8 (Jesse)
+### Debian 8 (Jesse)
 
 ```sh
 sudo apt-get -y install apt-transport-https
@@ -55,7 +55,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Debian 7 (Wheezy)
+### Debian 7 (Wheezy)
 
 ```sh
 sudo apt-get -y install apt-transport-https
@@ -66,7 +66,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-CentOS / RHEL 7
+### CentOS / RHEL 7
 
 ```sh
 sudo wget -O /etc/yum.repos.d/pghero.repo \
@@ -74,7 +74,7 @@ sudo wget -O /etc/yum.repos.d/pghero.repo \
 sudo yum -y install pghero
 ```
 
-SUSE Linux Enterprise Server 12
+### SUSE Linux Enterprise Server 12
 
 ```sh
 sudo wget -O /etc/zypp/repos.d/pghero.repo \
