@@ -5,8 +5,8 @@ Packaged for:
 - Ubuntu 16.04 (Xenial)
 - Ubuntu 14.04 (Trusty)
 - Ubuntu 12.04 (Precise)
-- Debian 7 (Wheezy)
 - Debian 8 (Jesse)
+- Debian 7 (Wheezy)
 - CentOS / RHEL 7
 - SUSE Linux Enterprise Server 12
 
@@ -44,17 +44,6 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Debian 7 (Wheezy)
-
-```sh
-sudo apt-get -y install apt-transport-https
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/7.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
 Debian 8 (Jesse)
 
 ```sh
@@ -62,6 +51,17 @@ sudo apt-get -y install apt-transport-https
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
   https://dl.packager.io/srv/pghero/pghero/master/installer/debian/8.repo
+sudo apt-get update
+sudo apt-get -y install pghero
+```
+
+Debian 7 (Wheezy)
+
+```sh
+sudo apt-get -y install apt-transport-https
+wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
+sudo wget -O /etc/apt/sources.list.d/pghero.list \
+  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/7.repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
