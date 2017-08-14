@@ -259,6 +259,7 @@ Ubuntu and Debian
 ```sh
 sudo apt-get update
 sudo apt-get install --only-upgrade pghero
+sudo service pghero restart
 ```
 
 CentOS and RHEL
@@ -266,12 +267,14 @@ CentOS and RHEL
 ```sh
 sudo yum update
 sudo yum install pghero
+sudo service pghero restart
 ```
 
 SUSE
 
 ```sh
 sudo zypper update pghero
+sudo service pghero restart
 ```
 
 ## Credits
