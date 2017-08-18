@@ -62,7 +62,7 @@ remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.i
             <% if query[:schema] != "public" %>
               <span class="text-muted"><%= query[:schema] %></span>
             <% end %>
-            <% if @unused_index_names.include?(query[:name]) %>
+            <% if @unused_index_names.include?(query[:relation]) %>
               <span class="unused-index">UNUSED</span>
             <% end %>
           </td>
