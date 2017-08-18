@@ -1,3 +1,8 @@
+## 2.0.3 [unreleased]
+
+- Added SQL to recreate invalid indexes
+- Added unused index marker to Space page
+
 ## 2.0.2
 
 - Fixed error with suggested indexes
