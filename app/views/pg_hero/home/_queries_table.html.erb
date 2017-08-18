@@ -50,7 +50,7 @@
                 &middot;
               <% end %>
             <% end %>
-            <% if @show_details %>
+            <% if @show_details && query[:query_hash] != nil %>
               <%= link_to "details", show_query_path(query[:query_hash]), target: "_blank" %>
             <% end %>
           </span>
