@@ -34,11 +34,14 @@ ALTER INDEX new_index RENAME TO index;</code></pre>
           <tr>
             <td>
               <span style="word-break: break-all;"><%= index[:index] %></span>
+              <% if index[:primary] %>
+                <span class="primary-key">PRIMARY</span>
+              <% end %>
             </td>
             <td><%= PgHero.pretty_size(index[:bloat_bytes]) %></td>
             <td><%= PgHero.pretty_size(index[:index_bytes]) %></td>
           </tr>
-          <% if @show_sql %>
+          <% if @show_sql && !index[:primary] %>
             <tr>
               <td colspan="3" style="border-top: none; padding: 0;">
                 <% new_index = "new_#{index[:index]}".first(63) %>

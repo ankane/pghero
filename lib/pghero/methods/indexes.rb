@@ -297,9 +297,12 @@ module PgHero
             index_name AS index,
             wastedbytes AS bloat_bytes,
             totalbytes AS index_bytes,
-            pg_get_indexdef(indexrelid) AS definition
+            pg_get_indexdef(rb.indexrelid) AS definition,
+            indisprimary AS primary
           FROM
-            raw_bloat
+            raw_bloat rb
+          INNER JOIN
+            pg_index i ON i.indexrelid = rb.indexrelid
           WHERE
             wastedbytes >= #{min_size.to_i}
           ORDER BY

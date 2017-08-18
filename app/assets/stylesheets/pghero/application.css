@@ -475,6 +475,12 @@ body {
   font-weight: bold;
 }
 
+.primary-key {
+  color: #f0ad4e;
+  font-size: 11px;
+  font-weight: bold;
+}
+
 .origin {
   word-break: break-word;
 }
