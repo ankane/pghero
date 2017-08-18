@@ -108,7 +108,9 @@ module PgHero
       def invalid_indexes
         select_all <<-SQL
           SELECT
-            c.relname AS index
+            n.nspname AS schema,
+            c.relname AS index,
+            pg_get_indexdef(i.indexrelid) AS definition
           FROM
             pg_catalog.pg_class c,
             pg_catalog.pg_namespace n,
