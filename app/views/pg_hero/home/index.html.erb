@@ -257,7 +257,7 @@
           <tr>
             <td style="border-top: none; padding: 0;">
               <pre><code>DROP INDEX CONCURRENTLY <%= pghero_pretty_ident(index[:name], schema: index[:schema]) %>;
-<%= index[:definition] %>;</code></pre>
+<%= index[:definition].sub("CREATE INDEX ", "CREATE INDEX CONCURRENTLY ") %>;</code></pre>
             </td>
           </tr>
         <% end %>
