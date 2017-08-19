@@ -76,7 +76,8 @@ module PgHero
         end
       end
 
-      @unused_indexes = @database.unused_indexes(max_scans: 0)
+      across = params[:across].to_s.split(",")
+      @unused_indexes = @database.unused_indexes(max_scans: 0, across: across)
       @unused_index_names = Set.new(@unused_indexes.map { |r| r[:index] })
       @show_migrations = PgHero.show_migrations
       @system_stats_enabled = @database.system_stats_enabled?

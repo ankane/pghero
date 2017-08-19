@@ -68,8 +68,8 @@ module PgHero
          SQL
       end
 
-      def unused_indexes(max_scans: 50)
-        select_all_size <<-SQL
+      def unused_indexes(max_scans: 50, across: [])
+        result = select_all_size <<-SQL
           SELECT
             schemaname AS schema,
             relname AS table,
@@ -87,6 +87,15 @@ module PgHero
             pg_relation_size(i.indexrelid) DESC,
             relname ASC
         SQL
+
+        across.each do |database_id|
+          database = PgHero.databases.values.find { |d| d.id == database_id }
+          raise PgHero::Error, "Database not found: #{database_id}" unless database
+          across_result = Set.new(database.unused_indexes(max_scans: max_scans).map { |v| [v[:schema], v[:index]] })
+          result.select! { |v| across_result.include?([v[:schema], v[:index]]) }
+        end
+
+        result
       end
 
       def reset_stats

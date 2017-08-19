@@ -26,7 +26,8 @@ require "pghero/connection"
 require "pghero/query_stats"
 
 module PgHero
-  class NotEnabled < StandardError; end
+  class Error < StandardError; end
+  class NotEnabled < Error; end
 
   # settings
   class << self
