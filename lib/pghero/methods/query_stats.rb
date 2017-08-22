@@ -103,6 +103,8 @@ module PgHero
           query_stats[database_id] = query_stats(limit: 1000000, database: database_name)
         end
 
+        supports_query_hash = supports_query_hash?
+
         if query_stats.any? { |_, v| v.any? } && reset_query_stats
           query_stats.each do |db_id, db_query_stats|
             if db_query_stats.any?
@@ -114,7 +116,7 @@ module PgHero
                     qs[:total_minutes] * 60 * 1000,
                     qs[:calls],
                     now,
-                    qs[:query_hash],
+                    supports_query_hash ? qs[:query_hash] : nil,
                     qs[:user]
                   ]
                 end

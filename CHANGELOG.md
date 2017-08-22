@@ -2,6 +2,7 @@
 
 - Added SQL to recreate invalid indexes
 - Added unused index marker to Space page
+- Fixed `capture_query_stats` on Postgres < 9.4
 
 ## 2.0.2
 
