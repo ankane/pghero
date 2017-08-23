@@ -1,4 +1,4 @@
-## 2.0.3 [unreleased]
+## 2.0.3
 
 - Added SQL to recreate invalid indexes
 - Added unused index marker to Space page
