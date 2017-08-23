@@ -4,6 +4,7 @@
     <title><%= [@databases.size > 1 ? @database.name : "PgHero", @title].compact.join(" / ") %></title>
 
     <meta charset="utf-8" />
+    <%= favicon_link_tag "pghero/favicon.png" %>
     <%= stylesheet_link_tag "pghero/application" %>
     <%= javascript_include_tag "pghero/application" %>
   </head>
