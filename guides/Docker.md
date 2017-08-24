@@ -72,6 +72,14 @@ databases:
     url: postgres://...
 ```
 
+## Security
+
+And basic authentication with:
+
+```sh
+docker run -e PGHERO_USERNAME=link -e PGHERO_PASSWORD=hyrule ...
+```
+
 ## Credits
 
 Thanks to [Brian Morton](https://github.com/bmorton) for the [original Docker image](https://github.com/bmorton/pghero_solo).
