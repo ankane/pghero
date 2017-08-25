@@ -187,6 +187,7 @@ Schedule the task below to run once a day.
 
 ```sh
 sudo pghero run rake pghero:capture_space_stats
+```
 
 ## System Stats
 
