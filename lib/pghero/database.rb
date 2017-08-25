@@ -68,10 +68,13 @@ module PgHero
           def self.name
             "PgHero::Connection::Database#{object_id}"
           end
-          if url
+          case url
+          when String
             url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=2" unless url.include?("connect_timeout=")
-            establish_connection url
+          when Hash
+            url[:connect_timeout] ||= 2
           end
+          establish_connection url if url
         end
       end
     end
