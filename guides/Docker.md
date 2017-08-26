@@ -72,6 +72,10 @@ databases:
     url: postgres://...
 ```
 
+## Permissions
+
+We recommend [setting up a dedicated user](guides/Permissions.md) for PgHero.
+
 ## Security
 
 And basic authentication with:

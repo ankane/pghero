@@ -1,0 +1,48 @@
+# Permissions
+
+For security, Postgres doesn’t allow you to see queries from other users without being a superuser. However, you likely don’t want to run PgHero as a superuser. You can use `SECURITY DEFINER` to give non-superusers access to superuser functions.
+
+With a superuser, run:
+
+```sql
+CREATE SCHEMA pghero;
+
+-- view queries
+CREATE OR REPLACE FUNCTION pghero.pg_stat_activity() RETURNS SETOF pg_stat_activity AS
+$$
+  SELECT * FROM pg_catalog.pg_stat_activity;
+$$ LANGUAGE sql VOLATILE SECURITY DEFINER;
+
+CREATE VIEW pghero.pg_stat_activity AS SELECT * FROM pghero.pg_stat_activity();
+
+-- kill queries
+CREATE OR REPLACE FUNCTION pghero.pg_terminate_backend(pid int) RETURNS boolean AS
+$$
+  SELECT * FROM pg_catalog.pg_terminate_backend(pid);
+$$ LANGUAGE sql VOLATILE SECURITY DEFINER;
+
+-- query stats
+CREATE OR REPLACE FUNCTION pghero.pg_stat_statements() RETURNS SETOF pg_stat_statements AS
+$$
+  SELECT * FROM public.pg_stat_statements;
+$$ LANGUAGE sql VOLATILE SECURITY DEFINER;
+
+CREATE VIEW pghero.pg_stat_statements AS SELECT * FROM pghero.pg_stat_statements();
+
+-- query stats reset
+CREATE OR REPLACE FUNCTION pghero.pg_stat_statements_reset() RETURNS void AS
+$$
+  SELECT public.pg_stat_statements_reset();
+$$ LANGUAGE sql VOLATILE SECURITY DEFINER;
+
+-- create user
+CREATE ROLE pghero WITH LOGIN ENCRYPTED PASSWORD 'secret';
+GRANT CONNECT ON DATABASE <dbname> TO pghero;
+ALTER ROLE pghero SET search_path = pghero, pg_catalog, public;
+GRANT USAGE ON SCHEMA pghero TO pghero;
+GRANT SELECT ON ALL TABLES IN SCHEMA pghero TO pghero;
+```
+
+## Thanks
+
+A big thanks to [pganalyze](https://github.com/pganalyze/collector#setting-up-a-restricted-monitoring-user) for coming up with this approach for their collector.

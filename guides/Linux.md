@@ -218,6 +218,10 @@ cat pghero.yml | sudo pghero run sh -c "cat > config/pghero.yml"
 sudo service pghero restart
 ```
 
+## Permissions
+
+We recommend [setting up a dedicated user](guides/Permissions.md) for PgHero.
+
 ## Customize
 
 Minimum time for long running queries
