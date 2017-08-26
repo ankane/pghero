@@ -127,7 +127,7 @@ databases:
 
 ## Permissions
 
-We recommend [setting up a dedicated user](guides/Permissions.md) for PgHero.
+We recommend [setting up a dedicated user](Permissions.md) for PgHero.
 
 ## Customize
 
