@@ -81,7 +81,7 @@ module PgHero
       @unused_index_names = Set.new(@unused_indexes.map { |r| r[:index] })
       @show_migrations = PgHero.show_migrations
       @system_stats_enabled = @database.system_stats_enabled?
-      @index_bloat = @database.index_bloat
+      @index_bloat = [] # @database.index_bloat
     end
 
     def relation_space
