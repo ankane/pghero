@@ -33,7 +33,16 @@ module PgHero
       @good_total_connections = @total_connections < @database.total_connections_threshold
 
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
-      @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f)
+
+      begin
+        @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f)
+      rescue ActiveRecord::StatementInvalid => e
+        if (m = /permission denied for relation (\S+)/.match(e.message))
+          @sequence_danger_error = m[0]
+        else
+          raise
+        end
+      end
 
       @indexes = @database.indexes
       @invalid_indexes = @indexes.select { |i| !i[:valid] }

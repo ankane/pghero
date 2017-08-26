@@ -4,21 +4,29 @@ module PgHero
       def sequences
         sequences = select_all <<-SQL
           SELECT
-            sequence_schema AS schema,
-            table_name AS table,
-            column_name AS column,
-            c.data_type AS column_type,
-            CASE WHEN c.data_type = 'integer' THEN 2147483647::bigint ELSE maximum_value::bigint END AS max_value,
-            sequence_name AS sequence
+            n.nspname AS schema,
+            c.relname AS table,
+            attname AS column,
+            format_type(a.atttypid, a.atttypmod) AS column_type,
+            CASE WHEN format_type(a.atttypid, a.atttypmod) = 'integer' THEN 2147483647::bigint ELSE (pg_sequence_parameters(s.oid)).maximum_value::bigint END AS max_value,
+            s.relname AS sequence
           FROM
-            information_schema.columns c
+            pg_catalog.pg_attribute a
           INNER JOIN
-            information_schema.sequences iss ON iss.sequence_name = regexp_replace(c.column_default, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
+            pg_catalog.pg_class c ON c.oid = a.attrelid
+          INNER JOIN
+            pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+          LEFT JOIN
+            pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid,  d.adnum)
+          INNER JOIN
+            pg_catalog.pg_class s ON s.relkind = 'S'
+            AND s.relname = regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
           WHERE
-            column_default LIKE 'nextval%'
-            AND table_catalog = current_database()
+            NOT a.attisdropped
+            AND a.attnum > 0
+            AND d.adsrc LIKE 'nextval%'
           ORDER BY
-            sequence_name ASC
+            s.relname ASC
         SQL
 
         select_all(sequences.map { |s| "SELECT last_value FROM #{s[:sequence]}" }.join(" UNION ALL ")).each_with_index do |row, i|

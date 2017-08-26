@@ -47,8 +47,10 @@
       Vacuuming healthy
     <% end %>
   </div>
-  <div class="alert alert-<%= @sequence_danger.empty? ? "success" : "warning" %>">
-    <% if @sequence_danger.any? %>
+  <div class="alert alert-<%= @sequence_danger && @sequence_danger.empty? ? "success" : "warning" %>">
+    <% if !@sequence_danger %>
+      Error checking sequences: <%= @sequence_danger_error %>
+    <% elsif @sequence_danger.any? %>
       <%= pluralize(@sequence_danger.size, "columns") %> approaching overflow
     <% else %>
       No columns near integer overflow
@@ -197,7 +199,7 @@
   </div>
 <% end %>
 
-<% if @sequence_danger.any? %>
+<% if @sequence_danger && @sequence_danger.any? %>
   <div class="content">
     <h2>Columns Near Overflow</h2>
     <p>Consider changing columns to bigint to support a larger range of values.</p>
