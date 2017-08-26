@@ -35,6 +35,15 @@ $$
   SELECT public.pg_stat_statements_reset();
 $$ LANGUAGE sql VOLATILE SECURITY DEFINER;
 
+-- suggested indexes
+CREATE OR REPLACE FUNCTION pghero.pg_stats() RETURNS
+TABLE(schemaname name, tablename name, attname name, null_frac real, avg_width integer, n_distinct real) AS
+$$
+  SELECT schemaname, tablename, attname, null_frac, avg_width, n_distinct FROM pg_catalog.pg_stats;
+$$ LANGUAGE sql VOLATILE SECURITY DEFINER;
+
+CREATE VIEW pghero.pg_stats AS SELECT * FROM pghero.pg_stats();
+
 -- create user
 CREATE ROLE pghero WITH LOGIN ENCRYPTED PASSWORD 'secret';
 GRANT CONNECT ON DATABASE <dbname> TO pghero;
