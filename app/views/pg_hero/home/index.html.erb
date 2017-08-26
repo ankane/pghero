@@ -49,7 +49,7 @@
   </div>
   <div class="alert alert-<%= @sequence_danger && @sequence_danger.empty? ? "success" : "warning" %>">
     <% if !@sequence_danger %>
-      Error checking sequences: <%= @sequence_danger_error %>
+      Error checking for columns near integer overflow: <%= @sequence_danger_error %>
     <% elsif @sequence_danger.any? %>
       <%= pluralize(@sequence_danger.size, "columns") %> approaching overflow
     <% else %>
