@@ -1,3 +1,8 @@
+## 2.0.4
+
+- Fixed `AssetNotPrecompiled` error
+- Do not silently ignore sequence danger when user does not have permissions
+
 ## 2.0.3
 
 - Added SQL to recreate invalid indexes
