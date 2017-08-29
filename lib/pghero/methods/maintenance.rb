@@ -24,7 +24,7 @@ module PgHero
             c.relkind = 'r'
             AND (#{quote(max_value)} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < #{quote(threshold)}
           ORDER BY
-           2, 1
+           3, 1, 2
         SQL
       end
 
