@@ -29,7 +29,7 @@ module PgHero
             s.relname ASC
         SQL
 
-        select_all(sequences.map { |s| "SELECT last_value FROM #{s[:sequence]}" }.join(" UNION ALL ")).each_with_index do |row, i|
+        select_all(sequences.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")).each_with_index do |row, i|
           sequences[i][:last_value] = row[:last_value]
         end
 
