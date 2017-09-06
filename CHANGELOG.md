@@ -1,3 +1,7 @@
+## 2.0.5 [unreleased]
+
+- Fixed error with sequences in different schemas
+
 ## 2.0.4
 
 - Fixed `AssetNotPrecompiled` error
