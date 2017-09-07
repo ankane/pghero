@@ -137,6 +137,10 @@
     <%= button_to "Kill All", kill_long_running_queries_path, class: "btn btn-danger", style: "float: right;" %>
     <h1>Long Running Queries</h1>
 
+    <p>We recommend setting a statement timeout on all non-superusers with:</p>
+
+    <pre><code>ALTER ROLE &lt;user&gt; SET statement_timeout TO '60s';</code></pre>
+
     <%= render partial: "live_queries_table", locals: {queries: @long_running_queries} %>
   </div>
 <% end %>
