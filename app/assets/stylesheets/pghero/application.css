@@ -45,6 +45,12 @@ h1 {
   font-weight: bold;
 }
 
+h2 {
+  margin-top: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
 h1 small {
   font-weight: normal;
   font-size: 14px;

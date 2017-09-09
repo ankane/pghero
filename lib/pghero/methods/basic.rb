@@ -1,24 +1,6 @@
 module PgHero
   module Methods
     module Basic
-      def settings
-        names =
-          if server_version_num >= 90500
-            %i(
-              max_connections shared_buffers effective_cache_size work_mem
-              maintenance_work_mem min_wal_size max_wal_size checkpoint_completion_target
-              wal_buffers default_statistics_target
-            )
-          else
-            %i(
-              max_connections shared_buffers effective_cache_size work_mem
-              maintenance_work_mem checkpoint_segments checkpoint_completion_target
-              wal_buffers default_statistics_target
-            )
-          end
-        Hash[names.map { |name| [name, select_one("SHOW #{name}")] }]
-      end
-
       def ssl_used?
         ssl_used = nil
         with_transaction(rollback: true) do

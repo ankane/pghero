@@ -1,5 +1,5 @@
 <div class="content">
-  <h1>Tune</h1>
+  <h1>General</h1>
 
   <table class="table">
     <thead>
@@ -19,4 +19,32 @@
   </table>
 
   <p>Check out <%= link_to "PgTune", "http://pgtune.leopard.in.ua", target: "_blank" %> for recommendations. DB version is <%= @database.server_version.split(".").first(2).join(".") %>.</p>
+</div>
+
+<div class="content">
+  <h1>Autovacuum</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Setting</th>
+        <th style="width: 20%;">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @autovacuum_settings.each do |setting, value| %>
+        <tr>
+          <td><%= setting %></td>
+          <td>
+            <%= value %>
+            <% if setting == :autovacuum_vacuum_cost_limit && value == "-1" %>
+              <span class="text-muted"><%= @database.vacuum_settings[:vacuum_cost_limit] %></span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <p>Check out <%= link_to "Autovacuum Tuning Basics", "https://blog.2ndquadrant.com/autovacuum-tuning-basics/", target: "_blank" %> for recommendations.</p>
 </div>

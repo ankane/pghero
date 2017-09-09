@@ -246,6 +246,7 @@ module PgHero
     def tune
       @title = "Tune"
       @settings = @database.settings
+      @autovacuum_settings = @database.autovacuum_settings
     end
 
     def connections
