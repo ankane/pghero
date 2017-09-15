@@ -22,20 +22,35 @@ module PgHero
 
       def replication_slots
         if server_version_num >= 90400
-          select_all <<-SQL
-            SELECT
-              slot_name,
-              database,
-              active
-            FROM pg_replication_slots
-          SQL
+          with_feature_support([]) do
+            select_all <<-SQL
+              SELECT
+                slot_name,
+                database,
+                active
+              FROM pg_replication_slots
+            SQL
+          end
         else
           []
         end
       end
 
       def replicating?
-        select_all("SELECT state FROM pg_stat_replication").any?
+        with_feature_support(false) do
+          select_all("SELECT state FROM pg_stat_replication").any?
+        end
+      end
+
+      private
+
+      def with_feature_support(default)
+        begin
+          yield
+        rescue ActiveRecord::StatementInvalid => e
+          raise unless e.message.start_with?("PG::FeatureNotSupported:")
+          default
+        end
       end
     end
   end
