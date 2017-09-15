@@ -1,7 +1,7 @@
-## 2.0.5 [unreleased]
+## 2.0.5
 
 - Fixed error with sequences in different schemas
-- Added autovacuum settings
+- Better advice
 
 ## 2.0.4
 
