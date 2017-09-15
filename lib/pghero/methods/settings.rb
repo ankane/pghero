@@ -20,7 +20,7 @@ module PgHero
       end
 
       def autovacuum_settings
-        fetch_settings %i(autovacuum autovacuum_max_workers autovacuum_vacuum_cost_limit autovacuum_vacuum_scale_factor)
+        fetch_settings %i(autovacuum autovacuum_max_workers autovacuum_vacuum_cost_limit autovacuum_vacuum_scale_factor autovacuum_analyze_scale_factor)
       end
 
       def vacuum_settings
