@@ -108,10 +108,20 @@ module PgHero
     end
 
     def capture_query_stats(verbose: false)
+      first_error = nil
+
       databases.each do |_, database|
         puts "Capturing query stats for #{database.id}..." if verbose
-        database.capture_query_stats
+        begin
+          database.capture_query_stats
+        rescue => e
+          puts "#{e.class.name}: #{e.message}"
+          first_error ||= e
+        end
       end
+
+      raise first_error if first_error
+
       true
     end
 
