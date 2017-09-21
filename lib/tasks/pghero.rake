@@ -1,7 +1,7 @@
 namespace :pghero do
   desc "capture query stats"
   task capture_query_stats: :environment do
-    PgHero.capture_query_stats
+    PgHero.capture_query_stats(verbose: true)
   end
 
   desc "capture space stats"

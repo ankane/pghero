@@ -107,8 +107,9 @@ module PgHero
       databases.values.first
     end
 
-    def capture_query_stats
+    def capture_query_stats(verbose: false)
       databases.each do |_, database|
+        puts "Capturing query stats for #{database.id}..." if verbose
         database.capture_query_stats
       end
       true
