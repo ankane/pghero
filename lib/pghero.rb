@@ -116,6 +116,7 @@ module PgHero
           database.capture_query_stats
         rescue => e
           puts "#{e.class.name}: #{e.message}"
+          puts
           first_error ||= e
         end
       end
