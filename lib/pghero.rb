@@ -108,12 +108,45 @@ module PgHero
     end
 
     def capture_query_stats(verbose: false)
+      each_database do |database|
+        puts "Capturing query stats for #{database.id}..." if verbose
+        database.capture_query_stats
+      end
+    end
+
+    def capture_space_stats(verbose: false)
+      each_database do |database|
+        puts "Capturing space stats for #{database.id}..." if verbose
+        database.capture_space_stats
+      end
+    end
+
+    def analyze_all(**options)
+      each_database do |database|
+        next if database.replica?
+        database.analyze_tables(**options)
+      end
+    end
+
+    def autoindex_all(create: false, verbose: true)
+      each_database do |database|
+        puts "Autoindexing #{database}..." if verbose
+        database.autoindex(create: create)
+      end
+    end
+
+    def pretty_size(value)
+      ActiveSupport::NumberHelper.number_to_human_size(value, precision: 3)
+    end
+
+    private
+
+    def each_database
       first_error = nil
 
       databases.each do |_, database|
-        puts "Capturing query stats for #{database.id}..." if verbose
         begin
-          database.capture_query_stats
+          yield
         rescue => e
           puts "#{e.class.name}: #{e.message}"
           puts
@@ -124,32 +157,6 @@ module PgHero
       raise first_error if first_error
 
       true
-    end
-
-    def capture_space_stats
-      databases.each do |_, database|
-        database.capture_space_stats
-      end
-      true
-    end
-
-    def analyze_all(**options)
-      databases.reject { |_, d| d.replica? }.each do |_, database|
-        database.analyze_tables(**options)
-      end
-      true
-    end
-
-    def autoindex_all(create: false)
-      databases.each do |_, database|
-        puts "Autoindexing #{database}..."
-        database.autoindex(create: create)
-      end
-      true
-    end
-
-    def pretty_size(value)
-      ActiveSupport::NumberHelper.number_to_human_size(value, precision: 3)
     end
   end
 end

@@ -6,7 +6,7 @@ namespace :pghero do
 
   desc "capture space stats"
   task capture_space_stats: :environment do
-    PgHero.capture_space_stats
+    PgHero.capture_space_stats(verbose: true)
   end
 
   desc "analyze tables"
@@ -16,6 +16,6 @@ namespace :pghero do
 
   desc "autoindex"
   task autoindex: :environment do
-    PgHero.autoindex_all(create: true)
+    PgHero.autoindex_all(verbose: true, create: true)
   end
 end
