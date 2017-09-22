@@ -146,7 +146,7 @@ module PgHero
 
       databases.each do |_, database|
         begin
-          yield
+          yield database
         rescue => e
           puts "#{e.class.name}: #{e.message}"
           puts
