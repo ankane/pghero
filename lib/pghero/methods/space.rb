@@ -126,7 +126,7 @@ module PgHero
         relation_sizes.each do |rs|
           values << [id, rs[:schema], rs[:relation], rs[:size_bytes].to_i, now]
         end
-        insert_stats("pghero_space_stats", columns, values)
+        insert_stats("pghero_space_stats", columns, values) if values.any?
       end
 
       def space_stats_enabled?
