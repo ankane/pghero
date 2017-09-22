@@ -7,10 +7,12 @@ module PgHero
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
     if respond_to?(:before_action)
+      before_action :check_api
       before_action :set_database
       before_action :set_query_stats_enabled
       before_action :set_show_details, only: [:index, :queries, :show_query]
     else
+      # no need to check API in earlier versions
       before_filter :set_database
       before_filter :set_query_stats_enabled
       before_filter :set_show_details, only: [:index, :queries, :show_query]
@@ -179,7 +181,7 @@ module PgHero
           @indexes_by_table = @database.indexes.group_by { |i| i[:table] }
         end
       else
-        render text: "Unknown query"
+        render_text "Unknown query"
       end
     end
 
@@ -195,7 +197,7 @@ module PgHero
       @period = (params[:period] || 60.seconds).to_i
 
       if @duration / @period > 1440
-        render text: "Too many data points"
+        render_text "Too many data points"
       end
     end
 
@@ -369,6 +371,18 @@ module PgHero
         top_connections[source[key]] += source[:total_connections]
       end
       top_connections.sort_by { |k, v| [-v, k] }
+    end
+
+    def check_api
+      render_text "No support for Rails API" if Rails.application.config.try(:api_only)
+    end
+
+    def render_text(message)
+      if Rails::VERSION::MAJOR >= 5
+        render plain: message
+      else
+        render text: message
+      end
     end
   end
 end
