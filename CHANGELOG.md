@@ -1,3 +1,7 @@
+## 2.0.6 [unreleased]
+
+- More robust methods for multiple databases
+
 ## 2.0.5
 
 - Fixed error with sequences in different schemas
