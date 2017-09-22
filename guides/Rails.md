@@ -113,6 +113,21 @@ PGHERO_SECRET_ACCESS_KEY=secret123
 PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
+This requires the following IAM policy:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "cloudwatch:GetMetricStatistics",
+            "Resource": "*"
+        }
+    ]
+}
+```
+
 ## Multiple Databases
 
 Create `config/pghero.yml` with:

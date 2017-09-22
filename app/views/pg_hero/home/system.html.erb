@@ -4,7 +4,7 @@
       <%= link_to name, system_path(options) %>
     <% end %>
   </p>
-  <% path_options = {duration: params[:duration], period: params[:period]} %>
+  <% path_options = {duration: @duration, period: @period} %>
 
   <h1>CPU</h1>
   <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>

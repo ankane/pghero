@@ -191,6 +191,12 @@ module PgHero
         "1 week" => {duration: 1.week, period: 30.minutes},
         "2 weeks" => {duration: 2.weeks, period: 1.hours}
       }
+      @duration = (params[:duration] || 1.hour).to_i
+      @period = (params[:period] || 60.seconds).to_i
+
+      if @duration / @period > 1440
+        render text: "Too many data points"
+      end
     end
 
     def cpu_usage
