@@ -370,7 +370,7 @@ module PgHero
       end
       top_connections.sort_by { |k, v| [-v, k] }
     end
-    
+
     def render_text(message)
       if Rails::VERSION::MAJOR >= 5
         render plain: message
