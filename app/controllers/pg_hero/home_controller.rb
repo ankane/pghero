@@ -374,7 +374,7 @@ module PgHero
     end
 
     def check_api
-      render_text "No support for Rails API" if Rails.application.config.try(:api_only)
+      render_text "No support for Rails API. See https://github.com/pghero/pghero for a standalone app." if Rails.application.config.try(:api_only)
     end
 
     def render_text(message)
