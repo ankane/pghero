@@ -102,6 +102,8 @@ PgHero.capture_space_stats
 CPU usage, IOPS, and other stats are available for Amazon RDS. Add these lines to your application’s Gemfile:
 
 ```ruby
+gem 'aws-sdk-cloudwatch'
+# or
 gem 'aws-sdk'
 ```
 
