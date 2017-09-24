@@ -1,4 +1,4 @@
-## 2.0.6 [unreleased]
+## 2.0.6
 
 - More robust methods for multiple databases
 - Added support for `RAILS_RELATIVE_URL_ROOT` for Linux and Docker
