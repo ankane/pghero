@@ -1,6 +1,7 @@
 ## 2.0.7 [unreleased]
 
 - Fixed query details when multiple users have same query hash
+- Fixed error with invalid indexes in non-public schema
 
 ## 2.0.6
 
