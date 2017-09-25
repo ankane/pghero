@@ -133,7 +133,7 @@ module PgHero
         query_stats.select { |q| q[:calls].to_i >= slow_query_calls.to_i && q[:average_time].to_f >= slow_query_ms.to_f }
       end
 
-      def query_hash_stats(query_hash)
+      def query_hash_stats(query_hash, user: nil)
         if historical_query_stats_enabled? && supports_query_hash?
           start_at = 24.hours.ago
           select_all_stats <<-SQL
@@ -149,6 +149,7 @@ module PgHero
               database = #{quote(id)}
               AND captured_at >= #{quote(start_at)}
               AND query_hash = #{quote(query_hash)}
+              #{user ? "AND \"user\" = #{quote(user)}" : ""}
             ORDER BY
               1 ASC
           SQL

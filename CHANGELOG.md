@@ -1,3 +1,7 @@
+## 2.0.7 [unreleased]
+
+- Fixed query details when multiple users have same query hash
+
 ## 2.0.6
 
 - More robust methods for multiple databases

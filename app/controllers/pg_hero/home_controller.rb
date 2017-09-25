@@ -155,15 +155,16 @@ module PgHero
 
     def show_query
       @query_hash = params[:query_hash].to_i
+      @user = params[:user].to_s
       @title = @query_hash
 
-      stats = @database.query_stats(historical: true, query_hash: @query_hash, start_at: 24.hours.ago).first
+      stats = @database.query_stats(historical: true, query_hash: @query_hash, start_at: 24.hours.ago).find { |qs| qs[:user] == @user }
       if stats
         @query = stats[:query]
         @explainable_query = stats[:explainable_query]
 
         if @show_details
-          query_hash_stats = @database.query_hash_stats(@query_hash)
+          query_hash_stats = @database.query_hash_stats(@query_hash, user: @user)
 
           @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at], (r[:total_minutes] * 60 * 1000).round] }, library: chart_library_options}]
           @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at], r[:average_time].round(1)] }, library: chart_library_options}]
