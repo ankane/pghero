@@ -56,10 +56,11 @@ module PgHero
         true
       end
 
-      def reset_query_stats
+      def reset_query_stats(raise_errors: false)
         execute("SELECT pg_stat_statements_reset()")
         true
-      rescue ActiveRecord::StatementInvalid
+      rescue ActiveRecord::StatementInvalid => e
+        raise e if raise_errors
         false
       end
 
@@ -87,7 +88,7 @@ module PgHero
       #
       # to get around this, we capture queries for every Postgres database before we
       # reset query stats for the Postgres instance with the `capture_query_stats` option
-      def capture_query_stats
+      def capture_query_stats(raise_errors: false)
         return if config["capture_query_stats"] && config["capture_query_stats"] != true
 
         # get all databases that use same query stats and build mapping
@@ -105,7 +106,7 @@ module PgHero
 
         supports_query_hash = supports_query_hash?
 
-        if query_stats.any? { |_, v| v.any? } && reset_query_stats
+        if query_stats.any? { |_, v| v.any? } && reset_query_stats(raise_errors: raise_errors)
           query_stats.each do |db_id, db_query_stats|
             if db_query_stats.any?
               values =
