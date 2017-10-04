@@ -81,3 +81,18 @@ remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.i
     </tbody>
   </table>
 </div>
+
+<div class="content">
+  <h2>Temporary files</h2>
+  <% if @temp_files_stats[:temp_files].zero? %>
+    <p>
+      Great news! Your database doesn't need to create temporary files to operate.
+    </p>
+  <% else %>
+    <p>
+      So far your database produced <%= @temp_files_stats[:temp_files] %> temporary files, in total size of <%= @temp_files_stats[:temp_bytes] %> bytes.
+      <br/>
+      You may want to review your queries or adjust <kbd>WORK_MEM</kbd> setting.
+    </p>
+  <% end %>
+</div>

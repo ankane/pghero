@@ -93,6 +93,7 @@ module PgHero
       @show_migrations = PgHero.show_migrations
       @system_stats_enabled = @database.system_stats_enabled?
       @index_bloat = [] # @database.index_bloat
+      @temp_files_stats = @database.temp_files_stats
     end
 
     def relation_space

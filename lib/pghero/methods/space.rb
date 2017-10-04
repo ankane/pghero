@@ -132,6 +132,15 @@ module PgHero
       def space_stats_enabled?
         table_exists?("pghero_space_stats")
       end
+
+      def temp_files_stats
+        query = <<-SQL
+          SELECT temp_files, temp_bytes
+          FROM pg_stat_database
+          WHERE datname = current_database()
+        SQL
+        select_all(query).first
+      end
     end
   end
 end
