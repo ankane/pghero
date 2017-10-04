@@ -4,7 +4,8 @@ module PgHero
       def sequences
         sequences = select_all <<-SQL
           SELECT
-            n.nspname AS schema,
+            ns.nspname AS schema,
+            n.nspname AS schema_t,
             c.relname AS table,
             attname AS column,
             format_type(a.atttypid, a.atttypmod) AS column_type,
@@ -21,6 +22,8 @@ module PgHero
           INNER JOIN
             pg_catalog.pg_class s ON s.relkind = 'S'
             AND s.relname = regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
+          INNER JOIN
+              pg_catalog.pg_namespace ns ON ns.oid = s.relnamespace
           WHERE
             NOT a.attisdropped
             AND a.attnum > 0
