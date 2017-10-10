@@ -5,7 +5,7 @@ module PgHero
         sequences = select_all <<-SQL
           SELECT
             ns.nspname AS schema,
-            n.nspname AS schema_t,
+            n.nspname AS table_schema,
             c.relname AS table,
             attname AS column,
             format_type(a.atttypid, a.atttypmod) AS column_type,
@@ -21,13 +21,16 @@ module PgHero
             pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid,  d.adnum)
           INNER JOIN
             pg_catalog.pg_class s ON s.relkind = 'S'
-            AND s.relname = regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
           INNER JOIN
-              pg_catalog.pg_namespace ns ON ns.oid = s.relnamespace
+            pg_catalog.pg_namespace ns ON ns.oid = s.relnamespace
           WHERE
             NOT a.attisdropped
             AND a.attnum > 0
             AND d.adsrc LIKE 'nextval%'
+            AND (
+              s.relname = regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
+              OR ns.nspname || '.' || s.relname = regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
+            )
           ORDER BY
             s.relname ASC
         SQL
