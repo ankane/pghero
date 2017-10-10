@@ -4,32 +4,39 @@ module PgHero
       def sequences
         sequences = select_all <<-SQL
           SELECT
-            ns.nspname AS schema,
-            n.nspname AS schema_t,
-            c.relname AS table,
-            attname AS column,
-            format_type(a.atttypid, a.atttypmod) AS column_type,
-            CASE WHEN format_type(a.atttypid, a.atttypmod) = 'integer' THEN 2147483647::bigint ELSE (pg_sequence_parameters(s.oid)).maximum_value::bigint END AS max_value,
-            s.relname AS sequence
+            S.SCHEMANAME AS SCHEMA,
+            N.NSPNAME AS TABLE_SCHEMA,
+            C.RELNAME AS TABLE,
+            A.ATTNAME AS COLUMN,
+            FORMAT_TYPE(A.ATTTYPID, A.ATTTYPMOD) AS COLUMN_TYPE,
+            CASE WHEN FORMAT_TYPE(A.ATTTYPID, A.ATTTYPMOD) = 'INTEGER'
+              THEN 2147483647 :: BIGINT
+            ELSE (PG_SEQUENCE_PARAMETERS(S.RELID)).MAXIMUM_VALUE :: BIGINT END AS MAX_VALUE,
+            S.RELNAME AS SEQUENCE
           FROM
-            pg_catalog.pg_attribute a
-          INNER JOIN
-            pg_catalog.pg_class c ON c.oid = a.attrelid
-          INNER JOIN
-            pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-          LEFT JOIN
-            pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid,  d.adnum)
-          INNER JOIN
-            pg_catalog.pg_class s ON s.relkind = 'S'
-            AND s.relname = regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
-          INNER JOIN
-              pg_catalog.pg_namespace ns ON ns.oid = s.relnamespace
+            PG_CATALOG.PG_ATTRIBUTE A
+            INNER JOIN
+            PG_CATALOG.PG_CLASS C ON C.OID = A.ATTRELID
+            LEFT JOIN
+            PG_CATALOG.PG_ATTRDEF D ON (A.ATTRELID, A.ATTNUM) = (D.ADRELID, D.ADNUM)
+            INNER JOIN
+            PG_CATALOG.PG_NAMESPACE N ON N.OID = C.RELNAMESPACE
+            INNER JOIN (
+                         SELECT C.OID AS RELID,
+                                N.NSPNAME AS SCHEMANAME,
+                                C.RELNAME AS RELNAME
+                         FROM (PG_CLASS C
+                           LEFT JOIN PG_NAMESPACE N ON ((N.OID = C.RELNAMESPACE)))
+                         WHERE (C.RELKIND = 'S'::"char")
+                               AND ((N.NSPNAME <> ALL (ARRAY ['pg_catalog' :: NAME, 'information_schema' :: NAME])) AND
+                                    (N.NSPNAME !~ '^PG_TOAST' :: TEXT))
+                       ) S
+              ON D.ADSRC LIKE '%'|| S.RELNAME ||'%'
           WHERE
-            NOT a.attisdropped
-            AND a.attnum > 0
-            AND d.adsrc LIKE 'nextval%'
+            NOT A.ATTISDROPPED
+            AND A.ATTNUM > 0
           ORDER BY
-            s.relname ASC
+            S.RELNAME ASC;
         SQL
 
         select_all(sequences.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")).each_with_index do |row, i|
