@@ -27,10 +27,7 @@ module PgHero
             NOT a.attisdropped
             AND a.attnum > 0
             AND d.adsrc LIKE 'nextval%'
-            AND (
-              s.relname = regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
-              OR ns.nspname || '.' || s.relname = regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1')
-            )
+            AND regexp_replace(d.adsrc, '^nextval\\(''(.*)''\\:\\:regclass\\)$', '\\1') IN (s.relname, ns.nspname || '.' || s.relname)
           ORDER BY
             s.relname ASC
         SQL
