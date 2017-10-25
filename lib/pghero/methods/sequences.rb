@@ -37,7 +37,7 @@ module PgHero
           sequences[i][:last_value] = row[:last_value]
         end
 
-        sequences
+        sequences.sort_by { |s| s[:sequence] }
       end
 
       def sequence_danger(threshold: 0.9)
