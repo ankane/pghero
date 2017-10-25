@@ -3,6 +3,8 @@ module PgHero
     module Sequences
       def sequences
         # get columns with default values
+        # use pg_get_expr to get correct default value
+        # it's what information_schema.columns uses
         sequences = select_all <<-SQL
           SELECT
             n.nspname AS table_schema,
