@@ -1,7 +1,9 @@
-## 2.0.7 [unreleased]
+## 2.0.7
 
+- Fixed issue with sequences in different schema than table
 - Fixed query details when multiple users have same query hash
 - Fixed error with invalid indexes in non-public schema
+- Raise error when capture query stats fails
 
 ## 2.0.6
 
