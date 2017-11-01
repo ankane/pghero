@@ -188,6 +188,10 @@ module PgHero
         return {error: "Unknown structure"} unless tree.size == 1
 
         tree = tree.first
+
+        # pg_query 1.0.0
+        tree = tree["RawStmt"]["stmt"] if tree["RawStmt"]
+
         table = parse_table(tree) rescue nil
         unless table
           error =

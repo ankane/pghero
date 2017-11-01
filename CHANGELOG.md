@@ -1,3 +1,7 @@
+## 2.0.8 [unreleased]
+
+- Added support for pg_query 1.0.0
+
 ## 2.0.7
 
 - Fixed issue with sequences in different schema than table
