@@ -1,7 +1,7 @@
 module PgHero
   module Methods
     module Queries
-      def running_queries(min_duration: nil)
+      def running_queries(min_duration: nil, all: false)
         select_all <<-SQL
           SELECT
             pid,
@@ -16,11 +16,11 @@ module PgHero
           FROM
             pg_stat_activity
           WHERE
-            query <> '<insufficient privilege>'
-            AND state <> 'idle'
+            state <> 'idle'
             AND pid <> pg_backend_pid()
             AND datname = current_database()
             #{min_duration ? "AND NOW() - COALESCE(query_start, xact_start) > interval '#{min_duration.to_i} seconds'" : nil}
+            #{all ? nil : "AND query <> '<insufficient privilege>'"}
           ORDER BY
             COALESCE(query_start, xact_start) DESC
         SQL

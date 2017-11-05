@@ -1,6 +1,7 @@
 ## 2.0.8 [unreleased]
 
 - Added support for pg_query 1.0.0
+- Show queries with insufficient privilege on live queries page
 
 ## 2.0.7
 
