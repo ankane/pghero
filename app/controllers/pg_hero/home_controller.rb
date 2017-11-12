@@ -7,12 +7,10 @@ module PgHero
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
     if respond_to?(:before_action)
-      before_action :check_api
       before_action :set_database
       before_action :set_query_stats_enabled
       before_action :set_show_details, only: [:index, :queries, :show_query]
     else
-      # no need to check API in earlier versions
       before_filter :set_database
       before_filter :set_query_stats_enabled
       before_filter :set_show_details, only: [:index, :queries, :show_query]
@@ -372,10 +370,6 @@ module PgHero
         top_connections[source[key]] += source[:total_connections]
       end
       top_connections.sort_by { |k, v| [-v, k] }
-    end
-
-    def check_api
-      render_text "No support for Rails API. See https://github.com/pghero/pghero for a standalone app." if Rails.application.config.try(:api_only)
     end
 
     def render_text(message)
