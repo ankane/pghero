@@ -9,11 +9,18 @@ module PgHero
       end
 
       # http://www.postgresql.org/message-id/CADKbJJWz9M0swPT3oqe8f9+tfD4-F54uE6Xtkh4nERpVsQnjnw@mail.gmail.com
-      def replication_lag
+      def replication_lag        
+        # If pg version 10 or higher, use updated function names
+        last_transaction_log = 'pg_last_xlog_receive_location()'
+        last_replay_location = 'pg_last_xlog_replay_location()'
+        if server_version_num >= 100000
+          last_transaction_log = 'pg_last_wal_receive_lsn()'
+          last_replay_location = 'pg_last_wal_replay_lsn()'
+        end        
         select_one <<-SQL
           SELECT
             CASE
-              WHEN NOT pg_is_in_recovery() OR pg_last_xlog_receive_location() = pg_last_xlog_replay_location() THEN 0
+              WHEN NOT pg_is_in_recovery() OR #{last_transaction_log} = #{last_replay_location} THEN 0
               ELSE EXTRACT (EPOCH FROM NOW() - pg_last_xact_replay_timestamp())
             END
           AS replication_lag
