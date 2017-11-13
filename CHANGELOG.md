@@ -1,7 +1,9 @@
-## 2.0.8 [unreleased]
+## 2.0.8
 
+- Added support for Postgres 10 replicas
 - Added support for pg_query 1.0.0
 - Show queries with insufficient privilege on live queries page
+- Default to table schema for sequences
 
 ## 2.0.7
 
