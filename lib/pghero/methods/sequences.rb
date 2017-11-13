@@ -28,8 +28,7 @@ module PgHero
 
         # parse out sequence
         sequences.each do |column|
-          m = /^nextval\('(.+)'\:\:regclass\)$/.match(column.delete(:default_value))
-          column[:schema], column[:sequence] = unquote_ident(m[1])
+          column[:schema], column[:sequence] = unquote_ident(column)
           column[:max_value] = column[:column_type] == 'integer' ? 2147483647 : 9223372036854775807
         end
 
@@ -46,11 +45,13 @@ module PgHero
 
       private
 
-      def unquote_ident(value)
-        schema, seq = value.split(".")
+      def unquote_ident(column)
+        m = /^nextval\('(.+)'\:\:regclass\)$/.match(column.delete(:default_value))
+
+        schema, seq = m[1].split(".")
         unless seq
           seq = schema
-          schema = 'public'
+          schema = column[:table_schema]
         end
         [unquote(schema), unquote(seq)]
       end
