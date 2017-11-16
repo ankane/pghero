@@ -17,7 +17,7 @@ module PgHero
           INNER JOIN
             pg_catalog.pg_class c ON c.oid = a.attrelid
           INNER JOIN
-            pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            pg_catalog.pg_namespace n ON n.oid = c.relnamespace AND n.nspname AND pg_catalog.pg_table_is_visible(c.oid)
           INNER JOIN
             pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid,  d.adnum)
           WHERE
