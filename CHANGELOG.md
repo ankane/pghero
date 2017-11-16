@@ -1,3 +1,7 @@
+## 2.0.9 [unreleased]
+
+- Fixed replication lag for Amazon Aurora
+
 ## 2.0.8
 
 - Added support for Postgres 10 replicas

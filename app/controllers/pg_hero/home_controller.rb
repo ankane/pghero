@@ -24,7 +24,7 @@ module PgHero
 
       if @replica
         @replication_lag = @database.replication_lag
-        @good_replication_lag = @replication_lag < 5
+        @good_replication_lag = @replication_lag ? @replication_lag < 5 : true
       else
         @inactive_replication_slots = @database.replication_slots.select { |r| !r[:active] }
       end

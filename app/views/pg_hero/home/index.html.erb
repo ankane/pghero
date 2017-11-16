@@ -1,12 +1,16 @@
 <div id="status">
   <% if @replica %>
     <div class="alert alert-<%= @good_replication_lag ? "success" : "warning" %>">
-      <% if @good_replication_lag %>
-        Healthy replication lag
+      <% if @replication_lag %>
+        <% if @good_replication_lag %>
+          Healthy replication lag
+        <% else %>
+          High replication lag
+        <% end %>
+        <span class="tiny"><%= number_with_delimiter((@replication_lag * 1000).round) %> ms</span>
       <% else %>
-        High replication lag
+        Replication lag not supported
       <% end %>
-      <span class="tiny"><%= number_with_delimiter((@replication_lag * 1000).round) %> ms</span>
     </div>
   <% elsif @inactive_replication_slots.any? %>
     <div class="alert alert-warning">
