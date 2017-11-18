@@ -109,6 +109,7 @@ module PgHero
 
     def capture_query_stats(verbose: false)
       each_database do |database|
+        next unless database.capture_query_stats?
         puts "Capturing query stats for #{database.id}..." if verbose
         database.capture_query_stats(raise_errors: true)
       end
