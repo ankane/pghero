@@ -35,9 +35,19 @@ module PgHero
       def select_all(sql, conn = nil)
         conn ||= connection
         # squish for logs
-        result = conn.select_all(squish(sql))
-        cast_method = ActiveRecord::VERSION::MAJOR < 5 ? :type_cast : :cast_value
-        result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(cast_method, val)] }] }
+        retries = 0
+        begin
+          result = conn.select_all(squish(sql))
+          cast_method = ActiveRecord::VERSION::MAJOR < 5 ? :type_cast : :cast_value
+          result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(cast_method, val)] }] }
+        rescue PG::InternalError
+          # fix for random internal errors
+          retries += 1
+          if retries > 1
+            sleep(0.1)
+            retry
+          end
+        end
       end
 
       def select_all_stats(sql)
