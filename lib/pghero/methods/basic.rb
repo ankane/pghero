@@ -42,7 +42,7 @@ module PgHero
           result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(cast_method, val)] }] }
         rescue PG::InternalError
           # fix for random internal errors
-          if retries < 1
+          if retries < 2
             retries += 1
             sleep(0.1)
             retry
