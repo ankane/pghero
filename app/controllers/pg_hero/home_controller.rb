@@ -11,11 +11,13 @@ module PgHero
       before_action :set_database
       before_action :set_query_stats_enabled
       before_action :set_show_details, only: [:index, :queries, :show_query]
+      before_action :ensure_query_stats, only: [:queries]
     else
       # no need to check API in earlier versions
       before_filter :set_database
       before_filter :set_query_stats_enabled
       before_filter :set_show_details, only: [:index, :queries, :show_query]
+      before_filter :ensure_query_stats, only: [:queries]
     end
 
     def index
@@ -383,6 +385,12 @@ module PgHero
         render plain: message
       else
         render text: message
+      end
+    end
+
+    def ensure_query_stats
+      unless @query_stats_enabled
+        redirect_to root_path, alert: "Query stats not enabled"
       end
     end
   end
