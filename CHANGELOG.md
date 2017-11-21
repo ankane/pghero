@@ -1,6 +1,7 @@
 ## 2.0.9 [unreleased]
 
 - Fixed replication lag for Amazon Aurora
+- Added `vacuum_progress` method
 
 ## 2.0.8
 

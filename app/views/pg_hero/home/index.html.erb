@@ -145,7 +145,7 @@
 
     <pre><code>ALTER ROLE &lt;user&gt; SET statement_timeout TO '60s';</code></pre>
 
-    <%= render partial: "live_queries_table", locals: {queries: @long_running_queries} %>
+    <%= render partial: "live_queries_table", locals: {queries: @long_running_queries, vacuum_progress: {}} %>
   </div>
 <% end %>
 

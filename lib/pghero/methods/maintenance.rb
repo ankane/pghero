@@ -33,6 +33,22 @@ module PgHero
         transaction_id_danger(threshold: 2000000, max_value: max_value)
       end
 
+      def vacuum_progress
+        if server_version_num >= 90600
+          select_all <<-SQL
+            SELECT
+              pid,
+              phase
+            FROM
+              pg_stat_progress_vacuum
+            WHERE
+              datname = current_database()
+          SQL
+        else
+          []
+        end
+      end
+
       def maintenance_info
         select_all <<-SQL
           SELECT

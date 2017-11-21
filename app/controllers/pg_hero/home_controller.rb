@@ -114,6 +114,7 @@ module PgHero
     def live_queries
       @title = "Live Queries"
       @running_queries = @database.running_queries(all: true)
+      @vacuum_progress = @database.vacuum_progress.index_by { |q| q[:pid] }
     end
 
     def queries

@@ -3,7 +3,7 @@
 
   <p><%= pluralize(@running_queries.size, "query") %></p>
 
-  <%= render partial: "live_queries_table", locals: {queries: @running_queries} %>
+  <%= render partial: "live_queries_table", locals: {queries: @running_queries, vacuum_progress: @vacuum_progress} %>
 
   <p><%= button_to "Kill all connections", kill_all_path, class: "btn btn-danger" %></p>
 

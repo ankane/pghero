@@ -12,7 +12,13 @@
       <tr>
         <td><%= query[:pid] %></td>
         <td><%= number_with_delimiter(query[:duration_ms].round) %> ms</td>
-        <td><%= query[:state] %></td>
+        <td>
+          <%= query[:state] %>
+          <% if vacuum_progress[query[:pid]] %>
+            <br />
+            <strong><%= vacuum_progress[query[:pid]][:phase] %></strong>
+          <% end %>
+        </td>
         <td class="text-right">
           <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: query[:query]}}] : [explain_path(query: query[:query]), {}] %>
           <%= button_to "Explain", button_path, button_options.merge(form: {target: "_blank"}, class: "btn btn-info") %>
