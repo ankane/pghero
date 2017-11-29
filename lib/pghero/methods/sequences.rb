@@ -62,12 +62,11 @@ module PgHero
       # also adds schema if missing
       def add_sequence_attributes(sequences)
         # fetch data
-        # readable logic matches that of information_schema view
         sequence_attributes = select_all <<-SQL
           SELECT
             n.nspname AS schema,
             c.relname AS sequence,
-            (pg_has_role(c.relowner, 'USAGE') OR has_sequence_privilege(c.oid, 'SELECT, UPDATE, USAGE')) AS readable
+            has_sequence_privilege(c.oid, 'SELECT') AS readable
           FROM
             pg_class c
           INNER JOIN
