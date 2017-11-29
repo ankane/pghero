@@ -52,12 +52,13 @@
     <% end %>
   </div>
   <div class="alert alert-<%= @sequence_danger && @sequence_danger.empty? ? "success" : "warning" %>">
-    <% if !@sequence_danger %>
-      Error checking for columns near integer overflow: <%= @sequence_danger_error %>
-    <% elsif @sequence_danger.any? %>
+    <% if @sequence_danger.any? %>
       <%= pluralize(@sequence_danger.size, "columns") %> approaching overflow
     <% else %>
       No columns near integer overflow
+    <% end %>
+    <% if @unreadable_sequences.any? %>
+      (<%= link_to "#{pluralize(@unreadable_sequences.size, "sequences")} are unreadable", {unreadable: "t"} %>)
     <% end %>
   </div>
   <div class="alert alert-<%= @invalid_indexes.empty? ? "success" : "warning" %>">
@@ -104,6 +105,39 @@
     </div>
   <% end %>
 </div>
+
+<% if params[:unreadable] && @unreadable_sequences.any? %>
+  <div class="content">
+    <h1>Unreadable Sequences</h1>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="width: 33%;">Column</th>
+          <th>Sequence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @unreadable_sequences.each do |sequence| %>
+          <tr>
+            <td>
+              <%= sequence[:table] %>.<%= sequence[:column] %>
+              <% if sequence[:table_schema] != "public" %>
+                <span class="text-muted"><%= sequence[:table_schema] %></span>
+              <% end %>
+            </td>
+            <td>
+              <%= sequence[:sequence] %>
+              <% if sequence[:schema] && sequence[:schema] != "public" %>
+                <span class="text-muted"><%= sequence[:schema] %></span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
 
 <% if @replica && !@good_replication_lag %>
   <div class="content">
@@ -228,6 +262,9 @@
           <tr>
             <td>
               <%= query[:table] %>.<%= query[:column] %>
+              <% if query[:table_schema] != "public" %>
+                <span class="text-muted"><%= query[:table_schema] %></span>
+              <% end %>
             </td>
             <td>
               <%= query[:column_type] %>

@@ -1,5 +1,7 @@
-## 2.0.9 [unreleased]
+## 2.1.0 [unreleased]
 
+- Fixed issue with sequences in different schema than table
+- No longer throw errors for unreadable sequences
 - Fixed replication lag for Amazon Aurora
 - Added `vacuum_progress` method
 

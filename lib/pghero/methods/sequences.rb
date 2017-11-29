@@ -33,18 +33,18 @@ module PgHero
           column[:max_value] = column[:column_type] == 'integer' ? 2147483647 : 9223372036854775807
         end
 
-        # fetch schema for sequences that don't have it
-        populate_missing_schemas(sequences)
+        add_sequence_attributes(sequences)
 
-        select_all(sequences.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")).each_with_index do |row, i|
+        select_all(sequences.select { |s| s[:readable] }.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")).each_with_index do |row, i|
           sequences[i][:last_value] = row[:last_value]
         end
 
         sequences.sort_by { |s| s[:sequence] }
       end
 
-      def sequence_danger(threshold: 0.9)
-        sequences.select { |s| s[:last_value] / s[:max_value].to_f > threshold }.sort_by { |s| s[:max_value] - s[:last_value] }
+      def sequence_danger(threshold: 0.9, sequences: nil)
+        sequences ||= self.sequences
+        sequences.select { |s| s[:last_value] && s[:last_value] / s[:max_value].to_f > threshold }.sort_by { |s| s[:max_value] - s[:last_value] }
       end
 
       private
@@ -58,33 +58,35 @@ module PgHero
         [unquote(schema), unquote(seq)]
       end
 
-      def populate_missing_schemas(sequences)
-        missing_schema_sequences = sequences.select { |s| s[:schema].nil? }
+      # adds readable attribute to all sequences
+      # also adds schema if missing
+      def add_sequence_attributes(sequences)
+        # fetch data
+        sequence_attributes = select_all <<-SQL
+          SELECT
+            n.nspname AS schema,
+            c.relname AS sequence,
+            (pg_has_role(c.relowner, 'USAGE') OR has_sequence_privilege(c.oid, 'SELECT, UPDATE, USAGE')) AS readable
+          FROM
+            pg_class c
+          INNER JOIN
+            pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+          WHERE
+            c.relkind = 'S'
+            AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+        SQL
 
-        if missing_schema_sequences.any?
-          # query sequences
-          sequence_schemas = select_all <<-SQL
-            SELECT
-              n.nspname AS schema,
-              c.relname AS sequence
-            FROM
-              pg_class c
-            INNER JOIN
-              pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-            WHERE
-              c.relkind = 'S'
-              AND c.relname IN (#{missing_schema_sequences.map { |s| s[:sequence] }.map { |t| quote(t) }.join(", ")})
-          SQL
+        # first populate missing schemas
+        missing_schema = sequences.select { |s| s[:schema].nil? }
+        if missing_schema.any?
+          sequence_schemas = sequence_attributes.group_by { |s| s[:sequence] }
 
-          sequence_schemas = sequence_schemas.group_by { |s| s[:sequence] }
-
-          missing_schema_sequences.each do |sequence|
+          missing_schema.each do |sequence|
             schemas = sequence_schemas[sequence[:sequence]] || []
 
-            # TODO handle error cases better
             case schemas.size
             when 0
-              raise PgHero::Error, "Sequence not found: #{sequence[:sequence]}"
+              # do nothing, will be marked as unreadable
             when 1
               # bingo
               sequence[:schema] = schemas[0][:schema]
@@ -92,6 +94,12 @@ module PgHero
               raise PgHero::Error, "Same sequence name in multiple schemas: #{sequence[:sequence]}"
             end
           end
+        end
+
+        # then populate attributes
+        readable = Hash[sequence_attributes.map { |s| [[s[:schema], s[:sequence]], s[:readable]] }]
+        sequences.each do |sequence|
+          sequence[:readable] = readable[[sequence[:schema], sequence[:sequence]]] || false
         end
       end
     end

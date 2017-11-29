@@ -38,15 +38,9 @@ module PgHero
 
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
 
-      begin
-        @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f)
-      rescue ActiveRecord::StatementInvalid => e
-        if (m = /permission denied for [^:]+/.match(e.message))
-          @sequence_danger_error = m[0]
-        else
-          raise
-        end
-      end
+      @readable_sequences, @unreadable_sequences = @database.sequences.partition { |s| s[:readable] }
+
+      @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f, sequences: @readable_sequences)
 
       @indexes = @database.indexes
       @invalid_indexes = @indexes.select { |i| !i[:valid] }
