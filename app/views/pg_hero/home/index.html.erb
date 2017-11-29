@@ -53,12 +53,12 @@
   </div>
   <div class="alert alert-<%= @sequence_danger && @sequence_danger.empty? ? "success" : "warning" %>">
     <% if @sequence_danger.any? %>
-      <%= pluralize(@sequence_danger.size, "columns") %> approaching overflow
+      <%= pluralize(@sequence_danger.size, "column") %> approaching overflow
     <% else %>
       No columns near integer overflow
     <% end %>
     <% if @unreadable_sequences.any? %>
-      (<%= link_to "#{pluralize(@unreadable_sequences.size, "sequences")} are unreadable", {unreadable: "t"} %>)
+      (<%= link_to "#{pluralize(@unreadable_sequences.size, "sequence is", "sequences are")} unreadable", {unreadable: "t"} %>)
     <% end %>
   </div>
   <div class="alert alert-<%= @invalid_indexes.empty? ? "success" : "warning" %>">
