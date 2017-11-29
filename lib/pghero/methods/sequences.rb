@@ -81,7 +81,7 @@ module PgHero
           missing_schema_sequences.each do |sequence|
             schemas = sequence_schemas[sequence[:sequence]] || []
 
-            # TODO error cases better
+            # TODO handle error cases better
             case schemas.size
             when 0
               raise PgHero::Error, "Sequence not found: #{sequence[:sequence]}"
