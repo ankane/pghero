@@ -58,7 +58,7 @@
       No columns near integer overflow
     <% end %>
     <% if @unreadable_sequences.any? %>
-      (<%= link_to "#{pluralize(@unreadable_sequences.size, "sequence is", "sequences are")} unreadable", {unreadable: "t"} %>)
+      (<%= link_to pluralize(@unreadable_sequences.size, "unreadable sequence", "unreadable sequences"), {unreadable: "t"} %>)
     <% end %>
   </div>
   <div class="alert alert-<%= @invalid_indexes.empty? ? "success" : "warning" %>">
