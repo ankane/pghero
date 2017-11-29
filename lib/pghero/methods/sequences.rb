@@ -62,6 +62,7 @@ module PgHero
       # also adds schema if missing
       def add_sequence_attributes(sequences)
         # fetch data
+        # readable logic from information_schema view
         sequence_attributes = select_all <<-SQL
           SELECT
             n.nspname AS schema,
