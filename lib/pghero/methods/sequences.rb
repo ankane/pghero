@@ -29,9 +29,12 @@ module PgHero
         # parse out sequence
         sequences.each do |column|
           m = /^nextval\('(.+)'\:\:regclass\)$/.match(column.delete(:default_value))
-          column[:schema], column[:sequence] = unquote_ident(m[1], column[:table_schema])
+          column[:schema], column[:sequence] = unquote_ident(m[1])
           column[:max_value] = column[:column_type] == 'integer' ? 2147483647 : 9223372036854775807
         end
+
+        # fetch schema for sequences that don't have it
+        populate_missing_schemas(sequences)
 
         select_all(sequences.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")).each_with_index do |row, i|
           sequences[i][:last_value] = row[:last_value]
@@ -46,13 +49,50 @@ module PgHero
 
       private
 
-      def unquote_ident(value, default_schema)
+      def unquote_ident(value)
         schema, seq = value.split(".")
         unless seq
           seq = schema
-          schema = default_schema
+          schema = nil
         end
         [unquote(schema), unquote(seq)]
+      end
+
+      def populate_missing_schemas(sequences)
+        missing_schema_sequences = sequences.select { |s| s[:schema].nil? }
+
+        if missing_schema_sequences.any?
+          # query sequences
+          sequence_schemas = select_all <<-SQL
+            SELECT
+              n.nspname AS schema,
+              c.relname AS sequence
+            FROM
+              pg_class c
+            INNER JOIN
+              pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE
+              c.relkind = 'S'
+              AND c.relname IN (#{missing_schema_sequences.map { |s| s[:sequence] }.map { |t| quote(t) }.join(", ")})
+          SQL
+
+          sequence_schemas = sequence_schemas.group_by { |s| s[:sequence] }
+
+          missing_schema_sequences.each do |sequence|
+            schemas = sequence_schemas[sequence[:sequence]] || []
+
+            # TODO error cases better
+            case schemas.size
+            when 0
+              raise PgHero::Error, "Sequence not found: #{sequence[:sequence]}"
+            when 1
+              # bingo
+              sequence[:schema] = schemas[0][:schema]
+            else
+              raise PgHero::Error, "Same sequence name in multiple schemas: #{sequence[:sequence]}"
+            end
+          end
+        end
       end
     end
   end
