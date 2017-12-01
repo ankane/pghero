@@ -1,4 +1,4 @@
-## 2.1.0 [unreleased]
+## 2.1.0
 
 - Fixed issue with sequences in different schema than table
 - No longer throw errors for unreadable sequences
