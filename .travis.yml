@@ -8,12 +8,20 @@ rvm:
   - 2.4.2
   - ruby-head
 
+env:
+  - POSTGRESQL_VERSION=9.2
+  - POSTGRESQL_VERSION=9.3
+  - POSTGRESQL_VERSION=9.4
+  - POSTGRESQL_VERSION=9.5
+  - POSTGRESQL_VERSION=9.6
+
 script: TRAVIS_CI=1 bundle exec rake test
 
-addons:
-  postgresql: "9.4"
+before_install:
+  - sudo service postgresql stop && sudo service postgresql start $POSTGRESQL_VERSION
 
 before_script:
+  - psql -U postgres -tc 'SHOW server_version'
   - psql -c 'create database pghero_test;' -U postgres
 
 notifications:
