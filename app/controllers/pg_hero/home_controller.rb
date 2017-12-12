@@ -196,6 +196,8 @@ module PgHero
 
       if @duration / @period > 1440
         render_text "Too many data points"
+      elsif @period % 60 != 0
+        render_text "Period must be a multiple of 60"
       end
     end
 
