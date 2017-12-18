@@ -84,15 +84,11 @@ module PgHero
           missing_schema.each do |sequence|
             schemas = sequence_schemas[sequence[:sequence]] || []
 
-            case schemas.size
-            when 0
-              # do nothing, will be marked as unreadable
-            when 1
-              # bingo
+            if schemas.size == 1
               sequence[:schema] = schemas[0][:schema]
-            else
-              raise PgHero::Error, "Same sequence name in multiple schemas: #{sequence[:sequence]}"
             end
+            # otherwise, do nothing, will be marked as unreadable
+            # TODO better message for multiple schemas
           end
         end
 
