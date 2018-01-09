@@ -3,7 +3,7 @@ module PgHero
     def pghero_pretty_ident(table, schema: nil)
       ident = table
       if schema && schema != "public"
-        indent = "#{schema}.#{table}"
+        ident = "#{schema}.#{table}"
       end
       if ident =~ /\A[a-z0-9_]+\z/
         ident
