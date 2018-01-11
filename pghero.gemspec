@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   if RUBY_PLATFORM == "java"
     spec.add_development_dependency "activerecord-jdbcpostgresql-adapter"
   else
-    spec.add_development_dependency "pg"
+    spec.add_development_dependency "pg", "< 1.0.0"
     spec.add_development_dependency "pg_query"
   end
 end
