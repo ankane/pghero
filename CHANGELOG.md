@@ -1,3 +1,7 @@
+## 2.1.1 [unreleased]
+
+- Added `explain_timeout_sec` option
+
 ## 2.1.0
 
 - Fixed issue with sequences in different schema than table
@@ -92,7 +96,6 @@ PgHero.with(:database2) { PgHero.running_queries }
 - Added support for Rails API
 - Added support for Amazon STS
 - Fixed replica check when `hot_standby = on` for primary
-- Added configurable explain_timeout_sec
 
 ## 1.6.4
 

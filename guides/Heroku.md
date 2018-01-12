@@ -89,13 +89,14 @@ Minimum calls for slow queries
 heroku config:set PGHERO_SLOW_QUERY_CALLS=100 # default
 ```
 
-Statement Timeout for Explain
-```sh
-heroku config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
-````
-
 Minimum connections for high connections warning
 
 ```sh
 heroku config:set PGHERO_TOTAL_CONNECTIONS_THRESHOLD=100 # default
 ```
+
+Statement timeout for explain
+
+```sh
+heroku config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
+````

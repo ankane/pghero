@@ -242,16 +242,17 @@ Minimum calls for slow queries
 sudo pghero config:set PGHERO_SLOW_QUERY_CALLS=100 # default
 ```
 
-Statement Timeout for Explain
-```sh
-sudo pghero config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
-````
-
 Minimum connections for high connections warning
 
 ```sh
 sudo pghero config:set PGHERO_TOTAL_CONNECTIONS_THRESHOLD=100 # default
 ```
+
+Statement timeout for explain
+
+```sh
+sudo pghero config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
+````
 
 ## Upgrading
 
