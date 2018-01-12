@@ -12,6 +12,9 @@ databases:
     # Minimum calls for slow queries
     # slow_query_calls: 100
 
+    # Statement Timeout for Explain
+    # explain_timeout_sec: 10
+
     # Minimum connections for high connections warning
     # total_connections_threshold: 100
 

@@ -166,6 +166,11 @@ Minimum calls for slow queries
 PgHero.slow_query_calls = 100 # default
 ```
 
+Statement Timeout for Explain
+```ruby
+PgHero.explain_timeout_sec = 10 # default
+```
+
 Minimum connections for high connections warning
 
 ```ruby
