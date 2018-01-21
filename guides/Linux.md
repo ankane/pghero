@@ -4,6 +4,7 @@ Distributions
 
 - [Ubuntu 16.04 (Xenial)](#ubuntu-1604-xenial)
 - [Ubuntu 14.04 (Trusty)](#ubuntu-1404-trusty)
+- [Debian 9 (Stretch)](#debian-9-stretch)
 - [Debian 8 (Jesse)](#debian-8-jesse)
 - [Debian 7 (Wheezy)](#debian-7-wheezy)
 - [CentOS / RHEL 7](#centos--rhel-7)
@@ -29,6 +30,17 @@ sudo apt-get -y install pghero
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
   https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/14.04.repo
+sudo apt-get update
+sudo apt-get -y install pghero
+```
+
+### Debian 9 (Stretch)
+
+```sh
+sudo apt-get -y install apt-transport-https
+wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
+sudo wget -O /etc/apt/sources.list.d/pghero.list \
+  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/9.repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
