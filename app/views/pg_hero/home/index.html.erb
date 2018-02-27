@@ -129,9 +129,13 @@
               <% end %>
             </td>
             <td>
-              <%= sequence[:sequence] %>
-              <% if sequence[:schema] && sequence[:schema] != "public" %>
-                <span class="text-muted"><%= sequence[:schema] %></span>
+              <% if sequence[:sequence] %>
+                <%= sequence[:sequence] %>
+                <% if sequence[:schema] && sequence[:schema] != "public" %>
+                  <span class="text-muted"><%= sequence[:schema] %></span>
+                <% end %>
+              <% else %>
+                Unable to parse: <%= sequence[:default_value] %>
               <% end %>
             </td>
           </tr>

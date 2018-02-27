@@ -28,9 +28,12 @@ module PgHero
 
         # parse out sequence
         sequences.each do |column|
-          m = /^nextval\('(.+)'\:\:regclass\)$/.match(column.delete(:default_value))
-          column[:schema], column[:sequence] = unquote_ident(m[1])
-          column[:max_value] = column[:column_type] == 'integer' ? 2147483647 : 9223372036854775807
+          m = /^nextval\('(.+)'\:\:regclass\)$/.match(column[:default_value])
+          if m
+            column[:schema], column[:sequence] = unquote_ident(m[1])
+            column[:max_value] = column[:column_type] == 'integer' ? 2147483647 : 9223372036854775807
+            column.delete(:default_value)
+          end
         end
 
         add_sequence_attributes(sequences)
@@ -77,7 +80,7 @@ module PgHero
         SQL
 
         # first populate missing schemas
-        missing_schema = sequences.select { |s| s[:schema].nil? }
+        missing_schema = sequences.select { |s| s[:schema].nil? && s[:sequence] }
         if missing_schema.any?
           sequence_schemas = sequence_attributes.group_by { |s| s[:sequence] }
 

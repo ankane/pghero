@@ -1,6 +1,7 @@
 ## 2.1.1 [unreleased]
 
 - Added `explain_timeout_sec` option
+- Fixed error with unparsable sequences
 
 ## 2.1.0
 
