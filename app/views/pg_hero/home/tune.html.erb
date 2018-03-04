@@ -18,7 +18,7 @@
     </tbody>
   </table>
 
-  <p>Check out <%= link_to "PgTune", "http://pgtune.leopard.in.ua", target: "_blank" %> for recommendations. DB version is <%= @database.server_version.split(".").first(2).join(".") %>.</p>
+  <p>Check out <%= link_to "PgTune", "http://pgtune.leopard.in.ua", target: "_blank" %> for recommendations. DB version is <%= @database.server_version.split(" ").first.split(".").first(2).join(".") %>.</p>
 </div>
 
 <% if @autovacuum_settings %>
