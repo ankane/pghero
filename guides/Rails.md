@@ -335,5 +335,5 @@ CREATE EXTENSION pg_stat_statements;
 ## Bonus
 
 - See where queries come from with [Marginalia](https://github.com/basecamp/marginalia) - comments appear on the Live Queries tab.
-- Get weekly news and articles with [Postgres Weekly](http://postgresweekly.com)
-- Optimize your configuration with [PgTune](http://pgtune.leopard.in.ua) and [pgBench](http://www.postgresql.org/docs/devel/static/pgbench.html)
+- Get weekly news and articles with [Postgres Weekly](https://postgresweekly.com/)
+- Optimize your configuration with [PgTune](https://pgtune.leopard.in.ua/) and [pgBench](http://www.postgresql.org/docs/devel/static/pgbench.html)
