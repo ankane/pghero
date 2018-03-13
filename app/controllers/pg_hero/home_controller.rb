@@ -247,6 +247,10 @@ module PgHero
           @visualize = params[:commit] == "Visualize"
         rescue ActiveRecord::StatementInvalid => e
           @error = e.message
+
+          if @error.include?("bind message supplies 0 parameters")
+            @error = "Can't explain queries with bind parameters"
+          end
         end
       end
     end
