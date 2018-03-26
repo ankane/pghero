@@ -1,6 +1,6 @@
 # Query Stats
 
-The [pg_stat_statements module](http://www.postgresql.org/docs/9.3/static/pgstatstatements.html) is used for query stats.
+The [pg_stat_statements module](https://www.postgresql.org/docs/current/static/pgstatstatements.html) is used for query stats.
 
 ## Installation
 
