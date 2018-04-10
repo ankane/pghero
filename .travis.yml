@@ -1,8 +1,10 @@
 language: ruby
-rvm: 2.5.1
+rvm: 2.4.4
 cache: bundler
 sudo: false
 script: TRAVIS_CI=1 bundle exec rake test
+before_script:
+  - gem install bundler
 addons:
   postgresql: "9.4"
 before_script:
