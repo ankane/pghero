@@ -1,5 +1,5 @@
 language: ruby
-rvm: 2.2.4
+rvm: 2.5.1
 cache: bundler
 sudo: false
 script: TRAVIS_CI=1 bundle exec rake test
