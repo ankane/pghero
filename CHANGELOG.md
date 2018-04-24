@@ -1,7 +1,8 @@
-## 2.1.1 [unreleased]
+## 2.1.1
 
 - Added `explain_timeout_sec` option
 - Fixed error with unparsable sequences
+- Stopped throwing `Same sequence name in multiple schemas` error
 
 ## 2.1.0
 
