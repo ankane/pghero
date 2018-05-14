@@ -36,7 +36,7 @@ module PgHero
 
         add_sequence_attributes(sequences)
 
-        select_all(sequences.select { |s| s[:readable] }.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")).each_with_index do |row, i|
+        select_all(sequences.each_slice(1024) { |slice| slice.select { |s| s[:readable] }.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")}).each_with_index do |row, i|
           sequences[i][:last_value] = row[:last_value]
         end
 
