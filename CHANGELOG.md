@@ -1,3 +1,7 @@
+## 2.1.2 [unreleased]
+
+- Fixed error with large number of sequences
+
 ## 2.1.1
 
 - Added `explain_timeout_sec` option
