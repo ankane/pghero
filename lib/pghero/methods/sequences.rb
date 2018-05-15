@@ -1,6 +1,7 @@
 module PgHero
   module Methods
     module Sequences
+      require 'enumerator'
       def sequences
         # get columns with default values
         # use pg_get_expr to get correct default value
@@ -35,9 +36,10 @@ module PgHero
         end
 
         add_sequence_attributes(sequences)
-
-        select_all(sequences.each_slice(1024) { |slice| slice.select { |s| s[:readable] }.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")}).each_with_index do |row, i|
-          sequences[i][:last_value] = row[:last_value]
+        sequences.each_slice(1024) do |slice|
+          select_all(slice.select { |s| s[:readable] }.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")).each_with_index do |row, i|
+            sequences[i][:last_value] = row[:last_value]
+          end
         end
 
         sequences.sort_by { |s| s[:sequence] }
