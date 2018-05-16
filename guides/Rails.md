@@ -14,6 +14,19 @@ mount PgHero::Engine, at: "pghero"
 
 Be sure to [secure the dashboard](#security) in production.
 
+## Configuration
+
+PgHero can be configured with a file: `config/pghero.yml`
+
+You can generate a skeleton of the file with:
+
+```sh
+rails generate pghero:config
+```
+
+If you only need the default settings and Rails database connection and credentials you don't need to
+create this file.
+
 ### Suggested Indexes
 
 PgHero can suggest indexes to add. To enable, add to your Gemfile:
@@ -132,7 +145,7 @@ This requires the following IAM policy:
 
 ## Multiple Databases
 
-Create `config/pghero.yml` with:
+Edit `config/pghero.yml` with eg:
 
 ```yml
 databases:
