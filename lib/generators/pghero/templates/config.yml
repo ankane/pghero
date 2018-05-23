@@ -1,26 +1,56 @@
+# Configuration of PgHero
+# https://github.com/ankane/pghero
+
+# Global settings (for all databases)
+
+# Table & index cache hit rate (%) considered good enough
+# If your hit rate is lower, a "Low cache hit rate" warning appears
+# cache_hit_rate_threshold: 99
+
+# Minimum connections for high connections warning
+# total_connections_threshold: 100
+
+# Minimum average time for slow queries
+# slow_query_ms: 20
+
+# Minimum calls for slow queries
+# slow_query_calls: 100
+
+# Statement timeout for explain
+# explain_timeout_sec: 10
+
+# Minimum time for long running queries
+# long_running_query_sec: 60
+
+# How much index space should be wasted for it to appear in the UI
+# index_bloat_bytes: <%= 100.megabytes %>
+
+# Time zone (defaults to app time zone)
+# time_zone: "Pacific Time (US & Canada)"
+
+
+# Individual Database Settings
+
 databases:
   main:
+    # Database name for the UI
+    # If not specified, titleized key is used
+    # name: Main
+
     # Database URL (defaults to app database)
     # url: <%= ENV["DATABASE_URL"] %>
 
-    # Minimum time for long running queries
-    # long_running_query_sec: 60
+    # Whether PgHero should capture stats before resetting them
+    # capture_query_stats: true
 
-    # Minimum average time for slow queries
-    # slow_query_ms: 20
-
-    # Minimum calls for slow queries
-    # slow_query_calls: 100
-
-    # Minimum connections for high connections warning
+    # Override global settings
     # total_connections_threshold: 100
-
-    # Statement timeout for explain
+    # slow_query_ms: 20
+    # slow_query_calls: 100
     # explain_timeout_sec: 10
+    # long_running_query_sec: 60
+    # cache_hit_rate_threshold: 99
 
   # Add more databases
   # other:
   #   url: <%= ENV["OTHER_DATABASE_URL"] %>
-
-# Time zone (defaults to app time zone)
-# time_zone: "Pacific Time (US & Canada)"
