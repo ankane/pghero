@@ -130,9 +130,23 @@ This requires the following IAM policy:
 }
 ```
 
-## Multiple Databases
+## Configuration
 
-Create `config/pghero.yml` with:
+PgHero uses your app's database configuration by default. No additional setup is required.
+
+However, you can fine-tune PgHero with a configuration file.
+You can create it with a Rails generator:
+
+```sh
+rails generate pghero:config
+```
+
+It will create a `config/pghero.yml` file. You can edit it according to your needs.
+It has comments describing the settings.
+
+### Multiple Databases
+
+You can add several databases under `databases` key in `config/pghero.yml`:
 
 ```yml
 databases:
@@ -141,6 +155,9 @@ databases:
   replica:
     url: <%= ENV["REPLICA_DATABASE_URL"] %>
 ```
+
+Keys don't have special meaning. You can use any names you like.
+If you don't provide a `name` setting for a database, the key will be used as the database name in the UI.
 
 ## Permissions
 
