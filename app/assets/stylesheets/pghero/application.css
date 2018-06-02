@@ -98,6 +98,7 @@ textarea {
   height: 120px;
   border: solid 1px #ddd;
   padding: 10px;
+  font-family: monospace;
 }
 
 hr {
