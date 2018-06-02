@@ -143,7 +143,7 @@ module PgHero
               total_time / 1000 / 60 AS total_minutes,
               (total_time / calls) AS average_time,
               calls,
-              (SELECT regexp_matches(query, '/\\*(.+)\\*/'))[1] AS origin
+              (SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin
             FROM
               pghero_query_stats
             WHERE
