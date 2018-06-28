@@ -30,6 +30,10 @@ module PgHero
         select_one("SELECT COUNT(*) AS count FROM pg_available_extensions WHERE name = 'pg_stat_statements'") > 0
       end
 
+      def earliest
+        select_one("SELECT min(captured_at) FROM pghero_query_stats")
+      end
+
       # only cache if true
       def query_stats_enabled?
         @query_stats_enabled ||= query_stats_readable?

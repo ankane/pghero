@@ -18,7 +18,7 @@
 
   <% if @query_stats_enabled %>
     <% if @error %>
-      <div class="alert alert-danger">Cannot understand start or end time.</div>
+      <div class="alert alert-danger"><%= @error %></div>
     <% elsif @query_stats.any? || @historical_query_stats_enabled %>
       <%= render partial: "queries_table", locals: {queries: @query_stats, sort_headers: true} %>
       <script>

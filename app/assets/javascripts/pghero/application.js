@@ -11,37 +11,22 @@ function highlightQueries() {
 }
 
 function initSlider() {
-  function roundTime(time) {
-    var period = 1000 * 60 * 5;
-    return new Date(Math.ceil(time.getTime() / period) * period);
-  }
-
-  function pad(num) {
-    return (num < 10) ? "0" + num : num;
-  }
-
-  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-  var days = 1;
-  var now = new Date();
-  var sliderStartAt = roundTime(now) - days * 24 * 60 * 60 * 1000;
-  var sliderMax = 24 * 12 * days;
-
-  startAt = startAt || sliderStartAt;
-  var min = (startAt > 0) ? (startAt - sliderStartAt) / (1000 * 60 * 5) : 0;
-
-  var max = (endAt > 0) ? (endAt - sliderStartAt) / (1000 * 60 * 5) : sliderMax;
+  var period = 1000 * 60 * 5; // 5 minutes
+  var latestTimestamp = new Date(latest).getTime();
+  var earliestTimestamp = new Date(earliest).getTime();
+  var startTimestamp = new Date(startAt).getTime();
+  var endTimestamp = new Date(endAt).getTime();
 
   var $slider = $("#slider");
 
   $slider.noUiSlider({
     range: {
-      min: 0,
-      max: sliderMax
+      min: earliestTimestamp,
+      max: latestTimestamp
     },
-    step: 1,
+    step: period,
     connect: true,
-    start: [min, max]
+    start: [startTimestamp, endTimestamp]
   });
 
   function updateText() {
@@ -50,23 +35,23 @@ function initSlider() {
     setText("#range-end", values[1]);
   }
 
-  function setText(selector, offset) {
-    var time = timeAt(offset);
+  function setText(selector, timestamp) {
+    var time = timeAt(timestamp)
 
     var html = "";
-    if (time == now) {
+    if (time == latest) {
       if (selector == "#range-end") {
         html = "Now";
       }
     } else {
-      html = months[time.getMonth()] + " " + time.getDate() + ", " + pad(time.getHours()) + ":" + pad(time.getMinutes());
+      html = time.toLocaleString();
     }
     $(selector).html(html);
   }
 
-  function timeAt(offset) {
-    var time = new Date(sliderStartAt + (offset * 5) * 60 * 1000);
-    return (time > now) ? now : time;
+  function timeAt(time) {
+    var time = new Date(Math.round(time));
+    return (time > latest) ? latest : time;
   }
 
   function timeParam(time) {
@@ -87,10 +72,8 @@ function initSlider() {
     var endAt = timeAt(values[1]);
 
     var params = {}
-    if (startAt.getTime() != sliderStartAt) {
-      params.start_at = timeParam(startAt);
-    }
-    if (endAt < now) {
+    params.start_at = timeParam(startAt);
+    if (endAt < latest) {
       params.end_at = timeParam(endAt);
     }
     if (sort) {

@@ -9,7 +9,9 @@
   var minAverageTime = <%= @min_average_time.to_json %>;
   var minCalls = <%= @min_calls.to_json %>;
   var debug = <%= @debug.to_json %>;
-  var startAt = <%= params[:start_at] ? @start_at.to_i * 1000 : "null" %>;
+  var earliest = <%= @earliest.to_i %> * 1000;
+  var latest = <%= @latest.to_i %> * 1000;
+  var startAt = <%= @start_at.to_i %> * 1000;
   var endAt = <%= @end_at.to_i %> * 1000;
 
   initSlider();

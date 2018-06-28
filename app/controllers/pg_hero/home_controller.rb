@@ -119,10 +119,20 @@ module PgHero
 
       if @historical_query_stats_enabled
         begin
+          # the earliest we have data for
+          @earliest = @database.earliest
+          @earliest = Time.at((@earliest.to_i / 5.minutes).floor * 5.minutes).utc # floor to 5 minutes
+          @earliest = [@earliest, 30.days.ago].max # only go back 30 days max
+
+          # the latest (now)
+          @latest = Time.zone.now()
+
+          # default window is 24h ago until now (or as far back as we have data)
           @start_at = params[:start_at] ? Time.zone.parse(params[:start_at]) : 24.hours.ago
-          @end_at = Time.zone.parse(params[:end_at]) if params[:end_at]
-        rescue
-          @error = true
+          @start_at = [@start_at, @earliest].max
+          @end_at = params[:end_at] ? Time.zone.parse(params[:end_at]) : @latest
+        rescue => e
+          @error = "Cannot understand start or end time: \n#{e.message}"
         end
       end
 
