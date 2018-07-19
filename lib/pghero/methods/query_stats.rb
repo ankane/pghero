@@ -64,7 +64,7 @@ module PgHero
         false
       end
 
-      # http://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
+      # https://stackoverflow.com/questions/20582500/how-to-check-if-a-table-exists-in-a-given-schema
       def historical_query_stats_enabled?
         # TODO use schema from config
         # make sure primary database is PostgreSQL first

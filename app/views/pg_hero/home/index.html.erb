@@ -220,7 +220,7 @@
 <% if @transaction_id_danger.any? %>
   <div class="content">
     <h2>Vacuuming Needed</h2>
-    <p>The database <strong>will shutdown</strong> when there are fewer than 1,000,000 transactions left. <%= link_to "Read more", "http://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %>.</p>
+    <p>The database <strong>will shutdown</strong> when there are fewer than 1,000,000 transactions left. <%= link_to "Read more", "https://www.postgresql.org/docs/current/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND", target: "_blank" %>.</p>
 
     <p>Try <%= link_to "tuning autovacuum", "https://blog.2ndquadrant.com/autovacuum-tuning-basics/", target: "_blank" %> - specifically autovacuum_vacuum_cost_limit.</p>
 

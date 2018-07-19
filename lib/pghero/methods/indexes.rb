@@ -137,7 +137,7 @@ module PgHero
       end
 
       # TODO parse array properly
-      # http://stackoverflow.com/questions/2204058/list-columns-with-indexes-in-postgresql
+      # https://stackoverflow.com/questions/2204058/list-columns-with-indexes-in-postgresql
       def indexes
         select_all(<<-SQL
           SELECT

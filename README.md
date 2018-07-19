@@ -8,7 +8,7 @@ A performance dashboard for Postgres - health checks, suggested indexes, and mor
 
 PgHero 2.0 was just released! [Read details](https://medium.com/@ankane/pghero-2-0-has-arrived-266c3874d012).
 
-:speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][16]=true) for new features
+:speech_balloon: Get [handcrafted updates](https://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][16]=true) for new features
 
 ## Installation
 

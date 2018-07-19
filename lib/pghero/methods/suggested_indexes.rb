@@ -222,7 +222,7 @@ module PgHero
       end
 
       # TODO better row estimation
-      # http://www.postgresql.org/docs/current/static/row-estimation-examples.html
+      # https://www.postgresql.org/docs/current/static/row-estimation-examples.html
       def row_estimates(stats, total_rows, rows_left, op)
         case op
         when "null"
