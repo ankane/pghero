@@ -57,6 +57,8 @@ module PgHero
       end
 
       def reset_query_stats(raise_errors: false)
+        return true if config["reset_query_stats"] && config["reset_query_stats"] != true
+
         execute("SELECT pg_stat_statements_reset()")
         true
       rescue ActiveRecord::StatementInvalid => e
