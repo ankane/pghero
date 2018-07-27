@@ -120,7 +120,7 @@ module PgHero
       if @historical_query_stats_enabled
         begin
           # the earliest we have data for
-          @earliest = @database.earliest
+          @earliest = @database.earliest rescue 24.hours.ago
           @earliest = Time.at((@earliest.to_i / 5.minutes).floor * 5.minutes).utc # floor to 5 minutes
           @earliest = [@earliest, 30.days.ago].max # only go back 30 days max
 
