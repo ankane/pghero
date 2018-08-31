@@ -114,27 +114,13 @@ module PgHero
         SQL
       end
 
-      # TODO use indexes method
-      def invalid_indexes
-        select_all <<-SQL
-          SELECT
-            n.nspname AS schema,
-            c.relname AS index,
-            pg_get_indexdef(i.indexrelid) AS definition
-          FROM
-            pg_catalog.pg_class c,
-            pg_catalog.pg_namespace n,
-            pg_catalog.pg_index i
-          WHERE
-            i.indisvalid = false
-            AND i.indexrelid = c.oid
-            AND c.relnamespace = n.oid
-            AND n.nspname != 'pg_catalog'
-            AND n.nspname != 'information_schema'
-            AND n.nspname != 'pg_toast'
-          ORDER BY
-            c.relname
-        SQL
+      def invalid_indexes(indexes: nil)
+        indexes = (indexes || self.indexes).select { |i| !i[:valid] }
+        indexes.each do |index|
+          # map name -> index for backward compatibility
+          index[:index] = index[:name]
+        end
+        indexes
       end
 
       # TODO parse array properly

@@ -43,7 +43,7 @@ module PgHero
       @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f, sequences: @readable_sequences)
 
       @indexes = @database.indexes
-      @invalid_indexes = @indexes.select { |i| !i[:valid] }
+      @invalid_indexes = @database.invalid_indexes(indexes: @indexes)
       @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
 
       if @query_stats_enabled
