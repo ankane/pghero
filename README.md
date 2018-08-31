@@ -1,12 +1,16 @@
 # PgHero
 
-A performance dashboard for Postgres - health checks, suggested indexes, and more :tada:
+A performance dashboard for Postgres
 
 [See it in action](https://pghero.dokkuapp.com/)
 
-[![Screenshot](https://pghero.dokkuapp.com/assets/screenshot-5a368624ada55b32e7668c96926840f9.png)](https://pghero.dokkuapp.com/)
+---
 
-Need Postgres advising? Send us an email at [hi@pghero.org](mailto:hi@pghero.org).
+**NEW** PgHero is also available as a [hosted service](https://pghero.org). Get real-time alerts, single sign-on, and more :tada:
+
+---
+
+[![Screenshot](https://pghero.dokkuapp.com/assets/screenshot-5a368624ada55b32e7668c96926840f9.png)](https://pghero.dokkuapp.com/)
 
 ## Installation
 
