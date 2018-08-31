@@ -322,6 +322,12 @@ module PgHero
             index_name
         SQL
       end
+
+      protected
+
+      def index_covers?(indexed_columns, columns)
+        indexed_columns.first(columns.size) == columns
+      end
     end
   end
 end

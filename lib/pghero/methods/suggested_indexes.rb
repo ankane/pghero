@@ -217,10 +217,6 @@ module PgHero
         {table: table, where: where, sort: sort}
       end
 
-      def index_covers?(indexed_columns, columns)
-        indexed_columns.first(columns.size) == columns
-      end
-
       # TODO better row estimation
       # https://www.postgresql.org/docs/current/static/row-estimation-examples.html
       def row_estimates(stats, total_rows, rows_left, op)
