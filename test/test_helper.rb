@@ -29,6 +29,7 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.timestamp :created_at
   t.timestamp :updated_at
 end
+ActiveRecord::Migration.add_index :users, :id # duplicate index
 ActiveRecord::Migration.add_index :users, :updated_at
 
 class City < ActiveRecord::Base

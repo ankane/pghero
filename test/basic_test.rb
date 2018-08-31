@@ -32,6 +32,10 @@ class BasicTest < Minitest::Test
     assert PgHero.autovacuum_danger
   end
 
+  def test_duplicate_indexes
+    assert_equal 1, PgHero.duplicate_indexes.size
+  end
+
   def test_databases
     assert PgHero.databases[:primary].running_queries
   end

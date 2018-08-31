@@ -114,6 +114,7 @@ module PgHero
         SQL
       end
 
+      # TODO use indexes method
       def invalid_indexes
         select_all <<-SQL
           SELECT
@@ -171,10 +172,10 @@ module PgHero
       def duplicate_indexes(indexes: nil)
         dup_indexes = []
 
-        indexes_by_table = (indexes || self.indexes).group_by { |i| i[:table] }
-        indexes_by_table.values.flatten.select { |i| !i[:primary] && !i[:unique] && !i[:indexprs] && !i[:indpred] && i[:valid] }.each do |index|
-          covering_index = indexes_by_table[index[:table]].find { |i| index_covers?(i[:columns], index[:columns]) && i[:using] == index[:using] && i[:name] != index[:name] && i[:schema] == index[:schema] && !i[:indexprs] && !i[:indpred] && i[:valid] }
-          if covering_index && (covering_index[:columns] != index[:columns] || index[:name] > covering_index[:name])
+        indexes_by_table = (indexes || self.indexes).group_by { |i| [i[:schema], i[:table]] }
+        indexes_by_table.values.flatten.select { |i| i[:valid] && !i[:primary] && !i[:unique] }.each do |index|
+          covering_index = indexes_by_table[[index[:schema], index[:table]]].find { |i| i[:valid] && i[:name] != index[:name] && index_covers?(i[:columns], index[:columns]) && i[:using] == index[:using] && i[:indexprs] == index[:indexprs] && i[:indpred] == index[:indpred] }
+          if covering_index && (covering_index[:columns] != index[:columns] || index[:name] > covering_index[:name] || covering_index[:primary] || covering_index[:unique])
             dup_indexes << {unneeded_index: index, covering_index: covering_index}
           end
         end
