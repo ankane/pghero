@@ -115,7 +115,7 @@ module PgHero
       end
 
       def invalid_indexes(indexes: nil)
-        indexes = (indexes || self.indexes).select { |i| !i[:valid] }
+        indexes = (indexes || self.indexes).select { |i| !i[:valid] && !i[:creating] }
         indexes.each do |index|
           # map name -> index for backward compatibility
           index[:index] = index[:name]
@@ -126,7 +126,7 @@ module PgHero
       # TODO parse array properly
       # https://stackoverflow.com/questions/2204058/list-columns-with-indexes-in-postgresql
       def indexes
-        select_all(<<-SQL
+        indexes = select_all(<<-SQL
           SELECT
             schemaname AS schema,
             t.relname AS table,
@@ -153,6 +153,19 @@ module PgHero
             1, 2
         SQL
         ).map { |v| v[:columns] = v[:columns].sub(") WHERE (", " WHERE ").split(", ").map { |c| unquote(c) }; v }
+
+        # determine if any invalid indexes being created
+        # hacky, but works for simple cases
+        # can be a race condition, but that's fine
+        invalid_indexes = indexes.select { |i| !i[:valid] }
+        if invalid_indexes.any?
+          create_index_queries = running_queries.select { |q| /\s*CREATE\s+INDEX\s+CONCURRENTLY\s+/i.match(q[:query]) }
+          invalid_indexes.each do |index|
+            index[:creating] = create_index_queries.any? { |q| q[:query].include?(index[:table]) && index[:columns].all? { |c| q[:query].include?(c) } }
+          end
+        end
+
+        indexes
       end
 
       def duplicate_indexes(indexes: nil)

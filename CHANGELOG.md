@@ -1,6 +1,7 @@
 ## 2.1.2 [unreleased]
 
 - Improved duplicate index logic to detect more duplicates
+- Don't report concurrent indexes in-progress as invalid on dashboard
 - Fixed error with large number of sequences
 
 ## 2.1.1
