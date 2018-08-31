@@ -6,9 +6,7 @@ A performance dashboard for Postgres - health checks, suggested indexes, and mor
 
 [![Screenshot](https://pghero.dokkuapp.com/assets/screenshot-5a368624ada55b32e7668c96926840f9.png)](https://pghero.dokkuapp.com/)
 
-PgHero 2.0 was just released! [Read details](https://medium.com/@ankane/pghero-2-0-has-arrived-266c3874d012).
-
-:speech_balloon: Get [handcrafted updates](https://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][16]=true) for new features
+Need Postgres advising? Send us an email at [hi@pghero.org](mailto:hi@pghero.org).
 
 ## Installation
 
