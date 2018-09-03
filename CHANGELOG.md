@@ -1,8 +1,9 @@
-## 2.1.2 [unreleased]
+## 2.2.0 [unreleased]
 
 - Improved duplicate index logic to detect more duplicates
 - Don't report concurrent indexes in-progress as invalid on dashboard
 - Fixed error with large number of sequences
+- Bumped `total_connections_threshold` to 500 by default
 
 ## 2.1.1
 

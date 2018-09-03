@@ -38,7 +38,7 @@ module PgHero
   self.slow_query_ms = (ENV["PGHERO_SLOW_QUERY_MS"] || 20).to_i
   self.slow_query_calls = (ENV["PGHERO_SLOW_QUERY_CALLS"] || 100).to_i
   self.explain_timeout_sec = (ENV["PGHERO_EXPLAIN_TIMEOUT_SEC"] || 10).to_i
-  self.total_connections_threshold = (ENV["PGHERO_TOTAL_CONNECTIONS_THRESHOLD"] || 100).to_i
+  self.total_connections_threshold = (ENV["PGHERO_TOTAL_CONNECTIONS_THRESHOLD"] || 500).to_i
   self.cache_hit_rate_threshold = 99
   self.env = ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
   self.show_migrations = true

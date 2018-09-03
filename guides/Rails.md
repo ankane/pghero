@@ -169,7 +169,7 @@ PgHero.slow_query_calls = 100 # default
 Minimum connections for high connections warning
 
 ```ruby
-PgHero.total_connections_threshold = 100 # default
+PgHero.total_connections_threshold = 500 # default
 ```
 
 Statement timeout for explain

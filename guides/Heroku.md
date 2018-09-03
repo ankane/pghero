@@ -92,7 +92,7 @@ heroku config:set PGHERO_SLOW_QUERY_CALLS=100 # default
 Minimum connections for high connections warning
 
 ```sh
-heroku config:set PGHERO_TOTAL_CONNECTIONS_THRESHOLD=100 # default
+heroku config:set PGHERO_TOTAL_CONNECTIONS_THRESHOLD=500 # default
 ```
 
 Statement timeout for explain
