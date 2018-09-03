@@ -1,4 +1,4 @@
-## 2.2.0 [unreleased]
+## 2.2.0
 
 - Added check for connections idle in transaction
 - Improved duplicate index logic to detect more duplicates
