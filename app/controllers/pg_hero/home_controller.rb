@@ -33,8 +33,12 @@ module PgHero
 
       @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q[:query].starts_with?("autovacuum:") }
 
-      @total_connections = @database.total_connections
+      connection_states = @database.connection_states
+      @total_connections = connection_states.values.sum
+      @idle_connections = connection_states["idle in transaction"].to_i
+
       @good_total_connections = @total_connections < @database.total_connections_threshold
+      @good_idle_connections = @idle_connections < 100
 
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
 
@@ -109,6 +113,10 @@ module PgHero
       @title = "Live Queries"
       @running_queries = @database.running_queries(all: true)
       @vacuum_progress = @database.vacuum_progress.index_by { |q| q[:pid] }
+
+      if params[:state]
+        @running_queries.select! { |q| q[:state] == params[:state] }
+      end
     end
 
     def queries

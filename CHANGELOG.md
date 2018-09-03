@@ -1,5 +1,6 @@
 ## 2.2.0 [unreleased]
 
+- Added check for connections idle in transaction
 - Improved duplicate index logic to detect more duplicates
 - Don't report concurrent indexes in-progress as invalid on dashboard
 - Fixed error with large number of sequences

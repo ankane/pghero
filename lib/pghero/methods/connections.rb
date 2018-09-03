@@ -5,6 +5,22 @@ module PgHero
         select_one("SELECT COUNT(*) FROM pg_stat_activity")
       end
 
+      def connection_states
+        states = select_all <<-SQL
+          SELECT
+            state,
+            COUNT(*) AS connections
+          FROM
+            pg_stat_activity
+          GROUP BY
+            1
+          ORDER BY
+            2 DESC, 1
+        SQL
+
+        Hash[states.map { |s| [s[:state], s[:connections]] }]
+      end
+
       def connection_sources
         select_all <<-SQL
           SELECT

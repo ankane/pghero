@@ -36,13 +36,14 @@
       <% end %>
     </div>
   <% end %>
-  <div class="alert alert-<%= @good_total_connections ? "success" : "warning" %>">
-    <% if @good_total_connections %>
-      Number of connections healthy
+  <div class="alert alert-<%= @good_total_connections && @good_idle_connections ? "success" : "warning" %>">
+    <% if !@good_total_connections %>
+      High number of connections <span class="tiny"><%= @total_connections %></span>
+    <% elsif !@good_idle_connections %>
+      High number of connections idle in transaction <span class="tiny"><%= @idle_connections %></span>
     <% else %>
-      High number of connections
+      Connections healthy <span class="tiny"><%= @total_connections %></span>
     <% end %>
-    <span class="tiny"><%= @total_connections %></span>
   </div>
   <div class="alert alert-<%= @transaction_id_danger.empty? ? "success" : "warning" %>">
     <% if @transaction_id_danger.any? %>
@@ -214,6 +215,15 @@
     <p><%= link_to "Use connection pooling", "http://www.craigkerstiens.com/2014/05/22/on-connection-pooling/", target: "_blank" %> for better performance. <%= link_to "PgBouncer", "https://wiki.postgresql.org/wiki/PgBouncer", target: "_blank" %> is a solid option.</p>
 
     <%= render partial: "connections_table", locals: {connection_sources: @database.connection_sources.first(10)} %>
+  </div>
+<% end %>
+
+<% if !@good_idle_connections %>
+  <div class="content">
+    <h1>High Number of Connections Idle in Transaction</h1>
+    <p><%= pluralize(@idle_connections, "connection") %> idle in transaction</p>
+    <p>Avoid opening transactions and doing work outside the database.</p>
+    <p><%= link_to "View queries", live_queries_path(state: "idle in transaction") %></p>
   </div>
 <% end %>
 
