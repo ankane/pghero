@@ -1,4 +1,4 @@
-require "pghero/version"
+# dependencies
 require "active_record"
 
 # methods
@@ -21,6 +21,7 @@ require "pghero/methods/users"
 
 require "pghero/database"
 require "pghero/engine" if defined?(Rails)
+require "pghero/version"
 
 # models
 require "pghero/connection"
@@ -69,6 +70,9 @@ module PgHero
 
     def config
       @config ||= begin
+        require "erb"
+        require "yaml"
+
         path = config_path
 
         config_file_exists = File.exist?(path)
