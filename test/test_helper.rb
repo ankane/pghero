@@ -3,6 +3,7 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "pg_query"
+require "active_record"
 require "activerecord-import"
 
 # for Minitest < 5

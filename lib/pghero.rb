@@ -1,5 +1,5 @@
 # dependencies
-require "active_record"
+require "active_support"
 
 # methods
 require "pghero/methods/basic"
@@ -24,8 +24,10 @@ require "pghero/engine" if defined?(Rails)
 require "pghero/version"
 
 # models
-require "pghero/connection"
-require "pghero/query_stats"
+ActiveSupport.on_load(:active_record) do
+  require "pghero/connection"
+  require "pghero/query_stats"
+end
 
 module PgHero
   class Error < StandardError; end
