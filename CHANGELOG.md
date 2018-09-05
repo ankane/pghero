@@ -1,3 +1,7 @@
+## 2.2.1 [unreleased]
+
+- Added `config_path` option
+
 ## 2.2.0
 
 - Added check for connections idle in transaction
