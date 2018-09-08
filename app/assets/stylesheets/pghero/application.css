@@ -109,6 +109,7 @@ textarea {
   border: solid 1px #ddd;
   padding: 10px;
   font-size: inherit;
+  font-family: monospace;
 }
 
 hr {
