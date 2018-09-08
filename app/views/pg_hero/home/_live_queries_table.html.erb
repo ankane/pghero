@@ -1,25 +1,29 @@
 <table class="table queries">
   <thead>
     <tr>
-      <th style="width: 25%;">Pid</th>
-      <th style="width: 25%;">Duration</th>
-      <th style="width: 25%;">State</th>
+      <th style="width: 13%;">Pid</th>
+      <th style="width: 19%;">Duration</th>
+      <th style="width: 43%;">State</th>
       <th style="width: 25%;"></th>
     </tr>
   </thead>
   <tbody>
     <% queries.reverse.each do |query| %>
       <tr>
-        <td><%= query[:pid] %></td>
+        <td><%= link_to query[:pid], live_queries_path(anchor: query[:pid]), id: query[:pid], style: "color: inherit;" %></td>
         <td><%= number_with_delimiter(query[:duration_ms].round) %> ms</td>
         <td>
-          <%= query[:state] %>
+          <div><%= query[:state] %></div>
+          <% if blocked_queries[query[:pid]] %>
+            <% blocked_queries[query[:pid]].each do |q| %>
+              <div class="text-warning">blocked by <%= link_to q[:blocking_pid], live_queries_path(anchor: q[:blocking_pid]), style: "color: inherit;" %></div>
+            <% end %>
+          <% end %>
           <% if vacuum_progress[query[:pid]] %>
-            <br />
-            <strong><%= vacuum_progress[query[:pid]][:phase] %></strong>
+            <div><strong><%= vacuum_progress[query[:pid]][:phase] %></strong></div>
           <% end %>
         </td>
-        <td class="text-right">
+        <td class="text-right" style="padding-right: 0">
           <%= button_to "Explain", explain_path, params: {query: query[:query]}, form: {target: "_blank"}, class: "btn btn-info" %>
           <%= button_to "Kill", kill_path(pid: query[:pid]), class: "btn btn-danger" %>
         </td>
@@ -27,7 +31,49 @@
       <tr>
         <td colspan="6" style="border-top: none; padding: 0;">
           <%= query[:source] %> <span class="text-muted"><%= query[:user] %></span>
+          <% if held_locks[query[:pid]] %>
+            <span class="text-muted" style="float: right"><a href="javascript: void(0);" onclick="document.getElementById('locks-<%= query[:pid] %>').style.display = 'block';" style="color: inherit">holding <%= held_locks[query[:pid]].length %> locks</a></span>
+          <% end %>
+
           <pre style="margin-top: 1em;"><code><%= query[:query] %></code></pre>
+
+          <% if held_locks[query[:pid]] %>
+            <div id="locks-<%= query[:pid] %>" style="display: none">
+              <table style="font-size: 12px">
+                <thead>
+                  <th>Target</th>
+                  <th>Mode</th>
+                  <th>Status</th>
+                </thead>
+                <% held_locks[query[:pid]].each do |lock| %>
+                  <tr>
+                    <td>
+                      <%= lock[:relation] %>
+                      <% if lock[:locktype] == "tuple" %>
+                        <span class="text-muted">tuple: (<%= lock[:page] %>,<%= lock[:tuple] %>)</span>
+                      <% elsif lock[:locktype] == "page" %>
+                        <span class="text-muted">page: (<%= lock[:page] %>)</span>
+                      <% elsif lock[:locktype] == "transactionid" %>
+                        <span class="text-muted">transactionid: (<%= lock[:tid] %>)</span>
+                      <% elsif lock[:locktype] == "virtualxid" %>
+                        <span class="text-muted">transactionid: (<%= lock[:vtid] %>)</span>
+                      <% else %>
+                        <span class="text-muted">(<%= lock[:locktype] %>)</span>
+                      <% end %>
+                    </td>
+                    <td><%= lock[:mode] %></td>
+                    <td>
+                      <% if lock[:granted] %>
+                        <span>Granted</span>
+                      <% else %>
+                        <span class="text-warning">(waiting)</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </table>
+            </div>
+          <% end %>
         </td>
       </tr>
     <% end %>

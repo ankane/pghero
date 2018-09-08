@@ -127,6 +127,10 @@ hr {
   color: #999;
 }
 
+.text-warning {
+  color: #f0ad4e;
+}
+
 .text-right {
   text-align: right;
 }

@@ -112,6 +112,8 @@ module PgHero
     def live_queries
       @title = "Live Queries"
       @running_queries = @database.running_queries(all: true)
+      @blocked_queries = @database.blocked_queries.group_by { |q| q[:blocked_pid] }
+      @held_locks = @database.held_locks.group_by { |l| l[:pid] }
       @vacuum_progress = @database.vacuum_progress.index_by { |q| q[:pid] }
 
       if params[:state]

@@ -30,6 +30,28 @@ module PgHero
         running_queries(min_duration: long_running_query_sec)
       end
 
+      def held_locks
+        select_all <<-SQL
+          SELECT
+            pid,
+            locktype,
+            relation::regclass,
+            mode,
+            transactionid AS tid,
+            virtualtransaction AS vtid,
+            granted,
+            tuple,
+            page
+          FROM
+            pg_catalog.pg_locks l
+          LEFT JOIN
+            pg_catalog.pg_database db ON db.oid = l.database
+          WHERE
+            db.datname = current_database()
+            AND pid <> pg_backend_pid()
+        SQL
+      end
+
       # from https://wiki.postgresql.org/wiki/Lock_Monitoring
       # and https://big-elephants.com/2013-09/exploring-query-locks-in-postgres/
       def blocked_queries
