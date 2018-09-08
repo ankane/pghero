@@ -38,7 +38,9 @@ module PgHero
           select_all <<-SQL
             SELECT
               pid,
-              phase
+              phase,
+              heap_blks_scanned,
+              heap_blks_total
             FROM
               pg_stat_progress_vacuum
             WHERE

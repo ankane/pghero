@@ -11,7 +11,7 @@
     <% queries.reverse.each do |query| %>
       <tr>
         <td><%= link_to query[:pid], live_queries_path(anchor: query[:pid]), id: query[:pid], style: "color: inherit;" %></td>
-        <td><%= number_with_delimiter(query[:duration_ms].round) %> ms</td>
+        <td><%= pghero_humanize_duration_ms(query[:duration_ms].round) %></td>
         <td>
           <div><%= query[:state] %></div>
           <% if blocked_queries[query[:pid]] %>
@@ -21,6 +21,11 @@
           <% end %>
           <% if vacuum_progress[query[:pid]] %>
             <div><strong><%= vacuum_progress[query[:pid]][:phase] %></strong></div>
+            <% heap_blks_scanned = vacuum_progress[query[:pid]][:heap_blks_scanned] %>
+            <% heap_blks_total = vacuum_progress[query[:pid]][:heap_blks_total] %>
+            <% heaps_per_ms = (query[:duration_ms] / heap_blks_scanned) %>
+            <% est_remaining_ms = (heap_blks_total - heap_blks_scanned) * heaps_per_ms %>
+            <span class="text-muted"><%= heap_blks_scanned %> / <%= heap_blks_total %> (<%= ((heap_blks_scanned.to_f / heap_blks_total.to_f) * 100).round %>%, <%= pghero_humanize_duration_ms(est_remaining_ms.round) %> left)</span>
           <% end %>
         </td>
         <td class="text-right" style="padding-right: 0">
