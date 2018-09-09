@@ -40,7 +40,11 @@ module PgHero
               pid,
               phase,
               heap_blks_scanned,
-              heap_blks_total
+              heap_blks_vacuumed,
+              heap_blks_total,
+              index_vacuum_count,
+              num_dead_tuples,
+              max_dead_tuples
             FROM
               pg_stat_progress_vacuum
             WHERE

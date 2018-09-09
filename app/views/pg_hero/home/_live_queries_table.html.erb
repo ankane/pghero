@@ -20,12 +20,24 @@
             <% end %>
           <% end %>
           <% if vacuum_progress[query[:pid]] %>
-            <div><strong><%= vacuum_progress[query[:pid]][:phase] %></strong></div>
-            <% heap_blks_scanned = vacuum_progress[query[:pid]][:heap_blks_scanned] %>
-            <% heap_blks_total = vacuum_progress[query[:pid]][:heap_blks_total] %>
-            <% heaps_per_ms = (query[:duration_ms] / heap_blks_scanned) %>
-            <% est_remaining_ms = (heap_blks_total - heap_blks_scanned) * heaps_per_ms %>
-            <span class="text-muted"><%= heap_blks_scanned %> / <%= heap_blks_total %> (<%= ((heap_blks_scanned.to_f / heap_blks_total.to_f) * 100).round %>%, <%= pghero_humanize_duration_ms(est_remaining_ms.round) %> left)</span>
+            <% phase = vacuum_progress[query[:pid]][:phase] %>
+            <% index_vacuum_count = vacuum_progress[query[:pid]][:index_vacuum_count] %>
+            <div><strong><%= phase %><%= " (#{index_vacuum_count})" if phase == "vacuuming indexes" %></strong></div>
+            <% if phase == "scanning heap" || phase == "vacuuming indexes" %>
+              <span class="text-muted">
+                <% heap_blks_scanned = vacuum_progress[query[:pid]][:heap_blks_scanned] %>
+                <% heap_blks_total = vacuum_progress[query[:pid]][:heap_blks_total] %>
+                <%= heap_blks_scanned %> / <%= heap_blks_total %> (<%= ((heap_blks_scanned.to_f / heap_blks_total.to_f) * 100).round %>%)
+              </span>
+            <% elsif phase == "vacuuming heap" %>
+              <% heap_blks_vacuumed = vacuum_progress[query[:pid]][:heap_blks_vacuumed] %>
+              <% heap_blks_total = vacuum_progress[query[:pid]][:heap_blks_total] %>
+              <span class="text-muted"><%= heap_blks_vacuumed %> / <%= heap_blks_total %> (<%= ((heap_blks_vacuumed.to_f / heap_blks_total.to_f) * 100).round %>%)</span>
+              <br />
+              <% num_dead_tuples = vacuum_progress[query[:pid]][:num_dead_tuples] %>
+              <% max_dead_tuples = vacuum_progress[query[:pid]][:max_dead_tuples] %>
+              <%= num_dead_tuples %> / <%= max_dead_tuples %> (<%= ((num_dead_tuples.to_f / max_dead_tuples.to_f) * 100).round %>%) until next index vacuum
+            <% end %>
           <% end %>
         </td>
         <td class="text-right" style="padding-right: 0">
