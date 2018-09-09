@@ -22,7 +22,7 @@
           <% if vacuum_progress[query[:pid]] %>
             <% phase = vacuum_progress[query[:pid]][:phase] %>
             <% index_vacuum_count = vacuum_progress[query[:pid]][:index_vacuum_count] %>
-            <div><strong><%= phase %><%= " (#{index_vacuum_count})" if phase == "vacuuming indexes" %></strong></div>
+            <div><strong><%= phase %><%= " (#{index_vacuum_count + 1})" if phase == "vacuuming indexes" %></strong></div>
             <% if phase == "scanning heap" || phase == "vacuuming indexes" %>
               <% heap_blks_scanned = vacuum_progress[query[:pid]][:heap_blks_scanned] %>
               <% heap_blks_total = vacuum_progress[query[:pid]][:heap_blks_total] %>
