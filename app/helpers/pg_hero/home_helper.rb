@@ -15,5 +15,16 @@ module PgHero
     def pghero_js_var(name, value)
       "var #{name} = #{json_escape(value.to_json(root: false))};".html_safe
     end
+
+    def pghero_remove_index(query)
+      if query[:columns]
+        columns = query[:columns].map(&:to_sym)
+        columns = columns.first if columns.size == 1
+      end
+      ret = "remove_index #{ query[:table].to_sym.inspect },"
+      ret << " name: #{ (query[:name] || query[:index]).to_s.inspect }"
+      ret << ", column: #{ columns.inspect}" if columns
+      ret
+    end
   end
 end

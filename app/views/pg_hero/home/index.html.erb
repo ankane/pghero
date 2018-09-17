@@ -387,7 +387,7 @@
       <pre>rails generate migration remove_unneeded_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @duplicate_indexes.each do |query| %>
-remove_index <%= query[:unneeded_index][:table].to_sym.inspect %>, name: <%= query[:unneeded_index][:name].to_s.inspect %><% end %></pre>
+<%= pghero_remove_index(query[:unneeded_index]) %><% end %></pre>
     </div>
 
     <table class="table duplicate-indexes">
@@ -491,7 +491,7 @@ pg_stat_statements.track = all</pre>
       <pre>rails generate migration remove_unused_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.each do |query| %>
-remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.inspect %><% end %></pre>
+<%= pghero_remove_index(query)%><% end %></pre>
     </div>
 
     <table class="table">
