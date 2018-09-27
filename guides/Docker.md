@@ -8,7 +8,7 @@ docker run -ti -e DATABASE_URL=postgres://user:password@hostname:5432/dbname -p 
 
 And visit [http://localhost:8080](http://localhost:8080).
 
-**Note:** On Mac, use `host.docker.internal` instead of `localhost` to access the host machine (requires Docker 18.03+)
+> On Mac, use `host.docker.internal` instead of `localhost` to access the host machine (requires Docker 18.03+)
 
 ## Query Stats
 
