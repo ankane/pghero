@@ -86,6 +86,38 @@ And basic authentication with:
 docker run -e PGHERO_USERNAME=link -e PGHERO_PASSWORD=hyrule ...
 ```
 
+## Customize
+
+Minimum time for long running queries
+
+```sh
+docker run -e PGHERO_LONG_RUNNING_QUERY_SEC=60 ...
+```
+
+Minimum average time for slow queries
+
+```sh
+docker run -e PGHERO_SLOW_QUERY_MS=20 ...
+```
+
+Minimum calls for slow queries
+
+```sh
+docker run -e PGHERO_SLOW_QUERY_CALLS=100 ...
+```
+
+Minimum connections for high connections warning
+
+```sh
+docker run -e PGHERO_TOTAL_CONNECTIONS_THRESHOLD=500 ...
+```
+
+Statement timeout for explain
+
+```sh
+docker run -e PGHERO_EXPLAIN_TIMEOUT_SEC=10 ...
+```
+
 ## Credits
 
 Thanks to [Brian Morton](https://github.com/bmorton) for the [original Docker image](https://github.com/bmorton/pghero_solo).

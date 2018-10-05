@@ -275,7 +275,7 @@ Statement timeout for explain
 
 ```sh
 sudo pghero config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
-````
+```
 
 ## Upgrading
 
