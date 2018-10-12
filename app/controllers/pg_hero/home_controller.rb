@@ -6,6 +6,12 @@ module PgHero
 
     http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
 
+    if respond_to?(:content_security_policy)
+      content_security_policy do |p|
+        p.script_src false
+      end
+    end
+
     if respond_to?(:before_action)
       before_action :check_api
       before_action :set_database
