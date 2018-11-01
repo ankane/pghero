@@ -122,7 +122,7 @@ module PgHero
     end
 
     def blocked_queries
-      @title = "Block Queries"
+      @title = "Blocked Queries"
       @blocked_queries = @database.blocked_queries
     end
 
