@@ -23,13 +23,10 @@ require "pghero/database"
 require "pghero/engine" if defined?(Rails)
 require "pghero/version"
 
-# models
-ActiveSupport.on_load(:active_record) do
-  require "pghero/connection"
-  require "pghero/query_stats"
-end
-
 module PgHero
+  autoload :Connection, "pghero/connection"
+  autoload :QueryStats, "pghero/query_stats"
+
   class Error < StandardError; end
   class NotEnabled < Error; end
 
