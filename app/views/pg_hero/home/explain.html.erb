@@ -16,7 +16,7 @@
     <% end %>
     <pre><code><%= @explanation %></code></pre>
     <% unless @visualize %>
-      <p><%= link_to "See how to interpret this", "http://www.postgresql.org/docs/current/static/using-explain.html", target: "_blank" %></p>
+      <p><%= link_to "See how to interpret this", "https://www.postgresql.org/docs/current/static/using-explain.html", target: "_blank" %></p>
     <% end %>
     <% if (index = @suggested_index) %>
       <%= render partial: "suggested_index", locals: {index: index, details: index[:details]} %>
