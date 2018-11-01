@@ -27,6 +27,13 @@
       <span class="tiny"><%= @autovacuum_queries.size %> autovacuum</span>
     <% end %>
   </div>
+  <div class="alert alert-<%= @blocked_queries.empty? ? "success" : "warning" %>">
+    <% if @blocked_queries.any? %>
+      <%= pluralize(@blocked_queries.size, "blocked query") %>
+    <% else %>
+      No blocked queries
+    <% end %>
+  </div>
   <% if @extended %>
     <div class="alert alert-<%= @good_cache_rate ? "success" : "warning" %>">
       <% if @good_cache_rate %>

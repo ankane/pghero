@@ -1,0 +1,61 @@
+<% queries.reverse.each_with_index do |query, i| %>
+  <h2>Query <%= i+1 %></h2>
+  <table class="table queries">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Blocked pid</th>
+        <th style="width: 20%;">Blocked duration</th>
+        <th style="width: 20%;">Blocked mode</th>
+        <th style="width: 20%;">Locked item</th>
+        <th style="width: 20%;">Blocked user</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><%= query[:blocked_pid] %></td>
+          <td><%= number_with_delimiter(query[:blocked_duration_ms].round) %> ms</td>
+          <td><%= query[:blocked_mode] %></td>
+          <td><%= query[:locked_item] %></td>
+          <td><%= query[:blocked_user] %></td>
+        </tr>
+        <tr>
+          <td colspan="5" style="border-top: none; padding: 0;">
+          Blocked query:
+          <pre style="margin-top: 1em;"><code><%= query[:blocked_query] %></code></pre>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table queries">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Blocking pid</th>
+        <th style="width: 20%;">Blocking duration</th>
+        <th style="width: 20%;">Blocking mode</th>
+        <th style="width: 20%;">State of blocking process</th>
+        <th style="width: 20%;">Blocked user</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><%= query[:blocking_pid] %></td>
+          <td><%= number_with_delimiter(query[:blocking_duration_ms].round) %> ms</td>
+          <td><%= query[:blocking_mode] %></td>
+          <td><%= query[:state_of_blocking_process] %></td>
+          <td><%= query[:blocked_user] %></td>
+        </tr>
+        <tr>
+          <td colspan="8" style="border-top: none; padding: 0;">
+          Current or recent query in blocking process:
+          <pre style="margin-top: 1em;"><code><%= query[:current_or_recent_query_in_blocking_process] %></code></pre>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <hr>
+<% end %>
+
+
+<script>
+  highlightQueries();
+</script>
