@@ -43,7 +43,7 @@ module PgHero
         columns = %w(database source ip total_connections user captured_at)
         values = []
         connection_sources.each do |rs|
-          values << [id, rs[:source], rs[:ip].to_string, rs[:total_connections].to_i,rs[:user], now]
+          values << [id, rs[:source], (rs[:ip].to_string rescue ""), rs[:total_connections].to_i,rs[:user], now]
         end
         insert_stats("pghero_connection_stats", columns, values) if values.any?
       end
