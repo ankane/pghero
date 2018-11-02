@@ -127,6 +127,13 @@ module PgHero
       end
     end
 
+    def capture_connection_stats(verbose: false)
+      each_database do |database|
+        puts "Capturing connection stats for #{database.id}..." if verbose
+        database.capture_connection_stats
+      end
+    end
+
     def analyze_all(**options)
       each_database do |database|
         next if database.replica?
