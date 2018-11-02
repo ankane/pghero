@@ -97,6 +97,27 @@ Or with a scheduler like Clockwork, use:
 PgHero.capture_space_stats
 ```
 
+## Historical Connection Stats
+
+To connection stats over time, run:
+
+```sh
+rails generate pghero:connection_stats
+rake db:migrate
+```
+
+And schedule the task below to run once a day.
+
+```sh
+rake pghero:capture_connection_stats
+```
+
+Or with a scheduler like Clockwork, use:
+
+```ruby
+PgHero.capture_connection_stats
+```
+
 ## System Stats
 
 CPU usage, IOPS, and other stats are available for Amazon RDS. Add these lines to your application’s Gemfile:

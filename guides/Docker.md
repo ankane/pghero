@@ -62,6 +62,30 @@ Schedule the task below to run once a day.
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
 ```
 
+## Historical Connection Stats
+
+To track space stats over time, create a table to store them.
+
+```sql
+CREATE TABLE "pghero_connection_stats" (
+  "id" bigserial primary key, 
+  "database" text, 
+  "ip" text, 
+  "source" text, 
+  "total_connections" bigint, 
+  "user" text, 
+  "captured_at" timestamp
+);
+CREATE  INDEX  "pghero_connection_stats" ("database", "captured_at");
+```
+
+Schedule the task below to run once a day.
+
+```sh
+docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_connection_stats
+```
+
+
 ## Multiple Databases
 
 Create a file at `/app/config/pghero.yml` with:
