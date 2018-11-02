@@ -1,0 +1,14 @@
+class <%= migration_class_name %> < ActiveRecord::Migration<%= migration_version %>
+  def change
+    create_table :pghero_connection_stats do |t|
+      t.text :database
+      t.text :ip
+      t.text :source
+      t.integer :total_connections, limit: 8
+      t.text :user
+      t.timestamp :captured_at
+    end
+
+    add_index :pghero_connection_stats, [:database, :captured_at]
+  end
+end
