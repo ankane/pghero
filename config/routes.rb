@@ -4,6 +4,7 @@ PgHero::Engine.routes.draw do
     get "space/:relation", to: "home#relation_space", as: :relation_space
     get "index_bloat", to: "home#index_bloat"
     get "live_queries", to: "home#live_queries"
+    get "blocked_queries", to: "home#blocked_queries"
     get "queries", to: "home#queries"
     get "queries/:query_hash", to: "home#show_query", as: :show_query
     get "system", to: "home#system"
