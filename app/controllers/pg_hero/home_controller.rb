@@ -283,6 +283,11 @@ module PgHero
 
       @connections_by_database = group_connections(@connection_sources, :database)
       @connections_by_user = group_connections(@connection_sources, :user)
+      if @database.connection_stats_enabled?
+        @connected_users = @database.recently_connected_users
+      else
+        @connected_users = []
+      end
     end
 
     def maintenance

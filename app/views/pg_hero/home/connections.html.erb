@@ -1,5 +1,17 @@
 <div class="content">
-  <h1>Connections</h1>
+  <h1>Connection History</h1>
+  <% if @database.connection_stats_enabled? && @connected_users.present? %>
+    <div id="history-chart" class="chart" style="height: 260px; line-height: 260px; margin-bottom: 20px;">Loading...</div>
+    <script>
+    new Chartkick.LineChart("history-chart", <%= json_escape @connected_users.map { |u|
+        {name: u[:username], data: @database.connection_history_for_user(u[:username])}
+      }.to_json.html_safe  %>)
+    </script>
+  <% else %>
+    <p>PgHero stats are not enabled. To enable connection history stats, please visit the PgHero documentation.</p>
+  <% end %>
+
+  <h1>Current Connections</h1>
 
   <p><%= pluralize(@total_connections, "connection") %></p>
 
