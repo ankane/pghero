@@ -39,7 +39,7 @@ module PgHero
       end
 
       def recently_connected_users
-        users = select_all <<-SQL
+        users = select_all_stats <<-SQL
           SELECT distinct username
           FROM "pghero_connection_stats" 
           WHERE database='primary' and captured_at > date_trunc('day', NOW() - interval '3 hours')
@@ -48,7 +48,7 @@ module PgHero
       end
 
       def connection_history_for_user(username)
-        history = select_all <<-SQL
+        history = select_all_stats <<-SQL
           SELECT date_trunc('minute', captured_at) as the_date, max(total_connections) as tot 
           FROM "pghero_connection_stats" 
           WHERE database='primary' and captured_at > date_trunc('day', NOW() - interval '3 hours') and username = '#{username}'
