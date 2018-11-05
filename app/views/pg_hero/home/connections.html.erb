@@ -1,7 +1,7 @@
 <div class="content">
   <h1>Connection History</h1>
   <% if @database.connection_stats_enabled? && @connected_users.present? %>
-    <div id="history-chart" class="chart" style="height: 260px; line-height: 260px; margin-bottom: 20px;">Loading...</div>
+    <div id="history-chart" class="chart" style="height: 400px; line-height: 400px; margin-bottom: 20px;">Loading...</div>
     <script>
     new Chartkick.LineChart("history-chart", <%= json_escape @connected_users.map { |u|
         {name: u[:username], data: @database.connection_history_for_user(u[:username])}
