@@ -38,6 +38,21 @@ module PgHero
         SQL
       end
 
+      def connection_sources_by_user
+        select_all <<-SQL
+          SELECT
+            datname AS database,
+            usename AS user,
+            COUNT(*) AS total_connections
+          FROM
+            pg_stat_activity
+          GROUP BY
+            1, 2
+          ORDER BY
+            5 DESC, 1, 2
+        SQL
+      end
+
       def recently_connected_users
         users = select_all_stats <<-SQL
           SELECT distinct username
@@ -49,7 +64,7 @@ module PgHero
 
       def connection_history_for_user(username)
         history = select_all_stats <<-SQL
-          SELECT date_trunc('minute', captured_at) as the_date, sum(total_connections) as tot 
+          SELECT date_trunc('minute', captured_at) as the_date, max(total_connections) as tot 
           FROM "pghero_connection_stats" 
           WHERE database='primary' and captured_at > date_trunc('day', NOW() - interval '3 hours') and username = '#{username}'
           GROUP by username, date_trunc('minute', captured_at) 
@@ -60,10 +75,10 @@ module PgHero
 
       def capture_connection_stats
         now = Time.now
-        columns = %w(database source total_connections username captured_at)
+        columns = %w(database total_connections username captured_at)
         values = []
-        connection_sources.each do |rs|
-          values << [id, rs[:source], rs[:total_connections].to_i,rs[:user], now]
+        connection_sources_by_user.each do |rs|
+          values << [id, rs[:total_connections].to_i,rs[:user], now]
         end
         insert_stats("pghero_connection_stats", columns, values) if values.any?
       end
