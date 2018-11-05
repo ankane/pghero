@@ -49,7 +49,7 @@ module PgHero
           GROUP BY
             1, 2
           ORDER BY
-            5 DESC, 1, 2
+            3 DESC, 1, 2
         SQL
       end
 
