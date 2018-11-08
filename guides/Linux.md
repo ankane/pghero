@@ -222,7 +222,7 @@ CREATE TABLE "pghero_connection_stats" (
   "ip" text, 
   "source" text, 
   "total_connections" bigint, 
-  "user" text, 
+  "username" text, 
   "captured_at" timestamp
 );
 CREATE  INDEX  "pghero_connection_stats" ("database", "captured_at");

@@ -5,7 +5,7 @@ class <%= migration_class_name %> < ActiveRecord::Migration<%= migration_version
       t.text :ip
       t.text :source
       t.integer :total_connections, limit: 8
-      t.text :user
+      t.text :username
       t.timestamp :captured_at
     end
 

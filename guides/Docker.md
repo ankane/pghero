@@ -22,7 +22,7 @@ To track query stats over time, create a table to store them.
 CREATE TABLE "pghero_query_stats" (
   "id" serial primary key,
   "database" text,
-  "user" text,
+  "username" text,
   "query" text,
   "query_hash" bigint,
   "total_time" float,
