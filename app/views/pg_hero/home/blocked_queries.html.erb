@@ -1,7 +1,0 @@
-<div class="content">
-  <h1>Blocked queries</h1>
-
-  <p><%= pluralize(@blocked_queries.size, "query") %></p>
-
-  <%= render partial: "blocked_queries_table", locals: {queries: @blocked_queries} %>
-</div>

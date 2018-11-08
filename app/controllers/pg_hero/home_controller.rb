@@ -33,8 +33,6 @@ module PgHero
 
       @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q[:query].starts_with?("autovacuum:") }
 
-      @blocked_queries = @database.blocked_queries
-
       connection_states = @database.connection_states
       @total_connections = connection_states.values.sum
       @idle_connections = connection_states["idle in transaction"].to_i
@@ -119,11 +117,6 @@ module PgHero
       if params[:state]
         @running_queries.select! { |q| q[:state] == params[:state] }
       end
-    end
-
-    def blocked_queries
-      @title = "Blocked Queries"
-      @blocked_queries = @database.blocked_queries
     end
 
     def queries
