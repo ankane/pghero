@@ -57,7 +57,8 @@ module PgHero
         users = select_all_stats <<-SQL
           SELECT distinct username
           FROM "pghero_connection_stats" 
-          WHERE database='primary' and captured_at > date_trunc('day', NOW() - interval '2 hours')
+          WHERE database = #{quote(id)}
+          AND captured_at > date_trunc('day', NOW() - interval '2 hours')
           ORDER by username
         SQL
       end
@@ -66,7 +67,8 @@ module PgHero
         history = select_all_stats <<-SQL
           SELECT date_trunc('minute', captured_at) as the_date, max(total_connections) as tot 
           FROM "pghero_connection_stats" 
-          WHERE database='primary' and captured_at > date_trunc('minute', NOW() - interval '2 hours') and username = '#{username}'
+          WHERE database= #{quote(id)}
+          and captured_at > date_trunc('minute', NOW() - interval '2 hours') and username = '#{username}'
           GROUP by username, date_trunc('minute', captured_at) 
           ORDER by date_trunc('minute', captured_at)
         SQL
