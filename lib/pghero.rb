@@ -42,7 +42,7 @@ module PgHero
   self.cache_hit_rate_threshold = 99
   self.env = ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
   self.show_migrations = true
-  self.config_path = "config/pghero.yml"
+  self.config_path = ENV["PGHERO_CONFIG_PATH"] || "config/pghero.yml"
 
   class << self
     extend Forwardable
