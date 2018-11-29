@@ -27,7 +27,7 @@
       </tr>
       <tr>
         <td colspan="6" style="border-top: none; padding: 0;">
-          <%= query[:source] %> <span class="text-muted"><%= query[:user] %></span>
+          <%= query[:source] %> <span class="text-muted"><%= query[:user] %></span> <%= "#{query[:source_addr]}:#{query[:source_port]}" %>
           <pre style="margin-top: 1em;"><code><%= query[:query] %></code></pre>
         </td>
       </tr>

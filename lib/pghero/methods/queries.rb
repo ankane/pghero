@@ -7,6 +7,8 @@ module PgHero
             pid,
             state,
             application_name AS source,
+            client_addr AS source_addr,
+            client_port AS source_port,
             age(NOW(), COALESCE(query_start, xact_start)) AS duration,
             #{server_version_num >= 90600 ? "(wait_event IS NOT NULL) AS waiting" : "waiting"},
             query,
