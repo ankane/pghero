@@ -8,7 +8,7 @@
   <tbody>
     <% connection_sources.each do |source| %>
       <tr>
-        <td><%= source[:source] %> <div class="text-muted"><%= [source[:user], source[:database], source[:ip]].compact.join(" - ") %></div></td>
+        <td><%= source[:source] %> <div class="text-muted"><%= [source[:user], source[:database], "#{source[:ip]}:#{source[:port]}"].compact.join(" - ") %></div></td>
         <td><%= number_with_delimiter(source[:total_connections]) %></td>
       </tr>
     <% end %>
