@@ -112,6 +112,7 @@ And add these variables to your environment:
 ```sh
 PGHERO_ACCESS_KEY_ID=accesskey123
 PGHERO_SECRET_ACCESS_KEY=secret123
+PGHERO_REGION=us-east-1
 PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
