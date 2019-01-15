@@ -1,15 +1,11 @@
+dist: xenial
 language: ruby
-rvm: 2.4.4
-cache: bundler
-sudo: false
-script: TRAVIS_CI=1 bundle exec rake test
-addons:
-  postgresql: "9.4"
+rvm: 2.5.3
+services:
+  - postgresql
+script: bundle exec rake test
 before_install:
-  - gem update --system
-  - gem install bundler
-before_script:
-  - psql -c 'create database pghero_test;' -U postgres
+  - psql -c 'CREATE DATABASE pghero_test;' -U postgres
 notifications:
   email:
     on_success: never
