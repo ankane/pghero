@@ -1,5 +1,6 @@
 # dependencies
 require "active_support"
+require "forwardable"
 
 # methods
 require "pghero/methods/basic"
