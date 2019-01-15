@@ -75,9 +75,9 @@ module PgHero
           end
           case url
           when String
-            url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=2" unless url.include?("connect_timeout=")
+            url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=5" unless url.include?("connect_timeout=")
           when Hash
-            url[:connect_timeout] ||= 2
+            url[:connect_timeout] ||= 5
           end
           establish_connection url if url
         end
