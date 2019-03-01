@@ -4,13 +4,13 @@
 //= require ./chartkick
 //= require ./highlight.pack
 
-function highlightQueries() {
+window.highlightQueries = function() {
   $("pre code").each(function(i, block) {
     hljs.highlightBlock(block);
   });
 }
 
-function initSlider() {
+window.initSlider = function() {
   function roundTime(time) {
     var period = 1000 * 60 * 5;
     return new Date(Math.ceil(time.getTime() / period) * period);
