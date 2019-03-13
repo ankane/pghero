@@ -97,6 +97,11 @@ module PgHero
           stats[:success] = success
         end
       end
+
+      def vacuum(table, analyze: false, verbose: false)
+        execute "VACUUM #{"ANALYZE " if analyze}#{"VERBOSE " if verbose}#{quote_table_name(table)}"
+        true
+      end
     end
   end
 end
