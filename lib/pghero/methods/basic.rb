@@ -37,7 +37,7 @@ module PgHero
         # squish for logs
         retries = 0
         begin
-          result = conn.select_all(squish("#{sql} /*pghero*/"))
+          result = conn.select_all(add_source(squish(sql)))
           cast_method = ActiveRecord::VERSION::MAJOR < 5 ? :type_cast : :cast_value
           result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(cast_method, val)] }] }
         rescue ActiveRecord::StatementInvalid => e
@@ -73,7 +73,7 @@ module PgHero
       end
 
       def execute(sql)
-        connection.execute(sql)
+        connection.execute(add_source(sql))
       end
 
       def connection
@@ -93,6 +93,10 @@ module PgHero
       # from ActiveSupport
       def squish(str)
         str.to_s.gsub(/\A[[:space:]]+/, "").gsub(/[[:space:]]+\z/, "").gsub(/[[:space:]]+/, " ")
+      end
+
+      def add_source(sql)
+        "#{sql} /*pghero*/"
       end
 
       def quote(value)
