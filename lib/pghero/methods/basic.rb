@@ -27,7 +27,7 @@ module PgHero
       end
 
       def quote_ident(value)
-        quote_table_name(value)
+        connection.quote_column_name(value)
       end
 
       private
