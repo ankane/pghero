@@ -5,6 +5,8 @@ module PgHero
         # get columns with default values
         # use pg_get_expr to get correct default value
         # it's what information_schema.columns uses
+        # also, exclude temporary tables to prevent error
+        # when accessing across sessions
         sequences = select_all <<-SQL
           SELECT
             n.nspname AS table_schema,
@@ -24,6 +26,7 @@ module PgHero
             NOT a.attisdropped
             AND a.attnum > 0
             AND d.adsrc LIKE 'nextval%'
+            AND n.nspname NOT LIKE 'pg\\_temp\\_%'
         SQL
 
         # parse out sequence
