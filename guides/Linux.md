@@ -100,6 +100,9 @@ Add your database.
 
 ```sh
 sudo pghero config:set DATABASE_URL=postgres://user:password@hostname:5432/dbname
+
+# escape
+# sudo pghero config:set DATABASE_URL=$'postgres://user:password@hostname:5432/dbname'
 ```
 
 And optional authentication.
