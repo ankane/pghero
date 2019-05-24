@@ -1,5 +1,5 @@
 module PgHero
-  module BaseHelper
+  module HomeHelper
     def pghero_pretty_ident(table, schema: nil)
       ident = table
       if schema && schema != "public"
