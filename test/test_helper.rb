@@ -6,9 +6,6 @@ require "pg_query"
 require "active_record"
 require "activerecord-import"
 
-# for Minitest < 5
-Minitest::Test = MiniTest::Unit::TestCase unless defined?(Minitest::Test)
-
 ActiveRecord::Base.establish_connection adapter: "postgresql", database: "pghero_test"
 
 ActiveRecord::Migration.enable_extension "pg_stat_statements"
