@@ -53,7 +53,7 @@ To track query stats over time, run:
 
 ```sh
 rails generate pghero:query_stats
-rake db:migrate
+rails db:migrate
 ```
 
 And schedule the task below to run every 5 minutes.
@@ -82,7 +82,7 @@ To track space stats over time, run:
 
 ```sh
 rails generate pghero:space_stats
-rake db:migrate
+rails db:migrate
 ```
 
 And schedule the task below to run once a day.

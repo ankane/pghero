@@ -9,7 +9,7 @@ createdb pghero_dev
 export DATABASE_URL=postgres:///pghero_dev
 bundle exec rails generate pghero:query_stats
 bundle exec rails generate pghero:space_stats
-bundle exec rake db:migrate
+bundle exec rails db:migrate
 foreman start
 ```
 
