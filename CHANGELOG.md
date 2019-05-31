@@ -2,6 +2,7 @@
 
 - Added `config_path` option
 - Fixed error with sequences when temporary tables
+- Fixed error when `config.action_controller.include_all_helpers = false`
 
 ## 2.2.0
 
