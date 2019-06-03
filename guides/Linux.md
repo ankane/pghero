@@ -235,7 +235,7 @@ databases:
     url: postgres://...
 ```
 
-More information about [connections parameters](https://jdbc.postgresql.org/documentation/head/connect.html)
+More information about [connections parameters](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS)
 
 And run:
 
