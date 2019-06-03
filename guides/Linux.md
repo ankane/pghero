@@ -235,6 +235,8 @@ databases:
     url: postgres://...
 ```
 
+More information about [connections parameters](https://jdbc.postgresql.org/documentation/head/connect.html)
+
 And run:
 
 ```sh
