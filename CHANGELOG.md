@@ -1,4 +1,4 @@
-## 2.2.1 [unreleased]
+## 2.2.1
 
 - Added `config_path` option
 - Fixed error with sequences when temporary tables
