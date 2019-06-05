@@ -131,53 +131,19 @@ This requires the following IAM policy:
 }
 ```
 
-## Multiple Databases
+## Customization & Multiple Databases
 
-Create `config/pghero.yml` with:
+To customize PgHero, use `config/pghero.yml`. Create it with:
 
-```yml
-databases:
-  primary:
-    url: <%= ENV["PGHERO_DATABASE_URL"] %>
-  replica:
-    url: <%= ENV["REPLICA_DATABASE_URL"] %>
+```sh
+rails generate pghero:config
 ```
+
+This allows you to specify multiple databases and change thresholds. Thresholds can be set globally or per-database.
 
 ## Permissions
 
 We recommend [setting up a dedicated user](Permissions.md) for PgHero.
-
-## Customize
-
-Minimum time for long running queries
-
-```ruby
-PgHero.long_running_query_sec = 60 # default
-```
-
-Minimum average time for slow queries
-
-```ruby
-PgHero.slow_query_ms = 20 # default
-```
-
-Minimum calls for slow queries
-
-```ruby
-PgHero.slow_query_calls = 100 # default
-```
-
-Minimum connections for high connections warning
-
-```ruby
-PgHero.total_connections_threshold = 500 # default
-```
-
-Statement timeout for explain
-
-```ruby
-PgHero.explain_timeout_sec = 10 # default
-```
 
 ## Methods
 
