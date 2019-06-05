@@ -133,7 +133,7 @@ This requires the following IAM policy:
 
 ## Customization & Multiple Databases
 
-To customize PgHero, use `config/pghero.yml`. Create it with:
+To customize PgHero, create `config/pghero.yml` with:
 
 ```sh
 rails generate pghero:config
