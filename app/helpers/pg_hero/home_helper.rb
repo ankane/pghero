@@ -11,5 +11,9 @@ module PgHero
         @database.quote_ident(ident)
       end
     end
+
+    def pghero_js_var(name, value)
+      "var #{name} = #{json_escape(value.to_json(root: false))};".html_safe
+    end
   end
 end
