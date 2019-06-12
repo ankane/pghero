@@ -62,16 +62,50 @@ Schedule the task below to run once a day.
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
 ```
 
-## Multiple Databases
+## Customization & Multiple Databases
 
-Create a file at `/app/config/pghero.yml` with:
+Create a `pghero.yml` file with:
 
 ```yml
 databases:
-  primary:
-    url: postgres://...
-  replica:
-    url: postgres://...
+  main:
+    url: <%= ENV["DATABASE_URL"] %>
+
+  # Add more databases
+  # other:
+  #   url: <%= ENV["OTHER_DATABASE_URL"] %>
+
+# Minimum time for long running queries
+# long_running_query_sec: 60
+
+# Minimum average time for slow queries
+# slow_query_ms: 20
+
+# Minimum calls for slow queries
+# slow_query_calls: 100
+
+# Minimum connections for high connections warning
+# total_connections_threshold: 500
+
+# Statement timeout for explain
+# explain_timeout_sec: 10
+
+# Time zone
+# time_zone: "Pacific Time (US & Canada)"
+```
+
+Create a `Dockerfile` with:
+
+```Dockerfile
+FROM ankane/pghero:latest
+
+COPY pghero.yml /app/config/pghero.yml
+```
+
+And build your image:
+
+```sh
+docker build -t my/pghero:latest .
 ```
 
 ## Permissions
@@ -84,38 +118,6 @@ And basic authentication with:
 
 ```sh
 docker run -e PGHERO_USERNAME=link -e PGHERO_PASSWORD=hyrule ...
-```
-
-## Customize
-
-Minimum time for long running queries
-
-```sh
-docker run -e PGHERO_LONG_RUNNING_QUERY_SEC=60 ...
-```
-
-Minimum average time for slow queries
-
-```sh
-docker run -e PGHERO_SLOW_QUERY_MS=20 ...
-```
-
-Minimum calls for slow queries
-
-```sh
-docker run -e PGHERO_SLOW_QUERY_CALLS=100 ...
-```
-
-Minimum connections for high connections warning
-
-```sh
-docker run -e PGHERO_TOTAL_CONNECTIONS_THRESHOLD=500 ...
-```
-
-Statement timeout for explain
-
-```sh
-docker run -e PGHERO_EXPLAIN_TIMEOUT_SEC=10 ...
 ```
 
 ## Credits
