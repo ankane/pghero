@@ -97,7 +97,7 @@ databases:
 Create a `Dockerfile` with:
 
 ```Dockerfile
-FROM ankane/pghero:latest
+FROM ankane/pghero
 
 COPY pghero.yml /app/config/pghero.yml
 ```
