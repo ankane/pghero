@@ -6,8 +6,7 @@
 
   <% if @explainable_query %>
     <p>
-      <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: @explainable_query}}] : [explain_path(query: @explainable_query), {}] %>
-      <%= button_to "Explain", button_path, button_options.merge(form: {target: "_blank"}, class: "btn btn-info") %>
+      <%= button_to "Explain", explain_path, params: {query: @explainable_query}, form: {target: "_blank"}, class: "btn btn-info" %>
     </p>
   <% end %>
 

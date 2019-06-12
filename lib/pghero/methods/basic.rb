@@ -38,8 +38,7 @@ module PgHero
         retries = 0
         begin
           result = conn.select_all(add_source(squish(sql)))
-          cast_method = ActiveRecord::VERSION::MAJOR < 5 ? :type_cast : :cast_value
-          result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(cast_method, val)] }] }
+          result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }
         rescue ActiveRecord::StatementInvalid => e
           # fix for random internal errors
           if e.message.include?("PG::InternalError") && retries < 2

@@ -390,11 +390,7 @@ module PgHero
     end
 
     def render_text(message)
-      if Rails::VERSION::MAJOR >= 5
-        render plain: message
-      else
-        render text: message
-      end
+      render plain: message
     end
 
     def ensure_query_stats

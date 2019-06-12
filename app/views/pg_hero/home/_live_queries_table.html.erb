@@ -20,8 +20,7 @@
           <% end %>
         </td>
         <td class="text-right">
-          <% button_path, button_options = Rails.version >= "4.1" ? [explain_path, {params: {query: query[:query]}}] : [explain_path(query: query[:query]), {}] %>
-          <%= button_to "Explain", button_path, button_options.merge(form: {target: "_blank"}, class: "btn btn-info") %>
+          <%= button_to "Explain", explain_path, params: {query: query[:query]}, form: {target: "_blank"}, class: "btn btn-info" %>
           <%= button_to "Kill", kill_path(pid: query[:pid]), class: "btn btn-danger" %>
         </td>
       </tr>
