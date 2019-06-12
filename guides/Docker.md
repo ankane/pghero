@@ -105,7 +105,7 @@ COPY pghero.yml /app/config/pghero.yml
 And build your image:
 
 ```sh
-docker build -t my/pghero:latest .
+docker build -t my-pghero .
 ```
 
 ## Permissions
