@@ -1,6 +1,6 @@
 dist: xenial
 language: ruby
-rvm: 2.5.3
+rvm: 2.6.3
 services:
   - postgresql
 script: bundle exec rake test
