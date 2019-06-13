@@ -31,7 +31,7 @@ module PgHero
       end
 
       # from https://wiki.postgresql.org/wiki/Lock_Monitoring
-      # and http://big-elephants.com/2013-09/exploring-query-locks-in-postgres/
+      # and https://big-elephants.com/2013-09/exploring-query-locks-in-postgres/
       def blocked_queries
         select_all <<-SQL
           SELECT
