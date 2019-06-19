@@ -1,5 +1,6 @@
 ## 2.3.0 [unreleased]
 
+- Added support for Postgres 12 beta 1
 - Dropped support for Rails < 5
 
 ## 2.2.1
