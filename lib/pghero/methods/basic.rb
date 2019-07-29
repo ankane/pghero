@@ -80,7 +80,7 @@ module PgHero
       end
 
       def stats_connection
-        ::PgHero::QueryStats.connection
+        ::PgHero::Stats.connection
       end
 
       def insert_stats(table, columns, values)
@@ -124,22 +124,7 @@ module PgHero
       end
 
       def table_exists?(table)
-        ["PostgreSQL", "PostGIS"].include?(stats_connection.adapter_name) &&
-        select_one_stats(<<-SQL
-          SELECT EXISTS (
-            SELECT
-              1
-            FROM
-              pg_catalog.pg_class c
-            INNER JOIN
-              pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-            WHERE
-              n.nspname = 'public'
-              AND c.relname = #{quote(table)}
-              AND c.relkind = 'r'
-          )
-        SQL
-        )
+        stats_connection.table_exists?(table)
       end
     end
   end
