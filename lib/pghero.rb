@@ -139,7 +139,7 @@ module PgHero
 
     def autoindex_all(create: false, verbose: true)
       each_database do |database|
-        puts "Autoindexing #{database}..." if verbose
+        puts "Autoindexing #{database.id}..." if verbose
         database.autoindex(create: create)
       end
     end
