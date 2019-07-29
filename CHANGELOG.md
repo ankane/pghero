@@ -1,6 +1,7 @@
 ## 2.3.0 [unreleased]
 
 - Added support for Postgres 12 beta 1
+- Added methods and tasks for cleaning up stats
 - Dropped support for Rails < 5
 
 ## 2.2.1
