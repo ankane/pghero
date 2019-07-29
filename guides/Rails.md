@@ -131,19 +131,19 @@ This requires the following IAM policy:
 }
 ```
 
-## Stats Cleanup [master]
+## Clean Stats [master]
 
-The stats tables can grow large over time. Clean up old stats with:
+The stats tables can grow large over time. Remove old stats with:
 
 ```sh
-rake pghero:cleanup_stats
+rake pghero:clean_stats
 ```
 
 or:
 
 ```rb
-PgHero.cleanup_query_stats
-PgHero.cleanup_space_stats
+PgHero.clean_query_stats
+PgHero.clean_space_stats
 ```
 
 ## Customization & Multiple Databases

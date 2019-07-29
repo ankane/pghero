@@ -19,16 +19,16 @@ namespace :pghero do
     PgHero.autoindex_all(verbose: true, create: true)
   end
 
-  desc "cleanup stats"
-  task cleanup_stats: :environment do
+  desc "clean stats"
+  task clean_stats: :environment do
     if PgHero::Stats.connection.table_exists?("pghero_query_stats")
       puts "Deleting old query stats..."
-      PgHero.cleanup_query_stats
+      PgHero.clean_query_stats
     end
 
     if PgHero::Stats.connection.table_exists?("pghero_space_stats")
       puts "Deleting old space stats..."
-      PgHero.cleanup_space_stats
+      PgHero.clean_space_stats
     end
   end
 end
