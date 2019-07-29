@@ -131,6 +131,21 @@ This requires the following IAM policy:
 }
 ```
 
+## Stats Cleanup [master]
+
+The stats tables can grow large over time. Clean up old stats with:
+
+```sh
+rake pghero:cleanup_stats
+```
+
+or:
+
+```rb
+PgHero.cleanup_query_stats
+PgHero.cleanup_space_stats
+```
+
 ## Customization & Multiple Databases
 
 To customize PgHero, create `config/pghero.yml` with:
