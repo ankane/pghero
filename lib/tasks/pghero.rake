@@ -18,4 +18,19 @@ namespace :pghero do
   task autoindex: :environment do
     PgHero.autoindex_all(verbose: true, create: true)
   end
+
+  desc "cleanup stats"
+  task cleanup_stats: :environment do
+    # TODO maybe use each_database method so query can use an index (and then use in_batches)
+
+    if PgHero::Stats.connection.table_exists?("pghero_query_stats")
+      puts "Deleting old query stats..."
+      PgHero::QueryStats.where("captured_at < ?", 30.days.ago).delete_all
+    end
+
+    if PgHero::Stats.connection.table_exists?("pghero_space_stats")
+      puts "Deleting old space stats..."
+      PgHero::SpaceStats.where("captured_at < ?", 90.days.ago).delete_all
+    end
+  end
 end

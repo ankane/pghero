@@ -1,5 +1,5 @@
 module PgHero
-  class QueryStats < Stats
+  class SpaceStats < Stats
     self.table_name = "pghero_space_stats"
   end
 end
