@@ -26,7 +26,9 @@ require "pghero/version"
 
 module PgHero
   autoload :Connection, "pghero/connection"
+  autoload :Stats, "pghero/stats"
   autoload :QueryStats, "pghero/query_stats"
+  autoload :SpaceStats, "pghero/space_stats"
 
   class Error < StandardError; end
   class NotEnabled < Error; end
