@@ -148,6 +148,21 @@ module PgHero
       ActiveSupport::NumberHelper.number_to_human_size(value, precision: 3)
     end
 
+    # delete previous stats
+    # go database by database to use an index
+    # stats for old databases are not cleaned up since we can't use an index
+    def cleanup_query_stats
+      each_database do |database|
+        PgHero::QueryStats.where(database: database.id).where("captured_at < ?", 30.days.ago).delete_all
+      end
+    end
+
+    def cleanup_space_stats
+      each_database do |database|
+        PgHero::SpaceStats.where(database: database.id).where("captured_at < ?", 90.days.ago).delete_all
+      end
+    end
+
     private
 
     def each_database
