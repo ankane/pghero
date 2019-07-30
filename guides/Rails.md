@@ -76,6 +76,18 @@ By default, query stats are stored in your app’s database. Change this with:
 ENV["PGHERO_STATS_DATABASE_URL"]
 ```
 
+The query stats table can grow large over time. Remove old stats with: [master]
+
+```sh
+rake pghero:clean_query_stats
+```
+
+or: [master]
+
+```rb
+PgHero.clean_query_stats
+```
+
 ## Historical Space Stats
 
 To track space stats over time, run:
@@ -129,21 +141,6 @@ This requires the following IAM policy:
         }
     ]
 }
-```
-
-## Clean Stats [master]
-
-The stats tables can grow large over time. Remove old stats with:
-
-```sh
-rake pghero:clean_stats
-```
-
-or:
-
-```rb
-PgHero.clean_query_stats
-PgHero.clean_space_stats
 ```
 
 ## Customization & Multiple Databases
