@@ -70,12 +70,6 @@ PgHero.capture_query_stats
 
 After this, a time range slider will appear on the Queries tab.
 
-By default, query stats are stored in your app’s database. Change this with:
-
-```ruby
-ENV["PGHERO_STATS_DATABASE_URL"]
-```
-
 The query stats table can grow large over time. Remove old stats with: [master]
 
 ```sh
@@ -86,6 +80,12 @@ or: [master]
 
 ```rb
 PgHero.clean_query_stats
+```
+
+By default, query stats are stored in your app’s database. Change this with:
+
+```ruby
+ENV["PGHERO_STATS_DATABASE_URL"]
 ```
 
 ## Historical Space Stats
