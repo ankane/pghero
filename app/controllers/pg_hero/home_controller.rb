@@ -12,12 +12,14 @@ module PgHero
       before_action :set_query_stats_enabled
       before_action :set_show_details, only: [:index, :queries, :show_query]
       before_action :ensure_query_stats, only: [:queries]
+      before_action :set_csp, if: :override_csp?
     else
       # no need to check API in earlier versions
       before_filter :set_database
       before_filter :set_query_stats_enabled
       before_filter :set_show_details, only: [:index, :queries, :show_query]
       before_filter :ensure_query_stats, only: [:queries]
+      before_filter :set_csp, if: :override_csp?
     end
 
     def index
@@ -397,6 +399,16 @@ module PgHero
       unless @query_stats_enabled
         redirect_to root_path, alert: "Query stats not enabled"
       end
+    end
+
+    def set_csp
+      response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'"
+    end
+
+    private
+
+    def override_csp?
+      PgHero.config["override_csp"].nil ? PgHero.override_csp : PgHero.config["override_csp"]
     end
   end
 end

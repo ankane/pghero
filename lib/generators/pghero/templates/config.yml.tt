@@ -24,3 +24,6 @@ databases:
 
 # Time zone (defaults to app time zone)
 # time_zone: "Pacific Time (US & Canada)"
+
+# Override CSP
+# override_csp: false

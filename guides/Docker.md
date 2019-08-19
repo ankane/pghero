@@ -92,6 +92,9 @@ databases:
 
 # Time zone
 # time_zone: "Pacific Time (US & Canada)"
+
+# Override CSP
+# override_csp: false
 ```
 
 Create a `Dockerfile` with:
