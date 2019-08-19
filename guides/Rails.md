@@ -70,13 +70,13 @@ PgHero.capture_query_stats
 
 After this, a time range slider will appear on the Queries tab.
 
-The query stats table can grow large over time. Remove old stats with: [master]
+The query stats table can grow large over time. Remove old stats with:
 
 ```sh
 rake pghero:clean_query_stats
 ```
 
-or: [master]
+or:
 
 ```rb
 PgHero.clean_query_stats

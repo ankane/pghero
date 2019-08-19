@@ -1,4 +1,4 @@
-## 2.3.0 [unreleased]
+## 2.3.0
 
 - Added support for Postgres 12 beta 1
 - Added methods and tasks for cleaning up stats
