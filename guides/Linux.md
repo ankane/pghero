@@ -4,6 +4,7 @@ Distributions
 
 - [Ubuntu 18.04 (Bionic)](#ubuntu-1804-bionic)
 - [Ubuntu 16.04 (Xenial)](#ubuntu-1604-xenial)
+- [Debian 10 (Buster)](#debian-10-buster)
 - [Debian 9 (Stretch)](#debian-9-stretch)
 - [Debian 8 (Jesse)](#debian-8-jesse)
 - [CentOS / RHEL 7](#centos--rhel-7)
@@ -29,6 +30,17 @@ sudo apt-get -y install pghero
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
   https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/16.04.repo
+sudo apt-get update
+sudo apt-get -y install pghero
+```
+
+### Debian 10 (Buster)
+
+```sh
+sudo apt-get -y install apt-transport-https
+wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
+sudo wget -O /etc/apt/sources.list.d/pghero.list \
+  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/10.repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
