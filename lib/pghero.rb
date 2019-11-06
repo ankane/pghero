@@ -104,20 +104,22 @@ module PgHero
           config
         elsif config_file_exists
           raise "Invalid config file"
-        elsif ENV["PGHERO_DATABASE_URL"] || !spec_supported?
-          {
-            "databases" => {
-              "primary" => {
-                "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config,
-                "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
-              }
-            }
-          }
         else
           databases = {}
-          ActiveRecord::Base.configurations.configs_for(env_name: env, include_replicas: true).each do |db|
-            databases[db.spec_name] = {"spec" => db.spec_name}
+
+          if !ENV["PGHERO_DATABASE_URL"] && spec_supported?
+            ActiveRecord::Base.configurations.configs_for(env_name: env, include_replicas: true).each do |db|
+              databases[db.spec_name] = {"spec" => db.spec_name}
+            end
           end
+
+          if databases.empty?
+            databases["primary"] = {
+              "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config,
+              "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
+            }
+          end
+
           {
             "databases" => databases
           }
