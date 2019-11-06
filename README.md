@@ -24,6 +24,7 @@ Select your preferred method of installation to get started.
 
 ## Related Projects
 
+- [Dexter](https://github.com/ankane/dexter) - The automatic indexer for Postgres
 - [PgBouncerHero](https://github.com/kwent/pgbouncerhero) - A dashboard for PgBouncer
 - [pgsync](https://github.com/ankane/pgsync) - Sync Postgres data between databases
 - [pgslice](https://github.com/ankane/pgslice) - Postgres partitioning as easy as pie
