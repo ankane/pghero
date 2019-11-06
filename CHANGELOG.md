@@ -1,3 +1,7 @@
+## 2.4.0 [unreleased]
+
+- Show all databases in Rails 6 when no config
+
 ## 2.3.0
 
 - Added support for Postgres 12 beta 1

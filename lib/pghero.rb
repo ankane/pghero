@@ -88,7 +88,7 @@ module PgHero
           config
         elsif config_file_exists
           raise "Invalid config file"
-        else
+        elsif ENV["PGHERO_DATABASE_URL"] || ActiveRecord::VERSION::MAJOR < 6 || !defined?(Rails)
           {
             "databases" => {
               "primary" => {
@@ -96,6 +96,14 @@ module PgHero
                 "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"]
               }
             }
+          }
+        else
+          databases = {}
+          ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, include_replicas: true).each do |db|
+            databases[db.spec_name] = {"url" => db.config}
+          end
+          {
+            "databases" => databases
           }
         end
       end
