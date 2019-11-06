@@ -88,7 +88,7 @@ module PgHero
           config
         elsif config_file_exists
           raise "Invalid config file"
-        elsif ENV["PGHERO_DATABASE_URL"] || ActiveRecord::VERSION::MAJOR < 6 || !defined?(Rails)
+        elsif ENV["PGHERO_DATABASE_URL"] || !spec_supported?
           {
             "databases" => {
               "primary" => {
@@ -100,7 +100,7 @@ module PgHero
         else
           databases = {}
           ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, include_replicas: true).each do |db|
-            databases[db.spec_name] = {"url" => db.config}
+            databases[db.spec_name] = {"spec" => db.spec_name}
           end
           {
             "databases" => databases
@@ -169,6 +169,11 @@ module PgHero
       each_database do |database|
         PgHero::SpaceStats.where(database: database.id).where("captured_at < ?", 90.days.ago).delete_all
       end
+    end
+
+    # private
+    def spec_supported?
+      defined?(Rails) && ActiveRecord::VERSION::MAJOR >= 6
     end
 
     private

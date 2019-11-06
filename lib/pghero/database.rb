@@ -69,6 +69,12 @@ module PgHero
     def connection_model
       @connection_model ||= begin
         url = config["url"]
+        if !url && config["spec"]
+          raise Error, "Spec requires Rails 6+" unless PgHero.spec_supported?
+          resolved = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, spec_name: config["spec"], include_replicas: true)
+          raise Error, "Spec not found: #{config["spec"]}" unless resolved
+          url = resolved.config
+        end
         Class.new(PgHero::Connection) do
           def self.name
             "PgHero::Connection::Database#{object_id}"
