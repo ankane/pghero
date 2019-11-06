@@ -111,7 +111,7 @@ module PgHero
           }
         else
           databases = {}
-          ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, include_replicas: true).each do |db|
+          ActiveRecord::Base.configurations.configs_for(env_name: env, include_replicas: true).each do |db|
             databases[db.spec_name] = {"spec" => db.spec_name}
           end
           {
@@ -185,7 +185,7 @@ module PgHero
 
     # private
     def spec_supported?
-      defined?(Rails) && ActiveRecord::VERSION::MAJOR >= 6
+      ActiveRecord::VERSION::MAJOR >= 6
     end
 
     private
