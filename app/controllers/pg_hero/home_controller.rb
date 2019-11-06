@@ -6,19 +6,11 @@ module PgHero
 
     http_basic_authenticate_with name: PgHero.username, password: PgHero.password if PgHero.password
 
-    if respond_to?(:before_action)
-      before_action :check_api
-      before_action :set_database
-      before_action :set_query_stats_enabled
-      before_action :set_show_details, only: [:index, :queries, :show_query]
-      before_action :ensure_query_stats, only: [:queries]
-    else
-      # no need to check API in earlier versions
-      before_filter :set_database
-      before_filter :set_query_stats_enabled
-      before_filter :set_show_details, only: [:index, :queries, :show_query]
-      before_filter :ensure_query_stats, only: [:queries]
-    end
+    before_action :check_api
+    before_action :set_database
+    before_action :set_query_stats_enabled
+    before_action :set_show_details, only: [:index, :queries, :show_query]
+    before_action :ensure_query_stats, only: [:queries]
 
     def index
       @title = "Overview"
