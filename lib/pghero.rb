@@ -82,6 +82,10 @@ module PgHero
       @password ||= config["password"] || ENV["PGHERO_PASSWORD"]
     end
 
+    def stats_database_url
+      @stats_database_url ||= config["stats_database_url"] || ENV["PGHERO_STATS_DATABASE_URL"]
+    end
+
     def config
       @config ||= begin
         require "erb"

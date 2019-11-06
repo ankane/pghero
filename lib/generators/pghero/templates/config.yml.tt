@@ -28,3 +28,6 @@ databases:
 # Basic authentication
 # username: admin
 # password: secret
+
+# Stats database URL (defaults to app database)
+# stats_database_url: <%%= ENV["PGHERO_STATS_DATABASE_URL"] %>
