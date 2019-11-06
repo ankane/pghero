@@ -12,6 +12,12 @@ module PgHero
     before_action :set_show_details, only: [:index, :queries, :show_query]
     before_action :ensure_query_stats, only: [:queries]
 
+    if PgHero.config["override_csp"]
+      after_action do
+        response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline'"
+      end
+    end
+
     def index
       @title = "Overview"
       @extended = params[:extended]
