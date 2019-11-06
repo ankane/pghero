@@ -70,22 +70,6 @@ module PgHero
       def system_stats_enabled?
         !!((defined?(Aws) || defined?(AWS)) && db_instance_identifier)
       end
-
-      def access_key_id
-        ENV["PGHERO_ACCESS_KEY_ID"] || ENV["AWS_ACCESS_KEY_ID"]
-      end
-
-      def secret_access_key
-        ENV["PGHERO_SECRET_ACCESS_KEY"] || ENV["AWS_SECRET_ACCESS_KEY"]
-      end
-
-      def region
-        ENV["PGHERO_REGION"] || ENV["AWS_REGION"] || (defined?(Aws) && Aws.config[:region]) || "us-east-1"
-      end
-
-      def db_instance_identifier
-        databases[current_database].db_instance_identifier
-      end
     end
   end
 end
