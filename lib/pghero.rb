@@ -70,6 +70,18 @@ module PgHero
       @time_zone || Time.zone
     end
 
+    # use method instead of attr_accessor to ensure
+    # this works if variable set after PgHero is loaded
+    def username
+      @username ||= config["username"] || ENV["PGHERO_USERNAME"]
+    end
+
+    # use method instead of attr_accessor to ensure
+    # this works if variable set after PgHero is loaded
+    def password
+      @password ||= config["password"] || ENV["PGHERO_PASSWORD"]
+    end
+
     def config
       @config ||= begin
         require "erb"

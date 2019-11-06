@@ -24,3 +24,7 @@ databases:
 
 # Time zone (defaults to app time zone)
 # time_zone: "Pacific Time (US & Canada)"
+
+# Basic authentication
+# username: admin
+# password: secret
