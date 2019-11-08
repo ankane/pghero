@@ -16,7 +16,7 @@ module PgHero
           INNER JOIN
             pg_catalog.pg_class frel ON frel.oid = con.confrelid
           LEFT JOIN
-            pg_catalog.pg_namespace nsp ON nsp.oid = connamespace
+            pg_catalog.pg_namespace nsp ON nsp.oid = con.connamespace
           LEFT JOIN
             pg_catalog.pg_namespace fnsp ON fnsp.oid = frel.relnamespace
           WHERE
