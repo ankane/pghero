@@ -2,6 +2,7 @@ module PgHero
   class Database
     include Methods::Basic
     include Methods::Connections
+    include Methods::Constraints
     include Methods::Explain
     include Methods::Indexes
     include Methods::Kill

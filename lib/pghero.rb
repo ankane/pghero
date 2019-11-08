@@ -5,6 +5,7 @@ require "forwardable"
 # methods
 require "pghero/methods/basic"
 require "pghero/methods/connections"
+require "pghero/methods/constraints"
 require "pghero/methods/explain"
 require "pghero/methods/indexes"
 require "pghero/methods/kill"

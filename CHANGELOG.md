@@ -1,5 +1,6 @@
 ## 2.4.0 [unreleased]
 
+- Added `invalid_constraints` method
 - Added `spec` option
 - Added `override_csp` option
 - Show all databases in Rails 6 when no config
