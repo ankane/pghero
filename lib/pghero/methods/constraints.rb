@@ -20,7 +20,7 @@ module PgHero
           LEFT JOIN
             pg_catalog.pg_namespace fnsp ON fnsp.oid = frel.relnamespace
           WHERE
-            convalidated = 'f'
+            con.convalidated = 'f'
         SQL
       end
     end
