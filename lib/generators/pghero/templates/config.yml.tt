@@ -1,5 +1,5 @@
 databases:
-  main:
+  primary:
     # Database URL (defaults to app database)
     # url: <%%= ENV["DATABASE_URL"] %>
 
