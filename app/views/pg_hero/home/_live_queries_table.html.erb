@@ -19,8 +19,7 @@
             <%= Time.at(sec).utc.strftime("%H:%M:%S") %>
           <% else %>
             <% days = (sec / 1.day).floor %>
-            <% sec -= days.days %>
-            <%= days %>d <%= Time.at(sec).utc.strftime("%H:%M:%S") %>
+            <%= days %>d <%= Time.at(sec - days.days).utc.strftime("%H:%M:%S") %>
           <% end %>
         </td>
         <td>
