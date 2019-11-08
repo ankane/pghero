@@ -6,7 +6,7 @@
   <% if @system_stats_enabled %>
     <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
-      new Chartkick.LineChart("chart-1", <%= json_escape(free_space_stats_path.to_json).html_safe %>, {colors: ["#5bc0de"]})
+      new Chartkick.LineChart("chart-1", <%= json_escape(free_space_stats_path.to_json).html_safe %>, {colors: ["#5bc0de"], suffix: " MB", dataset: {pointHoverRadius: 0}, library: {tooltips: {intersect: false, mode: "index"}}})
     </script>
   <% end %>
 
