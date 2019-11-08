@@ -11,7 +11,17 @@
     <% queries.reverse.each do |query| %>
       <tr>
         <td><%= query[:pid] %></td>
-        <td><%= number_with_delimiter(query[:duration_ms].round) %> ms</td>
+        <td>
+          <% sec = query[:duration_ms] / 1000.0 %>
+          <% if sec < 1.minute %>
+            <%= sec.round(1) %> s
+          <% elsif sec < 1.day %>
+            <%= Time.at(sec).utc.strftime("%H:%M:%S") %>
+          <% else %>
+            <% days = (sec / 1.day).floor %>
+            <%= days %>d <%= Time.at(sec).utc.strftime("%H:%M:%S") %>
+          <% end %>
+        </td>
         <td>
           <%= query[:state] %>
           <% if vacuum_progress[query[:pid]] %>
