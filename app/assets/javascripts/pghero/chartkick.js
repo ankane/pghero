@@ -10,7 +10,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = global || self, global.Chartkick = factory());
-}(this, function () { 'use strict';
+}(this, (function () { 'use strict';
 
   function isArray(variable) {
     return Object.prototype.toString.call(variable) === "[object Array]";
@@ -237,7 +237,7 @@
     return typeof obj === "number";
   }
 
-  function formatValue(pre, value, options) {
+  function formatValue(pre, value, options, axis) {
     pre = pre || "";
     if (options.prefix) {
       if (value < 0) {
@@ -245,6 +245,28 @@
         pre += "-";
       }
       pre += options.prefix;
+    }
+
+    var suffix = options.suffix || "";
+    if (options.byteScale) {
+      var baseValue = axis ? options.byteScale : value;
+      if (baseValue >= 1099511627776) {
+        value /= 1099511627776;
+        suffix = " TB";
+      } else if (baseValue >= 1073741824) {
+        value /= 1073741824;
+        suffix = " GB";
+      } else if (baseValue >= 1048576) {
+        value /= 1048576;
+        suffix = " MB";
+      } else if (baseValue >= 1024) {
+        value /= 1024;
+        suffix = " KB";
+      } else {
+        suffix = " bytes";
+      }
+      value = value.toPrecision(3);
+      value = parseFloat(value).toString(); // no insignificant zeros
     }
 
     if (options.thousands || options.decimal) {
@@ -259,7 +281,7 @@
       }
     }
 
-    return pre + value + (options.suffix || "");
+    return pre + value + suffix;
   }
 
   function seriesOption(chart, series, option) {
@@ -423,15 +445,52 @@
       decimal: chart.options.decimal
     };
 
+    if (chart.options.bytes) {
+      var series = chart.data;
+      if (chartType === "pie") {
+        series = [{data: series}];
+      }
+
+      // calculate max
+      var max = 0;
+      for (var i = 0; i < series.length; i++) {
+        var s = series[i];
+        for (var j = 0; j < s.data.length; j++) {
+          if (s.data[j][1] > max) {
+            max = s.data[j][1];
+          }
+        }
+      }
+
+      // calculate scale
+      var scale = 1;
+      while (max >= 1024) {
+        scale *= 1024;
+        max /= 1024;
+      }
+
+      // set step size
+      formatOptions.byteScale = scale;
+    }
+
     if (chartType !== "pie") {
       var myAxes = options.scales.yAxes;
       if (chartType === "bar") {
         myAxes = options.scales.xAxes;
       }
 
+      if (formatOptions.byteScale) {
+        if (!myAxes[0].ticks.stepSize) {
+          myAxes[0].ticks.stepSize = formatOptions.byteScale / 2;
+        }
+        if (!myAxes[0].ticks.maxTicksLimit) {
+          myAxes[0].ticks.maxTicksLimit = 4;
+        }
+      }
+
       if (!myAxes[0].ticks.callback) {
         myAxes[0].ticks.callback = function (value) {
-          return formatValue("", value, formatOptions);
+          return formatValue("", value, formatOptions, true);
         };
       }
     }
@@ -2316,4 +2375,4 @@
 
   return Chartkick;
 
-}));
+})));

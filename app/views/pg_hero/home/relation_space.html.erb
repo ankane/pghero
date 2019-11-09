@@ -6,9 +6,9 @@
     <% end %>
   </h1>
 
-  <h1>Size <small>MB</small></h1>
+  <h1>Size</h1>
   <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
   <script>
-    new Chartkick.LineChart("chart-1", <%= json_escape(@chart_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false, min: null, dataset: {pointHoverRadius: 0}, library: {tooltips: {intersect: false, mode: "index"}}})
+    new Chartkick.LineChart("chart-1", <%= json_escape(@chart_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false, min: null, bytes: true, dataset: {pointHoverRadius: 0}, library: {tooltips: {intersect: false, mode: "index"}}})
   </script>
 </div>
