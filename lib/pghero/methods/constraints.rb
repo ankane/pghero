@@ -1,14 +1,16 @@
 module PgHero
   module Methods
     module Constraints
+      # referenced fields can be nil
+      # as not all constraints are foreign keys
       def invalid_constraints
         select_all <<-SQL
           SELECT
             nsp.nspname AS schema,
             rel.relname AS table,
             con.conname AS name,
-            fnsp.nspname AS foreign_schema,
-            frel.relname AS foreign_table
+            fnsp.nspname AS referenced_schema,
+            frel.relname AS referenced_table
           FROM
             pg_catalog.pg_constraint con
           INNER JOIN
