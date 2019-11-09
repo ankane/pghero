@@ -368,7 +368,7 @@ module PgHero
     end
 
     def chart_library_options
-      {pointRadius: 0, pointHitRadius: 5, borderWidth: 4}
+      {pointRadius: 0, pointHoverRadius: 0, pointHitRadius: 5, borderWidth: 4}
     end
 
     def set_show_details
