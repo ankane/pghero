@@ -13,7 +13,7 @@ module PgHero
             pg_catalog.pg_constraint con
           INNER JOIN
             pg_catalog.pg_class rel ON rel.oid = con.conrelid
-          INNER JOIN
+          LEFT JOIN
             pg_catalog.pg_class frel ON frel.oid = con.confrelid
           LEFT JOIN
             pg_catalog.pg_namespace nsp ON nsp.oid = con.connamespace

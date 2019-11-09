@@ -46,6 +46,7 @@ module PgHero
 
       @indexes = @database.indexes
       @invalid_indexes = @database.invalid_indexes(indexes: @indexes)
+      @invalid_constraints = @database.invalid_constraints
       @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
 
       if @query_stats_enabled

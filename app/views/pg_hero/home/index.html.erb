@@ -62,11 +62,17 @@
       (<%= link_to pluralize(@unreadable_sequences.size, "unreadable sequence", "unreadable sequences"), {unreadable: "t"} %>)
     <% end %>
   </div>
-  <div class="alert alert-<%= @invalid_indexes.empty? ? "success" : "warning" %>">
-    <% if @invalid_indexes.any? %>
-      <%= pluralize(@invalid_indexes.size, "invalid index", "invalid indexes") %>
+  <div class="alert alert-<%= @invalid_indexes.empty? && @invalid_constraints.empty? ? "success" : "warning" %>">
+    <% if @invalid_indexes.empty? && @invalid_constraints.empty?  %>
+      No invalid indexes or constraints
     <% else %>
-      No invalid indexes
+      <% if @invalid_indexes.any? %>
+        <%= pluralize(@invalid_indexes.size, "invalid index", "invalid indexes") %>
+      <% end %>
+      <% if @invalid_constraints.any? %>
+        <% if @invalid_indexes.any? %>and<% end %>
+        <%= pluralize(@invalid_constraints.size, "invalid constraint", "invalid constraints") %>
+      <% end %>
     <% end %>
   </div>
   <% if @duplicate_indexes %>
@@ -324,6 +330,39 @@
             <td style="border-top: none; padding: 0;">
               <pre><code>DROP INDEX CONCURRENTLY <%= pghero_pretty_ident(index[:name], schema: index[:schema]) %>;
 <%= index[:definition].sub("CREATE INDEX ", "CREATE INDEX CONCURRENTLY ") %>;</code></pre>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<% if @invalid_constraints.any? %>
+  <div class="content">
+    <h1>Invalid Constraints</h1>
+
+    <p>These constraints are marked as <code>NOT VALID</code>. You should validate them.</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @invalid_constraints.each do |constraint| %>
+          <tr>
+            <td>
+              <%= constraint[:name] %>
+              <% if constraint[:schema] != "public" %>
+                <span class="text-muted"><%= constraint[:schema] %></span>
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <td style="border-top: none; padding: 0;">
+              <pre><code>ALTER TABLE <%= pghero_pretty_ident(constraint[:table], schema: constraint[:schema]) %> VALIDATE CONSTRAINT <%= pghero_pretty_ident(constraint[:name]) %>;</code></pre>
             </td>
           </tr>
         <% end %>
