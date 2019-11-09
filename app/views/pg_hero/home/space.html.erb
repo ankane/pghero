@@ -30,7 +30,7 @@
     </p>
 
     <div id="migration" style="display: none;">
-      <pre>rails g migration remove_unused_indexes</pre>
+      <pre>rails generate migration remove_unused_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
 remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.inspect %><% end %></pre>

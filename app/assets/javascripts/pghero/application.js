@@ -1,5 +1,5 @@
 //= require ./jquery
-//= require ./jquery.nouislider.min
+//= require ./nouislider
 //= require ./Chart.bundle
 //= require ./chartkick
 //= require ./highlight.pack
@@ -32,9 +32,9 @@ function initSlider() {
 
   var max = (endAt > 0) ? (endAt - sliderStartAt) / (1000 * 60 * 5) : sliderMax;
 
-  var $slider = $("#slider");
+  var slider = document.getElementById("slider");
 
-  $slider.noUiSlider({
+  noUiSlider.create(slider, {
     range: {
       min: 0,
       max: sliderMax
@@ -45,7 +45,7 @@ function initSlider() {
   });
 
   function updateText() {
-    var values = $slider.val();
+    var values = slider.noUiSlider.get();
     setText("#range-start", values[0]);
     setText("#range-end", values[1]);
   }
@@ -82,7 +82,7 @@ function initSlider() {
   }
 
   function refreshStats(push) {
-    var values = $slider.val();
+    var values = slider.noUiSlider.get();
     var startAt = push ? timeAt(values[0]) : new Date(window.startAt);
     var endAt = timeAt(values[1]);
 
@@ -140,7 +140,8 @@ function initSlider() {
     }
   }
 
-  $slider.on("slide", updateText).on("change", function () {
+  slider.noUiSlider.on("slide", updateText);
+  slider.noUiSlider.on("change", function () {
     refreshStats(true);
   });
   updateText();
