@@ -2,7 +2,7 @@
  * Chartkick.js
  * Create beautiful charts with one line of JavaScript
  * https://github.com/ankane/chartkick.js
- * v3.1.3
+ * v3.2.0
  * MIT License
  */
 
@@ -21,13 +21,17 @@
   }
 
   function isPlainObject(variable) {
-    return Object.prototype.toString.call(variable) === "[object Object]";
+    // protect against prototype pollution, defense 2
+    return Object.prototype.toString.call(variable) === "[object Object]" && !isFunction(variable) && variable instanceof Object;
   }
 
   // https://github.com/madrobby/zepto/blob/master/src/zepto.js
   function extend(target, source) {
     var key;
     for (key in source) {
+      // protect against prototype pollution, defense 1
+      if (key === "__proto__") { continue; }
+
       if (isPlainObject(source[key]) || isArray(source[key])) {
         if (isPlainObject(source[key]) && !isPlainObject(target[key])) {
           target[key] = {};
@@ -248,6 +252,9 @@
     }
 
     var suffix = options.suffix || "";
+    var precision = options.precision;
+    var round = options.round;
+
     if (options.byteScale) {
       var baseValue = axis ? options.byteScale : value;
       if (baseValue >= 1099511627776) {
@@ -265,8 +272,35 @@
       } else {
         suffix = " bytes";
       }
-      value = value.toPrecision(3);
-      value = parseFloat(value).toString(); // no insignificant zeros
+
+      if (precision === undefined && round === undefined) {
+        precision = 3;
+      }
+    }
+
+    if (precision !== undefined && round !== undefined) {
+      throw Error("Use either round or precision, not both");
+    }
+
+    if (!axis) {
+      if (precision !== undefined) {
+        value = value.toPrecision(precision);
+        if (!options.zeros) {
+          value = parseFloat(value);
+        }
+      }
+
+      if (round !== undefined) {
+        if (round < 0) {
+          var num = Math.pow(10, -1 * round);
+          value = parseInt((1.0 * value / num).toFixed(0)) * num;
+        } else {
+          value = value.toFixed(round);
+          if (!options.zeros) {
+            value = parseFloat(value);
+          }
+        }
+      }
     }
 
     if (options.thousands || options.decimal) {
@@ -442,7 +476,10 @@
       prefix: chart.options.prefix,
       suffix: chart.options.suffix,
       thousands: chart.options.thousands,
-      decimal: chart.options.decimal
+      decimal: chart.options.decimal,
+      precision: chart.options.precision,
+      round: chart.options.round,
+      zeros: chart.options.zeros
     };
 
     if (chart.options.bytes) {
@@ -1007,7 +1044,10 @@
       prefix: chart.options.prefix,
       suffix: chart.options.suffix,
       thousands: chart.options.thousands,
-      decimal: chart.options.decimal
+      decimal: chart.options.decimal,
+      precision: chart.options.precision,
+      round: chart.options.round,
+      zeros: chart.options.zeros
     };
 
     if (chartType !== "pie" && !options.yAxis.labels.formatter) {
