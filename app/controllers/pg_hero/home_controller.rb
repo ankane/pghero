@@ -229,7 +229,7 @@ module PgHero
 
     def free_space_stats
       render json: [
-        {name: "Free Space", data: @database.free_space_stats(duration: 14.days, period: 1.hour).map { |k, v| [k, (v / 1.gigabyte).round] }, library: chart_library_options},
+        {name: "Free Space", data: @database.free_space_stats(duration: 14.days, period: 1.hour), library: chart_library_options},
       ]
     end
 
