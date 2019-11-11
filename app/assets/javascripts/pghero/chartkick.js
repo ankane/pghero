@@ -241,6 +241,8 @@
     return typeof obj === "number";
   }
 
+  var byteSuffixes = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB"];
+
   function formatValue(pre, value, options, axis) {
     pre = pre || "";
     if (options.prefix) {
@@ -256,26 +258,42 @@
     var round = options.round;
 
     if (options.byteScale) {
+      var suffixIdx;
       var baseValue = axis ? options.byteScale : value;
-      if (baseValue >= 1099511627776) {
+
+      if (baseValue >= 1152921504606846976) {
+        value /= 1152921504606846976;
+        suffixIdx = 6;
+      } else if (baseValue >= 1125899906842624) {
+        value /= 1125899906842624;
+        suffixIdx = 5;
+      } else if (baseValue >= 1099511627776) {
         value /= 1099511627776;
-        suffix = " TB";
+        suffixIdx = 4;
       } else if (baseValue >= 1073741824) {
         value /= 1073741824;
-        suffix = " GB";
+        suffixIdx = 3;
       } else if (baseValue >= 1048576) {
         value /= 1048576;
-        suffix = " MB";
+        suffixIdx = 2;
       } else if (baseValue >= 1024) {
         value /= 1024;
-        suffix = " KB";
+        suffixIdx = 1;
       } else {
-        suffix = " bytes";
+        suffixIdx = 0;
       }
 
+      // TODO handle manual precision case
       if (precision === undefined && round === undefined) {
-        precision = 3;
+        if (value >= 1023.5) {
+          if (suffixIdx < byteSuffixes.length - 1) {
+            value = 1.0;
+            suffixIdx += 1;
+          }
+        }
+        precision = value >= 1000 ? 4 : 3;
       }
+      suffix = " " + byteSuffixes[suffixIdx];
     }
 
     if (precision !== undefined && round !== undefined) {
