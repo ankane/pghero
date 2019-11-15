@@ -6,7 +6,7 @@ A performance dashboard for Postgres
 
 ---
 
-**NEW** PgHero is also available as a [hosted service](https://pghero.org). Get real-time alerts, single sign-on, and more :tada:
+**NEW** PgHero is also available as a [hosted service](https://pghero.dev). Get real-time alerts, single sign-on, and more :tada:
 
 ---
 
