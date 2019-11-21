@@ -110,7 +110,7 @@ docker build -t my-pghero .
 
 ## Kubernetes
 
-If you are planning to run on kubernetes with a config file, you don't need to create a new image. You can make use of configMaps to mount the config file. Create a configMap like this,
+If you are planning to run on Kubernetes with a config file, you don’t need to create a new image. You can make use of ConfigMaps to mount the config file. Create a ConfigMap like this:
 
 ```yaml
 ---
@@ -151,8 +151,8 @@ Then launch the pod with the following config,
 
 ```yaml
 ---
-apiVersion: apps/v1 
-kind: Deployment 
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: pghero
   labels:
@@ -181,7 +181,6 @@ spec:
         configMap:
           defaultMode: 0644
           name: pghero
-
 ```
 
 ## Permissions
