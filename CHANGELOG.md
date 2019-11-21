@@ -1,3 +1,7 @@
+## 2.4.1 (2019-11-21)
+
+- Fixed file permissions on `highlight.pack.js`
+
 ## 2.4.0 (2019-11-11)
 
 - Added `invalid_constraints` method
