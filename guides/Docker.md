@@ -147,7 +147,7 @@ data:
     # time_zone: "Pacific Time (US & Canada)"
 ```
 
-Then launch the pod with the following config,
+Then launch the pod with the following config:
 
 ```yaml
 ---
