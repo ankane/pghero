@@ -109,6 +109,18 @@ Or with a scheduler like Clockwork, use:
 PgHero.capture_space_stats
 ```
 
+The space stats table can grow large over time. Remove old stats with:
+
+```sh
+rake pghero:clean_space_stats
+```
+
+or:
+
+```rb
+PgHero.clean_space_stats
+```
+
 ## System Stats
 
 CPU usage, IOPS, and other stats are available for Amazon RDS. Add these lines to your application’s Gemfile:
