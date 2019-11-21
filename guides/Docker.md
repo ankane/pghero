@@ -108,6 +108,82 @@ And build your image:
 docker build -t my-pghero .
 ```
 
+## Kubernetes
+
+If you are planning to run on kubernetes with a config file, you don't need to create a new image. You can make use of configMaps to mount the config file. Create a configMap like this,
+
+```yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pghero
+data:
+  pghero.yml: |-
+    databases:
+      main:
+        url: <%= ENV["DATABASE_URL"] %>
+
+      # Add more databases
+      # other:
+      #   url: <%= ENV["OTHER_DATABASE_URL"] %>
+
+    # Minimum time for long running queries
+    # long_running_query_sec: 60
+
+    # Minimum average time for slow queries
+    # slow_query_ms: 20
+
+    # Minimum calls for slow queries
+    # slow_query_calls: 100
+
+    # Minimum connections for high connections warning
+    # total_connections_threshold: 500
+
+    # Statement timeout for explain
+    # explain_timeout_sec: 10
+
+    # Time zone
+    # time_zone: "Pacific Time (US & Canada)"
+```
+
+Then launch the pod with the following config,
+
+```yaml
+---
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: pghero
+  labels:
+    app: pghero
+spec:
+  selector:
+    matchLabels:
+      app: pghero
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pghero
+    spec:
+      containers:
+      - name: pghero
+        image: ankane/pghero
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: pghero-configmap
+          mountPath: /app/config/pghero.yml
+          readOnly: true
+          subPath: pghero.yml
+      volumes:
+      - name: pghero-configmap
+        configMap:
+          defaultMode: 0644
+          name: pghero
+
+```
+
 ## Permissions
 
 We recommend [setting up a dedicated user](Permissions.md) for PgHero.
