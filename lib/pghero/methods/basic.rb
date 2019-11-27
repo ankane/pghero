@@ -63,6 +63,14 @@ module PgHero
         result
       end
 
+      def select_all_with_data_protection(sql, conn = nil)
+        result = select_all(sql, conn)
+        result.each do |row|
+          row[:query] = anonymize_query(row[:query])
+        end
+        result
+      end
+
       def select_one(sql, conn = nil)
         select_all(sql, conn).first.values.first
       end

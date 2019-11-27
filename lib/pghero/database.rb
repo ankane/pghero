@@ -3,6 +3,7 @@ module PgHero
     include Methods::Basic
     include Methods::Connections
     include Methods::Constraints
+    include Methods::DataProtection
     include Methods::Explain
     include Methods::Indexes
     include Methods::Kill
@@ -75,6 +76,10 @@ module PgHero
 
     def aws_db_instance_identifier
       @db_instance_identifier ||= config["aws_db_instance_identifier"] || config["db_instance_identifier"]
+    end
+
+    def data_protection
+      config["data_protection"] || PgHero.config["data_protection"] || PgHero.data_protection
     end
 
     # TODO remove in next major version
