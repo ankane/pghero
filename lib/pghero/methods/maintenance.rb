@@ -57,7 +57,9 @@ module PgHero
             last_vacuum,
             last_autovacuum,
             last_analyze,
-            last_autoanalyze
+            last_autoanalyze,
+            n_dead_tup,
+            n_live_tup
           FROM
             pg_stat_user_tables
           ORDER BY
