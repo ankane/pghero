@@ -48,7 +48,7 @@ module PgHero
       def suggested_indexes(suggested_indexes_by_query: nil, **options)
         indexes = []
 
-        (suggested_indexes_by_query || self.suggested_indexes_by_query(options)).select { |_s, i| i[:found] && !i[:covering_index] }.group_by { |_s, i| i[:index] }.each do |index, group|
+        (suggested_indexes_by_query || self.suggested_indexes_by_query(**options)).select { |_s, i| i[:found] && !i[:covering_index] }.group_by { |_s, i| i[:index] }.each do |index, group|
           details = {}
           group.map(&:second).each do |g|
             details = details.except(:index).deep_merge(g)

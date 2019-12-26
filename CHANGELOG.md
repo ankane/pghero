@@ -1,3 +1,7 @@
+## 2.4.2 (unreleased)
+
+- Fixed deprecation warnings in Ruby 2.7
+
 ## 2.4.1 (2019-11-21)
 
 - Fixed file permissions on `highlight.pack.js`
