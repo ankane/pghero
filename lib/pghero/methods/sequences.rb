@@ -37,6 +37,7 @@ module PgHero
           column.delete(:default_value) if column[:sequence]
         end
 
+        sequences = sequences.uniq { |s| [s[:schema], s[:sequence]] }
         add_sequence_attributes(sequences)
 
         sequences.select { |s| s[:readable] }.each_slice(1024) do |slice|
