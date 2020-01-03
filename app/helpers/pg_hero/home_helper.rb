@@ -21,9 +21,9 @@ module PgHero
         columns = query[:columns].map(&:to_sym)
         columns = columns.first if columns.size == 1
       end
-      ret = "remove_index #{ query[:table].to_sym.inspect },"
-      ret << " name: #{ (query[:name] || query[:index]).to_s.inspect }"
-      ret << ", column: #{ columns.inspect}" if columns
+      ret = String.new("remove_index #{query[:table].to_sym.inspect}")
+      ret << ", name: #{(query[:name] || query[:index]).to_s.inspect}"
+      ret << ", column: #{columns.inspect}" if columns
       ret
     end
   end
