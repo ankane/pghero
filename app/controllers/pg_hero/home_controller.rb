@@ -15,7 +15,9 @@ module PgHero
     if PgHero.config["override_csp"]
       after_action do
         asset_host = self.class.asset_host || "'self'"
-        raise "Only static asset hosts are supported" unless asset_host.is_a?(String) && !asset_host.include?("%d")
+        unless asset_host.is_a?(String) && !asset_host.include?("%d")
+          raise "Only static asset hosts are supported with override_csp"
+        end
         response.headers["Content-Security-Policy"] = "default-src #{asset_host} 'unsafe-inline'"
       end
     end
