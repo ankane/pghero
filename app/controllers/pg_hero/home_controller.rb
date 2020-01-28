@@ -14,7 +14,8 @@ module PgHero
 
     if PgHero.config["override_csp"]
       after_action do
-        response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline'"
+        asset_host = self.class.asset_host || "'self'"
+        response.headers["Content-Security-Policy"] = "default-src #{asset_host} 'unsafe-inline'"
       end
     end
 
