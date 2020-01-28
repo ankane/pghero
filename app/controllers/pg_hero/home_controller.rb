@@ -16,6 +16,7 @@ module PgHero
       after_action do
         asset_host = self.class.asset_host || "'self'"
         unless asset_host.is_a?(String) && !asset_host.include?("%d")
+          # user can set PgHero::HomeController.asset_host manually in this case
           raise "Only static asset hosts are supported with override_csp"
         end
         response.headers["Content-Security-Policy"] = "default-src #{asset_host} 'unsafe-inline'"
