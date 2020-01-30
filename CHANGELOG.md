@@ -1,5 +1,6 @@
 ## 2.4.2 (unreleased)
 
+- Added `connections` method
 - Fixed deprecation warnings in Ruby 2.7
 
 ## 2.4.1 (2019-11-21)

@@ -39,4 +39,8 @@ class BasicTest < Minitest::Test
   def test_databases
     assert PgHero.databases[:primary].running_queries
   end
+
+  def test_connections
+    assert PgHero.connections
+  end
 end
