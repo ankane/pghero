@@ -15,6 +15,8 @@ module PgHero
               pg_stat_activity
             LEFT JOIN
               pg_stat_ssl ON pg_stat_activity.pid = pg_stat_ssl.pid
+            ORDER BY
+              pg_stat_activity.pid
           SQL
         else
           select_all <<-SQL
@@ -26,6 +28,8 @@ module PgHero
               client_addr AS ip
             FROM
               pg_stat_activity
+            ORDER BY
+              pid
           SQL
         end
       end
