@@ -3,15 +3,13 @@ module PgHero
     module Connections
       def connections
         if server_version_num >= 90500
-          client_dn = server_version_num >= 120000 ? "client_dn" : "clientdn"
           select_all <<-SQL
             SELECT
               datname AS database,
               usename AS user,
               application_name AS source,
               client_addr AS ip,
-              ssl,
-              #{client_dn} IS NOT NULL AS client_certificate
+              ssl
             FROM
               pg_stat_activity
             LEFT JOIN
