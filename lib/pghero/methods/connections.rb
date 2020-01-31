@@ -10,6 +10,7 @@ module PgHero
               usename AS user,
               application_name AS source,
               client_addr AS ip,
+              state,
               ssl
             FROM
               pg_stat_activity
@@ -25,7 +26,8 @@ module PgHero
               datname AS database,
               usename AS user,
               application_name AS source,
-              client_addr AS ip
+              client_addr AS ip,
+              state
             FROM
               pg_stat_activity
             ORDER BY
