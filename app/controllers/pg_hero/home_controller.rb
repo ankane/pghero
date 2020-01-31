@@ -272,24 +272,24 @@ module PgHero
       @title = "Connections"
       connections = @database.connections
 
-      connections.each do |connection|
-        connection[:ssl_status] =
-          if !connection[:ip]
-            "Local"
-          elsif !connection[:ssl]
-            "No SSL"
-          else
-            # no way to tell if client used verify-full
-            "SSL"
-          end
-      end
-
       @total_connections = connections.count
       @connection_sources = group_connections(connections, [:database, :user, :source, :ip])
       @connections_by_database = group_connections_by_key(connections, :database)
       @connections_by_user = group_connections_by_key(connections, :user)
 
-      if @database.server_version_num >= 90500
+      if params[:security] && @database.server_version_num >= 90500
+        connections.each do |connection|
+          connection[:ssl_status] =
+            if !connection[:ip]
+              "Local"
+            elsif !connection[:ssl]
+              "No SSL"
+            else
+              # no way to tell if client used verify-full
+              "SSL"
+            end
+        end
+
         @connections_by_ssl_status = group_connections_by_key(connections, :ssl_status)
       end
     end
