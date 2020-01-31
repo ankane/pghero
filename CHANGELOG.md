@@ -1,6 +1,7 @@
 ## 2.4.2 (unreleased)
 
 - Added `connections` method
+- Added security breakdown to connections page
 - Fixed deprecation warnings in Ruby 2.7
 
 ## 2.4.1 (2019-11-21)
