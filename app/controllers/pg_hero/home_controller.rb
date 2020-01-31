@@ -280,18 +280,24 @@ module PgHero
       if params[:security] && @database.server_version_num >= 90500
         connections.each do |connection|
           connection[:ssl_status] =
-            if !connection[:ssl]
+            if connection[:ssl]
+              # no way to tell if client used verify-full
+              # so connection may not be actually secure
+              "SSL"
+            else
+              # variety of reasons for no SSL
               if !connection[:database].present?
                 "Internal Process"
-              elsif !connection[:ip] && connection[:state]
-                # check state to make sure we have permission
-                "Socket"
+              elsif !connection[:ip]
+                if connection[:state]
+                  "Socket"
+                else
+                  "No SSL" # tcp or socket, don't have permission to tell
+                end
               else
-                "No SSL"
+                # could separate out localhost since this should be safe
+                "No SSL" # tcp
               end
-            else
-              # no way to tell if client used verify-full
-              "SSL"
             end
         end
 
