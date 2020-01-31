@@ -292,11 +292,13 @@ module PgHero
                 if connection[:state]
                   "Socket"
                 else
-                  "No SSL" # tcp or socket, don't have permission to tell
+                  # tcp or socket, don't have permission to tell
+                  "No SSL"
                 end
               else
+                # tcp
                 # could separate out localhost since this should be safe
-                "No SSL" # tcp
+                "No SSL"
               end
             end
         end
