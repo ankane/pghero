@@ -270,11 +270,29 @@ module PgHero
 
     def connections
       @title = "Connections"
-      @connection_sources = @database.connection_sources
-      @total_connections = @connection_sources.sum { |cs| cs[:total_connections] }
+      connections = @database.connections
 
-      @connections_by_database = group_connections(@connection_sources, :database)
-      @connections_by_user = group_connections(@connection_sources, :user)
+      connections.each do |connection|
+        connection[:ssl_status] =
+          if connection[:ssl].nil?
+            "Unknown (no permissions)"
+          elsif !connection[:ssl]
+            "No SSL"
+          elsif connection[:client_certificate]
+            "SSL (verified)"
+          else
+            "SSL (unverified)"
+          end
+      end
+
+      @total_connections = connections.count
+      @connection_sources = group_connections(connections, [:database, :user, :source, :ip])
+      @connections_by_database = group_connections_by_key(connections, :database)
+      @connections_by_user = group_connections_by_key(connections, :user)
+
+      if @database.server_version_num >= 90500
+        @connections_by_ssl_status = group_connections_by_key(connections, :ssl_status)
+      end
     end
 
     def maintenance
@@ -376,12 +394,15 @@ module PgHero
       @show_details = @historical_query_stats_enabled && @database.supports_query_hash?
     end
 
-    def group_connections(connection_sources, key)
-      top_connections = Hash.new(0)
-      connection_sources.each do |source|
-        top_connections[source[key]] += source[:total_connections]
-      end
-      top_connections.sort_by { |k, v| [-v, k] }
+    def group_connections(connections, keys)
+      connections
+        .group_by { |conn| conn.slice(*keys) }
+        .map { |k, v| k.merge(total_connections: v.count) }
+        .sort_by { |v| [-v[:total_connections]] + keys.map { |k| v[k] } }
+    end
+
+    def group_connections_by_key(connections, key)
+      group_connections(connections, [key]).map { |v| [v[key], v[:total_connections]] }.to_h
     end
 
     def check_api
