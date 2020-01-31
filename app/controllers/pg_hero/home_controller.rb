@@ -274,12 +274,10 @@ module PgHero
 
       connections.each do |connection|
         connection[:ssl_status] =
-          if !connection[:ssl]
-            if connection[:database]
-              "No SSL"
-            else
-              "Unknown (no permissions)"
-            end
+          if !connection[:ip]
+            "Local"
+          elsif !connection[:ssl]
+            "No SSL"
           else
             # no way to tell if client used verify-full
             "SSL"

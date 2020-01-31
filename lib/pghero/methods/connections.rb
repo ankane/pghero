@@ -5,6 +5,7 @@ module PgHero
         if server_version_num >= 90500
           select_all <<-SQL
             SELECT
+              pg_stat_activity.pid,
               datname AS database,
               usename AS user,
               application_name AS source,
@@ -18,6 +19,7 @@ module PgHero
         else
           select_all <<-SQL
             SELECT
+              pid,
               datname AS database,
               usename AS user,
               application_name AS source,
