@@ -50,6 +50,12 @@ GRANT CONNECT ON DATABASE <dbname> TO pghero;
 ALTER ROLE pghero SET search_path = pghero, pg_catalog, public;
 GRANT USAGE ON SCHEMA pghero TO pghero;
 GRANT SELECT ON ALL TABLES IN SCHEMA pghero TO pghero;
+
+-- grant permissions for current sequences
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO pghero;
+
+-- grant permissions for future sequences
+ALTER DEFAULT PRIVILEGES FOR ROLE <migrations-user> IN SCHEMA public GRANT SELECT ON SEQUENCES TO pghero;
 ```
 
 ## Thanks
