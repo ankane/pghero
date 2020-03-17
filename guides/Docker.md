@@ -32,6 +32,8 @@ CREATE TABLE "pghero_query_stats" (
 CREATE INDEX ON "pghero_query_stats" ("database", "captured_at");
 ```
 
+This table can be in the current database or another database. If another database, pass the `PGHERO_STATS_DATABASE_URL` environment variable with commands.
+
 Schedule the task below to run every 5 minutes.
 
 ```sh
@@ -39,6 +41,12 @@ docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_query_s
 ```
 
 After this, a time range slider will appear on the Queries tab.
+
+The query stats table can grow large over time. Remove old stats with:
+
+```sh
+docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:clean_query_stats
+```
 
 ## Historical Space Stats
 
@@ -60,12 +68,6 @@ Schedule the task below to run once a day.
 
 ```sh
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
-```
-
-The query stats table can grow large over time. Remove old stats with:
-
-```sh
-docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:clean_query_stats
 ```
 
 ## Customization & Multiple Databases
