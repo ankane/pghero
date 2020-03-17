@@ -62,6 +62,12 @@ Schedule the task below to run once a day.
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
 ```
 
+The query stats table can grow large over time. Remove old stats with:
+
+```sh
+docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:clean_query_stats
+```
+
 ## Customization & Multiple Databases
 
 Create a `pghero.yml` file with:
