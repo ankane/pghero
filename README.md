@@ -10,7 +10,7 @@ A performance dashboard for Postgres
 
 ---
 
-[![Screenshot](https://pghero.dokkuapp.com/assets/screenshot-5a368624ada55b32e7668c96926840f9.png)](https://pghero.dokkuapp.com/)
+[![Screenshot](https://pghero.dokkuapp.com/assets/pghero-f8abe426e6bf54bb7dba87b425bb809740ebd386208bcd280a7e802b053a1023.png)](https://pghero.dokkuapp.com/)
 
 ## Installation
 
