@@ -174,7 +174,6 @@ PgHero.relation_sizes
 PgHero.index_hit_rate
 PgHero.table_hit_rate
 PgHero.total_connections
-PgHero.locks
 ```
 
 Kill queries
