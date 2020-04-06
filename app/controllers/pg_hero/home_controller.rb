@@ -410,7 +410,7 @@ module PgHero
       connections
         .group_by { |conn| conn.slice(*keys) }
         .map { |k, v| k.merge(total_connections: v.count) }
-        .sort_by { |v| [-v[:total_connections]] + keys.map { |k| v[k] } }
+        .sort_by { |v| [-v[:total_connections]] + keys.map { |k| v[k].to_s } }
     end
 
     def group_connections_by_key(connections, key)
