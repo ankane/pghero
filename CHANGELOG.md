@@ -1,4 +1,4 @@
-## 2.4.2 (unreleased)
+## 2.4.2 (2020-04-16)
 
 - Added `connections` method
 - Fixed deprecation warnings in Ruby 2.7
