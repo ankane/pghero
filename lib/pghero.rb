@@ -36,7 +36,7 @@ module PgHero
 
   # settings
   class << self
-    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :explain_timeout_sec, :total_connections_threshold, :cache_hit_rate_threshold, :env, :show_migrations, :config_path
+    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :explain_timeout_sec, :total_connections_threshold, :cache_hit_rate_threshold, :env, :show_migrations, :config_path, :filter_data
   end
   self.long_running_query_sec = (ENV["PGHERO_LONG_RUNNING_QUERY_SEC"] || 60).to_i
   self.slow_query_ms = (ENV["PGHERO_SLOW_QUERY_MS"] || 20).to_i
@@ -47,6 +47,7 @@ module PgHero
   self.env = ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
   self.show_migrations = true
   self.config_path = ENV["PGHERO_CONFIG_PATH"] || "config/pghero.yml"
+  self.filter_data = ENV["PGHERO_FILTER_DATA"].to_s.size > 0
 
   class << self
     extend Forwardable

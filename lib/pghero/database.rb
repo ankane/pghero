@@ -77,6 +77,30 @@ module PgHero
       @db_instance_identifier ||= config["aws_db_instance_identifier"] || config["db_instance_identifier"]
     end
 
+    # must check keys for booleans
+    def filter_data
+      unless defined?(@filter_data)
+        @filter_data =
+          if config.key?("filter_data")
+            config["filter_data"]
+          elsif PgHero.config.key?("filter_data")
+            PgHero.config.key?("filter_data")
+          else
+            PgHero.filter_data
+          end
+
+        if @filter_data
+          begin
+            require "pg_query"
+          rescue LoadError
+            raise Error, "pg_query required for filter_data"
+          end
+        end
+      end
+
+      @filter_data
+    end
+
     # TODO remove in next major version
     alias_method :access_key_id, :aws_access_key_id
     alias_method :secret_access_key, :aws_secret_access_key

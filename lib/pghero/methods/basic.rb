@@ -32,13 +32,25 @@ module PgHero
 
       private
 
-      def select_all(sql, conn = nil)
+      def select_all(sql, conn: nil, query_columns: [])
         conn ||= connection
         # squish for logs
         retries = 0
         begin
           result = conn.select_all(add_source(squish(sql)))
-          result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }
+          result = result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }
+          if filter_data
+            query_columns.each do |column|
+              result.each do |row|
+                begin
+                  row[column] = PgQuery.normalize(row[column])
+                rescue PgQuery::ParseError
+                  row[column] = "<unable to filter data>"
+                end
+              end
+            end
+          end
+          result
         rescue ActiveRecord::StatementInvalid => e
           # fix for random internal errors
           if e.message.include?("PG::InternalError") && retries < 2
@@ -51,8 +63,8 @@ module PgHero
         end
       end
 
-      def select_all_stats(sql)
-        select_all(sql, stats_connection)
+      def select_all_stats(sql, **options)
+        select_all(sql, **options, conn: stats_connection)
       end
 
       def select_all_size(sql)
@@ -63,12 +75,12 @@ module PgHero
         result
       end
 
-      def select_one(sql, conn = nil)
-        select_all(sql, conn).first.values.first
+      def select_one(sql, conn: nil)
+        select_all(sql, conn: conn).first.values.first
       end
 
       def select_one_stats(sql)
-        select_one(sql, stats_connection)
+        select_one(sql, conn: stats_connection)
       end
 
       def execute(sql)

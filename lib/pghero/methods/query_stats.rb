@@ -166,7 +166,7 @@ module PgHero
         if query_stats_enabled?
           limit ||= 100
           sort ||= "total_minutes"
-          select_all <<-SQL
+          query = <<-SQL
             WITH query_stats AS (
               SELECT
                 LEFT(query, 10000) AS query,
@@ -200,6 +200,8 @@ module PgHero
               #{quote_table_name(sort)} DESC
             LIMIT #{limit.to_i}
           SQL
+
+          select_all(query, query_columns: [:query])
         else
           raise NotEnabled, "Query stats not enabled"
         end
@@ -208,7 +210,7 @@ module PgHero
       def historical_query_stats(sort: nil, start_at: nil, end_at: nil, query_hash: nil)
         if historical_query_stats_enabled?
           sort ||= "total_minutes"
-          select_all_stats <<-SQL
+          query = <<-SQL
             WITH query_stats AS (
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
@@ -244,6 +246,8 @@ module PgHero
               #{quote_table_name(sort)} DESC
             LIMIT 100
           SQL
+
+          select_all_stats(query, query_columns: [:query, :explainable_query])
         else
           raise NotEnabled, "Historical query stats not enabled"
         end
