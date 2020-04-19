@@ -45,7 +45,15 @@ module PgHero
                 begin
                   row[column] = PgQuery.normalize(row[column])
                 rescue PgQuery::ParseError
-                  row[column] = "<unable to filter data>"
+                  # try replacing "interval $1" with "$1::interval"
+                  # this is not ideal since it changes the query slightly
+                  # we could skip normalization
+                  # but this has a very small chance of data leakage
+                  begin
+                    row[column] = PgQuery.normalize(row[column].gsub(/\binterval\s+(\$\d+)\b/i, "\\1::interval"))
+                  rescue PgQuery::ParseError
+                    row[column] = "<unable to filter data>"
+                  end
                 end
               end
             end
