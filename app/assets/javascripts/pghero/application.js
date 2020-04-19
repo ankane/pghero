@@ -59,7 +59,7 @@ function initSlider() {
         html = "Now";
       }
     } else {
-      html = months[time.getMonth()] + " " + time.getDate() + ", " + pad(time.getHours()) + ":" + pad(time.getMinutes());
+      html = time.getDate() + " " + months[time.getMonth()] + " " + pad(time.getHours()) + ":" + pad(time.getMinutes());
     }
     $(selector).html(html);
   }
