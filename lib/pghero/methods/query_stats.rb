@@ -201,6 +201,9 @@ module PgHero
             LIMIT #{limit.to_i}
           SQL
 
+          # we may be able to skip query_columns
+          # in more recent versions of Postgres
+          # as pg_stat_statements should be already normalized
           select_all(query, query_columns: [:query])
         else
           raise NotEnabled, "Query stats not enabled"
@@ -247,6 +250,8 @@ module PgHero
             LIMIT 100
           SQL
 
+          # we can skip query_columns if all stored data is normalized
+          # for now, assume it's not
           select_all_stats(query, query_columns: [:query, :explainable_query])
         else
           raise NotEnabled, "Historical query stats not enabled"
