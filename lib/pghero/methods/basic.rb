@@ -46,10 +46,10 @@ module PgHero
                   row[column] = PgQuery.normalize(row[column])
                 rescue PgQuery::ParseError
                   # try replacing "interval $1" with "$1::interval"
+                  # see https://github.com/lfittl/pg_query/issues/169 for more info
                   # this is not ideal since it changes the query slightly
                   # we could skip normalization
                   # but this has a very small chance of data leakage
-                  # see https://github.com/lfittl/pg_query/issues/169 for more info
                   begin
                     row[column] = PgQuery.normalize(row[column].gsub(/\binterval\s+(\$\d+)\b/i, "\\1::interval"))
                   rescue PgQuery::ParseError
