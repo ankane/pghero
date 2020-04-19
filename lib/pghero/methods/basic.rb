@@ -49,6 +49,7 @@ module PgHero
                   # this is not ideal since it changes the query slightly
                   # we could skip normalization
                   # but this has a very small chance of data leakage
+                  # see https://github.com/lfittl/pg_query/issues/169 for more info
                   begin
                     row[column] = PgQuery.normalize(row[column].gsub(/\binterval\s+(\$\d+)\b/i, "\\1::interval"))
                   rescue PgQuery::ParseError
