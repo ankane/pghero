@@ -1,6 +1,7 @@
 ## 2.4.3 (unreleased)
 
 - Added experimental `filter_data` option
+- Localized times on maintenance page
 
 ## 2.4.2 (2020-04-16)
 
