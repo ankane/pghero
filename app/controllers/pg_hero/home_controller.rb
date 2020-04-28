@@ -14,7 +14,9 @@ module PgHero
 
     if PgHero.config["override_csp"]
       after_action do
-        response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline'"
+        allowed = %w('self' 'unsafe-inline')
+        allowed << Rails.configuration.action_controller.asset_host if Rails.configuration.action_controller.asset_host.present?
+        response.headers["Content-Security-Policy"] = "default-src #{allowed.join(' ')}"
       end
     end
 
