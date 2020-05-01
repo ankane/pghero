@@ -12,6 +12,10 @@ A performance dashboard for Postgres
 
 [![Screenshot](https://pghero.dokkuapp.com/assets/pghero-f8abe426e6bf54bb7dba87b425bb809740ebd386208bcd280a7e802b053a1023.png)](https://pghero.dokkuapp.com/)
 
+:tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
+
+[![Build Status](https://travis-ci.org/ankane/pghero.svg?branch=master)](https://travis-ci.org/ankane/pghero) [![Docker Pulls](https://img.shields.io/docker/pulls/ankane/pghero)](https://hub.docker.com/repository/docker/ankane/pghero)
+
 ## Installation
 
 PgHero is available as a Rails engine, Linux package, and Docker image.
@@ -31,10 +35,17 @@ Select your preferred method of installation to get started.
 
 ## Credits
 
-A big thanks to [Craig Kerstiens](http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/) and [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme :clap:
+A big thanks to [Craig Kerstiens](http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/) and [Heroku](https://blog.heroku.com/archives/2013/5/10/more_insight_into_your_database_with_pgextras) for the initial queries and [Bootswatch](https://github.com/thomaspark/bootswatch) for the theme.
 
-Know a bit about PostgreSQL? [Suggestions](https://github.com/ankane/pghero/issues) are greatly appreciated.
+## History
 
-:tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
+View the [changelog](https://github.com/ankane/pghero/blob/master/CHANGELOG.md)
 
-[![Build Status](https://travis-ci.org/ankane/pghero.svg?branch=master)](https://travis-ci.org/ankane/pghero)
+## Contributing
+
+Everyone is encouraged to help improve this project. Here are a few ways you can help:
+
+- [Report bugs](https://github.com/ankane/pghero/issues)
+- Fix bugs and [submit pull requests](https://github.com/ankane/pghero/pulls)
+- Write, clarify, or fix documentation
+- Suggest or add new features
