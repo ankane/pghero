@@ -13,6 +13,11 @@ module PgHero
     before_action :ensure_query_stats, only: [:queries]
 
     if PgHero.config["override_csp"]
+      # note: this does not take into account asset hosts
+      # which can be a string with %d or a proc
+      # https://api.rubyonrails.org/classes/ActionView/Helpers/AssetUrlHelper.html
+      # users should set CSP manually if needed
+      # see https://github.com/ankane/pghero/issues/297
       after_action do
         response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline'"
       end
