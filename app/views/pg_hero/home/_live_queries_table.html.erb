@@ -30,7 +30,7 @@
               <br />
               <% num_dead_tuples = vacuum_progress[query[:pid]][:num_dead_tuples] %>
               <% max_dead_tuples = vacuum_progress[query[:pid]][:max_dead_tuples] %>
-              <span class="text-muted"><%= num_dead_tuples %> / <%= max_dead_tuples %> (<%= ((num_dead_tuples.to_f / max_dead_tuples.to_f) * 100).round(2) %>%) dead tuples 💀</span>
+              <span class="text-muted"><%= num_dead_tuples %> / <%= max_dead_tuples %> (<%= ((num_dead_tuples.to_f / max_dead_tuples.to_f) * 100).round(2) %>%) dead tuples until next index vacuum 💀</span>
             <% elsif phase == "vacuuming heap" %>
               <% heap_blks_vacuumed = vacuum_progress[query[:pid]][:heap_blks_vacuumed] %>
               <% heap_blks_total = vacuum_progress[query[:pid]][:heap_blks_total] %>
