@@ -31,7 +31,7 @@
               <% end %>
             </td>
             <td style="text-align: right; width: 10%;">
-              <% pct = (100.0 * count / @total_count).round %>
+              <% pct = (100.0 * count / @total_count).round(2) %>
               <% if pct == 0 %>
                 &lt; 1%
               <% else %>

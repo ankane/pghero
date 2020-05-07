@@ -25,7 +25,7 @@
     <% queries.each do |query| %>
       <tr>
         <td>
-          <%= number_with_delimiter(query[:total_minutes].round) %> min
+          <%= number_with_delimiter(query[:total_minutes].round(2)) %> min
           <span class="percent">
             <% percent = query[:total_percent] %>
             <% if percent > 1 %>
