@@ -63,14 +63,17 @@
                     "waiting for old snapshots",
                     "waiting for readers before marking dead",
                     "waiting for readers before dropping" %>
-              <span class="text-muted">
-                waited for
-                <%= number_with_delimiter progress[:lockers_done] %> / <%= number_with_delimiter progress[:lockers_total] %>
-                queries
-                (<%= number_to_percentage progress[:lockers_done].to_f / progress[:lockers_done].to_f * 100.0, precision: 0 %>),
-                currently waiting for
-                <%= link_to progress[:current_locker_pid], live_queries_path(anchor: progress[:current_locker_pid]), style: "color: inherit" %>
-              </span>
+              <% if progress[:lockers_total].presence %>
+                <span class="text-muted">
+                  waited for
+                  <%= number_with_delimiter progress[:lockers_done] %> / <%= number_with_delimiter progress[:lockers_total] %>
+                  queries
+                  (<%= number_to_percentage progress[:lockers_done].to_f / progress[:lockers_total].to_f * 100.0, precision: 0 %>)<% if progress[:current_locker_pid].presence %>,
+                    currently waiting for
+                    <%= link_to progress[:current_locker_pid], live_queries_path(anchor: progress[:current_locker_pid]), style: "color: inherit" %>
+                  <% end %>
+                </span>
+              <% end %>
             <% when /\Abuilding index/,
                     "index validation: scanning index",
                     "index validation: scanning table" %>
