@@ -20,24 +20,34 @@
             <% end %>
           <% end %>
           <% if progress = vacuum_progress[query[:pid]] %>
-            <% phase = progress[:phase] %>
-            <% index_vacuum_count = progress[:index_vacuum_count] %>
             <div>
-              <strong><%= phase %><%= " (#{index_vacuum_count + 1})" if phase == "vacuuming indexes" || phase == "vacuuming heap" %></strong>
+              <strong>
+                <%= progress[:phase] %>
+                <% if progress[:phase] == "vacuuming indexes" || progress[:phase] == "vacuuming heap" %>
+                  <%= " (#{progress[:index_vacuum_count] + 1})" %>
+                <% end %>
+              </strong>
               <a href="https://www.postgresql.org/docs/12/progress-reporting.html#VACUUM-PROGRESS-REPORTING" target="_blank">(?)</a>
             </div>
-            <% if phase == "scanning heap" || phase == "vacuuming indexes" %>
-              <% heap_blks_scanned = progress[:heap_blks_scanned] %>
-              <% heap_blks_total = progress[:heap_blks_total] %>
-              <span class="text-muted"><%= heap_blks_scanned %> / <%= heap_blks_total %> (<%= number_to_percentage heap_blks_scanned.to_f / heap_blks_total.to_f * 100.0, precision: 1 %>)</span>
+            <% case progress[:phase] %>
+            <% when "scanning heap",
+                    "vacuuming indexes" %>
+              <span class="text-muted">
+                <%= number_with_delimiter progress[:heap_blks_scanned] %> / <%= number_with_delimiter progress[:heap_blks_total] %>
+                (<%= number_to_percentage progress[:heap_blks_scanned].to_f / progress[:heap_blks_total].to_f * 100.0, precision: 1 %>)
+              </span>
               <br>
-              <% num_dead_tuples = progress[:num_dead_tuples] %>
-              <% max_dead_tuples = progress[:max_dead_tuples] %>
-              <span class="text-muted"><%= num_dead_tuples %> / <%= max_dead_tuples %> (<%= number_to_percentage num_dead_tuples.to_f / max_dead_tuples.to_f * 100.0, precision: 1 %>) dead tuples until next index vacuum 💀</span>
-            <% elsif phase == "vacuuming heap" %>
-              <% heap_blks_vacuumed = progress[:heap_blks_vacuumed] %>
-              <% heap_blks_total = progress[:heap_blks_total] %>
-              <span class="text-muted"><%= heap_blks_vacuumed %> / <%= heap_blks_total %> (<%= number_to_percentage heap_blks_vacuumed.to_f / heap_blks_total.to_f * 100.0, precision: 1 %>) heap blocks 🧱</span>
+              <span class="text-muted">
+                <%= number_with_delimiter progress[:num_dead_tuples] %> / <%= number_with_delimiter progress[:max_dead_tuples] %>
+                (<%= number_to_percentage progress[:num_dead_tuples].to_f / progress[:max_dead_tuples].to_f * 100.0, precision: 1 %>)
+                dead tuples until next index vacuum 💀
+              </span>
+            <% when "vacuuming heap" %>
+              <span class="text-muted">
+                <%= number_with_delimiter progress[:heap_blks_vacuumed] %> / <%= number_with_delimiter progress[:heap_blks_total] %>
+                (<%= number_to_percentage progress[:heap_blks_vacuumed].to_f / progress[:heap_blks_total].to_f * 100.0, precision: 1 %>)
+                heap blocks 🧱
+              </span>
             <% end %>
           <% elsif progress = create_index_progress[query[:pid]] %>
             <div>
@@ -55,10 +65,9 @@
                     "waiting for readers before dropping" %>
               <span class="text-muted">
                 waited for
-                <%= progress[:lockers_done] %>
-                /
-                <%= progress[:lockers_total] %>
-                queries,
+                <%= number_with_delimiter progress[:lockers_done] %> / <%= number_with_delimiter progress[:lockers_total] %>
+                queries
+                (<%= number_to_percentage progress[:lockers_done].to_f / progress[:lockers_done].to_f * 100.0, precision: 0 %>),
                 currently waiting for
                 <%= link_to progress[:current_locker_pid], live_queries_path(anchor: progress[:current_locker_pid]), style: "color: inherit" %>
               </span>
@@ -66,18 +75,18 @@
                     "index validation: scanning index",
                     "index validation: scanning table" %>
                 <span class="text-muted">
-                  <%= progress[:blocks_done] %>
+                  <%= number_with_delimiter progress[:blocks_done] %>
                   /
-                  <%= progress[:blocks_total] %>
+                  <%= number_with_delimiter progress[:blocks_total] %>
                   blocks
                   (<%= number_to_percentage progress[:blocks_done].to_f / progress[:blocks_total].to_f * 100.0, precision: 1 %>)
                 </span>
-                <% if progress[:tuples_total] %>
+                <% if progress[:tuples_total].presence %>
                   <br>
                   <span class="text-muted">
-                    <%= progress[:tuples_done] %>
+                    <%= number_with_delimiter progress[:tuples_done] %>
                     /
-                    <%= progress[:tuples_total] %>
+                    <%= number_with_delimiter progress[:tuples_total] %>
                     tuples
                     (<%= number_to_percentage progress[:tuples_done].to_f / progress[:tuples_total].to_f * 100.0, precision: 1 %>)
                   </span>
