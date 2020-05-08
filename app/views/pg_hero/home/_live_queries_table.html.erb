@@ -19,22 +19,67 @@
               <div class="text-warning">blocked by <%= link_to q[:blocking_pid], live_queries_path(anchor: q[:blocking_pid]), style: "color: inherit;" %></div>
             <% end %>
           <% end %>
-          <% if vacuum_progress[query[:pid]] %>
-            <% phase = vacuum_progress[query[:pid]][:phase] %>
-            <% index_vacuum_count = vacuum_progress[query[:pid]][:index_vacuum_count] %>
-            <div><strong><%= phase %><%= " (#{index_vacuum_count + 1})" if phase == "vacuuming indexes" || phase == "vacuuming heap" %></strong></div>
+          <% if progress = vacuum_progress[query[:pid]] %>
+            <% phase = progress[:phase] %>
+            <% index_vacuum_count = progress[:index_vacuum_count] %>
+            <div>
+              <strong><%= phase %><%= " (#{index_vacuum_count + 1})" if phase == "vacuuming indexes" || phase == "vacuuming heap" %></strong>
+              <a href="https://www.postgresql.org/docs/12/progress-reporting.html#VACUUM-PROGRESS-REPORTING" target="_blank">(?)</a>
+            </div>
             <% if phase == "scanning heap" || phase == "vacuuming indexes" %>
-              <% heap_blks_scanned = vacuum_progress[query[:pid]][:heap_blks_scanned] %>
-              <% heap_blks_total = vacuum_progress[query[:pid]][:heap_blks_total] %>
+              <% heap_blks_scanned = progress[:heap_blks_scanned] %>
+              <% heap_blks_total = progress[:heap_blks_total] %>
               <span class="text-muted"><%= heap_blks_scanned %> / <%= heap_blks_total %> (<%= ((heap_blks_scanned.to_f / heap_blks_total.to_f) * 100).round(2) %>%)</span>
-              <br />
-              <% num_dead_tuples = vacuum_progress[query[:pid]][:num_dead_tuples] %>
-              <% max_dead_tuples = vacuum_progress[query[:pid]][:max_dead_tuples] %>
+              <br>
+              <% num_dead_tuples = progress[:num_dead_tuples] %>
+              <% max_dead_tuples = progress[:max_dead_tuples] %>
               <span class="text-muted"><%= num_dead_tuples %> / <%= max_dead_tuples %> (<%= ((num_dead_tuples.to_f / max_dead_tuples.to_f) * 100).round(2) %>%) dead tuples until next index vacuum 💀</span>
             <% elsif phase == "vacuuming heap" %>
-              <% heap_blks_vacuumed = vacuum_progress[query[:pid]][:heap_blks_vacuumed] %>
-              <% heap_blks_total = vacuum_progress[query[:pid]][:heap_blks_total] %>
+              <% heap_blks_vacuumed = progress[:heap_blks_vacuumed] %>
+              <% heap_blks_total = progress[:heap_blks_total] %>
               <span class="text-muted"><%= heap_blks_vacuumed %> / <%= heap_blks_total %> (<%= ((heap_blks_vacuumed.to_f / heap_blks_total.to_f) * 100).round(2) %>%) heap blocks 🧱</span>
+            <% end %>
+          <% elsif progress = create_index_progress[query[:pid]] %>
+            <div>
+              <strong><%= progress[:phase] %></strong>
+              <a href="https://www.postgresql.org/docs/12/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING" target="_blank">(?)</a>
+            </div>
+            <% case progress[:phase] %>
+            <% when "initializing",
+                    "index validation: sorting tuples" %>
+              <% # nothing interesting to show %>
+            <% when "waiting for writers before build",
+                    "waiting for writers before validation",
+                    "waiting for old snapshots",
+                    "waiting for readers before marking dead",
+                    "waiting for readers before dropping" %>
+              <span class="text-muted">
+                obtained
+                <%= progress[:lockers_done] %>
+                /
+                <%= progress[:lockers_total] %>
+                locks,
+                blocked by
+                <%= link_to progress[:current_locker_pid], live_queries_path(anchor: progress[:current_locker_pid]), style: "color: inherit" %>
+              </span>
+            <% when "building index",
+                    "index validation: scanning index",
+                    "index validation: scanning table" %>
+                <span class="text-muted">
+                  <%= progress[:blocks_done] %>
+                  /
+                  <%= progress[:blocks_tota] %>
+                  blocks
+                </span>
+                <% if progress[:tuples_total] %>
+                  <br>
+                  <span class="text-muted">
+                    <%= progress[:tuples_done] %>
+                    /
+                    <%= progress[:tuples_tota] %>
+                    tuples
+                  </span>
+                <% end %>
             <% end %>
           <% end %>
         </td>

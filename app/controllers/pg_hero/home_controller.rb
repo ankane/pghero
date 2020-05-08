@@ -114,6 +114,7 @@ module PgHero
       @running_queries = @database.running_queries(all: true)
       @blocked_queries = @database.blocked_queries.group_by { |q| q[:blocked_pid] }
       @held_locks = @database.held_locks.group_by { |l| l[:pid] }
+      @create_index_progress = @database.create_index_progress.index_by { |q| q[:pid] }
       @vacuum_progress = @database.vacuum_progress.index_by { |q| q[:pid] }
 
       if params[:state]

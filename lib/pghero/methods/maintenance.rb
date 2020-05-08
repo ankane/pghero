@@ -55,6 +55,38 @@ module PgHero
         end
       end
 
+      def create_index_progress
+        if server_version_num >= 120000
+          select_all <<-SQL
+            SELECT
+              pid,
+              datid,
+              datname,
+              relid,
+              relid::regclass::text as relname,
+              index_relid,
+              index_relid::regclass::text as index_relname,
+              command,
+              phase,
+              lockers_total,
+              lockers_done,
+              current_locker_pid,
+              blocks_total,
+              blocks_done,
+              tuples_total,
+              tuples_done,
+              partitions_total,
+              partitions_done
+            FROM
+              pg_stat_progress_create_index
+            WHERE
+              datname = current_database()
+          SQL
+        else
+          []
+        end
+      end
+
       def maintenance_info
         select_all <<-SQL
           SELECT
