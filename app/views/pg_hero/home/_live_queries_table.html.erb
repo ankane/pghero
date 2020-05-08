@@ -63,6 +63,7 @@
                 <%= link_to progress[:current_locker_pid], live_queries_path(anchor: progress[:current_locker_pid]), style: "color: inherit" %>
               </span>
             <% when "building index",
+                    "building index: scanning table",
                     "index validation: scanning index",
                     "index validation: scanning table" %>
                 <span class="text-muted">
