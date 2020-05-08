@@ -54,12 +54,12 @@
                     "waiting for readers before marking dead",
                     "waiting for readers before dropping" %>
               <span class="text-muted">
-                obtained
+                waited for
                 <%= progress[:lockers_done] %>
                 /
                 <%= progress[:lockers_total] %>
-                locks,
-                blocked by
+                queries,
+                currently waiting for
                 <%= link_to progress[:current_locker_pid], live_queries_path(anchor: progress[:current_locker_pid]), style: "color: inherit" %>
               </span>
             <% when "building index",
