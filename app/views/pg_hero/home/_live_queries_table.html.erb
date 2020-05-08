@@ -63,7 +63,7 @@
                     "waiting for old snapshots",
                     "waiting for readers before marking dead",
                     "waiting for readers before dropping" %>
-              <% if progress[:lockers_total].presence %>
+              <% if progress[:lockers_total] && progress[:lockers_total] > 0 %>
                 <span class="text-muted">
                   waited for
                   <%= number_with_delimiter progress[:lockers_done] %> / <%= number_with_delimiter progress[:lockers_total] %>
@@ -84,7 +84,7 @@
                   blocks
                   (<%= number_to_percentage progress[:blocks_done].to_f / progress[:blocks_total].to_f * 100.0, precision: 1 %>)
                 </span>
-                <% if progress[:tuples_total].presence %>
+                <% if progress[:tuples_total] && progress[:tuples_total] > 0 %>
                   <br>
                   <span class="text-muted">
                     <%= number_with_delimiter progress[:tuples_done] %>
