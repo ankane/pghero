@@ -35,6 +35,7 @@
               <span class="text-muted">
                 <%= number_with_delimiter progress[:heap_blks_scanned] %> / <%= number_with_delimiter progress[:heap_blks_total] %>
                 (<%= number_to_percentage progress[:heap_blks_scanned].to_f / progress[:heap_blks_total].to_f * 100.0, precision: 1 %>)
+                heap blocks 🧱
               </span>
               <br>
               <span class="text-muted">
