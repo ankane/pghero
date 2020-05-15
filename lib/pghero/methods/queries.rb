@@ -22,7 +22,8 @@ module PgHero
             #{min_duration ? "AND NOW() - COALESCE(query_start, xact_start) > interval '#{min_duration.to_i} seconds'" : nil}
             #{all ? nil : "AND query <> '<insufficient privilege>'"}
           ORDER BY
-            COALESCE(query_start, xact_start) DESC
+            COALESCE(query_start, xact_start) DESC,
+            pid ASC
         SQL
       end
 
