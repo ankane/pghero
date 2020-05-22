@@ -125,6 +125,7 @@ module PgHero
           def self.name
             "PgHero::Connection::Database#{object_id}"
           end
+
           case url
           when String
             url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=5" unless url.include?("connect_timeout=")
