@@ -112,6 +112,8 @@ module PgHero
     def connection_model
       @connection_model ||= begin
         url = config["url"]
+
+        # resolve spec
         if !url && config["spec"]
           raise Error, "Spec requires Rails 6+" unless PgHero.spec_supported?
           resolved = ActiveRecord::Base.configurations.configs_for(env_name: PgHero.env, spec_name: config["spec"], include_replicas: true)
