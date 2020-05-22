@@ -121,26 +121,18 @@ module PgHero
           url = resolved.config
         end
 
-        model =
-          Class.new(PgHero::Connection) do
-            def self.name
-              "PgHero::Connection::Database#{object_id}"
-            end
-            case url
-            when String
-              url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=5" unless url.include?("connect_timeout=")
-            when Hash
-              url[:connect_timeout] ||= 5
-            end
-            establish_connection url if url
+        Class.new(PgHero::Connection) do
+          def self.name
+            "PgHero::Connection::Database#{object_id}"
           end
-
-        # rough check for Postgres adapter
-        # keep this message generic so it's useful
-        # when empty url set in Docker image pghero.yml
-        raise Error, "Invalid connection URL for #{id} database" unless model.connection.adapter_name =~ /postg/i
-
-        model
+          case url
+          when String
+            url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=5" unless url.include?("connect_timeout=")
+          when Hash
+            url[:connect_timeout] ||= 5
+          end
+          establish_connection url if url
+        end
       end
     end
   end

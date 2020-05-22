@@ -2,7 +2,6 @@
 
 - Added experimental `filter_data` option
 - Localized times on maintenance page
-- Improved error message for non-Postgres connections
 
 ## 2.4.2 (2020-04-16)
 
