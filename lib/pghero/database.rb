@@ -118,18 +118,21 @@ module PgHero
           raise Error, "Spec not found: #{config["spec"]}" unless resolved
           url = resolved.config
         end
-        Class.new(PgHero::Connection) do
-          def self.name
-            "PgHero::Connection::Database#{object_id}"
+        model =
+          Class.new(PgHero::Connection) do
+            def self.name
+              "PgHero::Connection::Database#{object_id}"
+            end
+            case url
+            when String
+              url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=5" unless url.include?("connect_timeout=")
+            when Hash
+              url[:connect_timeout] ||= 5
+            end
+            establish_connection url if url
           end
-          case url
-          when String
-            url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=5" unless url.include?("connect_timeout=")
-          when Hash
-            url[:connect_timeout] ||= 5
-          end
-          establish_connection url if url
-        end
+        raise Error, "Invalid connection URL" unless model.connection.adapter_name =~ /postg/i
+        model
       end
     end
   end
