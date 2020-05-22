@@ -118,6 +118,7 @@ module PgHero
           raise Error, "Spec not found: #{config["spec"]}" unless resolved
           url = resolved.config
         end
+
         model =
           Class.new(PgHero::Connection) do
             def self.name
@@ -131,7 +132,12 @@ module PgHero
             end
             establish_connection url if url
           end
-        raise Error, "Invalid connection URL" unless model.connection.adapter_name =~ /postg/i
+
+        # rough check for Postgres adapter
+        # keep this message generic so it's useful
+        # when empty url set in Docker image pghero.yml
+        raise Error, "Invalid connection URL for #{id} database" unless model.connection.adapter_name =~ /postg/i
+
         model
       end
     end
