@@ -26,7 +26,8 @@ module PgHero
 
       # preload model to ensure only one connection pool
       # this doesn't actually start any connections
-      connection_model
+      @adapter_checked = false
+      @connection_model = build_connection_model
     end
 
     def name
@@ -113,33 +114,45 @@ module PgHero
 
     private
 
+    def connection_model
+      unless @adapter_checked
+        # rough check for Postgres adapter
+        # keep this message generic so it's useful
+        # when empty url set in Docker image pghero.yml
+        unless @connection_model.connection.adapter_name =~ /postg/i
+          raise Error, "Invalid connection URL"
+        end
+        @adapter_checked = true
+      end
+
+      @connection_model
+    end
+
     # just return the model
     # do not start a connection
-    def connection_model
-      @connection_model ||= begin
-        url = config["url"]
+    def build_connection_model
+      url = config["url"]
 
-        # resolve spec
-        if !url && config["spec"]
-          raise Error, "Spec requires Rails 6+" unless PgHero.spec_supported?
-          resolved = ActiveRecord::Base.configurations.configs_for(env_name: PgHero.env, spec_name: config["spec"], include_replicas: true)
-          raise Error, "Spec not found: #{config["spec"]}" unless resolved
-          url = resolved.config
+      # resolve spec
+      if !url && config["spec"]
+        raise Error, "Spec requires Rails 6+" unless PgHero.spec_supported?
+        resolved = ActiveRecord::Base.configurations.configs_for(env_name: PgHero.env, spec_name: config["spec"], include_replicas: true)
+        raise Error, "Spec not found: #{config["spec"]}" unless resolved
+        url = resolved.config
+      end
+
+      Class.new(PgHero::Connection) do
+        def self.name
+          "PgHero::Connection::Database#{object_id}"
         end
 
-        Class.new(PgHero::Connection) do
-          def self.name
-            "PgHero::Connection::Database#{object_id}"
-          end
-
-          case url
-          when String
-            url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=5" unless url.include?("connect_timeout=")
-          when Hash
-            url[:connect_timeout] ||= 5
-          end
-          establish_connection url if url
+        case url
+        when String
+          url = "#{url}#{url.include?("?") ? "&" : "?"}connect_timeout=5" unless url.include?("connect_timeout=")
+        when Hash
+          url[:connect_timeout] ||= 5
         end
+        establish_connection url if url
       end
     end
   end
