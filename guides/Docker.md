@@ -1,6 +1,6 @@
 # PgHero for Docker
 
-PgHero is available as a [Docker image](https://hub.docker.com/r/ankane/pghero/).
+PgHero is available on [Docker Hub](https://hub.docker.com/r/ankane/pghero/).
 
 ```sh
 docker run -ti -e DATABASE_URL=postgres://user:password@hostname:5432/dbname -p 8080:8080 ankane/pghero
