@@ -12,7 +12,7 @@ And mount the dashboard in your `config/routes.rb`:
 mount PgHero::Engine, at: "pghero"
 ```
 
-Be sure to [secure the dashboard](#security) in production.
+Be sure to [secure the dashboard](#authentication) in production.
 
 ### Suggested Indexes
 
