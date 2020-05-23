@@ -43,4 +43,20 @@ class BasicTest < Minitest::Test
   def test_connections
     assert PgHero.connections
   end
+
+  def test_connection_pool
+    1000.times do
+      [:@config, :@databases].each do |var|
+        PgHero.remove_instance_variable(var) if PgHero.instance_variable_defined?(var)
+      end
+
+      threads =
+        2.times.map do
+          Thread.new do
+            PgHero.databases[:primary].send(:connection_model).object_id
+          end
+        end
+      assert_equal 1, threads.map(&:value).uniq.size
+    end
+  end
 end

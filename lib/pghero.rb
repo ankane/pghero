@@ -34,6 +34,8 @@ module PgHero
   class Error < StandardError; end
   class NotEnabled < Error; end
 
+  MUTEX = Mutex.new
+
   # settings
   class << self
     attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :explain_timeout_sec, :total_connections_threshold, :cache_hit_rate_threshold, :env, :show_migrations, :config_path, :filter_data
@@ -129,14 +131,20 @@ module PgHero
       end
     end
 
+    # ensure we only have one copy of databases
+    # so there's only one connection pool per database
     def databases
-      @databases ||= begin
-        Hash[
-          config["databases"].map do |id, c|
-            [id.to_sym, PgHero::Database.new(id, c)]
-          end
-        ]
+      unless defined?(@databases)
+        # only use mutex on initialization
+        MUTEX.synchronize do
+          # return if another process initialized while we were waiting
+          return @databases if defined?(@databases)
+
+          @databases = config["databases"].map { |id, c| [id.to_sym, Database.new(id, c)] }.to_h
+        end
       end
+
+      @databases
     end
 
     def primary_database

@@ -23,6 +23,10 @@ module PgHero
     def initialize(id, config)
       @id = id
       @config = config || {}
+
+      # preload model to ensure only one connection pool
+      # this doesn't actually start any connections
+      connection_model
     end
 
     def name
