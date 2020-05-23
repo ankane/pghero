@@ -426,6 +426,7 @@ module PgHero
       render_text "No support for Rails API. See https://github.com/pghero/pghero for a standalone app." if Rails.application.config.try(:api_only)
     end
 
+    # TODO return error status code
     def render_text(message)
       render plain: message
     end
