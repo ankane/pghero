@@ -40,7 +40,7 @@
           <% if @show_dead_rows %>
             <td>
               <% if table[:live_rows] != 0 %>
-                <%= (100.0 * table[:dead_rows] / (table[:dead_rows] + table[:live_rows])).round %>%
+                <%= (100.0 * table[:dead_rows] / table[:live_rows]).round %>%
               <% else %>
                 <span class="text-muted">Unknown</span>
               <% end %>
