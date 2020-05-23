@@ -114,6 +114,7 @@ module PgHero
 
     private
 
+    # check adapter lazily
     def connection_model
       unless @adapter_checked
         # rough check for Postgres adapter
