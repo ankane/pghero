@@ -7,7 +7,9 @@
         <th>Table</th>
         <th style="width: 20%;">Last Vacuum</th>
         <th style="width: 20%;">Last Analyze</th>
-        <th style="width: 20%;">Dead Rows</th>
+        <% if @show_dead_rows %>
+          <th style="width: 20%;">Dead Rows</th>
+        <% end %>
       </tr>
     </thead>
     <tbody>
@@ -35,13 +37,15 @@
               <span class="text-muted">Unknown</span>
             <% end %>
           </td>
-          <td>
-            <% if table[:n_live_tup] != 0 %>
-              <%= (table[:n_dead_tup] * 100 / table[:n_live_tup]) %> %
-            <% else %>
-              <span class="text-muted">Unknown</span>
-            <% end %>
-          </td>
+          <% if @show_dead_rows %>
+            <td>
+              <% if table[:live_rows] != 0 %>
+                <%= (100.0 * table[:dead_rows] / table[:live_rows]).round %>%
+              <% else %>
+                <span class="text-muted">Unknown</span>
+              <% end %>
+            </td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>
