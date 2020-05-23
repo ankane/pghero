@@ -53,10 +53,12 @@ class BasicTest < Minitest::Test
       threads =
         2.times.map do
           Thread.new do
-            PgHero.databases[:primary].send(:connection_model).object_id
+            PgHero.databases[:primary].instance_variable_get(:@connection_model)
           end
         end
-      assert_equal 1, threads.map(&:value).uniq.size
+      values = threads.map(&:value)
+      assert_same values.first, values.last
+      refute_nil values.first
     end
   end
 end
