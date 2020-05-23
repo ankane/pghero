@@ -1,4 +1,4 @@
-# PgHero for Linux
+# PgHero Linux
 
 Distributions
 

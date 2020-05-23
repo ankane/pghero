@@ -1,6 +1,12 @@
-# PgHero for Docker
+# PgHero Docker
 
 PgHero is available on [Docker Hub](https://hub.docker.com/r/ankane/pghero/).
+
+```sh
+docker pull ankane/pghero
+```
+
+Start the dashboard:
 
 ```sh
 docker run -ti -e DATABASE_URL=postgres://user:password@hostname:5432/dbname -p 8080:8080 ankane/pghero

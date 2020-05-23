@@ -1,4 +1,4 @@
-# PgHero for Rails
+# PgHero Rails
 
 Add this line to your application’s Gemfile:
 
