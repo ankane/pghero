@@ -113,6 +113,8 @@ module PgHero
 
     private
 
+    # just return the model
+    # do not start a connection
     def connection_model
       @connection_model ||= begin
         url = config["url"]
