@@ -109,20 +109,23 @@ PgHero.capture_space_stats
 
 ## System Stats
 
-CPU usage, IOPS, and other stats are available for Amazon RDS. Add these lines to your application’s Gemfile:
+CPU usage, IOPS, and other stats are available for Amazon RDS. Add this line to your application’s Gemfile:
 
 ```ruby
 gem 'aws-sdk-cloudwatch'
-# or
-gem 'aws-sdk'
 ```
 
-And add these variables to your environment:
+By default, your application’s AWS credentials are used. And add these variables to your environment to use separate credentials:
 
 ```sh
 PGHERO_ACCESS_KEY_ID=accesskey123
 PGHERO_SECRET_ACCESS_KEY=secret123
 PGHERO_REGION=us-east-1
+```
+
+Finally, specify your database’s DB instance identifier.
+
+```sh
 PGHERO_DB_INSTANCE_IDENTIFIER=epona
 ```
 
