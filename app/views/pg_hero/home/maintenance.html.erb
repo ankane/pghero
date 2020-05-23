@@ -40,6 +40,8 @@
           <% if @show_dead_rows %>
             <td>
               <% if table[:live_rows] != 0 %>
+                <%# use live rows only for denominator to make it easier to compare with autovacuum_vacuum_scale_factor %>
+                <%# it's not a true percentage, since it can go above 100% %>
                 <%= (100.0 * table[:dead_rows] / table[:live_rows]).round %>%
               <% else %>
                 <span class="text-muted">Unknown</span>
