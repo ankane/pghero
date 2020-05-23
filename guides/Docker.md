@@ -18,7 +18,7 @@ And visit [http://localhost:8080](http://localhost:8080).
 
 ## Authentication
 
-And basic authentication with:
+Add basic authentication with:
 
 ```sh
 docker run -e PGHERO_USERNAME=link -e PGHERO_PASSWORD=hyrule ...
