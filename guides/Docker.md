@@ -10,6 +10,16 @@ And visit [http://localhost:8080](http://localhost:8080).
 
 > On Mac, use `host.docker.internal` as the database hostname for databases on your local machine
 
+## Authentication
+
+And basic authentication with:
+
+```sh
+docker run -e PGHERO_USERNAME=link -e PGHERO_PASSWORD=hyrule ...
+```
+
+Or use a reverse proxy like [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy).
+
 ## Query Stats
 
 Query stats can be enabled from the dashboard. If you run into issues, [view the guide](Query-Stats.md).
@@ -194,14 +204,6 @@ spec:
 ## Permissions
 
 We recommend [setting up a dedicated user](Permissions.md) for PgHero.
-
-## Security
-
-And basic authentication with:
-
-```sh
-docker run -e PGHERO_USERNAME=link -e PGHERO_PASSWORD=hyrule ...
-```
 
 ## Credits
 
