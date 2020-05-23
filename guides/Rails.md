@@ -24,18 +24,16 @@ gem 'pg_query', '>= 0.9.0'
 
 and make sure [query stats](#query-stats) are enabled. Read about how it works [here](Suggested-Indexes.md).
 
-## Security
+## Authentication
 
-#### Basic Authentication
-
-Set the following variables in your environment or an initializer.
+For basic authentication, set the following variables in your environment or an initializer.
 
 ```ruby
 ENV["PGHERO_USERNAME"] = "link"
 ENV["PGHERO_PASSWORD"] = "hyrule"
 ```
 
-#### Devise
+For Devise, use:
 
 ```ruby
 authenticate :user, -> (user) { user.admin? } do
