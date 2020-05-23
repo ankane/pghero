@@ -80,6 +80,32 @@ Schedule the task below to run once a day.
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
 ```
 
+## System Stats
+
+CPU usage, IOPS, and other stats are available for Amazon RDS. Set these variables:
+
+```sh
+PGHERO_ACCESS_KEY_ID=accesskey123
+PGHERO_SECRET_ACCESS_KEY=secret123
+PGHERO_REGION=us-east-1
+PGHERO_DB_INSTANCE_IDENTIFIER=epona
+```
+
+This requires the following IAM policy:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "cloudwatch:GetMetricStatistics",
+            "Resource": "*"
+        }
+    ]
+}
+```
+
 ## Customization & Multiple Databases
 
 Create a `pghero.yml` file with:
