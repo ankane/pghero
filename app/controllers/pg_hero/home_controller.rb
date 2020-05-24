@@ -301,7 +301,7 @@ module PgHero
       @connections_by_database = group_connections_by_key(connections, :database)
       @connections_by_user = group_connections_by_key(connections, :user)
 
-      if params[:security] && @database.server_version_num >= 90500
+      if @database.server_version_num >= 90500
         connections.each do |connection|
           connection[:ssl_status] =
             if connection[:ssl]
