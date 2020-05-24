@@ -91,8 +91,8 @@ docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_s
 CPU usage, IOPS, and other stats are available for:
 
 - [Amazon RDS](#amazon-rds)
-- [Google Cloud SQL](#google-cloud-sql) [master]
-- [Azure Database](#azure-database) [master]
+- [Google Cloud SQL](#google-cloud-sql)
+- [Azure Database](#azure-database)
 
 Heroku and Digital Ocean do not currently have an API for database metrics.
 

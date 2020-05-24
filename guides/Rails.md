@@ -112,8 +112,8 @@ PgHero.capture_space_stats
 CPU usage, IOPS, and other stats are available for:
 
 - [Amazon RDS](#amazon-rds)
-- [Google Cloud SQL](#google-cloud-sql) [master]
-- [Azure Database](#azure-database) [master]
+- [Google Cloud SQL](#google-cloud-sql)
+- [Azure Database](#azure-database)
 
 Heroku and Digital Ocean do not currently have an API for database metrics.
 

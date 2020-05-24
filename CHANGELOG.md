@@ -1,4 +1,4 @@
-## 2.5.0 (unreleased)
+## 2.5.0 (2020-05-24)
 
 - Added system stats for Google Cloud SQL and Azure Database
 - Added experimental `filter_data` option
