@@ -88,13 +88,20 @@ docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_s
 
 ## System Stats
 
-CPU usage, IOPS, and other stats are available for Amazon RDS. Set these variables:
+CPU usage, IOPS, and other stats are available for:
+
+- [Amazon RDS](#amazon-rds)
+- [Google Cloud SQL](#google-cloud-sql) [master]
+
+### Amazon RDS
+
+Set these variables:
 
 ```sh
-PGHERO_ACCESS_KEY_ID=accesskey123
-PGHERO_SECRET_ACCESS_KEY=secret123
-PGHERO_REGION=us-east-1
-PGHERO_DB_INSTANCE_IDENTIFIER=epona
+AWS_ACCESS_KEY_ID=my-access-key
+AWS_SECRET_ACCESS_KEY=my-secret
+AWS_REGION=us-east-1
+PGHERO_DB_INSTANCE_IDENTIFIER=my-instance
 ```
 
 This requires the following IAM policy:
@@ -112,6 +119,15 @@ This requires the following IAM policy:
 }
 ```
 
+### Google Cloud SQL
+
+Set these variables:
+
+```sh
+GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+PGHERO_GCP_DATABASE_ID=my-project:my-instance
+```
+
 ## Customization & Multiple Databases
 
 Create a `pghero.yml` file with:
@@ -120,6 +136,10 @@ Create a `pghero.yml` file with:
 databases:
   main:
     url: <%= ENV["DATABASE_URL"] %>
+
+    # System stats
+    # aws_db_instance_identifier: my-instance
+    # gcp_database_id: my-project:my-instance
 
   # Add more databases
   # other:
