@@ -209,13 +209,44 @@ sudo pghero run rake pghero:capture_space_stats
 
 ## System Stats
 
-CPU usage is available for Amazon RDS.  Add these variables to your environment:
+CPU usage, IOPS, and other stats are available for:
+
+- [Amazon RDS](#amazon-rds)
+- [Google Cloud SQL](#google-cloud-sql) [master]
+
+### Amazon RDS
+
+Add these variables to your environment:
 
 ```sh
-sudo pghero config:set PGHERO_ACCESS_KEY_ID=accesskey123
-sudo pghero config:set PGHERO_SECRET_ACCESS_KEY=secret123
-sudo pghero config:set PGHERO_REGION=us-east-1
-sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
+sudo pghero config:set AWS_ACCESS_KEY_ID=my-access-key
+sudo pghero config:set AWS_SECRET_ACCESS_KEY=my-secret
+sudo pghero config:set AWS_REGION=us-east-1
+sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=my-instance
+```
+
+This requires the following IAM policy:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "cloudwatch:GetMetricStatistics",
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+### Google Cloud SQL
+
+Add these variables to your environment:
+
+```sh
+sudo pghero config:set GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+sudo pghero config:set PGHERO_GCP_DATABASE_ID=my-project:my-instance
 ```
 
 ## Multiple Databases
