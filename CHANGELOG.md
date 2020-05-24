@@ -1,7 +1,6 @@
 ## 2.5.0 (unreleased)
 
 - Added system stats for Google Cloud SQL and Azure Database
-- Added connection security to Connections page
 - Added experimental `filter_data` option
 - Localized times on maintenance page
 - Improved connection pooling
