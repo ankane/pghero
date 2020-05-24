@@ -11,7 +11,7 @@ module PgHero
           :aws
         elsif gcp_database_id
           :gcp
-        elsif azure_resource_uri
+        elsif azure_resource_id
           :azure
         end
       end
@@ -110,7 +110,7 @@ module PgHero
         client = Azure::Monitor::Profiles::Latest::Mgmt::Client.new
         timespan = "#{start_time.iso8601}/#{end_time.iso8601}"
         results = client.metrics.list(
-          azure_resource_uri,
+          azure_resource_id,
           metricnames: metric_name,
           aggregation: "Average",
           timespan: timespan,

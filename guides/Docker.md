@@ -147,7 +147,7 @@ AZURE_SUBSCRIPTION_ID=...
 Finally, set your database resource URI:
 
 ```sh
-PGHERO_AZURE_RESOURCE_URI=/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.DBforPostgreSQL/servers/<database-id>
+PGHERO_AZURE_RESOURCE_ID=/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.DBforPostgreSQL/servers/<database-id>
 ```
 
 This requires the Monitoring Reader role.
@@ -164,7 +164,7 @@ databases:
     # System stats
     # aws_db_instance_identifier: my-instance
     # gcp_database_id: my-project:my-instance
-    # azure_resource_uri: my-resource-uri
+    # azure_resource_id: my-resource-id
 
   # Add more databases
   # other:

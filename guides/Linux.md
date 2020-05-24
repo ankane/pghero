@@ -268,7 +268,7 @@ AZURE_SUBSCRIPTION_ID=...
 Finally, set your database resource URI:
 
 ```sh
-PGHERO_AZURE_RESOURCE_URI=/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.DBforPostgreSQL/servers/<database-id>
+PGHERO_AZURE_RESOURCE_ID=/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.DBforPostgreSQL/servers/<database-id>
 ```
 
 This requires the Monitoring Reader role.

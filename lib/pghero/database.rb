@@ -89,8 +89,8 @@ module PgHero
     end
 
     # environment variable is only used if no config file
-    def azure_resource_uri
-      @azure_resource_uri ||= config["azure_resource_uri"]
+    def azure_resource_id
+      @azure_resource_id ||= config["azure_resource_id"]
     end
 
     # must check keys for booleans
