@@ -176,7 +176,7 @@ PGHERO_GCP_DATABASE_ID=my-project:my-instance
 
 This requires the Monitoring Viewer role.
 
-## Azure Database
+### Azure Database
 
 Add this line to your application’s Gemfile:
 
@@ -184,7 +184,7 @@ Add this line to your application’s Gemfile:
 gem 'azure_mgmt_monitor'
 ```
 
-[Get your credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#get-application-id-and-authentication-key) and add these variables to your environment:
+[Get your credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and add these variables to your environment:
 
 ```sh
 AZURE_TENANT_ID=...
