@@ -219,15 +219,15 @@ module PgHero
     end
 
     def cpu_usage
-      render json: [{name: "CPU", data: @database.cpu_usage(system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}]
+      render json: [{name: "CPU", data: @database.cpu_usage(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}]
     end
 
     def connection_stats
-      render json: [{name: "Connections", data: @database.connection_stats(system_params), library: chart_library_options}]
+      render json: [{name: "Connections", data: @database.connection_stats(**system_params), library: chart_library_options}]
     end
 
     def replication_lag_stats
-      render json: [{name: "Lag", data: @database.replication_lag_stats(system_params), library: chart_library_options}]
+      render json: [{name: "Lag", data: @database.replication_lag_stats(**system_params), library: chart_library_options}]
     end
 
     def load_stats
@@ -235,17 +235,17 @@ module PgHero
         case @database.system_stats_provider
         when :azure
           [
-            {name: "IO Consumption", data: @database.azure_stats("io_consumption_percent", system_params), library: chart_library_options}
+            {name: "IO Consumption", data: @database.azure_stats("io_consumption_percent", **system_params), library: chart_library_options}
           ]
         when :gcp
           [
-            {name: "Read Ops", data: @database.read_iops_stats(system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
-            {name: "Write Ops", data: @database.write_iops_stats(system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
+            {name: "Read Ops", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
+            {name: "Write Ops", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
           ]
         else
           [
-            {name: "Read IOPS", data: @database.read_iops_stats(system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
-            {name: "Write IOPS", data: @database.write_iops_stats(system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
+            {name: "Read IOPS", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
+            {name: "Write IOPS", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
           ]
         end
       render json: stats

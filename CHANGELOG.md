@@ -1,9 +1,11 @@
-## 2.4.3 (unreleased)
+## 2.5.0 (unreleased)
 
+- Added system stats for Google Cloud SQL and Azure Database
 - Added experimental `filter_data` option
 - Localized times on maintenance page
 - Improved connection pooling
 - Improved error message for non-Postgres connections
+- Fixed more deprecation warnings in Ruby 2.7
 
 ## 2.4.2 (2020-04-16)
 

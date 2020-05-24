@@ -17,27 +17,27 @@ module PgHero
       end
 
       def cpu_usage(**options)
-        system_stats(:cpu, options)
+        system_stats(:cpu, **options)
       end
 
       def connection_stats(**options)
-        system_stats(:connections, options)
+        system_stats(:connections, **options)
       end
 
       def replication_lag_stats(**options)
-        system_stats(:replication_lag, options)
+        system_stats(:replication_lag, **options)
       end
 
       def read_iops_stats(**options)
-        system_stats(:read_iops, options)
+        system_stats(:read_iops, **options)
       end
 
       def write_iops_stats(**options)
-        system_stats(:write_iops, options)
+        system_stats(:write_iops, **options)
       end
 
       def free_space_stats(**options)
-        system_stats(:free_space, options)
+        system_stats(:free_space, **options)
       end
 
       def rds_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
