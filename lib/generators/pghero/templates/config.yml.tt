@@ -32,14 +32,14 @@ databases:
 
 # Basic authentication
 # username: admin
-# password: secret
+# password: <%%= ENV["PGHERO_PASSWORD"] %>
 
 # Stats database URL (defaults to app database)
 # stats_database_url: <%%= ENV["PGHERO_STATS_DATABASE_URL"] %>
 
 # AWS configuration (defaults to app AWS config)
-# aws_access_key_id: ...
-# aws_secret_access_key: ...
+# aws_access_key_id: <%%= ENV["AWS_ACCESS_KEY_ID"] %>
+# aws_secret_access_key: <%%= ENV["AWS_SECRET_ACCESS_KEY"] %>
 # aws_region: us-east-1
 
 # Filter data from queries (experimental)
