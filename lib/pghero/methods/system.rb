@@ -5,7 +5,7 @@ module PgHero
         !system_stats_provider.nil?
       end
 
-      # TODO require AWS 2+ automatically
+      # TODO remove defined checks in 3.0
       def system_stats_provider
         if aws_db_instance_identifier && (defined?(Aws) || defined?(AWS))
           :aws
