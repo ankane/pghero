@@ -155,7 +155,7 @@ module PgHero
         aggregation.per_series_aligner = Google::Monitoring::V3::Aggregation::Aligner::ALIGN_MEAN
         aggregation.alignment_period = period
 
-        # validate input
+        # validate input since we need to interpolate below
         raise Error, "Invalid metric name" unless metric_name =~ /\A[a-z\/_]+\z/i
         raise Error, "Invalid database id" unless gcp_database_id =~ /\A[a-z\-:]+\z/i
 
