@@ -1,6 +1,21 @@
 module PgHero
   module Methods
     module System
+      def system_stats_enabled?
+        !system_stats_provider.nil?
+      end
+
+      # TODO require AWS 2+ automatically
+      def system_stats_provider
+        if aws_db_instance_identifier && (defined?(Aws) || defined?(AWS))
+          :aws
+        elsif gcp_database_id
+          :gcp
+        elsif azure_resource_uri
+          :azure
+        end
+      end
+
       def cpu_usage(**options)
         system_stats(:cpu, options)
       end
@@ -68,18 +83,51 @@ module PgHero
         end
       end
 
-      def system_stats_enabled?
-        !system_stats_provider.nil?
-      end
+      def azure_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
+        # TODO DRY with RDS stats
+        duration = (duration || 1.hour).to_i
+        period = (period || 1.minute).to_i
+        offset = (offset || 0).to_i
+        end_time = Time.at(((Time.now - offset).to_f / period).ceil * period)
+        start_time = end_time - duration
 
-      def system_stats_provider
-        if aws_db_instance_identifier && (defined?(Aws) || defined?(AWS))
-          :aws
-        elsif gcp_database_id
-          :gcp
-        elsif azure_resource_uri
-          :azure
+        interval =
+          case period
+          when 60
+            "PT1M"
+          when 300
+            "PT5M"
+          when 900
+            "PT15M"
+          when 1800
+            "PT30M"
+          when 3600
+            "PT1H"
+          else
+            raise Error, "Unsupported period"
+          end
+
+        client = Azure::Monitor::Profiles::Latest::Mgmt::Client.new
+        timespan = "#{start_time.iso8601}/#{end_time.iso8601}"
+        results = client.metrics.list(
+          azure_resource_uri,
+          metricnames: metric_name,
+          aggregation: "Average",
+          timespan: timespan,
+          interval: interval
+        )
+
+        data = {}
+        result = results.value.first
+        if result
+          result.timeseries.first.data.each do |point|
+            data[point.time_stamp.to_time] = point.average
+          end
         end
+
+        add_missing_data(data, start_time, end_time, period) if series
+
+        data
       end
 
       private
@@ -127,53 +175,6 @@ module PgHero
             value = point.value.double_value
             value *= 100 if metric_name == "cpu/utilization"
             data[time] = value
-          end
-        end
-
-        add_missing_data(data, start_time, end_time, period) if series
-
-        data
-      end
-
-      def azure_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
-        # TODO DRY with RDS stats
-        duration = (duration || 1.hour).to_i
-        period = (period || 1.minute).to_i
-        offset = (offset || 0).to_i
-        end_time = Time.at(((Time.now - offset).to_f / period).ceil * period)
-        start_time = end_time - duration
-
-        interval =
-          case period
-          when 60
-            "PT1M"
-          when 300
-            "PT5M"
-          when 900
-            "PT15M"
-          when 1800
-            "PT30M"
-          when 3600
-            "PT1H"
-          else
-            raise Error, "Unsupported period"
-          end
-
-        client = Azure::Monitor::Profiles::Latest::Mgmt::Client.new
-        timespan = "#{start_time.iso8601}/#{end_time.iso8601}"
-        results = client.metrics.list(
-          azure_resource_uri,
-          metricnames: metric_name,
-          aggregation: "Average",
-          timespan: timespan,
-          interval: interval
-        )
-
-        data = {}
-        result = results.value.first
-        if result
-          result.timeseries.first.data.each do |point|
-            data[point.time_stamp.to_time] = point.average
           end
         end
 
