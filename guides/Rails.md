@@ -122,7 +122,7 @@ Add this line to your application’s Gemfile:
 gem 'aws-sdk-cloudwatch'
 ```
 
-By default, your application’s AWS credentials are used. And add these variables to your environment to use separate credentials:
+By default, your application’s AWS credentials are used. To use separate credentials, add these variables to your environment:
 
 ```sh
 PGHERO_ACCESS_KEY_ID=my-access-key
