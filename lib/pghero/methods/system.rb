@@ -222,6 +222,7 @@ module PgHero
               connections: "active_connections",
               replication_lag: "pg_replica_log_delay_in_seconds"
             }
+            raise Error, "Metric not supported" unless metrics[metric_key]
             azure_stats(metrics[metric_key], **options)
           end
         else
