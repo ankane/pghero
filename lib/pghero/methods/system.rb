@@ -72,6 +72,16 @@ module PgHero
         !system_stats_provider.nil?
       end
 
+      def system_stats_provider
+        if aws_db_instance_identifier && (defined?(Aws) || defined?(AWS))
+          :aws
+        elsif gcp_database_id
+          :gcp
+        elsif azure_resource_uri
+          :azure
+        end
+      end
+
       private
 
       def gcp_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
@@ -125,6 +135,53 @@ module PgHero
         data
       end
 
+      def azure_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
+        # TODO DRY with RDS stats
+        duration = (duration || 1.hour).to_i
+        period = (period || 1.minute).to_i
+        offset = (offset || 0).to_i
+        end_time = Time.at(((Time.now - offset).to_f / period).ceil * period)
+        start_time = end_time - duration
+
+        interval =
+          case period
+          when 60
+            "PT1M"
+          when 300
+            "PT5M"
+          when 900
+            "PT15M"
+          when 1800
+            "PT30M"
+          when 3600
+            "PT1H"
+          else
+            raise Error, "Unsupported period"
+          end
+
+        client = Azure::Monitor::Profiles::Latest::Mgmt::Client.new
+        timespan = "#{start_time.iso8601}/#{end_time.iso8601}"
+        results = client.metrics.list(
+          azure_resource_uri,
+          metricnames: metric_name,
+          aggregation: "Average",
+          timespan: timespan,
+          interval: interval
+        )
+
+        data = {}
+        result = results.value.first
+        if result
+          result.timeseries.first.data.each do |point|
+            data[point.time_stamp.to_time] = point.average
+          end
+        end
+
+        add_missing_data(data, start_time, end_time, period) if series
+
+        data
+      end
+
       def system_stats(metric_key, **options)
         case system_stats_provider
         when :aws
@@ -141,13 +198,7 @@ module PgHero
           if metric_key == :free_space
             quota = gcp_stats("disk/quota", **options)
             used = gcp_stats("disk/bytes_used", **options)
-            data = {}
-            # only use data points included in both series
-            # this also eliminates need to align Time.now
-            quota.each do |k, v|
-              data[k] = v - used[k] if used[k]
-            end
-            data
+            free_space(quota, used)
           else
             metrics = {
               cpu: "cpu/utilization",
@@ -158,17 +209,34 @@ module PgHero
             }
             gcp_stats(metrics[metric_key], **options)
           end
+        when :azure
+          if metric_key == :free_space
+            quota = azure_stats("storage_limit", **options)
+            used = azure_stats("storage_used", **options)
+            free_space(quota, used)
+          else
+            # no read_iops, write_iops
+            # could add io_consumption_percent
+            metrics = {
+              cpu: "cpu_percent",
+              connections: "active_connections",
+              replication_lag: "pg_replica_log_delay_in_seconds"
+            }
+            azure_stats(metrics[metric_key], **options)
+          end
         else
           raise NotEnabled, "System stats not enabled"
         end
       end
 
-      def system_stats_provider
-        if aws_db_instance_identifier && (defined?(Aws) || defined?(AWS))
-          :aws
-        elsif gcp_database_id
-          :gcp
+      # only use data points included in both series
+      # this also eliminates need to align Time.now
+      def free_space(quota, used)
+        data = {}
+        quota.each do |k, v|
+          data[k] = v - used[k] if v && used[k]
         end
+        data
       end
 
       def add_missing_data(data, start_time, end_time, period)

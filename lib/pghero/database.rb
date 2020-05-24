@@ -88,6 +88,11 @@ module PgHero
       @gcp_database_id ||= config["gcp_database_id"]
     end
 
+    # environment variable is only used if no config file
+    def azure_resource_uri
+      @azure_resource_uri ||= config["azure_resource_uri"]
+    end
+
     # must check keys for booleans
     def filter_data
       unless defined?(@filter_data)

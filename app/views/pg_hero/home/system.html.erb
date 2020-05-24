@@ -12,11 +12,13 @@
     new Chartkick.LineChart("chart-1", <%= json_escape(cpu_usage_path(path_options).to_json).html_safe %>, {max: 100, colors: ["#5bc0de"], suffix: "%", library: {tooltips: {intersect: false, mode: "index"}}})
   </script>
 
-  <h1>Load</h1>
-  <div id="chart-2" class="chart" style="margin-bottom: 20px;">Loading...</div>
-  <script>
-    new Chartkick.LineChart("chart-2", <%= json_escape(load_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de", "#d9534f"], library: {tooltips: {intersect: false, mode: "nearest"}}})
-  </script>
+  <% if @database.system_stats_provider != :azure %>
+    <h1>Load</h1>
+    <div id="chart-2" class="chart" style="margin-bottom: 20px;">Loading...</div>
+    <script>
+      new Chartkick.LineChart("chart-2", <%= json_escape(load_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de", "#d9534f"], library: {tooltips: {intersect: false, mode: "nearest"}}})
+    </script>
+  <% end %>
 
   <h1>Connections</h1>
   <div id="chart-3" class="chart" style="margin-bottom: 20px;">Loading...</div>

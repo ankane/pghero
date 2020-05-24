@@ -121,7 +121,8 @@ module PgHero
             databases["primary"] = {
               "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config,
               "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"],
-              "gcp_database_id" => ENV["PGHERO_GCP_DATABASE_ID"]
+              "gcp_database_id" => ENV["PGHERO_GCP_DATABASE_ID"],
+              "azure_resource_uri" => ENV["PGHERO_AZURE_RESOURCE_URI"]
             }
           end
 

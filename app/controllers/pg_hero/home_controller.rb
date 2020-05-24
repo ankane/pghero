@@ -203,6 +203,11 @@ module PgHero
         "1 week" => {duration: 1.week, period: 30.minutes},
         "2 weeks" => {duration: 2.weeks, period: 1.hours}
       }
+      if @database.system_stats_provider == :azure
+        # doesn't support 10, just 5 and 15
+        @periods["1 day"][:period] = 15.minutes
+      end
+
       @duration = (params[:duration] || 1.hour).to_i
       @period = (params[:period] || 60.seconds).to_i
 
