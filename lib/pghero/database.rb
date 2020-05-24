@@ -78,8 +78,14 @@ module PgHero
       config["aws_region"] || PgHero.config["aws_region"] || ENV["PGHERO_REGION"] || ENV["AWS_REGION"] || (defined?(Aws) && Aws.config[:region]) || "us-east-1"
     end
 
+    # environment variable is only used if no config file
     def aws_db_instance_identifier
       @db_instance_identifier ||= config["aws_db_instance_identifier"] || config["db_instance_identifier"]
+    end
+
+    # environment variable is only used if no config file
+    def gcp_database_id
+      @gcp_database_id ||= config["gcp_database_id"]
     end
 
     # must check keys for booleans

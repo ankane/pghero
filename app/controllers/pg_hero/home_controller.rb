@@ -214,7 +214,7 @@ module PgHero
     end
 
     def cpu_usage
-      render json: [{name: "CPU", data: @database.cpu_usage(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}]
+      render json: [{name: "CPU", data: @database.cpu_usage(system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}]
     end
 
     def connection_stats
@@ -227,8 +227,8 @@ module PgHero
 
     def load_stats
       render json: [
-        {name: "Read IOPS", data: @database.read_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options},
-        {name: "Write IOPS", data: @database.write_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}
+        {name: "Read IOPS", data: @database.read_iops_stats(system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
+        {name: "Write IOPS", data: @database.write_iops_stats(system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
       ]
     end
 
@@ -399,7 +399,8 @@ module PgHero
     def system_params
       {
         duration: params[:duration],
-        period: params[:period]
+        period: params[:period],
+        series: true
       }.delete_if { |_, v| v.nil? }
     end
 

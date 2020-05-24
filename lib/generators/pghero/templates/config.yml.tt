@@ -3,6 +3,10 @@ databases:
     # Database URL (defaults to app database)
     # url: <%%= ENV["DATABASE_URL"] %>
 
+    # System stats
+    # aws_db_instance_identifier: my-instance
+    # gcp_database_id: my-project:my-instance
+
   # Add more databases
   # other:
   #   url: <%%= ENV["OTHER_DATABASE_URL"] %>
@@ -33,7 +37,6 @@ databases:
 # stats_database_url: <%%= ENV["PGHERO_STATS_DATABASE_URL"] %>
 
 # AWS configuration (defaults to app AWS config)
-# also need aws_db_instance_identifier with each database
 # aws_access_key_id: ...
 # aws_secret_access_key: ...
 # aws_region: us-east-1

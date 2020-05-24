@@ -109,7 +109,14 @@ PgHero.capture_space_stats
 
 ## System Stats
 
-CPU usage, IOPS, and other stats are available for Amazon RDS. Add this line to your application’s Gemfile:
+CPU usage, IOPS, and other stats are available for:
+
+- [Amazon RDS](#amazon-rds)
+- [Google Cloud SQL](#google-cloud-sql) [master]
+
+### Amazon RDS
+
+Add this line to your application’s Gemfile:
 
 ```ruby
 gem 'aws-sdk-cloudwatch'
@@ -118,15 +125,15 @@ gem 'aws-sdk-cloudwatch'
 By default, your application’s AWS credentials are used. And add these variables to your environment to use separate credentials:
 
 ```sh
-PGHERO_ACCESS_KEY_ID=accesskey123
-PGHERO_SECRET_ACCESS_KEY=secret123
+PGHERO_ACCESS_KEY_ID=my-access-key
+PGHERO_SECRET_ACCESS_KEY=my-secret
 PGHERO_REGION=us-east-1
 ```
 
-Finally, specify your database’s DB instance identifier.
+Finally, specify your DB instance identifier.
 
 ```sh
-PGHERO_DB_INSTANCE_IDENTIFIER=epona
+PGHERO_DB_INSTANCE_IDENTIFIER=my-instance
 ```
 
 This requires the following IAM policy:
@@ -142,6 +149,26 @@ This requires the following IAM policy:
         }
     ]
 }
+```
+
+### Google Cloud SQL
+
+Add this line to your application’s Gemfile:
+
+```ruby
+gem 'google-cloud-monitoring'
+```
+
+Enable the [Monitoring API](https://console.cloud.google.com/apis/library/monitoring.googleapis.com) and set up your credentials:
+
+```sh
+GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+```
+
+Finally, specify your database id:
+
+```sh
+PGHERO_GCP_DATABASE_ID=my-project:my-instance
 ```
 
 ## Customization & Multiple Databases

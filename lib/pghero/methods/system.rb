@@ -2,30 +2,30 @@ module PgHero
   module Methods
     module System
       def cpu_usage(**options)
-        rds_stats("CPUUtilization", options)
+        system_stats(:cpu, options)
       end
 
       def connection_stats(**options)
-        rds_stats("DatabaseConnections", options)
+        system_stats(:connections, options)
       end
 
       def replication_lag_stats(**options)
-        rds_stats("ReplicaLag", options)
+        system_stats(:replication_lag, options)
       end
 
       def read_iops_stats(**options)
-        rds_stats("ReadIOPS", options)
+        system_stats(:read_iops, options)
       end
 
       def write_iops_stats(**options)
-        rds_stats("WriteIOPS", options)
+        system_stats(:write_iops, options)
       end
 
       def free_space_stats(**options)
-        rds_stats("FreeStorageSpace", options)
+        system_stats(:free_space, options)
       end
 
-      def rds_stats(metric_name, duration: nil, period: nil, offset: nil)
+      def rds_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
         if system_stats_enabled?
           aws_options = {region: region}
           if access_key_id
@@ -43,16 +43,14 @@ module PgHero
           duration = (duration || 1.hour).to_i
           period = (period || 1.minute).to_i
           offset = (offset || 0).to_i
-
-          end_time = (Time.now - offset)
-          # ceil period
-          end_time = Time.at((end_time.to_f / period).ceil * period)
+          end_time = Time.at(((Time.now - offset).to_f / period).ceil * period)
+          start_time = end_time - duration
 
           resp = client.get_metric_statistics(
             namespace: "AWS/RDS",
             metric_name: metric_name,
             dimensions: [{name: "DBInstanceIdentifier", value: db_instance_identifier}],
-            start_time: (end_time - duration).iso8601,
+            start_time: start_time.iso8601,
             end_time: end_time.iso8601,
             period: period,
             statistics: ["Average"]
@@ -61,6 +59,9 @@ module PgHero
           resp[:datapoints].sort_by { |d| d[:timestamp] }.each do |d|
             data[d[:timestamp]] = d[:average]
           end
+
+          add_missing_data(data, start_time, end_time, period) if series
+
           data
         else
           raise NotEnabled, "System stats not enabled"
@@ -68,7 +69,115 @@ module PgHero
       end
 
       def system_stats_enabled?
-        !!((defined?(Aws) || defined?(AWS)) && db_instance_identifier)
+        !system_stats_provider.nil?
+      end
+
+      private
+
+      def gcp_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
+        require "google/cloud/monitoring"
+
+        # TODO DRY with RDS stats
+        duration = (duration || 1.hour).to_i
+        period = (period || 1.minute).to_i
+        offset = (offset || 0).to_i
+        end_time = Time.at(((Time.now - offset).to_f / period).ceil * period)
+        start_time = end_time - duration
+
+        client = Google::Cloud::Monitoring::Metric.new
+
+        interval = Google::Monitoring::V3::TimeInterval.new
+        interval.end_time = Google::Protobuf::Timestamp.new(seconds: end_time.to_i)
+        # subtract period to make sure we get first data point
+        interval.start_time = Google::Protobuf::Timestamp.new(seconds: (start_time - period).to_i)
+
+        aggregation = Google::Monitoring::V3::Aggregation.new
+        # may be better to use ALIGN_NEXT_OLDER for space stats to show most recent data point
+        # stick with average for now to match AWS
+        aggregation.per_series_aligner = Google::Monitoring::V3::Aggregation::Aligner::ALIGN_MEAN
+        aggregation.alignment_period = period
+
+        # validate input
+        raise Error, "Invalid metric name" unless metric_name =~ /\A[a-z\/_]+\z/i
+        raise Error, "Invalid database id" unless gcp_database_id =~ /\A[a-z\-:]+\z/i
+
+        results = client.list_time_series(
+          "projects/#{gcp_database_id.split(":").first}",
+          "metric.type = \"cloudsql.googleapis.com/database/#{metric_name}\" AND resource.label.database_id = \"#{gcp_database_id}\"",
+          interval,
+          Google::Monitoring::V3::ListTimeSeriesRequest::TimeSeriesView::FULL,
+          aggregation: aggregation
+        )
+
+        data = {}
+        result = results.first
+        if result
+          result.points.each do |point|
+            time = Time.at(point.interval.start_time.seconds)
+            value = point.value.double_value
+            value *= 100 if metric_name == "cpu/utilization"
+            data[time] = value
+          end
+        end
+
+        add_missing_data(data, start_time, end_time, period) if series
+
+        data
+      end
+
+      def system_stats(metric_key, **options)
+        case system_stats_provider
+        when :aws
+          metrics = {
+            cpu: "CPUUtilization",
+            connections: "DatabaseConnections",
+            replication_lag: "ReplicaLag",
+            read_iops: "ReadIOPS",
+            write_iops: "WriteIOPS",
+            free_space: "FreeStorageSpace"
+          }
+          rds_stats(metrics[metric_key], **options)
+        when :gcp
+          if metric_key == :free_space
+            quota = gcp_stats("disk/quota", **options)
+            used = gcp_stats("disk/bytes_used", **options)
+            data = {}
+            # only use data points included in both series
+            # this also eliminates need to align Time.now
+            quota.each do |k, v|
+              data[k] = v - used[k] if used[k]
+            end
+            data
+          else
+            metrics = {
+              cpu: "cpu/utilization",
+              connections: "postgresql/num_backends",
+              replication_lag: "replication/replica_lag",
+              read_iops: "disk/read_ops_count",
+              write_iops: "disk/write_ops_count"
+            }
+            gcp_stats(metrics[metric_key], **options)
+          end
+        else
+          raise NotEnabled, "System stats not enabled"
+        end
+      end
+
+      def system_stats_provider
+        if db_instance_identifier && (defined?(Aws) || defined?(AWS))
+          :aws
+        elsif gcp_database_id
+          :gcp
+        end
+      end
+
+      def add_missing_data(data, start_time, end_time, period)
+        time = start_time
+        end_time = end_time
+        while time < end_time
+          data[time] ||= nil
+          time += period
+        end
       end
     end
   end
