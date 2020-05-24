@@ -80,7 +80,7 @@ module PgHero
 
     # environment variable is only used if no config file
     def aws_db_instance_identifier
-      @db_instance_identifier ||= config["aws_db_instance_identifier"] || config["db_instance_identifier"]
+      @aws_db_instance_identifier ||= config["aws_db_instance_identifier"] || config["db_instance_identifier"]
     end
 
     # environment variable is only used if no config file

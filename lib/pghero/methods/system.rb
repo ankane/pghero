@@ -49,7 +49,7 @@ module PgHero
           resp = client.get_metric_statistics(
             namespace: "AWS/RDS",
             metric_name: metric_name,
-            dimensions: [{name: "DBInstanceIdentifier", value: db_instance_identifier}],
+            dimensions: [{name: "DBInstanceIdentifier", value: aws_db_instance_identifier}],
             start_time: start_time.iso8601,
             end_time: end_time.iso8601,
             period: period,
@@ -164,7 +164,7 @@ module PgHero
       end
 
       def system_stats_provider
-        if db_instance_identifier && (defined?(Aws) || defined?(AWS))
+        if aws_db_instance_identifier && (defined?(Aws) || defined?(AWS))
           :aws
         elsif gcp_database_id
           :gcp
