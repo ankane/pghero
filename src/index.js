@@ -128,7 +128,6 @@ function initSlider() {
       $(this).attr("href", queriesPath(p));
     });
 
-
     var callback = function (response, status, xhr) {
       if (status === "error" ) {
         $(".queries-info").css("color", "red").html(xhr.status + " " + xhr.statusText);
