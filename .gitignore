@@ -21,4 +21,5 @@ tmp
 *.a
 mkmf.log
 node_modules
+app/assets/javascripts/pghero/application.js
 *.log
