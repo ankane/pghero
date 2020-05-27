@@ -1,8 +1,11 @@
-//= require ./jquery
-//= require ./nouislider
-//= require ./Chart.bundle
-//= require ./chartkick
-//= require ./highlight.pack
+import $ from "jquery";
+import hljs from "highlight.js/lib/core";
+import noUiSlider from "nouislider";
+import sql from "highlight.js/lib/languages/sql";
+import "chart.js"
+import "chartkick"
+
+hljs.registerLanguage("sql", sql);
 
 function highlightQueries() {
   $("pre code").each(function(i, block) {
@@ -149,3 +152,6 @@ function initSlider() {
     refreshStats(false);
   });
 }
+
+window.highlightQueries = highlightQueries;
+window.initSlider = initSlider;

@@ -1,0 +1,21 @@
+{
+  "name": "pghero",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "highlight.js": "^10.0.3",
+    "jquery": "^3.5.1",
+    "nouislider": "^14.5.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-buble": "^0.21.1",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "eslint": "^5.16.0",
+    "rollup": "^1.11.3"
+  }
+}
