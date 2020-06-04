@@ -2,6 +2,7 @@
 
 Distributions
 
+- [Ubuntu 20.04 (Focal)](#ubuntu-2004-focal)
 - [Ubuntu 18.04 (Bionic)](#ubuntu-1804-bionic)
 - [Ubuntu 16.04 (Xenial)](#ubuntu-1604-xenial)
 - [Debian 10 (Buster)](#debian-10-buster)
@@ -13,6 +14,16 @@ Distributions
 64-bit only
 
 ## Installation
+
+### Ubuntu 20.04 (Focal)
+
+```sh
+wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
+sudo wget -O /etc/apt/sources.list.d/pghero.list \
+  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/20.04.repo
+sudo apt-get update
+sudo apt-get -y install pghero
+```
 
 ### Ubuntu 18.04 (Bionic)
 
