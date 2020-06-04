@@ -36,11 +36,11 @@ Supports Debian 10 (Buster), 9 (Stretch), and 8 (Jesse)
 
 ```sh
 sudo wget -O /etc/yum.repos.d/pghero.repo \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/el/7.repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/el/$(lsb_release -rs).repo
 sudo yum -y install pghero
 ```
 
-Supports CentOS / RHEL 7
+Supports CentOS / RHEL 8 and 7
 
 ### SUSE Linux Enterprise Server
 
