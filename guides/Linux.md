@@ -1,84 +1,38 @@
 # PgHero Linux
 
-Distributions
-
-- [Ubuntu 20.04 (Focal)](#ubuntu-2004-focal)
-- [Ubuntu 18.04 (Bionic)](#ubuntu-1804-bionic)
-- [Ubuntu 16.04 (Xenial)](#ubuntu-1604-xenial)
-- [Debian 10 (Buster)](#debian-10-buster)
-- [Debian 9 (Stretch)](#debian-9-stretch)
-- [Debian 8 (Jesse)](#debian-8-jesse)
-- [CentOS / RHEL 7](#centos--rhel-7)
-- [SUSE Linux Enterprise Server 12](#suse-linux-enterprise-server-12)
-
-64-bit only
-
 ## Installation
 
-### Ubuntu 20.04 (Focal)
+- [Ubuntu](#ubuntu)
+- [Debian](#debian)
+- [CentOS / RHEL](#centos--rhel)
+- [SUSE Linux Enterprise Server](#suse-linux-enterprise-server)
+
+### Ubuntu
 
 ```sh
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/20.04.repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/$(lsb_release -rs).repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-### Ubuntu 18.04 (Bionic)
+Supports Ubuntu 20.04 (Focal), 18.04 (Bionic), and 16.04 (Xenial)
 
-```sh
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/18.04.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
-### Ubuntu 16.04 (Xenial)
-
-```sh
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/16.04.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
-### Debian 10 (Buster)
+### Debian
 
 ```sh
 sudo apt-get -y install apt-transport-https
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/10.repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/$(lsb_release -rs).repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-### Debian 9 (Stretch)
+Supports Debian 10 (Buster), 9 (Stretch), and 8 (Jesse)
 
-```sh
-sudo apt-get -y install apt-transport-https
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/9.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
-### Debian 8 (Jesse)
-
-```sh
-sudo apt-get -y install apt-transport-https
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/8.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
-### CentOS / RHEL 7
+### CentOS / RHEL
 
 ```sh
 sudo wget -O /etc/yum.repos.d/pghero.repo \
@@ -86,13 +40,17 @@ sudo wget -O /etc/yum.repos.d/pghero.repo \
 sudo yum -y install pghero
 ```
 
-### SUSE Linux Enterprise Server 12
+Supports CentOS / RHEL 7
+
+### SUSE Linux Enterprise Server
 
 ```sh
 sudo wget -O /etc/zypp/repos.d/pghero.repo \
   https://dl.packager.io/srv/pghero/pghero/master/installer/sles/12.repo
 sudo zypper install pghero
 ```
+
+Supports SUSE Linux Enterprise Server 12
 
 ## Setup
 
