@@ -2,6 +2,7 @@
 
 - Added support for `google-cloud-monitoring` >= 1
 - Added support for `google-cloud-monitoring-v3`
+- Fixed system stats not showing up in Rails 6 with environment variables
 
 ## 2.5.0 (2020-05-24)
 
