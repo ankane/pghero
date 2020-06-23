@@ -133,7 +133,7 @@ module PgHero
       private
 
       def gcp_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
-        require "google/cloud/monitoring"
+        require "google/cloud/monitoring/v3"
 
         # TODO DRY with RDS stats
         duration = (duration || 1.hour).to_i
@@ -142,30 +142,63 @@ module PgHero
         end_time = Time.at(((Time.now - offset).to_f / period).ceil * period)
         start_time = end_time - duration
 
-        client = Google::Cloud::Monitoring::Metric.new
-
-        interval = Google::Monitoring::V3::TimeInterval.new
-        interval.end_time = Google::Protobuf::Timestamp.new(seconds: end_time.to_i)
-        # subtract period to make sure we get first data point
-        interval.start_time = Google::Protobuf::Timestamp.new(seconds: (start_time - period).to_i)
-
-        aggregation = Google::Monitoring::V3::Aggregation.new
-        # may be better to use ALIGN_NEXT_OLDER for space stats to show most recent data point
-        # stick with average for now to match AWS
-        aggregation.per_series_aligner = Google::Monitoring::V3::Aggregation::Aligner::ALIGN_MEAN
-        aggregation.alignment_period = period
-
         # validate input since we need to interpolate below
         raise Error, "Invalid metric name" unless metric_name =~ /\A[a-z\/_]+\z/i
         raise Error, "Invalid database id" unless gcp_database_id =~ /\A[a-z\-:]+\z/i
 
-        results = client.list_time_series(
-          "projects/#{gcp_database_id.split(":").first}",
-          "metric.type = \"cloudsql.googleapis.com/database/#{metric_name}\" AND resource.label.database_id = \"#{gcp_database_id}\"",
-          interval,
-          Google::Monitoring::V3::ListTimeSeriesRequest::TimeSeriesView::FULL,
-          aggregation: aggregation
-        )
+        # we handle three situations:
+        # 1. google-cloud-monitoring-v3
+        # 2. google-cloud-monitoring >= 1
+        # 3. google-cloud-monitoring < 1
+
+        # for situations 1 and 2
+        # Google::Cloud::Monitoring.metric_service is documented
+        # but doesn't work for situation 1
+        if defined?(Google::Cloud::Monitoring::V3::MetricService::Client)
+          client = Google::Cloud::Monitoring::V3::MetricService::Client.new
+
+          interval = Google::Cloud::Monitoring::V3::TimeInterval.new
+          interval.end_time = Google::Protobuf::Timestamp.new(seconds: end_time.to_i)
+          # subtract period to make sure we get first data point
+          interval.start_time = Google::Protobuf::Timestamp.new(seconds: (start_time - period).to_i)
+
+          aggregation = Google::Cloud::Monitoring::V3::Aggregation.new
+          # may be better to use ALIGN_NEXT_OLDER for space stats to show most recent data point
+          # stick with average for now to match AWS
+          aggregation.per_series_aligner = Google::Cloud::Monitoring::V3::Aggregation::Aligner::ALIGN_MEAN
+          aggregation.alignment_period = period
+
+          results = client.list_time_series({
+            name: "projects/#{gcp_database_id.split(":").first}",
+            filter: "metric.type = \"cloudsql.googleapis.com/database/#{metric_name}\" AND resource.label.database_id = \"#{gcp_database_id}\"",
+            interval: interval,
+            view: Google::Cloud::Monitoring::V3::ListTimeSeriesRequest::TimeSeriesView::FULL,
+            aggregation: aggregation
+          })
+        else
+          require "google/cloud/monitoring"
+
+          client = Google::Cloud::Monitoring::Metric.new
+
+          interval = Google::Monitoring::V3::TimeInterval.new
+          interval.end_time = Google::Protobuf::Timestamp.new(seconds: end_time.to_i)
+          # subtract period to make sure we get first data point
+          interval.start_time = Google::Protobuf::Timestamp.new(seconds: (start_time - period).to_i)
+
+          aggregation = Google::Monitoring::V3::Aggregation.new
+          # may be better to use ALIGN_NEXT_OLDER for space stats to show most recent data point
+          # stick with average for now to match AWS
+          aggregation.per_series_aligner = Google::Monitoring::V3::Aggregation::Aligner::ALIGN_MEAN
+          aggregation.alignment_period = period
+
+          results = client.list_time_series(
+            "projects/#{gcp_database_id.split(":").first}",
+            "metric.type = \"cloudsql.googleapis.com/database/#{metric_name}\" AND resource.label.database_id = \"#{gcp_database_id}\"",
+            interval,
+            Google::Monitoring::V3::ListTimeSeriesRequest::TimeSeriesView::FULL,
+            aggregation: aggregation
+          )
+        end
 
         data = {}
         result = results.first

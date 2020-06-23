@@ -1,3 +1,8 @@
+## 2.5.1 (unreleased)
+
+- Added support for `google-cloud-monitoring` >= 1
+- Added support for `google-cloud-monitoring-v3`
+
 ## 2.5.0 (2020-05-24)
 
 - Added system stats for Google Cloud SQL and Azure Database
