@@ -119,11 +119,16 @@ module PgHero
 
           if databases.empty?
             databases["primary"] = {
-              "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config,
+              "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config
+            }
+          end
+
+          if databases.size == 1
+            databases.values.first.merge!(
               "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"],
               "gcp_database_id" => ENV["PGHERO_GCP_DATABASE_ID"],
               "azure_resource_id" => ENV["PGHERO_AZURE_RESOURCE_ID"]
-            }
+            )
           end
 
           {
