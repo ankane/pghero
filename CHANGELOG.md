@@ -1,4 +1,4 @@
-## 2.5.1 (unreleased)
+## 2.5.1 (2020-06-23)
 
 - Added support for `google-cloud-monitoring` >= 1
 - Added support for `google-cloud-monitoring-v3`
