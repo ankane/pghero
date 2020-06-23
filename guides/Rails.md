@@ -159,7 +159,7 @@ This requires the following IAM policy:
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'google-cloud-monitoring'
+gem 'google-cloud-monitoring', '< 1'
 ```
 
 Enable the [Monitoring API](https://console.cloud.google.com/apis/library/monitoring.googleapis.com) and set up your credentials:
