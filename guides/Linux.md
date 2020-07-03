@@ -54,7 +54,7 @@ Supports SUSE Linux Enterprise Server 12
 
 ## Setup
 
-Add your database.
+Add your database. Use URL-encoding for any special characters in the username or password.
 
 ```sh
 sudo pghero config:set DATABASE_URL=postgres://user:password@hostname:5432/dbname
