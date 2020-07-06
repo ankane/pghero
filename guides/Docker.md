@@ -56,6 +56,12 @@ Schedule the task below to run every 5 minutes.
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_query_stats
 ```
 
+If using docker-compose, the enviroment variables will be used from the container
+
+```sh
+docker-compose run pghero bin/rake pghero:capture_query_stats
+```
+
 After this, a time range slider will appear on the Queries tab.
 
 The query stats table can grow large over time. Remove old stats with:
@@ -84,6 +90,12 @@ Schedule the task below to run once a day.
 
 ```sh
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
+```
+
+If using docker-compose, the enviroment variables will be used from the container
+
+```sh
+docker-compose run pghero bin/rake pghero:capture_query_stats
 ```
 
 ## System Stats
