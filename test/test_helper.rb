@@ -6,6 +6,12 @@ require "pg_query"
 require "active_record"
 require "activerecord-import"
 
+class Minitest::Test
+  def database
+    @database ||= PgHero.databases.values.first
+  end
+end
+
 ActiveRecord::Base.establish_connection adapter: "postgresql", database: "pghero_test"
 
 ActiveRecord::Migration.enable_extension "pg_stat_statements"
