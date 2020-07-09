@@ -1,3 +1,7 @@
+## 2.5.2 (unreleased)
+
+- Added support for fractional explain timeout
+
 ## 2.5.1 (2020-06-23)
 
 - Added support for `google-cloud-monitoring` >= 1

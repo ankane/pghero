@@ -55,7 +55,7 @@ module PgHero
     end
 
     def explain_timeout_sec
-      (config["explain_timeout_sec"] || PgHero.config["explain_timeout_sec"] || PgHero.explain_timeout_sec).to_i
+      (config["explain_timeout_sec"] || PgHero.config["explain_timeout_sec"] || PgHero.explain_timeout_sec).to_f
     end
 
     def long_running_query_sec

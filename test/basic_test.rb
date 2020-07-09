@@ -17,9 +17,9 @@ class BasicTest < Minitest::Test
   end
 
   def test_explain_statement_timeout
-    with_explain_timeout(1) do
+    with_explain_timeout(0.1) do
       assert_raises(ActiveRecord::QueryCanceled) do
-        PgHero.explain("ANALYZE SELECT pg_sleep(2)")
+        PgHero.explain("ANALYZE SELECT pg_sleep(1)")
       end
     end
   end
