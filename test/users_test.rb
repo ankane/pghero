@@ -1,9 +1,19 @@
 require_relative "test_helper"
 
 class UsersTest < Minitest::Test
-  def test_create_user
-    user = "pghero_test_user"
-    database.create_user(user)
+  def teardown
     database.drop_user(user)
+  end
+
+  def test_create_user
+    database.create_user(user)
+  end
+
+  def test_create_user_tables
+    database.create_user(user, tables: ["cities"])
+  end
+
+  def user
+    "pghero_test_user"
   end
 end
