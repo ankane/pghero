@@ -1,6 +1,15 @@
 dist: bionic
 language: ruby
-rvm: 2.7
+jobs:
+  include:
+    - rvm: 2.7
+      gemfile: Gemfile
+    - rvm: 2.6
+      gemfile: test/gemfiles/activerecord52.gemfile
+    - rvm: 2.5
+      gemfile: test/gemfiles/activerecord51.gemfile
+    - rvm: 2.4
+      gemfile: test/gemfiles/activerecord50.gemfile
 services:
   - postgresql
 addons:
