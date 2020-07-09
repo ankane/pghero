@@ -166,14 +166,15 @@ module PgHero
         if query_stats_enabled?
           limit ||= 100
           sort ||= "total_minutes"
+          total_time = server_version_num >= 130000 ? "(total_plan_time + total_exec_time)" : "total_time"
           query = <<-SQL
             WITH query_stats AS (
               SELECT
                 LEFT(query, 10000) AS query,
                 #{supports_query_hash? ? "queryid" : "md5(query)"} AS query_hash,
                 rolname AS user,
-                (total_time / 1000 / 60) AS total_minutes,
-                (total_time / calls) AS average_time,
+                (#{total_time} / 1000 / 60) AS total_minutes,
+                (#{total_time} / calls) AS average_time,
                 calls
               FROM
                 pg_stat_statements

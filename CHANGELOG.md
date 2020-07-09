@@ -1,6 +1,7 @@
 ## 2.5.2 (unreleased)
 
 - Added support for fractional explain timeout
+- Fixed error with Postgres 13
 
 ## 2.5.1 (2020-06-23)
 

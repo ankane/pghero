@@ -2,6 +2,21 @@ dist: bionic
 language: ruby
 jobs:
   include:
+    - name: "Postgres 13"
+      rvm: 2.7
+      gemfile: Gemfile
+      addons:
+        postgresql: "13"
+        apt:
+          packages:
+            - postgresql-13
+      cache: apt
+      before_install:
+        - echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/13/main/postgresql.conf
+        - sudo systemctl restart postgresql@13-main
+        - createdb pghero_test
+      env:
+        - PGPORT=5433
     - name: "Postgres 12"
       rvm: 2.7
       gemfile: Gemfile
