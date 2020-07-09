@@ -183,6 +183,7 @@ module PgHero
               INNER JOIN
                 pg_roles ON pg_roles.oid = pg_stat_statements.userid
               WHERE
+                calls > 0 AND
                 pg_database.datname = #{database ? quote(database) : "current_database()"}
                 #{query_hash ? "AND queryid = #{quote(query_hash)}" : nil}
             )
