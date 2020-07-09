@@ -1,7 +1,7 @@
-## 2.6.0 (unreleased)
+## 2.6.0 (2020-07-09)
 
 - Added support for Postgres 13 beta 2
-- Added support for fractional explain timeout
+- Added support for non-integer explain timeout
 
 ## 2.5.1 (2020-06-23)
 
