@@ -12,6 +12,9 @@ class Minitest::Test
   end
 end
 
+logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)
+ActiveRecord::Base.logger = logger
+
 ActiveRecord::Base.establish_connection adapter: "postgresql", database: "pghero_test"
 
 ActiveRecord::Migration.enable_extension "pg_stat_statements"
