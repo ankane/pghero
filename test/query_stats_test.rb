@@ -1,10 +1,6 @@
 require_relative "test_helper"
 
 class QueryStatsTest < Minitest::Test
-  def setup
-    skip if ENV["TRAVIS"]
-  end
-
   def test_query_stats
     assert database.query_stats
   end

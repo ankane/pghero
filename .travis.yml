@@ -7,6 +7,8 @@ addons:
   postgresql: 10
 script: bundle exec rake test
 before_install:
+  - echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/10/main/postgresql.conf
+  - sudo systemctl restart postgresql@10-main
   - createdb pghero_test
 notifications:
   email:
