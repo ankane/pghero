@@ -1,6 +1,8 @@
 module PgHero
   module Methods
     module Users
+      # documented as unsafe to pass user input
+      # TODO quote in 3.0, but still not officially supported
       def create_user(user, password: nil, schema: "public", database: nil, readonly: false, tables: nil)
         password ||= random_password
         database ||= connection_model.connection_config[:database]
@@ -39,6 +41,8 @@ module PgHero
         {password: password}
       end
 
+      # documented as unsafe to pass user input
+      # TODO quote in 3.0, but still not officially supported
       def drop_user(user, schema: "public", database: nil)
         database ||= connection_model.connection_config[:database]
 
