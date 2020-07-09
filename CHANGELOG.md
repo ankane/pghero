@@ -1,4 +1,4 @@
-## 2.5.2 (unreleased)
+## 2.6.0 (unreleased)
 
 - Added support for fractional explain timeout
 - Fixed error with Postgres 13
