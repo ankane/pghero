@@ -14,11 +14,10 @@ class SpaceTest < Minitest::Test
   end
 
   def test_space_growth
-    # not enabled
-    # assert database.space_growth
+    assert database.space_growth
   end
 
   def test_space_stats_enabled
-    refute database.space_stats_enabled?
+    assert database.space_stats_enabled?
   end
 end

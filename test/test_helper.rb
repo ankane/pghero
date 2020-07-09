@@ -17,27 +17,7 @@ ActiveRecord::Base.logger = logger
 
 ActiveRecord::Base.establish_connection adapter: "postgresql", database: "pghero_test"
 
-ActiveRecord::Migration.enable_extension "pg_stat_statements"
-
-ActiveRecord::Migration.create_table :cities, force: true do |t|
-  t.string :name
-end
-
-ActiveRecord::Migration.create_table :states, force: true do |t|
-  t.string :name
-end
-
-ActiveRecord::Migration.create_table :users, force: true do |t|
-  t.integer :city_id
-  t.integer :login_attempts
-  t.string :email
-  t.string :zip_code
-  t.boolean :active
-  t.timestamp :created_at
-  t.timestamp :updated_at
-end
-ActiveRecord::Migration.add_index :users, :id # duplicate index
-ActiveRecord::Migration.add_index :users, :updated_at
+require_relative "support/migrations"
 
 class City < ActiveRecord::Base
 end

@@ -31,6 +31,6 @@ class QueryStatsTest < Minitest::Test
   end
 
   def test_historical_query_stats_enabled
-    refute database.historical_query_stats_enabled?
+    assert database.historical_query_stats_enabled?
   end
 end
