@@ -2,7 +2,8 @@ require_relative "test_helper"
 
 class MaintenanceTest < Minitest::Test
   def test_transaction_id_danger
-    assert database.transaction_id_danger(threshold: 10000000000)
+    assert database.transaction_id_danger(threshold: 10000000000).any?
+    assert database.transaction_id_danger.empty?
   end
 
   def test_autovacuum_danger
