@@ -33,4 +33,11 @@ class QueryStatsTest < Minitest::Test
   def test_historical_query_stats_enabled
     assert database.historical_query_stats_enabled?
   end
+
+  def test_capture_query_stats
+    PgHero::QueryStats.delete_all
+    refute PgHero::QueryStats.any?
+    assert database.capture_query_stats
+    assert PgHero::QueryStats.any?
+  end
 end
