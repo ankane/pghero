@@ -22,4 +22,16 @@ class ModuleTest < Minitest::Test
       refute_nil values.first
     end
   end
+
+  def test_analyze_all
+    assert PgHero.analyze_all
+  end
+
+  def test_clean_query_stats
+    assert PgHero.clean_query_stats
+  end
+
+  def test_clean_space_stats
+    assert PgHero.clean_space_stats
+  end
 end
