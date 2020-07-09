@@ -60,13 +60,6 @@ Add your database. Use URL-encoding for any special characters in the username o
 sudo pghero config:set DATABASE_URL=postgres://user:password@hostname:5432/dbname
 ```
 
-And optional authentication.
-
-```sh
-sudo pghero config:set PGHERO_USERNAME=link
-sudo pghero config:set PGHERO_PASSWORD=hyrule
-```
-
 Start the server
 
 ```sh
@@ -96,6 +89,17 @@ server {
 EOF
 sudo service nginx restart
 ```
+
+## Autentication
+
+Add basic authentication with:
+
+```sh
+sudo pghero config:set PGHERO_USERNAME=link
+sudo pghero config:set PGHERO_PASSWORD=hyrule
+```
+
+Or use a reverse proxy like [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy), Amazon’s [ALB Authentication](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html), or Google’s [Identity-Aware Proxy](https://cloud.google.com/iap/).
 
 ## Management
 

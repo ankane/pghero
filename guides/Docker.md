@@ -24,7 +24,7 @@ Add basic authentication with:
 docker run -e PGHERO_USERNAME=link -e PGHERO_PASSWORD=hyrule ...
 ```
 
-Or use a reverse proxy like [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy).
+Or use a reverse proxy like [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy), Amazon’s [ALB Authentication](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html), or Google’s [Identity-Aware Proxy](https://cloud.google.com/iap/).
 
 ## Query Stats
 

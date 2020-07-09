@@ -8,9 +8,6 @@ jobs:
       addons:
         postgresql: "12"
         apt:
-          sources:
-            - sourceline: deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main 12
-              key_url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
           packages:
             - postgresql-12
       cache: apt
