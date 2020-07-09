@@ -18,10 +18,10 @@ class MaintenanceTest < Minitest::Test
   end
 
   def test_analyze
-    assert PgHero.analyze("cities")
+    assert database.analyze("cities")
   end
 
   def test_analyze_tables
-    assert PgHero.analyze_tables
+    assert database.analyze_tables
   end
 end

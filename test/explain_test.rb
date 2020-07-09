@@ -6,27 +6,27 @@ class ExplainTest < Minitest::Test
   end
 
   def test_explain
-    assert_match "Result", PgHero.explain("SELECT 1")
+    assert_match "Result", database.explain("SELECT 1")
   end
 
   def test_explain_analyze
     City.create!
     assert_equal 1, City.count
-    PgHero.explain("ANALYZE DELETE FROM cities")
+    database.explain("ANALYZE DELETE FROM cities")
     assert_equal 1, City.count
   end
 
   def test_explain_statement_timeout
     with_explain_timeout(0.1) do
       assert_raises(ActiveRecord::QueryCanceled) do
-        PgHero.explain("ANALYZE SELECT pg_sleep(1)")
+        database.explain("ANALYZE SELECT pg_sleep(1)")
       end
     end
   end
 
   def test_explain_multiple_statements
     City.create!
-    assert_raises(ActiveRecord::StatementInvalid) { PgHero.explain("ANALYZE DELETE FROM cities; DELETE FROM cities; COMMIT") }
+    assert_raises(ActiveRecord::StatementInvalid) { database.explain("ANALYZE DELETE FROM cities; DELETE FROM cities; COMMIT") }
   end
 
   def with_explain_timeout(value)

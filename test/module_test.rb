@@ -1,14 +1,6 @@
 require_relative "test_helper"
 
-class BasicTest < Minitest::Test
-  def test_relation_sizes
-    assert PgHero.relation_sizes
-  end
-
-  def test_duplicate_indexes
-    assert_equal 1, PgHero.duplicate_indexes.size
-  end
-
+class ModuleTest < Minitest::Test
   def test_databases
     assert PgHero.databases[:primary].running_queries
   end
