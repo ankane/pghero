@@ -30,18 +30,19 @@ class IndexesTest < Minitest::Test
   end
 
   def test_invalid_indexes
-    assert database.invalid_indexes
+    assert_equal [], database.invalid_indexes
   end
 
   def test_indexes
-    assert_kind_of Array, database.indexes
+    assert database.indexes.find { |i| i[:name] == "cities_pkey" }
   end
 
   def test_duplicate_indexes
-    assert_equal 1, database.duplicate_indexes.size
+    assert database.duplicate_indexes.find { |i| i[:unneeded_index][:name] == "index_users_on_id" }
   end
 
   def test_index_bloat
-    assert database.index_bloat
+    assert_equal [], database.index_bloat
+    assert database.index_bloat(min_size: 0).find { |i| i[:index] == "index_users_on_updated_at" }
   end
 end
