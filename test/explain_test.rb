@@ -18,9 +18,11 @@ class ExplainTest < Minitest::Test
 
   def test_explain_statement_timeout
     with_explain_timeout(0.1) do
-      assert_raises(ActiveRecord::QueryCanceled) do
+      # raises ActiveRecord::QueryCanceled in Active Record 5.2+
+      error = assert_raises(ActiveRecord::StatementInvalid) do
         database.explain("ANALYZE SELECT pg_sleep(1)")
       end
+      assert_match "canceling statement due to statement timeout", error.message
     end
   end
 

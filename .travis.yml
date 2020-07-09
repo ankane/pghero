@@ -2,23 +2,54 @@ dist: bionic
 language: ruby
 jobs:
   include:
-    - rvm: 2.7
+    - name: "Postgres 12"
+      rvm: 2.7
       gemfile: Gemfile
-    - rvm: 2.6
+      addons:
+        postgresql: "12"
+        apt:
+          sources:
+            - sourceline: deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main 12
+              key_url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          packages:
+            - postgresql-12
+      cache: apt
+      before_install:
+        - echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
+        - sudo systemctl restart postgresql@12-main
+        - createdb pghero_test
+      env:
+        - PGPORT=5433
+    - name: "Postgres 11"
+      rvm: 2.6
       gemfile: test/gemfiles/activerecord52.gemfile
-    - rvm: 2.5
+      addons:
+        postgresql: "11"
+      before_install:
+        - echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
+        - sudo systemctl restart postgresql@11-main
+        - createdb pghero_test
+    - name: "Postgres 10"
+      rvm: 2.5
       gemfile: test/gemfiles/activerecord51.gemfile
-    - rvm: 2.4
+      addons:
+        postgresql: "10"
+      before_install:
+        - echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/10/main/postgresql.conf
+        - sudo systemctl restart postgresql@10-main
+        - createdb pghero_test
+    - name: "Postgres 9.6"
+      rvm: 2.4
       gemfile: test/gemfiles/activerecord50.gemfile
+      addons:
+        postgresql: "9.6"
+      before_install:
+        - echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/9.6/main/postgresql.conf
+        - sudo systemctl restart postgresql@9.6-main
+        - createdb pghero_test
 services:
   - postgresql
-addons:
-  postgresql: 10
 script: bundle exec rake test
-before_install:
-  - echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/10/main/postgresql.conf
-  - sudo systemctl restart postgresql@10-main
-  - createdb pghero_test
 notifications:
   email:
     on_success: never
