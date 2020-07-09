@@ -10,7 +10,7 @@ jobs:
         postgresql: "13"
         apt:
           sources:
-            - sourceline: deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main 13
+            - sourceline: deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main 13
               key_url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
           packages:
             - postgresql-13
