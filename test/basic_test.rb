@@ -25,10 +25,6 @@ class BasicTest < Minitest::Test
     assert PgHero.databases[:primary].running_queries
   end
 
-  def test_connections
-    assert PgHero.connections
-  end
-
   def test_connection_pool
     1000.times do
       [:@config, :@databases].each do |var|
