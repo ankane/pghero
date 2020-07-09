@@ -7,6 +7,7 @@ class BasicTest < Minitest::Test
 
   def test_explain
     City.create!
+    assert_equal 1, City.count
     PgHero.explain("ANALYZE DELETE FROM cities")
     assert_equal 1, City.count
   end
