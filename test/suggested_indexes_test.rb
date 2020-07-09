@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class SuggestedIndexesTest < Minitest::Test
   def setup
-    PgHero.reset_query_stats
+    database.reset_query_stats
   end
 
   def test_suggested_indexes_enabled

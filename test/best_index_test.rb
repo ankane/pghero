@@ -6,7 +6,7 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_all_values
-    index = PgHero.best_index("SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at")
+    index = database.best_index("SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at")
     expected = {
       found: true,
       structure: {table: "users", where: [{column: "login_attempts", op: "="}], sort: [{column: "created_at", direction: "asc"}]},
@@ -166,14 +166,14 @@ class BestIndexTest < Minitest::Test
   protected
 
   def assert_best_index(expected, statement)
-    index = PgHero.best_index(statement)
+    index = database.best_index(statement)
     assert_nil index[:explanation]
     assert index[:found]
     assert_equal expected, index[:index]
   end
 
   def assert_no_index(explanation, statement)
-    index = PgHero.best_index(statement)
+    index = database.best_index(statement)
     assert !index[:found]
     assert_equal explanation, index[:explanation]
   end
