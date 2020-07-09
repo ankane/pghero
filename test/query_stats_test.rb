@@ -40,4 +40,8 @@ class QueryStatsTest < Minitest::Test
     assert database.capture_query_stats
     assert PgHero::QueryStats.any?
   end
+
+  def test_clean_query_stats
+    assert database.clean_query_stats
+  end
 end

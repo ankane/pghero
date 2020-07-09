@@ -129,6 +129,10 @@ module PgHero
         end
       end
 
+      def clean_query_stats
+        PgHero::QueryStats.where(database: id).where("captured_at < ?", 14.days.ago).delete_all
+      end
+
       def slow_queries(query_stats: nil, **options)
         query_stats ||= self.query_stats(options)
         query_stats.select { |q| q[:calls].to_i >= slow_query_calls.to_i && q[:average_time].to_f >= slow_query_ms.to_f }

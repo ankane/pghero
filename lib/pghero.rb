@@ -196,13 +196,13 @@ module PgHero
     # stats for old databases are not cleaned up since we can't use an index
     def clean_query_stats
       each_database do |database|
-        PgHero::QueryStats.where(database: database.id).where("captured_at < ?", 14.days.ago).delete_all
+        database.clean_query_stats
       end
     end
 
     def clean_space_stats
       each_database do |database|
-        PgHero::SpaceStats.where(database: database.id).where("captured_at < ?", 90.days.ago).delete_all
+        database.clean_space_stats
       end
     end
 

@@ -28,6 +28,10 @@ class SpaceTest < Minitest::Test
     assert PgHero::SpaceStats.any?
   end
 
+  def test_clean_space_stats
+    assert database.clean_space_stats
+  end
+
   def test_space_stats_enabled
     assert database.space_stats_enabled?
   end
