@@ -8,7 +8,7 @@ require "activerecord-import"
 
 class Minitest::Test
   def database
-    @database ||= PgHero.databases.values.first
+    @database ||= PgHero.databases[:primary]
   end
 end
 

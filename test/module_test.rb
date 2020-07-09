@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class ModuleTest < Minitest::Test
   def test_databases
-    assert PgHero.databases[:primary].running_queries
+    assert PgHero.databases.any?
   end
 
   def test_connection_pool
