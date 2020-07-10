@@ -58,8 +58,6 @@ jobs:
         - echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/9.6/main/postgresql.conf
         - sudo systemctl restart postgresql@9.6-main
         - createdb pghero_test
-services:
-  - postgresql
 script: bundle exec rake test
 notifications:
   email:
