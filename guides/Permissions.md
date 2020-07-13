@@ -35,6 +35,12 @@ $$
   SELECT public.pg_stat_statements_reset();
 $$ LANGUAGE sql VOLATILE SECURITY DEFINER;
 
+-- improved query stats reset for Postgres 12+ - delete for earlier versions
+CREATE OR REPLACE FUNCTION pghero.pg_stat_statements_reset(userid oid, dbid oid, queryid bigint) RETURNS void AS
+$$
+  SELECT public.pg_stat_statements_reset(userid, dbid, queryid);
+$$ LANGUAGE sql VOLATILE SECURITY DEFINER;
+
 -- suggested indexes
 CREATE OR REPLACE FUNCTION pghero.pg_stats() RETURNS
 TABLE(schemaname name, tablename name, attname name, null_frac real, avg_width integer, n_distinct real) AS
