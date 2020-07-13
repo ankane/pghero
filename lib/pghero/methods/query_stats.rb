@@ -56,6 +56,9 @@ module PgHero
         true
       end
 
+      # resets query stats for the entire instance
+      # with Postgres 12+, it's possible to reset stats
+      # for a specific database (or user or query hash)
       def reset_query_stats(database: nil, user: nil, query_hash: nil, raise_errors: false)
         if database || user || query_hash
           raise PgHero::Error, "Requires PostgreSQL 12+" if server_version_num < 120000
