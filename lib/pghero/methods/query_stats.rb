@@ -135,24 +135,23 @@ module PgHero
 
         supports_query_hash = supports_query_hash?
 
-        if query_stats.any? { |_, v| v.any? } && reset_query_stats(raise_errors: raise_errors)
-          query_stats.each do |db_id, db_query_stats|
-            if db_query_stats.any?
-              values =
-                db_query_stats.map do |qs|
-                  [
-                    db_id,
-                    qs[:query],
-                    qs[:total_minutes] * 60 * 1000,
-                    qs[:calls],
-                    now,
-                    supports_query_hash ? qs[:query_hash] : nil,
-                    qs[:user]
-                  ]
-                end
+        query_stats = query_stats.select { |_, v| v.any? }
 
-              columns = %w[database query total_time calls captured_at query_hash user]
-              insert_stats("pghero_query_stats", columns, values)
+        # nothing to do
+        return if query_stats.empty?
+
+        # use mapping, not query stats here
+        # TODO add option for this, and make default in PgHero 3.0
+        if false # mapping.size == 1 && server_version_num >= 120000
+          query_stats.each do |db_id, db_query_stats|
+            if reset_query_stats(database: mapping[db_id], raise_errors: raise_errors)
+              insert_query_stats(db_id, db_query_stats, now, supports_query_hash)
+            end
+          end
+        else
+          if reset_query_stats(raise_errors: raise_errors)
+            query_stats.each do |db_id, db_query_stats|
+              insert_query_stats(db_id, db_query_stats, now, supports_query_hash)
             end
           end
         end
@@ -319,6 +318,24 @@ module PgHero
       # combines ?, ?, ? => ?
       def normalize_query(query)
         squish(query.to_s.gsub(/\?(, ?\?)+/, "?").gsub(/\/\*.+?\*\//, ""))
+      end
+
+      def insert_query_stats(db_id, db_query_stats, now, supports_query_hash)
+        values =
+          db_query_stats.map do |qs|
+            [
+              db_id,
+              qs[:query],
+              qs[:total_minutes] * 60 * 1000,
+              qs[:calls],
+              now,
+              supports_query_hash ? qs[:query_hash] : nil,
+              qs[:user]
+            ]
+          end
+
+        columns = %w[database query total_time calls captured_at query_hash user]
+        insert_stats("pghero_query_stats", columns, values)
       end
     end
   end
