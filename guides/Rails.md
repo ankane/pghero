@@ -211,6 +211,17 @@ rails generate pghero:config
 
 This allows you to specify multiple databases and change thresholds. Thresholds can be set globally or per-database.
 
+If multiple databases are in the same instance and use historical query stats, PgHero should be configured to capture them together.
+
+```yml
+databases:
+  primary:
+    url: ...
+  other:
+    url: ...
+    capture_query_stats: primary
+```
+
 ## Permissions
 
 We recommend [setting up a dedicated user](Permissions.md) for PgHero.

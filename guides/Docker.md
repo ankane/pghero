@@ -203,6 +203,17 @@ And build your image:
 docker build -t my-pghero .
 ```
 
+If multiple databases are in the same instance and use historical query stats, PgHero should be configured to capture them together.
+
+```yml
+databases:
+  primary:
+    url: ...
+  other:
+    url: ...
+    capture_query_stats: primary
+```
+
 ## Kubernetes
 
 If you are planning to run on Kubernetes with a config file, you don’t need to create a new image. You can make use of ConfigMaps to mount the config file. Create a ConfigMap like this:
