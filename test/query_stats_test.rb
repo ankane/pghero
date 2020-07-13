@@ -33,13 +33,14 @@ class QueryStatsTest < Minitest::Test
   def test_reset_query_stats_database
     skip unless gte12?
 
-    database.send(:execute, "SELECT 1").to_a
-    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
+    assert database.reset_query_stats
+    ActiveRecord::Base.connection.select_all("SELECT 1")
+    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
 
     assert database.reset_query_stats(database: database.database_name)
 
     assert_equal 1, database.query_stats.size
-    refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
+    refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
   end
 
   def test_reset_query_stats_database_invalid
@@ -54,13 +55,14 @@ class QueryStatsTest < Minitest::Test
   def test_reset_query_stats_user
     skip unless gte12?
 
-    database.send(:execute, "SELECT 1").to_a
-    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
+    assert database.reset_query_stats
+    ActiveRecord::Base.connection.select_all("SELECT 1")
+    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
 
     assert database.reset_query_stats(user: database.current_user)
 
     assert_equal 1, database.query_stats.size
-    refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
+    refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
   end
 
   def test_reset_query_stats_user_invalid
