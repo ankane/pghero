@@ -1,3 +1,7 @@
+## 2.6.1 (unreleased)
+
+- Added `database`, `user`, and `query_hash` options to `reset_query_stats` method
+
 ## 2.6.0 (2020-07-09)
 
 - Added support for Postgres 13 beta 2

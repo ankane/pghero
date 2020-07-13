@@ -30,6 +30,52 @@ class QueryStatsTest < Minitest::Test
     assert database.reset_query_stats
   end
 
+  def test_reset_query_stats_database
+    skip unless gte12?
+
+    assert database.reset_query_stats(database: "pghero_test")
+  end
+
+  def test_reset_query_stats_database_invalid
+    skip unless gte12?
+
+    error = assert_raises(PgHero::Error) do
+      database.reset_query_stats(database: "pghero_test2")
+    end
+    assert_equal "Database not found: pghero_test2", error.message
+  end
+
+  def test_reset_query_stats_user
+    # may not be postgres user, so only test on Travis
+    skip unless gte12? && ENV["TRAVIS"]
+
+    assert database.reset_query_stats(user: "postgres")
+  end
+
+  def test_reset_query_stats_user_invalid
+    skip unless gte12?
+
+    error = assert_raises(PgHero::Error) do
+      database.reset_query_stats(user: "postgres2")
+    end
+    assert_equal "User not found: postgres2", error.message
+  end
+
+  def test_reset_query_stats_query_hash
+    skip unless gte12?
+
+    assert database.reset_query_stats(query_hash: 123)
+  end
+
+  def test_reset_query_stats_query_hash_invalid
+    skip unless gte12?
+
+    error = assert_raises(PgHero::Error) do
+      database.reset_query_stats(query_hash: 0)
+    end
+    assert_equal "Invalid query hash: 0", error.message
+  end
+
   def test_historical_query_stats_enabled
     assert database.historical_query_stats_enabled?
   end
@@ -43,5 +89,9 @@ class QueryStatsTest < Minitest::Test
 
   def test_clean_query_stats
     assert database.clean_query_stats
+  end
+
+  def gte12?
+    database.server_version_num >= 120000
   end
 end
