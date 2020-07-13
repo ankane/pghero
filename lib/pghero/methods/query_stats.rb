@@ -56,10 +56,16 @@ module PgHero
         true
       end
 
+      # TODO scope by database in PgHero 3.0
+      # (add database: database_name to options)
+      def reset_query_stats(**options)
+        reset_instance_query_stats(**options)
+      end
+
       # resets query stats for the entire instance
-      # with Postgres 12+, it's possible to reset stats
-      # for a specific database (or user or query hash)
-      def reset_query_stats(database: nil, user: nil, query_hash: nil, raise_errors: false)
+      # it's possible to reset stats for a specific
+      # database, user or query hash in Postgres 12+
+      def reset_instance_query_stats(database: nil, user: nil, query_hash: nil, raise_errors: false)
         if database || user || query_hash
           raise PgHero::Error, "Requires PostgreSQL 12+" if server_version_num < 120000
 
