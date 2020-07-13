@@ -33,7 +33,14 @@ class QueryStatsTest < Minitest::Test
   def test_reset_query_stats_database
     skip unless gte12?
 
-    assert database.reset_query_stats(database: "pghero_test")
+    database.send(:execute, "SELECT 1").to_a
+    pp database.query_stats.map { |qs| qs[:query] }
+    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
+
+    assert database.reset_query_stats(database: database.database_name)
+
+    assert_equal 1, database.query_stats.size
+    refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
   end
 
   def test_reset_query_stats_database_invalid
@@ -47,9 +54,15 @@ class QueryStatsTest < Minitest::Test
 
   def test_reset_query_stats_user
     # may not be postgres user, so only test on Travis
-    skip unless gte12? && ENV["TRAVIS"]
+    skip unless gte12?
 
-    assert database.reset_query_stats(user: "postgres")
+    database.send(:execute, "SELECT 1").to_a
+    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
+
+    assert database.reset_query_stats(user: database.current_user)
+
+    assert_equal 1, database.query_stats.size
+    refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
   end
 
   def test_reset_query_stats_user_invalid

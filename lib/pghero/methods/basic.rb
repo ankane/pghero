@@ -18,6 +18,10 @@ module PgHero
         select_one("SELECT current_database()")
       end
 
+      def current_user
+        select_one("SELECT current_user")
+      end
+
       def server_version
         @server_version ||= select_one("SHOW server_version")
       end
