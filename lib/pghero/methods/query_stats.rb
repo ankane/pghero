@@ -133,8 +133,6 @@ module PgHero
           query_stats[database_id] = query_stats(limit: 1000000, database: database_name)
         end
 
-        supports_query_hash = supports_query_hash?
-
         query_stats = query_stats.select { |_, v| v.any? }
 
         # nothing to do
@@ -145,13 +143,13 @@ module PgHero
         if false # mapping.size == 1 && server_version_num >= 120000
           query_stats.each do |db_id, db_query_stats|
             if reset_query_stats(database: mapping[db_id], raise_errors: raise_errors)
-              insert_query_stats(db_id, db_query_stats, now, supports_query_hash)
+              insert_query_stats(db_id, db_query_stats, now)
             end
           end
         else
           if reset_query_stats(raise_errors: raise_errors)
             query_stats.each do |db_id, db_query_stats|
-              insert_query_stats(db_id, db_query_stats, now, supports_query_hash)
+              insert_query_stats(db_id, db_query_stats, now)
             end
           end
         end
@@ -320,7 +318,7 @@ module PgHero
         squish(query.to_s.gsub(/\?(, ?\?)+/, "?").gsub(/\/\*.+?\*\//, ""))
       end
 
-      def insert_query_stats(db_id, db_query_stats, now, supports_query_hash)
+      def insert_query_stats(db_id, db_query_stats, now)
         values =
           db_query_stats.map do |qs|
             [
@@ -329,7 +327,7 @@ module PgHero
               qs[:total_minutes] * 60 * 1000,
               qs[:calls],
               now,
-              supports_query_hash ? qs[:query_hash] : nil,
+              supports_query_hash? ? qs[:query_hash] : nil,
               qs[:user]
             ]
           end
