@@ -83,7 +83,7 @@ module PgHero
             query_id = 0
           end
 
-          execute("SELECT pg_stat_statements_reset(#{quote(database_id.to_i)}, #{quote(user_id.to_i)}, #{quote(query_id.to_i)})")
+          execute("SELECT pg_stat_statements_reset(#{quote(user_id.to_i)}, #{quote(database_id.to_i)}, #{quote(query_id.to_i)})")
         else
           execute("SELECT pg_stat_statements_reset()")
         end
