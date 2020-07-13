@@ -77,7 +77,18 @@ class QueryStatsTest < Minitest::Test
   def test_reset_query_stats_query_hash
     skip unless gte12?
 
-    assert database.reset_query_stats(query_hash: 123)
+    assert database.reset_query_stats
+    ActiveRecord::Base.connection.select_all("SELECT 1")
+    ActiveRecord::Base.connection.select_all("SELECT 1 + 1")
+
+    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
+    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1 + $2" }
+
+    query_hash = database.query_stats.find { |qs| qs[:query] == "SELECT $1" }[:query_hash]
+    assert database.reset_query_stats(query_hash: query_hash)
+
+    refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
+    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1 + $2" }
   end
 
   def test_reset_query_stats_query_hash_invalid
