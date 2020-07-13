@@ -34,7 +34,6 @@ class QueryStatsTest < Minitest::Test
     skip unless gte12?
 
     database.send(:execute, "SELECT 1").to_a
-    pp database.query_stats.map { |qs| qs[:query] }
     assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1 /*pghero*/" }
 
     assert database.reset_query_stats(database: database.database_name)
@@ -53,7 +52,6 @@ class QueryStatsTest < Minitest::Test
   end
 
   def test_reset_query_stats_user
-    # may not be postgres user, so only test on Travis
     skip unless gte12?
 
     database.send(:execute, "SELECT 1").to_a
