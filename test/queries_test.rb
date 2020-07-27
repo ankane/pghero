@@ -36,6 +36,7 @@ class QueriesTest < Minitest::Test
       yield
     ensure
       PgHero.filter_data = previous_value
+      database.remove_instance_variable(:@filter_data)
     end
   end
 end
