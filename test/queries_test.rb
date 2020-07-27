@@ -9,16 +9,14 @@ class QueriesTest < Minitest::Test
     query = "SELECT pg_sleep(1)"
     t = Thread.new { ActiveRecord::Base.connection.execute(query) }
     sleep(0.5)
+
     assert_equal query, database.running_queries.first[:query]
 
-    begin
-      PgHero.filter_data = true
-      database.remove_instance_variable(:@filter_data)
+    with_filter_data do
       assert_equal "SELECT pg_sleep($1)", database.running_queries.first[:query]
-    ensure
-      t.join
-      PgHero.filter_data = false
     end
+
+    t.join
   end
 
   def test_long_running_queries
@@ -27,5 +25,16 @@ class QueriesTest < Minitest::Test
 
   def test_blocked_queries
     assert database.blocked_queries
+  end
+
+  def with_filter_data
+    previous_value = PgHero.filter_data
+    begin
+      PgHero.filter_data = true
+      database.remove_instance_variable(:@filter_data)
+      yield
+    ensure
+      PgHero.filter_data = previous_value
+    end
   end
 end
