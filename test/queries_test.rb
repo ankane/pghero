@@ -7,6 +7,7 @@ class QueriesTest < Minitest::Test
 
   def test_filter_data
     query = "SELECT pg_sleep(1)"
+    # TODO manually checkout connection if needed
     t = Thread.new { ActiveRecord::Base.connection.execute(query) }
     sleep(0.5)
 
