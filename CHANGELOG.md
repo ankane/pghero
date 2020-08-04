@@ -1,6 +1,6 @@
 ## 2.7.0 (2020-08-04)
 
-- Fixed CSRF vulnerability with non-session based authentication
+- Fixed CSRF vulnerability with non-session based authentication - [more info](https://github.com/ankane/pghero/issues/330)
 - Added `database`, `user`, and `query_hash` options to `reset_query_stats` method
 
 ## 2.6.0 (2020-07-09)
