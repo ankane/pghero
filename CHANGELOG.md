@@ -1,4 +1,4 @@
-## 2.6.1 (unreleased)
+## 2.7.0 (2020-08-04)
 
 - Fixed CSRF vulnerability with non-session based authentication
 - Added `database`, `user`, and `query_hash` options to `reset_query_stats` method
