@@ -2,7 +2,7 @@ module PgHero
   class HomeController < ActionController::Base
     layout "pg_hero/application"
 
-    protect_from_forgery
+    protect_from_forgery with: :exception
 
     http_basic_authenticate_with name: PgHero.username, password: PgHero.password if PgHero.password
 
