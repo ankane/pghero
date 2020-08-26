@@ -10,7 +10,7 @@ A performance dashboard for Postgres
 
 ---
 
-[![Screenshot](https://pghero.dokkuapp.com/assets/pghero-f8abe426e6bf54bb7dba87b425bb809740ebd386208bcd280a7e802b053a1023.png)](https://pghero.dokkuapp.com/)
+[![Screenshot](https://pghero.dokkuapp.com/assets/pghero-a09d6c90d3d5cbf90f437b792a9b0c89751054c5e10be57af4efb79feab2458b.png)](https://pghero.dokkuapp.com/)
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
