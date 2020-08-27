@@ -41,8 +41,12 @@ module PgHero
         # squish for logs
         retries = 0
         begin
-          result = conn.select_all(add_source(squish(sql)))
-          result = result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }
+          result = conn.select_all(add_source(squish(sql))).to_a
+          if ActiveRecord::VERSION::MAJOR >= 6
+            result.each(&:symbolize_keys!)
+          else
+            result.map! { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }
+          end
           if filter_data
             query_columns.each do |column|
               result.each do |row|
