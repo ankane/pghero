@@ -44,6 +44,13 @@ function initSlider() {
     start: [min, max]
   });
 
+  // remove outline for mouse only
+  $(".noUi-handle").mousedown(function() {
+    $(this).addClass("no-outline");
+  }).blur(function() {
+    $(this).removeClass("no-outline");
+  });
+
   function updateText() {
     var values = slider.noUiSlider.get();
     setText("#range-start", values[0]);
