@@ -1,3 +1,7 @@
+## 2.7.1 (unreleased)
+
+- Fixed error with `cast_value`
+
 ## 2.7.0 (2020-08-04)
 
 - Fixed CSRF vulnerability with non-session based authentication - [more info](https://github.com/ankane/pghero/issues/330)
