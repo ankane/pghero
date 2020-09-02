@@ -4,12 +4,6 @@ A performance dashboard for Postgres
 
 [See it in action](https://pghero.dokkuapp.com/)
 
----
-
-**NEW** PgHero is also available as a [hosted service](https://pghero.org). Get real-time alerts, single sign-on, and more :tada:
-
----
-
 [![Screenshot](https://pghero.dokkuapp.com/assets/pghero-a09d6c90d3d5cbf90f437b792a9b0c89751054c5e10be57af4efb79feab2458b.png)](https://pghero.dokkuapp.com/)
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
