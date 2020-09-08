@@ -214,7 +214,13 @@ databases:
     capture_query_stats: primary
 ```
 
-## Kubernetes
+## Deployment
+
+### Health Checks
+
+Use the `/health` endpoint for health checks. Status code `200` indicates healthy.
+
+### Kubernetes
 
 If you are planning to run on Kubernetes with a config file, you don’t need to create a new image. You can make use of ConfigMaps to mount the config file. Create a ConfigMap like this:
 

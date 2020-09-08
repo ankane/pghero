@@ -1,5 +1,6 @@
 ## 2.7.1 (unreleased)
 
+- Added `/health` endpoint to Docker image and Linux packages
 - Fixed error with `cast_value`
 
 ## 2.7.0 (2020-08-04)
