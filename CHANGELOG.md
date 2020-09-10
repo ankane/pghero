@@ -1,3 +1,7 @@
+## 2.7.2 (unreleased)
+
+- Fixed error with historical query stats
+
 ## 2.7.1 (2020-09-07)
 
 - Added `/health` endpoint to Docker image and Linux packages

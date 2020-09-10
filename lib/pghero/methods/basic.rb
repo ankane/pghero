@@ -42,7 +42,7 @@ module PgHero
         retries = 0
         begin
           result = conn.select_all(add_source(squish(sql)))
-          if ActiveRecord::VERSION::MAJOR >= 6
+          if ActiveRecord::VERSION::STRING.to_f >= 6.1
             result = result.map(&:symbolize_keys)
           else
             result = result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }

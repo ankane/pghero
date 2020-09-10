@@ -109,6 +109,7 @@ class QueryStatsTest < Minitest::Test
     refute PgHero::QueryStats.any?
     assert database.capture_query_stats
     assert PgHero::QueryStats.any?
+    assert database.query_stats(historical: true)
   end
 
   def test_clean_query_stats
