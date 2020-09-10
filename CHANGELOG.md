@@ -1,4 +1,4 @@
-## 2.7.2 (unreleased)
+## 2.7.2 (2020-09-10)
 
 - Fixed error with historical query stats
 
