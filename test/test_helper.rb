@@ -46,6 +46,7 @@ users =
       login_attempts: rand(30),
       zip_code: i % 40 == 0 ? nil : "12345",
       active: true,
+      tree_path: "path#{rand(30)}",
       created_at: Time.now - rand(50).days,
       updated_at: Time.now - rand(50).days
     }
