@@ -30,7 +30,12 @@ module PgHero
               if best_index[:found]
                 index = best_index[:index]
                 best_index[:table_indexes] = indexes_by_table[index[:table]].to_a
-                covering_index = existing_columns[index[:using] || "btree"][index[:table]].find { |e| index_covers?(e, index[:columns]) }
+
+                # possible covering indexes
+                indexes = existing_columns[index[:using] || "btree"][index[:table]]
+                indexes = (indexes + existing_columns["hash"][index[:table]]) if best_index[:structure][:where].all? { |v| v[:op] == "=" }
+
+                covering_index = indexes.find { |e| index_covers?(e, index[:columns]) }
                 if covering_index
                   best_index[:covering_index] = covering_index
                   best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"

@@ -1,3 +1,7 @@
+## 2.7.3 (unreleased)
+
+- Improved index suggestions when hash index present
+
 ## 2.7.2 (2020-09-10)
 
 - Fixed error with historical query stats

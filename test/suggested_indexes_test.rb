@@ -14,6 +14,12 @@ class SuggestedIndexesTest < Minitest::Test
     assert_equal [{table: "users", columns: ["email"]}], database.suggested_indexes.map { |q| q.except(:queries, :details) }
   end
 
+  def test_hash
+    query = "SELECT * FROM users WHERE login_attempts = 1"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+    assert_equal ["login_attempts"], result[:covering_index]
+  end
+
   def test_existing_index
     User.where("updated_at > ?", Time.now).to_a
     assert_equal [], database.suggested_indexes.map { |q| q.except(:queries, :details) }

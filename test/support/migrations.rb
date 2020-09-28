@@ -40,4 +40,5 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.timestamp :updated_at
   t.index :id # duplicate index
   t.index :updated_at
+  t.index :login_attempts, using: :hash
 end
