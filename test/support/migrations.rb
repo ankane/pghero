@@ -1,6 +1,8 @@
 ActiveRecord::Migration.verbose = ENV["VERBOSE"]
 
 ActiveRecord::Migration.enable_extension "pg_stat_statements"
+ActiveRecord::Migration.enable_extension "pg_trgm"
+ActiveRecord::Migration.enable_extension "ltree"
 
 ActiveRecord::Migration.create_table :pghero_query_stats, force: true do |t|
   t.text :database
@@ -36,9 +38,13 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.string :email
   t.string :zip_code
   t.boolean :active
+  t.string :country
+  t.column :tree_path, :ltree
   t.timestamp :created_at
   t.timestamp :updated_at
   t.index :id # duplicate index
   t.index :updated_at
   t.index :login_attempts, using: :hash
+  t.index "country gist_trgm_ops", using: :gist
+  t.index :tree_path, using: :gist
 end

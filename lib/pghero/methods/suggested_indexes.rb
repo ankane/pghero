@@ -31,9 +31,15 @@ module PgHero
                 index = best_index[:index]
                 best_index[:table_indexes] = indexes_by_table[index[:table]].to_a
 
-                # possible covering indexes
+                # indexes of same type
                 indexes = existing_columns[index[:using] || "btree"][index[:table]]
-                indexes = (indexes + existing_columns["hash"][index[:table]]) if best_index[:structure][:where].all? { |v| v[:op] == "=" }
+
+                # gist indexes without an opclass
+                # (opclass is part of column name, so columns won't match if opclass present)
+                indexes += existing_columns["gist"][index[:table]]
+
+                # hash indexes work for equality
+                indexes += existing_columns["hash"][index[:table]] if best_index[:structure][:where].all? { |v| v[:op] == "=" }
 
                 covering_index = indexes.find { |e| index_covers?(e, index[:columns]) }
                 if covering_index
