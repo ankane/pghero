@@ -2,7 +2,7 @@
   <% unless @debug %>
     <div style="float: right; color: #f0ad4e; margin-top: 0px; padding: 10px; cursor: pointer;" onclick="document.getElementById('details-<%= index.object_id %>').style.display = 'block'; this.style.display = 'none';">Details</div>
   <% end %>
-  <code><pre style="color: #eee; background-color: #333;">CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)</pre></code>
+  <code><pre style="color: #eee; background-color: #333;">CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].zip(Array(index[:opclasses])).map { |x| x.compact.join(' ') }.join(", ") %>)</pre></code>
 <% end %>
 <div id="details-<%= index.object_id %>" style="<%= "display: none;" unless @debug %>">
   <code><pre style="color: #f0ad4e; background-color: #333;"><% if details[:explanation] %><%= details[:explanation] %>
