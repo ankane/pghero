@@ -367,9 +367,14 @@ module PgHero
       end
 
       # REF https://www.postgresql.org/docs/13/indexes-multicolumn.html
-      def index_covers?(desired_index, column_info)
-        # indexed_columns.first(columns.size) == columns
-        false
+      def index_covers?(index, desired_index)
+        return false if desired_index[:using] && desired_index[:using] != index[:using]
+        info = index[:column_info]
+        columns = desired_index[:columns].zip(desired_index[:ops])
+        columns.all? do |column, op|
+          # TODO We're cheating on the `op` test here, and trusting that the types will line up.
+          info.key?(column) && op.nil? || info[column]['ops'].any? { |x| x['op'] == op }
+        end
       end
     end
   end

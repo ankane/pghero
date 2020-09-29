@@ -28,7 +28,7 @@ module PgHero
                 covering_index = indexes_by_table[index[:table]].find { |idx| index_covers?(idx, index) }
                 if covering_index
                   best_index[:covering_index] = covering_index
-                  best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"
+                  best_index[:explanation] = "Covered by index #{covering_index[:name]} (#{covering_index[:columns].join(", ")})"
                 end
               end
             end

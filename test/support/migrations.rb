@@ -46,7 +46,7 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.index :id # duplicate index
   t.index :updated_at
   t.index "country gist_trgm_ops", using: :gist
-  t.index :email, using: :hash
+  t.index :zip_code, using: :hash
   t.index :path, using: :gist
   t.index :range, using: :gist
   t.index :created_at, using: :brin
