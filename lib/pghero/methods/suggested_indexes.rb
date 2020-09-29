@@ -157,6 +157,7 @@ module PgHero
                       index[:index] = {table: table, columns: final_where_columns, ops: final_where_ops}
 
                       # Only B-tree indexes can be used for ordering
+                      # https://www.postgresql.org/docs/13/indexes-ordering.html
                       index[:index][:using] = 'btree' if final_where_ops.include?(nil)
                     end
                   end
