@@ -39,14 +39,20 @@ ActiveRecord::Base.connection.execute("ANALYZE states")
 
 users =
   5000.times.map do |i|
+    country_id = rand(50)
     city_id = i % 100
+    zip_code = i % 40 == 0 ? nil : "12345"
+
     {
       city_id: city_id,
       email: "person#{i}@example.org",
       login_attempts: rand(30),
-      zip_code: i % 40 == 0 ? nil : "12345",
+      zip_code: zip_code,
       active: true,
-      tree_path: "path#{rand(30)}",
+      country: "Test #{country_id}",
+      path: "#{country_id}.#{city_id}.#{zip_code || '00000'}",
+      range: (0..rand(5)),
+      metadata: { favorite_color: 'red' },
       created_at: Time.now - rand(50).days,
       updated_at: Time.now - rand(50).days
     }

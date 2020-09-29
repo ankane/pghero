@@ -37,10 +37,18 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.string :email
   t.string :zip_code
   t.boolean :active
-  t.column :tree_path, :ltree
+  t.string :country
+  t.column :path, :ltree
+  t.column :range, :int4range
+  t.column :metadata, :jsonb
   t.timestamp :created_at
   t.timestamp :updated_at
   t.index :id # duplicate index
   t.index :updated_at
-  t.index :tree_path, using: :gist
+  t.index "country gist_trgm_ops", using: :gist
+  t.index :email, using: :hash
+  t.index :path, using: :gist
+  t.index :range, using: :gist
+  t.index :created_at, using: :brin
+  t.index :metadata, using: :gin
 end
