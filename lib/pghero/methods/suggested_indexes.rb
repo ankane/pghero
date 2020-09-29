@@ -30,9 +30,8 @@ module PgHero
               if best_index[:found]
                 index = best_index[:index]
                 best_index[:table_indexes] = indexes_by_table[index[:table]].to_a
-                cols = existing_columns[index[:using] || "btree"]
-                cols = cols.merge(existing_columns["gist"]) if true # TODO check column type for ltree
-                covering_index = cols[index[:table]].find { |e| index_covers?(e, index[:columns]) }
+
+                covering_index = existing_columns[index[:using] || "btree"][index[:table]].find { |e| index_covers?(e, index[:columns]) }
                 if covering_index
                   best_index[:covering_index] = covering_index
                   best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"
