@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class BestIndexTest < Minitest::Test
   def test_where
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = 1"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['=']}), "SELECT * FROM users WHERE city_id = 1"
   end
 
   def test_all_values
@@ -10,7 +10,7 @@ class BestIndexTest < Minitest::Test
     expected = {
       found: true,
       structure: {table: "users", where: [{column: "login_attempts", op: "="}], sort: [{column: "created_at", direction: "asc"}]},
-      index: {table: "users", columns: ["login_attempts", "created_at"]},
+      index: {table: "users", columns: ["login_attempts", "created_at"], ops: ['=', nil], using: 'btree'},
       rows: 5000,
       row_estimates: {"login_attempts (=)" => 167, "created_at (sort)" => 1},
       row_progression: [5000, 167, 0]
@@ -19,103 +19,103 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_where_multiple_columns
-    assert_best_index ({table: "users", columns: ["city_id", "login_attempts"]}), "SELECT * FROM users WHERE city_id = 1 and login_attempts = 2"
+    assert_best_index ({table: "users", columns: ["city_id", "login_attempts"], ops: ['=', '=']}), "SELECT * FROM users WHERE city_id = 1 and login_attempts = 2"
   end
 
   def test_where_unique
-    assert_best_index ({table: "users", columns: ["email"]}), "SELECT * FROM users WHERE city_id = 1 AND email = 'person2@example.org'"
+    assert_best_index ({table: "users", columns: ["email"], ops: ['=']}), "SELECT * FROM users WHERE city_id = 1 AND email = 'person2@example.org'"
   end
 
   def test_order
-    assert_best_index ({table: "users", columns: ["created_at"]}), "SELECT * FROM users ORDER BY created_at"
+    assert_best_index ({table: "users", columns: ["created_at"], ops: [nil], using: 'btree'}), "SELECT * FROM users ORDER BY created_at"
   end
 
   def test_order_multiple
-    assert_best_index ({table: "users", columns: ["login_attempts", "created_at"]}), "SELECT * FROM users ORDER BY login_attempts, created_at"
+    assert_best_index ({table: "users", columns: ["login_attempts", "created_at"], ops: [nil, nil], using: 'btree'}), "SELECT * FROM users ORDER BY login_attempts, created_at"
   end
 
   def test_order_multiple_direction
-    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users ORDER BY login_attempts DESC, created_at"
+    assert_best_index ({table: "users", columns: ["login_attempts"], ops: [nil], using: 'btree'}), "SELECT * FROM users ORDER BY login_attempts DESC, created_at"
   end
 
   def test_order_multiple_unique
-    assert_best_index ({table: "users", columns: ["id"]}), "SELECT * FROM users ORDER BY id, created_at"
+    assert_best_index ({table: "users", columns: ["id"], ops: [nil], using: 'btree'}), "SELECT * FROM users ORDER BY id, created_at"
   end
 
   def test_where_unique_order
-    assert_best_index ({table: "users", columns: ["email"]}), "SELECT * FROM users WHERE email = 'person2@example.org' ORDER BY created_at"
+    assert_best_index ({table: "users", columns: ["email"], ops: ['=']}), "SELECT * FROM users WHERE email = 'person2@example.org' ORDER BY created_at"
   end
 
   def test_where_order
-    assert_best_index ({table: "users", columns: ["login_attempts", "created_at"]}), "SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at"
+    assert_best_index ({table: "users", columns: ["login_attempts", "created_at"], ops: ['=', nil], using: 'btree'}), "SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at"
   end
 
   def test_where_order_unknown
-    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE login_attempts = 1 ORDER BY NOW()"
+    assert_best_index ({table: "users", columns: ["login_attempts"], ops: ['=']}), "SELECT * FROM users WHERE login_attempts = 1 ORDER BY NOW()"
   end
 
   def test_where_in
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id IN (1, 2)"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['=']}), "SELECT * FROM users WHERE city_id IN (1, 2)"
   end
 
   def test_like
-    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE ?"
+    assert_best_index ({table: "users", columns: ["email"], opclasses: ['gist_trgm_ops'], ops: ['~~'], using: 'gist'}), "SELECT * FROM users WHERE email LIKE ?"
   end
 
   def test_like_where
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = ? AND email LIKE ?"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['=']}), "SELECT * FROM users WHERE city_id = ? AND email LIKE ?"
   end
 
   def test_like_where2
-    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE ? AND active = ?"
+    assert_best_index ({table: "users", columns: ["email"], opclasses: ['gist_trgm_ops'], ops: ['~~'], using: "gist"}), "SELECT * FROM users WHERE email LIKE ? AND active = ?"
   end
 
   def test_ilike
-    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email ILIKE ?"
+    assert_best_index ({table: "users", columns: ["email"], opclasses: ['gist_trgm_ops'], ops: ['~~*'], using: "gist"}), "SELECT * FROM users WHERE email ILIKE ?"
   end
 
   def test_not_equals
-    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE city_id != ? and login_attempts = 2"
+    assert_best_index ({table: "users", columns: ["login_attempts"], ops: ['=']}), "SELECT * FROM users WHERE city_id != ? and login_attempts = 2"
   end
 
   def test_not_in
-    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE city_id NOT IN (?) and login_attempts = 2"
+    assert_best_index ({table: "users", columns: ["login_attempts"], ops: ['=']}), "SELECT * FROM users WHERE city_id NOT IN (?) and login_attempts = 2"
   end
 
   def test_between
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id BETWEEN 1 AND 2"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['BETWEEN']}), "SELECT * FROM users WHERE city_id BETWEEN 1 AND 2"
   end
 
   def test_multiple_range
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id > ? and login_attempts > ?"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['>']}), "SELECT * FROM users WHERE city_id > ? and login_attempts > ?"
   end
 
   def test_where_prepared
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = $1"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['=']}), "SELECT * FROM users WHERE city_id = $1"
   end
 
   def test_where_normalized
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = ?"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['=']}), "SELECT * FROM users WHERE city_id = ?"
   end
 
   def test_is_null
-    assert_best_index ({table: "users", columns: ["zip_code"]}), "SELECT * FROM users WHERE zip_code IS NULL"
+    assert_best_index ({table: "users", columns: ["zip_code"], ops: ['null']}), "SELECT * FROM users WHERE zip_code IS NULL"
   end
 
   def test_is_null_equal
-    assert_best_index ({table: "users", columns: ["zip_code", "login_attempts"]}), "SELECT * FROM users WHERE zip_code IS NULL AND login_attempts = ?"
+    assert_best_index ({table: "users", columns: ["zip_code", "login_attempts"], ops: ['null', '=']}), "SELECT * FROM users WHERE zip_code IS NULL AND login_attempts = ?"
   end
 
   def test_is_not_null
-    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE zip_code IS NOT NULL AND login_attempts = ?"
+    assert_best_index ({table: "users", columns: ["login_attempts"], ops: ['=']}), "SELECT * FROM users WHERE zip_code IS NOT NULL AND login_attempts = ?"
   end
 
   def test_update
-    assert_best_index ({table: "users", columns: ["city_id"]}), "UPDATE users SET email = 'test' WHERE city_id = 1"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['=']}), "UPDATE users SET email = 'test' WHERE city_id = 1"
   end
 
   def test_delete
-    assert_best_index ({table: "users", columns: ["city_id"]}), "DELETE FROM users WHERE city_id = 1"
+    assert_best_index ({table: "users", columns: ["city_id"], ops: ['=']}), "DELETE FROM users WHERE city_id = 1"
   end
 
   def test_parse_error

@@ -365,8 +365,11 @@ module PgHero
       def index_subset?(indexed_columns, columns)
         indexed_columns.first(columns.size) == columns
       end
-      def index_covers?(indexed_columns, columns)
-        indexed_columns.first(columns.size) == columns
+
+      # REF https://www.postgresql.org/docs/13/indexes-multicolumn.html
+      def index_covers?(desired_index, column_info)
+        # indexed_columns.first(columns.size) == columns
+        false
       end
     end
   end

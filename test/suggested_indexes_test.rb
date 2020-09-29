@@ -11,7 +11,7 @@ class SuggestedIndexesTest < Minitest::Test
 
   def test_basic
     User.where(email: "person1@example.org").first
-    assert_equal [{table: "users", columns: ["email"]}], database.suggested_indexes.map { |q| q.except(:queries, :details) }
+    assert_equal [{table: "users", columns: ["email"], ops: ['=']}], database.suggested_indexes.map { |q| q.except(:queries, :details) }
   end
 
   def test_existing_index

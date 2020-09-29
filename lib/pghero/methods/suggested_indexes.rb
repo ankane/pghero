@@ -17,21 +17,15 @@ module PgHero
           best_indexes = best_index_helper(queries)
 
           if best_indexes.any?
-            existing_columns = Hash.new { |hash, key| hash[key] = Hash.new { |hash2, key2| hash2[key2] = [] } }
             indexes ||= self.indexes
-            indexes.group_by { |g| g[:using] }.each do |group, inds|
-              inds.each do |i|
-                existing_columns[group][i[:table]] << i[:columns]
-              end
-            end
             indexes_by_table = indexes.group_by { |i| i[:table] }
 
             best_indexes.each do |_query, best_index|
               if best_index[:found]
                 index = best_index[:index]
-                best_index[:table_indexes] = indexes_by_table[index[:table]].to_a
+                best_index[:table_indexes] = indexes_by_table[index[:table]]
 
-                covering_index = existing_columns[index[:using] || "btree"][index[:table]].find { |e| index_covers?(e, index[:columns]) }
+                covering_index = indexes_by_table[index[:table]].find { |idx| index_covers?(idx, index) }
                 if covering_index
                   best_index[:covering_index] = covering_index
                   best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"
@@ -124,22 +118,23 @@ module PgHero
 
                 # no index needed if less than 500 rows
                 if total_rows >= 500
-
                   if ["~~", "~~*"].include?(where.first[:op])
                     index[:found] = true
                     index[:row_progression] = [total_rows, index[:row_estimates].values.first]
-                    index[:index] = {table: table, columns: ["#{where.first[:column]} gist_trgm_ops"], using: "gist"}
+                    index[:index] = {table: table, columns: [where.first[:column]], opclasses: ['gist_trgm_ops'], ops: [where.first[:op]], using: "gist"}
                   else
                     # if most values are unique, no need to index others
                     rows_left = total_rows
-                    final_where = []
+                    final_where_columns = []
+                    final_where_ops = []
                     prev_rows_left = [rows_left]
                     where.reject { |c| ["~~", "~~*"].include?(c[:op]) }.each do |c|
-                      next if final_where.include?(c[:column])
-                      final_where << c[:column]
+                      next if final_where_columns.include?(c[:column])
+                      final_where_columns << c[:column]
+                      final_where_ops << c[:op]
                       rows_left = row_estimates(ranks[c[:column]], total_rows, rows_left, c[:op])
                       prev_rows_left << rows_left
-                      if rows_left < 50 || final_where.size >= 2 || [">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(c[:op])
+                      if rows_left < 50 || final_where_columns.size >= 2 || [">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(c[:op])
                         break
                       end
                     end
@@ -150,15 +145,19 @@ module PgHero
                     prev_rows_left.reverse!
                     (prev_rows_left.size - 1).times do |i|
                       if prev_rows_left[i] > prev_rows_left[i + 1] * 0.3
-                        final_where.pop
+                        final_where_columns.pop
+                        final_where_ops.pop
                       else
                         break
                       end
                     end
 
-                    if final_where.any?
+                    if final_where_columns.any?
                       index[:found] = true
-                      index[:index] = {table: table, columns: final_where}
+                      index[:index] = {table: table, columns: final_where_columns, ops: final_where_ops}
+
+                      # Only B-tree indexes can be used for ordering
+                      index[:index][:using] = 'btree' if final_where_ops.include?(nil)
                     end
                   end
                 else
