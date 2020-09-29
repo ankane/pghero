@@ -123,16 +123,48 @@ module PgHero
         indexes
       end
 
-      # TODO parse array properly
-      # https://stackoverflow.com/questions/2204058/list-columns-with-indexes-in-postgresql
+      # TODO Handle expression indexes
+      # TODO Handle partial indexes
+      # TODO Handle ordering operators
       def indexes
-        indexes = select_all(<<-SQL
+        indexes = select_all(<<-SQL)
           SELECT
             schemaname AS schema,
             t.relname AS table,
             ix.relname AS name,
-            regexp_replace(pg_get_indexdef(i.indexrelid), '^[^\\(]*\\((.*)\\)$', '\\1') AS columns,
-            regexp_replace(pg_get_indexdef(i.indexrelid), '.* USING ([^ ]*) \\(.*', '\\1') AS using,
+            array_to_json(
+              ARRAY(
+                SELECT attr.attname
+                FROM unnest(i.indkey) x(key)
+                INNER JOIN pg_attribute attr ON (i.indrelid = attr.attrelid AND x.key = attr.attnum)
+              )
+            ) AS columns,
+            array_to_json(ARRAY(
+              SELECT
+                json_build_object(
+                  attr.attname, json_build_object(
+                    'opclass', opc.opcname,
+                    'ops', array_to_json(
+                      ARRAY_AGG(
+                        json_build_object(
+                          'op', op.oprname,
+                          'kind', op.oprkind,
+                          'left_type', amop.amoplefttype::regtype,
+                          'right_type', amop.amoprighttype::regtype
+                        )
+                      ) FILTER(WHERE amop.amoppurpose = 's')
+                    )
+                  )
+                ) AS column_info
+              FROM unnest(i.indclass, i.indkey) x(opclass, key)
+              INNER JOIN pg_opclass opc ON (x.opclass = opc.oid)
+              INNER JOIN pg_opfamily opf ON (opc.opcfamily = opf.oid AND am.oid = opf.opfmethod)
+              INNER JOIN pg_amop amop ON (opf.oid = amop.amopfamily)
+              INNER JOIN pg_operator op ON (amop.amopopr = op.oid)
+              INNER JOIN pg_attribute attr ON (i.indrelid = attr.attrelid AND x.key = attr.attnum)
+              GROUP BY attr.attname, opc.opcname
+            )) AS column_info,
+            am.amname AS using,
             indisunique AS unique,
             indisprimary AS primary,
             indisvalid AS valid,
@@ -145,6 +177,8 @@ module PgHero
             pg_class t ON t.oid = i.indrelid
           INNER JOIN
             pg_class ix ON ix.oid = i.indexrelid
+          INNER JOIN
+            pg_am am ON ix.relam = am.oid
           LEFT JOIN
             pg_stat_user_indexes ui ON ui.indexrelid = i.indexrelid
           WHERE
@@ -152,7 +186,11 @@ module PgHero
           ORDER BY
             1, 2
         SQL
-        ).map { |v| v[:columns] = v[:columns].sub(") WHERE (", " WHERE ").split(", ").map { |c| unquote(c) }; v }
+
+        indexes.each do |i|
+          i[:columns] = JSON.parse(i[:columns])
+          i[:column_info] = JSON.parse(i[:column_info]).reduce(&:merge)
+        end
 
         # determine if any invalid indexes being created
         # hacky, but works for simple cases
@@ -173,7 +211,7 @@ module PgHero
 
         indexes_by_table = (indexes || self.indexes).group_by { |i| [i[:schema], i[:table]] }
         indexes_by_table.values.flatten.select { |i| i[:valid] && !i[:primary] && !i[:unique] }.each do |index|
-          covering_index = indexes_by_table[[index[:schema], index[:table]]].find { |i| i[:valid] && i[:name] != index[:name] && index_covers?(i[:columns], index[:columns]) && i[:using] == index[:using] && i[:indexprs] == index[:indexprs] && i[:indpred] == index[:indpred] }
+          covering_index = indexes_by_table[[index[:schema], index[:table]]].find { |i| i[:valid] && i[:name] != index[:name] && index_subset?(i[:columns], index[:columns]) && i[:using] == index[:using] && i[:indexprs] == index[:indexprs] && i[:indpred] == index[:indpred] }
           if covering_index && (covering_index[:columns] != index[:columns] || index[:name] > covering_index[:name] || covering_index[:primary] || covering_index[:unique])
             dup_indexes << {unneeded_index: index, covering_index: covering_index}
           end
@@ -324,6 +362,9 @@ module PgHero
 
       protected
 
+      def index_subset?(indexed_columns, columns)
+        indexed_columns.first(columns.size) == columns
+      end
       def index_covers?(indexed_columns, columns)
         indexed_columns.first(columns.size) == columns
       end
