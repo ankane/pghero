@@ -34,12 +34,17 @@ module PgHero
                 # indexes of same type
                 indexes = existing_columns[index[:using] || "btree"][index[:table]]
 
-                # gist indexes without an opclass
-                # (opclass is part of column name, so columns won't match if opclass present)
-                indexes += existing_columns["gist"][index[:table]]
+                if best_index[:structure][:sort].empty?
+                  # gist indexes without an opclass
+                  # (opclass is part of column name, so columns won't match if opclass present)
+                  indexes += existing_columns["gist"][index[:table]]
 
-                # hash indexes work for equality
-                indexes += existing_columns["hash"][index[:table]] if best_index[:structure][:where].all? { |v| v[:op] == "=" }
+                  # hash indexes work for equality
+                  indexes += existing_columns["hash"][index[:table]] if best_index[:structure][:where].all? { |v| v[:op] == "=" }
+
+                  # brin indexes work for all
+                  indexes += existing_columns["brin"][index[:table]]
+                end
 
                 covering_index = indexes.find { |e| index_covers?(e, index[:columns]) }
                 if covering_index
