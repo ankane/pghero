@@ -200,12 +200,16 @@ module PgHero
 
       private
 
+      def pg_stat_statements_version
+        @pg_stat_statements_version ||= select_one("SELECT extversion FROM pg_catalog.pg_extension WHERE extname = 'pg_stat_statements'")
+      end
+
       # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
       def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil)
         if query_stats_enabled?
           limit ||= 100
           sort ||= "total_minutes"
-          total_time = server_version_num >= 130000 ? "(total_plan_time + total_exec_time)" : "total_time"
+          total_time = pg_stat_statements_version.to_f >= 1.8 ? "(total_plan_time + total_exec_time)" : "total_time"
           query = <<-SQL
             WITH query_stats AS (
               SELECT
