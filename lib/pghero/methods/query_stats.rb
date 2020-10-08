@@ -249,6 +249,9 @@ module PgHero
         else
           raise NotEnabled, "Query stats not enabled"
         end
+      rescue ActiveRecord::StatementInvalid => e
+        raise PgHero::Error, "Run `ALTER EXTENSION pg_stat_statements UPDATE;`" if e.message.include?("PG::UndefinedColumn")
+        raise e
       end
 
       def historical_query_stats(sort: nil, start_at: nil, end_at: nil, query_hash: nil)
