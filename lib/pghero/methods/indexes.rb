@@ -373,7 +373,9 @@ module PgHero
         columns = desired_index[:columns].zip(desired_index[:ops])
         columns.all? do |column, op|
           # TODO We're cheating on the `op` test here, and trusting that the types will line up.
-          info.key?(column) && op.nil? || info[column]['ops'].any? { |x| x['op'] == op }
+          if info.key?(column)
+            op.nil? || info[column]['ops'].any? { |x| x['op'] == op }
+          end
         end
       end
     end

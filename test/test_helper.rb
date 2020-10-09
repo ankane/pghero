@@ -41,7 +41,7 @@ users =
   5000.times.map do |i|
     country_id = rand(50)
     city_id = i % 100
-    zip_code = i % 40 == 0 ? nil : "12345"
+    zip_code = i % 40 == 0 ? nil : "1234#{rand(10)}"
 
     {
       city_id: city_id,

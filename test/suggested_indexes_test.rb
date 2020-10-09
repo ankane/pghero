@@ -91,6 +91,36 @@ class SuggestedIndexesTest < Minitest::Test
     assert_equal ['range'], result[:covering_index][:columns]
   end
 
+  def test_suggested_index_for_gist_range_index_at_gt
+    query = "SELECT * FROM users WHERE range @> '[0, 0]'"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+
+    assert_nil result[:covering_index], 'Incorrectly used GiST index to cover an unsupported operator'
+  end
+
+  def test_suggested_index_for_gist_tsvector_index_equality
+    query = "SELECT * FROM users WHERE ts_description = strip(ts_description)"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+
+    assert_nil result[:covering_index], 'Incorrectly used GiST index to cover an unsupported operator'
+  end
+
+  def test_suggested_index_for_gist_inet_index_equality
+    query = "SELECT * FROM users WHERE last_known_ip = '127.0.0.1'::inet"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+
+    assert result[:covering_index], 'Could not find covering GiST index for inet "=" operator'
+    assert_equal ['last_known_ip'], result[:covering_index][:columns]
+  end
+
+  def test_suggested_index_for_gist_inet_index_gt
+    query = "SELECT * FROM users WHERE last_known_ip > '127.0.0.1'::inet"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+
+    assert result[:covering_index], 'Could not find covering GiST index for inet ">" operator'
+    assert_equal ['last_known_ip'], result[:covering_index][:columns]
+  end
+
   def test_suggested_index_for_brin_index_equality
     query = "SELECT * FROM users WHERE created_at = NOW()"
     result = database.suggested_indexes_by_query(queries: [query])[query]

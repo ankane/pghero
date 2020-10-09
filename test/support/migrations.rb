@@ -40,6 +40,9 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.string :country
   t.column :path, :ltree
   t.column :range, :int4range
+  t.column :description, :text
+  t.column :ts_description, :tsvector
+  t.column :last_known_ip, :inet
   t.column :metadata, :jsonb
   t.timestamp :created_at
   t.timestamp :updated_at
@@ -49,6 +52,8 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.index :zip_code, using: :hash
   t.index :path, using: :gist
   t.index :range, using: :gist
+  t.index :ts_description, using: :gist
+  t.index 'last_known_ip inet_ops', using: :gist
   t.index :created_at, using: :brin
   t.index :metadata, using: :gin
 end
