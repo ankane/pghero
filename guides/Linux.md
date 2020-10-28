@@ -12,7 +12,7 @@
 ```sh
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/$(lsb_release -rs).repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/$(. /etc/os-release && echo $VERSION_ID).repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
@@ -25,7 +25,7 @@ Supports Ubuntu 20.04 (Focal), 18.04 (Bionic), and 16.04 (Xenial)
 sudo apt-get -y install apt-transport-https
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/$(lsb_release -rs).repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/$(. /etc/os-release && echo $VERSION_ID).repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
@@ -36,7 +36,7 @@ Supports Debian 10 (Buster), 9 (Stretch), and 8 (Jesse)
 
 ```sh
 sudo wget -O /etc/yum.repos.d/pghero.repo \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/el/$(lsb_release -rs).repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/el/$(. /etc/os-release && echo $VERSION_ID).repo
 sudo yum -y install pghero
 ```
 
