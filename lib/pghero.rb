@@ -113,7 +113,7 @@ module PgHero
 
           if !ENV["PGHERO_DATABASE_URL"] && spec_supported?
             ActiveRecord::Base.configurations.configs_for(env_name: env, include_replicas: true).each do |db|
-              databases[db.spec_name] = {"spec" => db.spec_name}
+              databases[db.send(spec_name_key)] = {"spec" => db.send(spec_name_key)}
             end
           end
 
@@ -214,6 +214,12 @@ module PgHero
     # private
     def connection_config(model)
       ActiveRecord::VERSION::STRING.to_f >= 6.1 ? model.connection_db_config.configuration_hash : model.connection_config
+    end
+
+    # Rails 6.1 deprecate `spec_name` and use `name` for configurations
+    # https://github.com/rails/rails/pull/38536
+    def spec_name_key
+      ActiveRecord::VERSION::MAJOR == 6 && ActiveRecord::VERSION::MINOR == 0 ? :spec_name : :name
     end
 
     private
