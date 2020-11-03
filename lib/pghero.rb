@@ -119,7 +119,7 @@ module PgHero
 
           if databases.empty?
             databases["primary"] = {
-              "url" => ENV["PGHERO_DATABASE_URL"] || ActiveRecord::Base.connection_config
+              "url" => ENV["PGHERO_DATABASE_URL"] || connection_config(ActiveRecord::Base)
             }
           end
 
@@ -209,6 +209,11 @@ module PgHero
     # private
     def spec_supported?
       ActiveRecord::VERSION::MAJOR >= 6
+    end
+
+    # private
+    def connection_config(model)
+      ActiveRecord::VERSION::STRING.to_f >= 6.1 ? model.connection_db_config.configuration_hash : model.connection_config
     end
 
     private
