@@ -154,6 +154,8 @@ module PgHero
         url = resolved.config
       end
 
+      url = url.dup
+
       Class.new(PgHero::Connection) do
         def self.name
           "PgHero::Connection::Database#{object_id}"
