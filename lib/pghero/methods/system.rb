@@ -144,7 +144,7 @@ module PgHero
 
         # validate input since we need to interpolate below
         raise Error, "Invalid metric name" unless metric_name =~ /\A[a-z\/_]+\z/i
-        raise Error, "Invalid database id" unless gcp_database_id =~ /\A[a-z\-:]+\z/i
+        raise Error, "Invalid database id" unless gcp_database_id =~ /\A[a-z0-9\-:]+\z/i
 
         # we handle three situations:
         # 1. google-cloud-monitoring-v3
