@@ -8,7 +8,7 @@ A performance dashboard for Postgres
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
-[![Build Status](https://travis-ci.org/ankane/pghero.svg?branch=master)](https://travis-ci.org/ankane/pghero) [![Docker Pulls](https://img.shields.io/docker/pulls/ankane/pghero)](https://hub.docker.com/repository/docker/ankane/pghero)
+[![Build Status](https://github.com/ankane/pghero/workflows/build/badge.svg?branch=master)](https://github.com/ankane/pghero/actions) [![Docker Pulls](https://img.shields.io/docker/pulls/ankane/pghero)](https://hub.docker.com/repository/docker/ankane/pghero)
 
 ## Installation
 
