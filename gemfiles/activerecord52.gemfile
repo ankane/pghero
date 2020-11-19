@@ -2,4 +2,10 @@ source "https://rubygems.org"
 
 gemspec path: ".."
 
+gem "minitest", ">= 5"
+gem "rake"
+
 gem "activerecord", "~> 5.2.0"
+gem "activerecord-import"
+gem "pg"
+gem "pg_query"
