@@ -1,4 +1,4 @@
-## 2.7.3 (unreleased)
+## 2.7.3 (2020-11-23)
 
 - Improved index suggestions when hash, GiST, GIN, or BRIN index present
 
