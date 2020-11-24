@@ -14,6 +14,11 @@ class SuggestedIndexesTest < Minitest::Test
     assert_equal [{table: "users", columns: ["email"]}], database.suggested_indexes.map { |q| q.except(:queries, :details) }
   end
 
+  def test_existing_index
+    User.where("updated_at > ?", Time.now).to_a
+    assert_equal [], database.suggested_indexes.map { |q| q.except(:queries, :details) }
+  end
+
   def test_primary_key
     query = "SELECT * FROM users WHERE id = 1"
     result = database.suggested_indexes_by_query(queries: [query])[query]
@@ -36,11 +41,6 @@ class SuggestedIndexesTest < Minitest::Test
     query = "SELECT * FROM users WHERE login_attempts > 1"
     result = database.suggested_indexes_by_query(queries: [query])[query]
     assert_nil result[:covering_index]
-  end
-
-  def test_existing_index
-    User.where("updated_at > ?", Time.now).to_a
-    assert_equal [], database.suggested_indexes.map { |q| q.except(:queries, :details) }
   end
 
   def test_gist_trgm
