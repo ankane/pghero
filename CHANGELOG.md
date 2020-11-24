@@ -1,6 +1,6 @@
 ## 2.7.3 (unreleased)
 
-- Improved index suggestions when hash or GiST index present
+- Improved index suggestions when hash, GiST, GIN, or BRIN index present
 
 ## 2.7.2 (2020-09-10)
 
