@@ -48,6 +48,8 @@ users =
       active: true,
       country: "Test #{rand(30)}",
       tree_path: "path#{rand(30)}",
+      range: (0..rand(5)),
+      metadata: {favorite_color: "red"},
       created_at: Time.now - rand(50).days,
       updated_at: Time.now - rand(50).days
     }

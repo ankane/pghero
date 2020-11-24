@@ -40,6 +40,8 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.boolean :active
   t.string :country
   t.column :tree_path, :ltree
+  t.column :range, :int4range
+  t.column :metadata, :jsonb
   t.timestamp :created_at
   t.timestamp :updated_at
   t.index :id # duplicate index
@@ -47,4 +49,7 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.index :login_attempts, using: :hash
   t.index "country gist_trgm_ops", using: :gist
   t.index :tree_path, using: :gist
+  t.index :range, using: :gist
+  t.index :created_at, using: :brin
+  t.index :metadata, using: :gin
 end

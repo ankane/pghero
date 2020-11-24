@@ -14,10 +14,28 @@ class SuggestedIndexesTest < Minitest::Test
     assert_equal [{table: "users", columns: ["email"]}], database.suggested_indexes.map { |q| q.except(:queries, :details) }
   end
 
+  def test_primary_key
+    query = "SELECT * FROM users WHERE id = 1"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+    assert_equal ["id"], result[:covering_index]
+  end
+
   def test_hash
     query = "SELECT * FROM users WHERE login_attempts = 1"
     result = database.suggested_indexes_by_query(queries: [query])[query]
     assert_equal ["login_attempts"], result[:covering_index]
+  end
+
+  def test_hash_multiple_values
+    query = "SELECT * FROM users WHERE login_attempts IN (1, 2)"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+    assert_equal ["login_attempts"], result[:covering_index]
+  end
+
+  def test_hash_greater_than
+    query = "SELECT * FROM users WHERE login_attempts > 1"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+    assert_nil result[:covering_index]
   end
 
   def test_existing_index
@@ -35,5 +53,29 @@ class SuggestedIndexesTest < Minitest::Test
     query = "SELECT * FROM users WHERE tree_path = 'path1'"
     result = database.suggested_indexes_by_query(queries: [query])[query]
     assert_equal ["tree_path"], result[:covering_index]
+  end
+
+  def test_range
+    query = "SELECT * FROM users WHERE range = '[0, 0]'"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+    assert_equal ["range"], result[:covering_index]
+  end
+
+  def test_brin
+    query = "SELECT * FROM users WHERE created_at = NOW()"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+    assert_equal ["created_at"], result[:covering_index]
+  end
+
+  def test_brin_order
+    query = "SELECT * FROM users ORDER BY created_at LIMIT 1"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+    assert_nil result[:covering_index]
+  end
+
+  def test_gin
+    query = "SELECT * FROM users WHERE metadata = '{}'::jsonb"
+    result = database.suggested_indexes_by_query(queries: [query])[query]
+    assert_nil result[:covering_index]
   end
 end
