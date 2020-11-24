@@ -41,6 +41,7 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.string :country
   t.column :tree_path, :ltree
   t.column :range, :int4range
+  t.column :last_known_ip, :inet
   t.column :metadata, :jsonb
   t.timestamp :created_at
   t.timestamp :updated_at
@@ -51,5 +52,6 @@ ActiveRecord::Migration.create_table :users, force: true do |t|
   t.index :tree_path, using: :gist
   t.index :range, using: :gist
   t.index :created_at, using: :brin
+  t.index "last_known_ip inet_ops", using: :gist
   t.index :metadata, using: :gin
 end
