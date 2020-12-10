@@ -12,7 +12,7 @@ jobs:
           gemfile: Gemfile
           postgres: 13
         - ruby: 2.7
-          gemfile: Gemfile
+          gemfile: gemfiles/activerecord60.gemfile
           postgres: 12
         - ruby: 2.6
           gemfile: gemfiles/activerecord52.gemfile
