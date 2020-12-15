@@ -16,7 +16,8 @@ module PgHero
           FROM
             pg_stat_activity
           WHERE
-            state <> 'idle'
+           #{server_version_num >= 100000 ? "backend_type NOT IN('walsender')" : "NOT EXISTS (SELECT 1 FROM pg_stat_replication r WHERE r.pid = pg_stat_activity.pid AND r.usesysid = pg_stat_activity.usesysid)"}            
+            AND state <> 'idle'
             AND pid <> pg_backend_pid()
             AND datname = current_database()
             #{min_duration ? "AND NOW() - COALESCE(query_start, xact_start) > interval '#{min_duration.to_i} seconds'" : nil}
