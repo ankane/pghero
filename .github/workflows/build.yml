@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby: 2.7
+        - ruby: 3.0
           gemfile: Gemfile
           postgres: 13
         - ruby: 2.7
