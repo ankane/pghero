@@ -119,10 +119,10 @@ module PgHero
     end
 
     # TODO remove in next major version
-    alias_method :access_key_id, :aws_access_key_id
-    alias_method :secret_access_key, :aws_secret_access_key
-    alias_method :region, :aws_region
-    alias_method :db_instance_identifier, :aws_db_instance_identifier
+    alias access_key_id aws_access_key_id
+    alias secret_access_key aws_secret_access_key
+    alias region aws_region
+    alias db_instance_identifier aws_db_instance_identifier
 
     private
 

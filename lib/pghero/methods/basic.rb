@@ -42,11 +42,11 @@ module PgHero
         retries = 0
         begin
           result = conn.select_all(add_source(squish(sql)))
-          if ActiveRecord::VERSION::STRING.to_f >= 6.1
-            result = result.map(&:symbolize_keys)
+          result = if ActiveRecord::VERSION::STRING.to_f >= 6.1
+            result.map(&:symbolize_keys)
           else
-            result = result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }
-          end
+            result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }
+                   end
           if filter_data
             query_columns.each do |column|
               result.each do |row|

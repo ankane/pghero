@@ -1,0 +1,7 @@
+version = 1
+
+test_patterns = ["/test/*_test.rb"]
+
+[[analyzers]]
+name = "ruby"
+enabled = true
