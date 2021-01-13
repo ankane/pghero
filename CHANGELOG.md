@@ -1,3 +1,7 @@
+## 2.7.4 (unreleased)
+
+- Fixed error on redirect with Ruby 3
+
 ## 2.7.3 (2020-11-23)
 
 - Improved index suggestions when hash, GiST, GIN, or BRIN index present
