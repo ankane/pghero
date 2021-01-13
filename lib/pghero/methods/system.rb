@@ -276,7 +276,6 @@ module PgHero
 
       def add_missing_data(data, start_time, end_time, period)
         time = start_time
-        end_time = end_time
         while time < end_time
           data[time] ||= nil
           time += period
