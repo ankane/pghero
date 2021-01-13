@@ -4,7 +4,7 @@ A performance dashboard for Postgres
 
 [See it in action](https://pghero.dokkuapp.com/)
 
-[![Screenshot](https://pghero.dokkuapp.com/assets/pghero-a09d6c90d3d5cbf90f437b792a9b0c89751054c5e10be57af4efb79feab2458b.png)](https://pghero.dokkuapp.com/)
+[![Screenshot](https://pghero.dokkuapp.com/assets/pghero-ebb9c8e11434fd0e4ead81db88fe255b29cbbc845ec315b79e6c5e25015bc921.png)](https://pghero.dokkuapp.com/)
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
