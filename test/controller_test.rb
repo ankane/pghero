@@ -66,4 +66,9 @@ class ControllerTest < ActionDispatch::IntegrationTest
     # post pg_hero.kill_path(pid: 1_000_000_000)
     # assert_redirected_to "/"
   end
+
+  def test_reset_query_stats
+    post pg_hero.reset_query_stats_path
+    assert_redirected_to "/"
+  end
 end
