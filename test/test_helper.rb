@@ -1,9 +1,9 @@
 require "bundler/setup"
+require "combustion"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "pg_query"
-require "active_record"
 require "activerecord-import"
 
 class Minitest::Test
@@ -13,11 +13,12 @@ class Minitest::Test
 end
 
 logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)
-ActiveRecord::Base.logger = logger
 
-ActiveRecord::Base.establish_connection adapter: "postgresql", database: "pghero_test"
-
-require_relative "support/migrations"
+Combustion.path = "test/internal"
+Combustion.initialize! :active_record, :action_controller do
+  config.action_controller.logger = logger
+  config.active_record.logger = logger
+end
 
 class City < ActiveRecord::Base
 end

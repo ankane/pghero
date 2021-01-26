@@ -7,5 +7,6 @@ gem "rake"
 
 gem "activerecord", "~> 5.0.0"
 gem "activerecord-import"
+gem "combustion"
 gem "pg"
 gem "pg_query", RUBY_VERSION.to_f < 2.5 ? "< 1.3.0" : nil
