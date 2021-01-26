@@ -373,11 +373,7 @@ module PgHero
     protected
 
     def redirect_backward(options = {})
-      if Rails.version >= "5.1"
-        redirect_back fallback_location: root_path, **options
-      else
-        redirect_to :back, options
-      end
+      redirect_back fallback_location: root_path, **options
     end
 
     def set_database
