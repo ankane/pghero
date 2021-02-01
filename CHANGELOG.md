@@ -1,4 +1,4 @@
-## 2.7.4 (unreleased)
+## 2.7.4 (2021-02-01)
 
 - Fixed error on redirect with Ruby 3
 - Fixed error with unparsable sequences
