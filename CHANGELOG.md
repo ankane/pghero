@@ -1,6 +1,7 @@
 ## 2.7.4 (unreleased)
 
 - Fixed error on redirect with Ruby 3
+- Fixed error with unparsable sequences
 
 ## 2.7.3 (2020-11-23)
 

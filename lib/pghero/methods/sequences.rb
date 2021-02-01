@@ -47,7 +47,8 @@ module PgHero
           end
         end
 
-        sequences.sort_by { |s| s[:sequence] }
+        # use to_s for unparsable sequences
+        sequences.sort_by { |s| s[:sequence].to_s }
       end
 
       def sequence_danger(threshold: 0.9, sequences: nil)
