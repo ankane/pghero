@@ -1,3 +1,7 @@
+## 2.7.5 (unreleased)
+
+- No longer show walsender in long running queries
+
 ## 2.7.4 (2021-02-01)
 
 - Fixed error on redirect with Ruby 3
