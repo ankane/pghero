@@ -12,7 +12,8 @@ module PgHero
             query,
             COALESCE(query_start, xact_start) AS started_at,
             EXTRACT(EPOCH FROM NOW() - COALESCE(query_start, xact_start)) * 1000.0 AS duration_ms,
-            usename AS user
+            usename AS user,
+            #{server_version_num >= 100000 ? "backend_type" : "NULL AS backend_type"}
           FROM
             pg_stat_activity
           WHERE

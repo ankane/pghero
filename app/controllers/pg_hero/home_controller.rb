@@ -34,7 +34,8 @@ module PgHero
         @inactive_replication_slots = @database.replication_slots.select { |r| !r[:active] }
       end
 
-      @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q[:query].starts_with?("autovacuum:") }
+      @walsender_queries, @long_running_queries_array = @database.long_running_queries.partition { |q| q[:backend_type]=="walsender"}
+      @autovacuum_queries, @long_running_queries = @long_running_queries_array.partition { |q| q[:query].starts_with?("autovacuum:") }
 
       connection_states = @database.connection_states
       @total_connections = connection_states.values.sum
