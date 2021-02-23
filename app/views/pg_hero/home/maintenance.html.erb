@@ -24,7 +24,7 @@
           <td>
             <% time = [table[:last_autovacuum], table[:last_vacuum]].compact.max %>
             <% if time %>
-              <%= l time.in_time_zone(@time_zone), format: "%d %b %Y %I:%M %p" %>
+              <%= l time.in_time_zone(@time_zone), format: "%d %b %Y %H:%M" %>
             <% else %>
               <span class="text-muted">Unknown</span>
             <% end %>
@@ -32,7 +32,7 @@
           <td>
             <% time = [table[:last_autoanalyze], table[:last_analyze]].compact.max %>
             <% if time %>
-              <%= l time.in_time_zone(@time_zone), format: "%d %b %Y %I:%M %p" %>
+              <%= l time.in_time_zone(@time_zone), format: "%d %b %Y %H:%M" %>
             <% else %>
               <span class="text-muted">Unknown</span>
             <% end %>
