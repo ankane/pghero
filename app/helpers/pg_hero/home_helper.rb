@@ -27,14 +27,14 @@ module PgHero
       ret
     end
 
-    def formatted_vacuum_times(time)
-      content_tag(:span, title: formatted_date_time(time)) do
+    def pghero_formatted_vacuum_times(time)
+      content_tag(:span, title: pghero_formatted_date_time(time)) do
         "#{time_ago_in_words(time.in_time_zone(@time_zone))} ago"
       end
     end
 
-    def formatted_date_time(time)
-      l time.in_time_zone(@time_zone), format: "%d %b %Y %H:%M"
+    def pghero_formatted_date_time(time)
+      l time.in_time_zone(@time_zone), format: :long
     end
   end
 end

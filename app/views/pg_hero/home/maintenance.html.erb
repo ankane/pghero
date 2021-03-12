@@ -24,7 +24,7 @@
           <td>
             <% time = [table[:last_autovacuum], table[:last_vacuum]].compact.max %>
             <% if time %>
-              <%= formatted_vacuum_times(time) %>
+              <%= pghero_formatted_vacuum_times(time) %>
             <% else %>
               <span class="text-muted">Unknown</span>
             <% end %>
@@ -32,7 +32,7 @@
           <td>
             <% time = [table[:last_autoanalyze], table[:last_analyze]].compact.max %>
             <% if time %>
-              <%= formatted_vacuum_times(time) %>
+              <%= pghero_formatted_vacuum_times(time) %>
             <% else %>
               <span class="text-muted">Unknown</span>
             <% end %>
