@@ -2,6 +2,7 @@
 
 - No longer show walsender in long running queries
 - Show relative time on maintenance page
+- Added support for `PGHERO_TZ` for Docker and Linux
 
 ## 2.7.4 (2021-02-01)
 
