@@ -1,6 +1,7 @@
-## 2.7.5 (unreleased)
+## 2.8.0 (unreleased)
 
 - No longer show walsender in long running queries
+- Show relative time on maintenance page
 
 ## 2.7.4 (2021-02-01)
 
