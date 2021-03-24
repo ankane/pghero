@@ -33,7 +33,9 @@
           <% unless @database.filter_data %>
             <%= button_to "Explain", explain_path, params: {query: query[:query]}, form: {target: "_blank"}, class: "btn btn-info" %>
           <% end %>
-          <%= button_to "Kill", kill_path(pid: query[:pid]), class: "btn btn-danger" %>
+          <% unless @database.kill_enabled %>
+            <%= button_to "Kill", kill_path(pid: query[:pid]), class: "btn btn-danger" %>
+          <% end %>
         </td>
       </tr>
       <tr>

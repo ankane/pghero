@@ -94,6 +94,11 @@ module PgHero
       @azure_resource_id ||= config["azure_resource_id"]
     end
 
+    # environment variable for to enable/disable kill option
+    def kill_enabled
+      PgHero.config.key?("kill_enabled")
+    end
+
     # must check keys for booleans
     def filter_data
       unless defined?(@filter_data)
