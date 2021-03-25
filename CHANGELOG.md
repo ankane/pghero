@@ -1,3 +1,7 @@
+## 2.8.1 (unreleased)
+
+- Added support for pg_query 2.0
+
 ## 2.8.0 (2021-03-14)
 
 - No longer show walsender in long running queries
