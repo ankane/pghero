@@ -223,7 +223,7 @@ module PgHero
             return {error: error || "Unknown structure"}
           end
 
-          select = tree.send(tree.node)
+          select = tree[tree.node.to_s]
           where = (select.where_clause ? parse_where_v2(select.where_clause) : []) rescue nil
           return {error: "Unknown structure"} unless where
 
