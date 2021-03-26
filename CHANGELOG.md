@@ -1,6 +1,6 @@
-## 2.8.1 (unreleased)
+## 2.8.1 (2021-03-25)
 
-- Added support for pg_query 2.0
+- Added support for pg_query 2
 
 ## 2.8.0 (2021-03-14)
 
