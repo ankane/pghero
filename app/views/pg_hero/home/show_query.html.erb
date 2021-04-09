@@ -61,7 +61,7 @@
     <h1>Calls</h1>
     <div id="chart-3" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
-      new Chartkick.LineChart("chart-3", <%= json_escape(@chart3_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false, library: {plugins: {tooltips: {intersect: false, mode: "index"}}}})
+      new Chartkick.LineChart("chart-3", <%= json_escape(@chart3_data.to_json).html_safe %>, {colors: ["#5bc0de"], legend: false, library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
     </script>
   <% else %>
     <p>
