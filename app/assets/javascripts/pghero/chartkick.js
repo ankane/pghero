@@ -1,15 +1,15 @@
-/*
+/*!
  * Chartkick.js
  * Create beautiful charts with one line of JavaScript
  * https://github.com/ankane/chartkick.js
- * v3.2.0
+ * v4.0.2
  * MIT License
  */
 
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.Chartkick = factory());
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Chartkick = factory());
 }(this, (function () { 'use strict';
 
   function isArray(variable) {
@@ -55,42 +55,6 @@
 
   var DATE_PATTERN = /^(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)$/i;
 
-  // https://github.com/Do/iso8601.js
-  var ISO8601_PATTERN = /(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)(T)?(\d\d)(:)?(\d\d)?(:)?(\d\d)?([.,]\d+)?($|Z|([+-])(\d\d)(:)?(\d\d)?)/i;
-  var DECIMAL_SEPARATOR = String(1.5).charAt(1);
-
-  function parseISO8601(input) {
-    var day, hour, matches, milliseconds, minutes, month, offset, result, seconds, type, year;
-    type = Object.prototype.toString.call(input);
-    if (type === "[object Date]") {
-      return input;
-    }
-    if (type !== "[object String]") {
-      return;
-    }
-    matches = input.match(ISO8601_PATTERN);
-    if (matches) {
-      year = parseInt(matches[1], 10);
-      month = parseInt(matches[3], 10) - 1;
-      day = parseInt(matches[5], 10);
-      hour = parseInt(matches[7], 10);
-      minutes = matches[9] ? parseInt(matches[9], 10) : 0;
-      seconds = matches[11] ? parseInt(matches[11], 10) : 0;
-      milliseconds = matches[12] ? parseFloat(DECIMAL_SEPARATOR + matches[12].slice(1)) * 1000 : 0;
-      result = Date.UTC(year, month, day, hour, minutes, seconds, milliseconds);
-      if (matches[13] && matches[14]) {
-        offset = matches[15] * 60;
-        if (matches[17]) {
-          offset += parseInt(matches[17], 10);
-        }
-        offset *= matches[14] === "-" ? -1 : 1;
-        result -= offset * 60 * 1000;
-      }
-      return new Date(result);
-    }
-  }
-  // end iso8601.js
-
   function negativeValues(series) {
     var i, j, data;
     for (i = 0; i < series.length; i++) {
@@ -120,15 +84,16 @@
       } else {
         n = toStr(n);
         if ((matches = n.match(DATE_PATTERN))) {
-        year = parseInt(matches[1], 10);
-        month = parseInt(matches[3], 10) - 1;
-        day = parseInt(matches[5], 10);
-        return new Date(year, month, day);
-        } else { // str
+          year = parseInt(matches[1], 10);
+          month = parseInt(matches[3], 10) - 1;
+          day = parseInt(matches[5], 10);
+          return new Date(year, month, day);
+        } else {
           // try our best to get the str into iso8601
           // TODO be smarter about this
           var str = n.replace(/ /, "T").replace(" ", "").replace("UTC", "Z");
-          n = parseISO8601(str) || new Date(n);
+          // Date.parse returns milliseconds if valid and NaN if invalid
+          n = new Date(Date.parse(str) || n);
         }
       }
     }
@@ -154,8 +119,8 @@
       var options = merge({}, defaultOptions);
       options = merge(options, chartOptions || {});
 
-      if (chart.hideLegend || "legend" in opts) {
-        hideLegend(options, opts.legend, chart.hideLegend);
+      if (chart.singleSeriesFormat || "legend" in opts) {
+        hideLegend(options, opts.legend, chart.singleSeriesFormat);
       }
 
       if (opts.title) {
@@ -361,42 +326,49 @@
   var baseOptions = {
     maintainAspectRatio: false,
     animation: false,
-    tooltips: {
-      displayColors: false,
-      callbacks: {}
+    plugins: {
+      legend: {},
+      tooltip: {
+        displayColors: false,
+        callbacks: {}
+      },
+      title: {
+        font: {
+          size: 20
+        },
+        color: "#333"
+      }
     },
-    legend: {},
-    title: {fontSize: 20, fontColor: "#333"}
+    interaction: {}
   };
 
-  var defaultOptions = {
+  var defaultOptions$2 = {
     scales: {
-      yAxes: [
-        {
-          ticks: {
-            maxTicksLimit: 4
+      y: {
+        ticks: {
+          maxTicksLimit: 4
+        },
+        title: {
+          font: {
+            size: 16
           },
-          scaleLabel: {
-            fontSize: 16,
-            // fontStyle: "bold",
-            fontColor: "#333"
-          }
-        }
-      ],
-      xAxes: [
-        {
-          gridLines: {
-            drawOnChartArea: false
+          color: "#333"
+        },
+        grid: {}
+      },
+      x: {
+        grid: {
+          drawOnChartArea: false
+        },
+        title: {
+          font: {
+            size: 16
           },
-          scaleLabel: {
-            fontSize: 16,
-            // fontStyle: "bold",
-            fontColor: "#333"
-          },
-          time: {},
-          ticks: {}
-        }
-      ]
+          color: "#333"
+        },
+        time: {},
+        ticks: {}
+      }
     }
   };
 
@@ -407,66 +379,66 @@
     "#6633CC", "#E67300", "#8B0707", "#329262", "#5574A6", "#651067"
   ];
 
-  var hideLegend = function (options, legend, hideLegend) {
+  var hideLegend$2 = function (options, legend, hideLegend) {
     if (legend !== undefined) {
-      options.legend.display = !!legend;
+      options.plugins.legend.display = !!legend;
       if (legend && legend !== true) {
-        options.legend.position = legend;
+        options.plugins.legend.position = legend;
       }
     } else if (hideLegend) {
-      options.legend.display = false;
+      options.plugins.legend.display = false;
     }
   };
 
-  var setTitle = function (options, title) {
-    options.title.display = true;
-    options.title.text = title;
+  var setTitle$2 = function (options, title) {
+    options.plugins.title.display = true;
+    options.plugins.title.text = title;
   };
 
-  var setMin = function (options, min) {
+  var setMin$2 = function (options, min) {
     if (min !== null) {
-      options.scales.yAxes[0].ticks.min = toFloat(min);
+      options.scales.y.min = toFloat(min);
     }
   };
 
-  var setMax = function (options, max) {
-    options.scales.yAxes[0].ticks.max = toFloat(max);
+  var setMax$2 = function (options, max) {
+    options.scales.y.max = toFloat(max);
   };
 
-  var setBarMin = function (options, min) {
+  var setBarMin$1 = function (options, min) {
     if (min !== null) {
-      options.scales.xAxes[0].ticks.min = toFloat(min);
+      options.scales.x.min = toFloat(min);
     }
   };
 
-  var setBarMax = function (options, max) {
-    options.scales.xAxes[0].ticks.max = toFloat(max);
+  var setBarMax$1 = function (options, max) {
+    options.scales.x.max = toFloat(max);
   };
 
-  var setStacked = function (options, stacked) {
-    options.scales.xAxes[0].stacked = !!stacked;
-    options.scales.yAxes[0].stacked = !!stacked;
+  var setStacked$2 = function (options, stacked) {
+    options.scales.x.stacked = !!stacked;
+    options.scales.y.stacked = !!stacked;
   };
 
-  var setXtitle = function (options, title) {
-    options.scales.xAxes[0].scaleLabel.display = true;
-    options.scales.xAxes[0].scaleLabel.labelString = title;
+  var setXtitle$2 = function (options, title) {
+    options.scales.x.title.display = true;
+    options.scales.x.title.text = title;
   };
 
-  var setYtitle = function (options, title) {
-    options.scales.yAxes[0].scaleLabel.display = true;
-    options.scales.yAxes[0].scaleLabel.labelString = title;
+  var setYtitle$2 = function (options, title) {
+    options.scales.y.title.display = true;
+    options.scales.y.title.text = title;
   };
 
   // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-  var addOpacity = function(hex, opacity) {
+  var addOpacity = function (hex, opacity) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? "rgba(" + parseInt(result[1], 16) + ", " + parseInt(result[2], 16) + ", " + parseInt(result[3], 16) + ", " + opacity + ")" : hex;
   };
 
   // check if not null or undefined
   // https://stackoverflow.com/a/27757708/1177228
-  var notnull = function(x) {
+  var notnull = function (x) {
     return x != null;
   };
 
@@ -477,9 +449,9 @@
     } else if (maxLabelSize < 10) {
       maxLabelSize = 10;
     }
-    if (!options.scales.xAxes[0].ticks.callback) {
-      options.scales.xAxes[0].ticks.callback = function (value) {
-        value = toStr(value);
+    if (!options.scales.x.ticks.callback) {
+      options.scales.x.ticks.callback = function (value) {
+        value = toStr(this.getLabelForValue(value));
         if (value.length > maxLabelSize) {
           return value.substring(0, maxLabelSize - 2) + "...";
         } else {
@@ -489,7 +461,7 @@
     }
   };
 
-  var setFormatOptions = function(chart, options, chartType) {
+  var setFormatOptions$1 = function (chart, options, chartType) {
     var formatOptions = {
       prefix: chart.options.prefix,
       suffix: chart.options.suffix,
@@ -529,49 +501,49 @@
     }
 
     if (chartType !== "pie") {
-      var myAxes = options.scales.yAxes;
+      var axis = options.scales.y;
       if (chartType === "bar") {
-        myAxes = options.scales.xAxes;
+        axis = options.scales.x;
       }
 
       if (formatOptions.byteScale) {
-        if (!myAxes[0].ticks.stepSize) {
-          myAxes[0].ticks.stepSize = formatOptions.byteScale / 2;
+        if (!axis.ticks.stepSize) {
+          axis.ticks.stepSize = formatOptions.byteScale / 2;
         }
-        if (!myAxes[0].ticks.maxTicksLimit) {
-          myAxes[0].ticks.maxTicksLimit = 4;
+        if (!axis.ticks.maxTicksLimit) {
+          axis.ticks.maxTicksLimit = 4;
         }
       }
 
-      if (!myAxes[0].ticks.callback) {
-        myAxes[0].ticks.callback = function (value) {
+      if (!axis.ticks.callback) {
+        axis.ticks.callback = function (value) {
           return formatValue("", value, formatOptions, true);
         };
       }
     }
 
-    if (!options.tooltips.callbacks.label) {
+    if (!options.plugins.tooltip.callbacks.label) {
       if (chartType === "scatter") {
-        options.tooltips.callbacks.label = function (item, data) {
-          var label = data.datasets[item.datasetIndex].label || '';
+        options.plugins.tooltip.callbacks.label = function (context) {
+          var label = context.dataset.label || '';
           if (label) {
             label += ': ';
           }
-          return label + '(' + item.xLabel + ', ' + item.yLabel + ')';
+          return label + '(' + context.label + ', ' + context.formattedValue + ')';
         };
       } else if (chartType === "bubble") {
-        options.tooltips.callbacks.label = function (item, data) {
-          var label = data.datasets[item.datasetIndex].label || '';
+        options.plugins.tooltip.callbacks.label = function (context) {
+          var label = context.dataset.label || '';
           if (label) {
             label += ': ';
           }
-          var dataPoint = data.datasets[item.datasetIndex].data[item.index];
-          return label + '(' + item.xLabel + ', ' + item.yLabel + ', ' + dataPoint.v + ')';
+          var dataPoint = context.raw;
+          return label + '(' + dataPoint.x + ', ' + dataPoint.y + ', ' + dataPoint.v + ')';
         };
       } else if (chartType === "pie") {
         // need to use separate label for pie charts
-        options.tooltips.callbacks.label = function (tooltipItem, data) {
-          var dataLabel = data.labels[tooltipItem.index];
+        options.plugins.tooltip.callbacks.label = function (context) {
+          var dataLabel = context.label;
           var value = ': ';
 
           if (isArray(dataLabel)) {
@@ -583,24 +555,24 @@
             dataLabel += value;
           }
 
-          return formatValue(dataLabel, data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index], formatOptions);
+          return formatValue(dataLabel, context.parsed, formatOptions);
         };
       } else {
-        var valueLabel = chartType === "bar" ? "xLabel" : "yLabel";
-        options.tooltips.callbacks.label = function (tooltipItem, data) {
-          var label = data.datasets[tooltipItem.datasetIndex].label || '';
+        var valueLabel = chartType === "bar" ? "x" : "y";
+        options.plugins.tooltip.callbacks.label = function (context) {
+          var label = context.dataset.label || '';
           if (label) {
             label += ': ';
           }
-          return formatValue(label, tooltipItem[valueLabel], formatOptions);
+          return formatValue(label, context.parsed[valueLabel], formatOptions);
         };
       }
     }
   };
 
-  var jsOptions = jsOptionsFunc(merge(baseOptions, defaultOptions), hideLegend, setTitle, setMin, setMax, setStacked, setXtitle, setYtitle);
+  var jsOptions$2 = jsOptionsFunc(merge(baseOptions, defaultOptions$2), hideLegend$2, setTitle$2, setMin$2, setMax$2, setStacked$2, setXtitle$2, setYtitle$2);
 
-  var createDataTable = function (chart, options, chartType, library) {
+  var createDataTable = function (chart, options, chartType) {
     var datasets = [];
     var labels = [];
 
@@ -702,11 +674,23 @@
       }
     }
 
+    var color;
+    var backgroundColor;
+
     for (i = 0; i < series.length; i++) {
       s = series[i];
 
-      var color = s.color || colors[i];
-      var backgroundColor = chartType !== "line" ? addOpacity(color, 0.5) : color;
+      // use colors for each bar for single series format
+      if (chart.options.colors && chart.singleSeriesFormat && (chartType === "bar" || chartType === "column") && !s.color) {
+        color = colors;
+        backgroundColor = [];
+        for (var j$3 = 0; j$3 < colors.length; j$3++) {
+          backgroundColor[j$3] = addOpacity(color[j$3], 0.5);
+        }
+      } else {
+        color = s.color || colors[i];
+        backgroundColor = chartType !== "line" ? addOpacity(color, 0.5) : color;
+      }
 
       var dataset = {
         label: s.name || "",
@@ -714,10 +698,21 @@
         fill: chartType === "area",
         borderColor: color,
         backgroundColor: backgroundColor,
-        pointBackgroundColor: color,
-        borderWidth: 2,
-        pointHoverBackgroundColor: color
+        borderWidth: 2
       };
+
+      var pointChart = chartType === "line" || chartType === "area" || chartType === "scatter" || chartType === "bubble";
+      if (pointChart) {
+        dataset.pointBackgroundColor = color;
+        dataset.pointHoverBackgroundColor = color;
+        dataset.pointHitRadius = 50;
+      }
+
+      if (chartType === "bubble") {
+        dataset.pointBackgroundColor = backgroundColor;
+        dataset.pointHoverBackgroundColor = backgroundColor;
+        dataset.pointHoverBorderWidth = 2;
+      }
 
       if (s.stack) {
         dataset.stack = s.stack;
@@ -725,13 +720,15 @@
 
       var curve = seriesOption(chart, s, "curve");
       if (curve === false) {
-        dataset.lineTension = 0;
+        dataset.tension = 0;
+      } else if (pointChart) {
+        dataset.tension = 0.4;
       }
 
       var points = seriesOption(chart, s, "points");
       if (points === false) {
         dataset.pointRadius = 0;
-        dataset.pointHitRadius = 5;
+        dataset.pointHoverRadius = 0;
       }
 
       dataset = merge(dataset, chart.options.dataset || {});
@@ -745,23 +742,35 @@
     var xmax = chart.options.xmax;
 
     if (chart.xtype === "datetime") {
-      // hacky check for Chart.js >= 2.9.0
-      // https://github.com/chartjs/Chart.js/compare/v2.8.0...v2.9.0
-      var gte29 = "math" in library.helpers;
-      var ticksKey = gte29 ? "ticks" : "time";
       if (notnull(xmin)) {
-        options.scales.xAxes[0][ticksKey].min = toDate(xmin).getTime();
+        options.scales.x.ticks.min = toDate(xmin).getTime();
       }
       if (notnull(xmax)) {
-        options.scales.xAxes[0][ticksKey].max = toDate(xmax).getTime();
+        options.scales.x.ticks.max = toDate(xmax).getTime();
       }
     } else if (chart.xtype === "number") {
       if (notnull(xmin)) {
-        options.scales.xAxes[0].ticks.min = xmin;
+        options.scales.x.ticks.min = xmin;
       }
       if (notnull(xmax)) {
-        options.scales.xAxes[0].ticks.max = xmax;
+        options.scales.x.ticks.max = xmax;
       }
+    }
+
+    // for empty datetime chart
+    if (chart.xtype === "datetime" && labels.length === 0) {
+      if (notnull(xmin)) {
+        labels.push(toDate(xmin));
+      }
+      if (notnull(xmax)) {
+        labels.push(toDate(xmax));
+      }
+      day = false;
+      week = false;
+      month = false;
+      year = false;
+      hour = false;
+      minute = false;
     }
 
     if (chart.xtype === "datetime" && labels.length > 0) {
@@ -780,24 +789,24 @@
 
       var timeDiff = (maxTime - minTime) / (86400 * 1000.0);
 
-      if (!options.scales.xAxes[0].time.unit) {
+      if (!options.scales.x.time.unit) {
         var step;
         if (year || timeDiff > 365 * 10) {
-          options.scales.xAxes[0].time.unit = "year";
+          options.scales.x.time.unit = "year";
           step = 365;
         } else if (month || timeDiff > 30 * 10) {
-          options.scales.xAxes[0].time.unit = "month";
+          options.scales.x.time.unit = "month";
           step = 30;
         } else if (day || timeDiff > 10) {
-          options.scales.xAxes[0].time.unit = "day";
+          options.scales.x.time.unit = "day";
           step = 1;
         } else if (hour || timeDiff > 0.5) {
-          options.scales.xAxes[0].time.displayFormats = {hour: "MMM D, h a"};
-          options.scales.xAxes[0].time.unit = "hour";
+          options.scales.x.time.displayFormats = {hour: "MMM d, h a"};
+          options.scales.x.time.unit = "hour";
           step = 1 / 24.0;
         } else if (minute) {
-          options.scales.xAxes[0].time.displayFormats = {minute: "h:mm a"};
-          options.scales.xAxes[0].time.unit = "minute";
+          options.scales.x.time.displayFormats = {minute: "h:mm a"};
+          options.scales.x.time.unit = "minute";
           step = 1 / 24.0 / 60.0;
         }
 
@@ -806,17 +815,17 @@
           if (week && step === 1) {
             unitStepSize = Math.ceil(unitStepSize / 7.0) * 7;
           }
-          options.scales.xAxes[0].time.unitStepSize = unitStepSize;
+          options.scales.x.time.stepSize = unitStepSize;
         }
       }
 
-      if (!options.scales.xAxes[0].time.tooltipFormat) {
+      if (!options.scales.x.time.tooltipFormat) {
         if (day) {
-          options.scales.xAxes[0].time.tooltipFormat = "ll";
+          options.scales.x.time.tooltipFormat = "PP";
         } else if (hour) {
-          options.scales.xAxes[0].time.tooltipFormat = "MMM D, h a";
+          options.scales.x.time.tooltipFormat = "MMM d, h a";
         } else if (minute) {
-          options.scales.xAxes[0].time.tooltipFormat = "h:mm a";
+          options.scales.x.time.tooltipFormat = "h:mm a";
         }
       }
     }
@@ -829,49 +838,49 @@
     return data;
   };
 
-  var defaultExport = function defaultExport(library) {
+  var defaultExport$2 = function defaultExport(library) {
     this.name = "chartjs";
     this.library = library;
   };
 
-  defaultExport.prototype.renderLineChart = function renderLineChart (chart, chartType) {
+  defaultExport$2.prototype.renderLineChart = function renderLineChart (chart, chartType) {
     var chartOptions = {};
     // fix for https://github.com/chartjs/Chart.js/issues/2441
     if (!chart.options.max && allZeros(chart.data)) {
       chartOptions.max = 1;
     }
 
-    var options = jsOptions(chart, merge(chartOptions, chart.options));
-    setFormatOptions(chart, options, chartType);
+    var options = jsOptions$2(chart, merge(chartOptions, chart.options));
+    setFormatOptions$1(chart, options, chartType);
 
-    var data = createDataTable(chart, options, chartType || "line", this.library);
+    var data = createDataTable(chart, options, chartType || "line");
 
     if (chart.xtype === "number") {
-      options.scales.xAxes[0].type = "linear";
-      options.scales.xAxes[0].position = "bottom";
+      options.scales.x.type = "linear";
+      options.scales.x.position = "bottom";
     } else {
-      options.scales.xAxes[0].type = chart.xtype === "string" ? "category" : "time";
+      options.scales.x.type = chart.xtype === "string" ? "category" : "time";
     }
 
     this.drawChart(chart, "line", data, options);
   };
 
-  defaultExport.prototype.renderPieChart = function renderPieChart (chart) {
+  defaultExport$2.prototype.renderPieChart = function renderPieChart (chart) {
     var options = merge({}, baseOptions);
     if (chart.options.donut) {
-      options.cutoutPercentage = 50;
+      options.cutout = "50%";
     }
 
     if ("legend" in chart.options) {
-      hideLegend(options, chart.options.legend);
+      hideLegend$2(options, chart.options.legend);
     }
 
     if (chart.options.title) {
-      setTitle(options, chart.options.title);
+      setTitle$2(options, chart.options.title);
     }
 
     options = merge(options, chart.options.library || {});
-    setFormatOptions(chart, options, "pie");
+    setFormatOptions$1(chart, options, "pie");
 
     var labels = [];
     var values = [];
@@ -895,61 +904,73 @@
     this.drawChart(chart, "pie", data, options);
   };
 
-  defaultExport.prototype.renderColumnChart = function renderColumnChart (chart, chartType) {
+  defaultExport$2.prototype.renderColumnChart = function renderColumnChart (chart, chartType) {
     var options;
     if (chartType === "bar") {
-      var barOptions = merge(baseOptions, defaultOptions);
-      delete barOptions.scales.yAxes[0].ticks.maxTicksLimit;
-      options = jsOptionsFunc(barOptions, hideLegend, setTitle, setBarMin, setBarMax, setStacked, setXtitle, setYtitle)(chart, chart.options);
+      var barOptions = merge(baseOptions, defaultOptions$2);
+      barOptions.indexAxis = "y";
+
+      // ensure gridlines have proper orientation
+      barOptions.scales.x.grid.drawOnChartArea = true;
+      barOptions.scales.y.grid.drawOnChartArea = false;
+      delete barOptions.scales.y.ticks.maxTicksLimit;
+
+      options = jsOptionsFunc(barOptions, hideLegend$2, setTitle$2, setBarMin$1, setBarMax$1, setStacked$2, setXtitle$2, setYtitle$2)(chart, chart.options);
     } else {
-      options = jsOptions(chart, chart.options);
+      options = jsOptions$2(chart, chart.options);
     }
-    setFormatOptions(chart, options, chartType);
-    var data = createDataTable(chart, options, "column", this.library);
+    setFormatOptions$1(chart, options, chartType);
+    var data = createDataTable(chart, options, "column");
     if (chartType !== "bar") {
       setLabelSize(chart, data, options);
     }
-    this.drawChart(chart, (chartType === "bar" ? "horizontalBar" : "bar"), data, options);
+    this.drawChart(chart, "bar", data, options);
   };
 
-  defaultExport.prototype.renderAreaChart = function renderAreaChart (chart) {
+  defaultExport$2.prototype.renderAreaChart = function renderAreaChart (chart) {
     this.renderLineChart(chart, "area");
   };
 
-  defaultExport.prototype.renderBarChart = function renderBarChart (chart) {
+  defaultExport$2.prototype.renderBarChart = function renderBarChart (chart) {
     this.renderColumnChart(chart, "bar");
   };
 
-  defaultExport.prototype.renderScatterChart = function renderScatterChart (chart, chartType) {
+  defaultExport$2.prototype.renderScatterChart = function renderScatterChart (chart, chartType) {
     chartType = chartType || "scatter";
 
-    var options = jsOptions(chart, chart.options);
-    setFormatOptions(chart, options, chartType);
+    var options = jsOptions$2(chart, chart.options);
+    setFormatOptions$1(chart, options, chartType);
 
-    if (!("showLines" in options)) {
-      options.showLines = false;
+    if (!("showLine" in options)) {
+      options.showLine = false;
     }
 
-    var data = createDataTable(chart, options, chartType, this.library);
+    var data = createDataTable(chart, options, chartType);
 
-    options.scales.xAxes[0].type = "linear";
-    options.scales.xAxes[0].position = "bottom";
+    options.scales.x.type = "linear";
+    options.scales.x.position = "bottom";
+
+    // prevent grouping hover and tooltips
+    if (!("mode" in options.interaction)) {
+      options.interaction.mode = "nearest";
+    }
 
     this.drawChart(chart, chartType, data, options);
   };
 
-  defaultExport.prototype.renderBubbleChart = function renderBubbleChart (chart) {
+  defaultExport$2.prototype.renderBubbleChart = function renderBubbleChart (chart) {
     this.renderScatterChart(chart, "bubble");
   };
 
-  defaultExport.prototype.destroy = function destroy (chart) {
+  defaultExport$2.prototype.destroy = function destroy (chart) {
     if (chart.chart) {
       chart.chart.destroy();
     }
   };
 
-  defaultExport.prototype.drawChart = function drawChart (chart, type, data, options) {
+  defaultExport$2.prototype.drawChart = function drawChart (chart, type, data, options) {
     this.destroy(chart);
+    if (chart.destroyed) { return; }
 
     var chartOptions = {
       type: type,
@@ -1008,6 +1029,9 @@
       series: {
         marker: {}
       }
+    },
+    time: {
+      useUTC: false
     }
   };
 
@@ -1057,7 +1081,7 @@
 
   var jsOptions$1 = jsOptionsFunc(defaultOptions$1, hideLegend$1, setTitle$1, setMin$1, setMax$1, setStacked$1, setXtitle$1, setYtitle$1);
 
-  var setFormatOptions$1 = function(chart, options, chartType) {
+  var setFormatOptions = function(chart, options, chartType) {
     var formatOptions = {
       prefix: chart.options.prefix,
       suffix: chart.options.suffix,
@@ -1120,7 +1144,7 @@
     if (!options.chart.type) {
       options.chart.type = chartType;
     }
-    setFormatOptions$1(chart, options, chartType);
+    setFormatOptions(chart, options, chartType);
 
     var series = chart.data;
     for (i = 0; i < series.length; i++) {
@@ -1165,7 +1189,7 @@
     }
 
     var options = merge(chartOptions, chart.options.library || {});
-    setFormatOptions$1(chart, options, "pie");
+    setFormatOptions(chart, options, "pie");
     var series = [{
       type: "pie",
       name: chart.options.label || "Value",
@@ -1180,7 +1204,7 @@
     var series = chart.data;
     var options = jsOptions$1(chart, chart.options), i, j, s, d, rows = [], categories = [];
     options.chart.type = chartType;
-    setFormatOptions$1(chart, options, chartType);
+    setFormatOptions(chart, options, chartType);
 
     for (i = 0; i < series.length; i++) {
       s = series[i];
@@ -1238,6 +1262,7 @@
 
   defaultExport$1.prototype.drawChart = function drawChart (chart, data, options) {
     this.destroy(chart);
+    if (chart.destroyed) { return; }
 
     options.chart.renderTo = chart.element.id;
     options.series = data;
@@ -1253,7 +1278,7 @@
   var callbacks = [];
 
   // Set chart options
-  var defaultOptions$2 = {
+  var defaultOptions = {
     chartArea: {},
     fontName: "'Lucida Grande', 'Lucida Sans Unicode', Verdana, Arial, Helvetica, sans-serif",
     pointSize: 6,
@@ -1295,7 +1320,7 @@
     }
   };
 
-  var hideLegend$2 = function (options, legend, hideLegend) {
+  var hideLegend = function (options, legend, hideLegend) {
     if (legend !== undefined) {
       var position;
       if (!legend) {
@@ -1311,42 +1336,42 @@
     }
   };
 
-  var setTitle$2 = function (options, title) {
+  var setTitle = function (options, title) {
     options.title = title;
     options.titleTextStyle = {color: "#333", fontSize: "20px"};
   };
 
-  var setMin$2 = function (options, min) {
+  var setMin = function (options, min) {
     options.vAxis.viewWindow.min = min;
   };
 
-  var setMax$2 = function (options, max) {
+  var setMax = function (options, max) {
     options.vAxis.viewWindow.max = max;
   };
 
-  var setBarMin$1 = function (options, min) {
+  var setBarMin = function (options, min) {
     options.hAxis.viewWindow.min = min;
   };
 
-  var setBarMax$1 = function (options, max) {
+  var setBarMax = function (options, max) {
     options.hAxis.viewWindow.max = max;
   };
 
-  var setStacked$2 = function (options, stacked) {
+  var setStacked = function (options, stacked) {
     options.isStacked = stacked ? stacked : false;
   };
 
-  var setXtitle$2 = function (options, title) {
+  var setXtitle = function (options, title) {
     options.hAxis.title = title;
     options.hAxis.titleTextStyle.italic = false;
   };
 
-  var setYtitle$2 = function (options, title) {
+  var setYtitle = function (options, title) {
     options.vAxis.title = title;
     options.vAxis.titleTextStyle.italic = false;
   };
 
-  var jsOptions$2 = jsOptionsFunc(defaultOptions$2, hideLegend$2, setTitle$2, setMin$2, setMax$2, setStacked$2, setXtitle$2, setYtitle$2);
+  var jsOptions = jsOptionsFunc(defaultOptions, hideLegend, setTitle, setMin, setMax, setStacked, setXtitle, setYtitle);
 
   var resize = function (callback) {
     if (window.attachEvent) {
@@ -1357,12 +1382,12 @@
     callback();
   };
 
-  var defaultExport$2 = function defaultExport(library) {
+  var defaultExport = function defaultExport(library) {
     this.name = "google";
     this.library = library;
   };
 
-  defaultExport$2.prototype.renderLineChart = function renderLineChart (chart) {
+  defaultExport.prototype.renderLineChart = function renderLineChart (chart) {
       var this$1 = this;
 
     this.waitForLoaded(chart, function () {
@@ -1376,14 +1401,14 @@
         chartOptions.pointSize = 0;
       }
 
-      var options = jsOptions$2(chart, chart.options, chartOptions);
+      var options = jsOptions(chart, chart.options, chartOptions);
       var data = this$1.createDataTable(chart.data, chart.xtype);
 
       this$1.drawChart(chart, "LineChart", data, options);
     });
   };
 
-  defaultExport$2.prototype.renderPieChart = function renderPieChart (chart) {
+  defaultExport.prototype.renderPieChart = function renderPieChart (chart) {
       var this$1 = this;
 
     this.waitForLoaded(chart, function () {
@@ -1401,12 +1426,12 @@
         chartOptions.pieHole = 0.5;
       }
       if ("legend" in chart.options) {
-        hideLegend$2(chartOptions, chart.options.legend);
+        hideLegend(chartOptions, chart.options.legend);
       }
       if (chart.options.title) {
-        setTitle$2(chartOptions, chart.options.title);
+        setTitle(chartOptions, chart.options.title);
       }
-      var options = merge(merge(defaultOptions$2, chartOptions), chart.options.library || {});
+      var options = merge(merge(defaultOptions, chartOptions), chart.options.library || {});
 
       var data = new this$1.library.visualization.DataTable();
       data.addColumn("string", "");
@@ -1417,18 +1442,18 @@
     });
   };
 
-  defaultExport$2.prototype.renderColumnChart = function renderColumnChart (chart) {
+  defaultExport.prototype.renderColumnChart = function renderColumnChart (chart) {
       var this$1 = this;
 
     this.waitForLoaded(chart, function () {
-      var options = jsOptions$2(chart, chart.options);
+      var options = jsOptions(chart, chart.options);
       var data = this$1.createDataTable(chart.data, chart.xtype);
 
       this$1.drawChart(chart, "ColumnChart", data, options);
     });
   };
 
-  defaultExport$2.prototype.renderBarChart = function renderBarChart (chart) {
+  defaultExport.prototype.renderBarChart = function renderBarChart (chart) {
       var this$1 = this;
 
     this.waitForLoaded(chart, function () {
@@ -1439,14 +1464,14 @@
           }
         }
       };
-      var options = jsOptionsFunc(defaultOptions$2, hideLegend$2, setTitle$2, setBarMin$1, setBarMax$1, setStacked$2, setXtitle$2, setYtitle$2)(chart, chart.options, chartOptions);
+      var options = jsOptionsFunc(defaultOptions, hideLegend, setTitle, setBarMin, setBarMax, setStacked, setXtitle, setYtitle)(chart, chart.options, chartOptions);
       var data = this$1.createDataTable(chart.data, chart.xtype);
 
       this$1.drawChart(chart, "BarChart", data, options);
     });
   };
 
-  defaultExport$2.prototype.renderAreaChart = function renderAreaChart (chart) {
+  defaultExport.prototype.renderAreaChart = function renderAreaChart (chart) {
       var this$1 = this;
 
     this.waitForLoaded(chart, function () {
@@ -1456,24 +1481,24 @@
         areaOpacity: 0.5
       };
 
-      var options = jsOptions$2(chart, chart.options, chartOptions);
+      var options = jsOptions(chart, chart.options, chartOptions);
       var data = this$1.createDataTable(chart.data, chart.xtype);
 
       this$1.drawChart(chart, "AreaChart", data, options);
     });
   };
 
-  defaultExport$2.prototype.renderGeoChart = function renderGeoChart (chart) {
+  defaultExport.prototype.renderGeoChart = function renderGeoChart (chart) {
       var this$1 = this;
 
-    this.waitForLoaded(chart, function () {
+    this.waitForLoaded(chart, "geochart", function () {
       var chartOptions = {
         legend: "none",
         colorAxis: {
           colors: chart.options.colors || ["#f6c7b6", "#ce502d"]
         }
       };
-      var options = merge(merge(defaultOptions$2, chartOptions), chart.options.library || {});
+      var options = merge(merge(defaultOptions, chartOptions), chart.options.library || {});
 
       var data = new this$1.library.visualization.DataTable();
       data.addColumn("string", "");
@@ -1484,12 +1509,12 @@
     });
   };
 
-  defaultExport$2.prototype.renderScatterChart = function renderScatterChart (chart) {
+  defaultExport.prototype.renderScatterChart = function renderScatterChart (chart) {
       var this$1 = this;
 
     this.waitForLoaded(chart, function () {
       var chartOptions = {};
-      var options = jsOptions$2(chart, chart.options, chartOptions);
+      var options = jsOptions(chart, chart.options, chartOptions);
 
       var series = chart.data, rows2 = [], i, j, data, d;
       for (i = 0; i < series.length; i++) {
@@ -1514,7 +1539,7 @@
     });
   };
 
-  defaultExport$2.prototype.renderTimeline = function renderTimeline (chart) {
+  defaultExport.prototype.renderTimeline = function renderTimeline (chart) {
       var this$1 = this;
 
     this.waitForLoaded(chart, "timeline", function () {
@@ -1525,7 +1550,7 @@
       if (chart.options.colors) {
         chartOptions.colors = chart.options.colors;
       }
-      var options = merge(merge(defaultOptions$2, chartOptions), chart.options.library || {});
+      var options = merge(merge(defaultOptions, chartOptions), chart.options.library || {});
 
       var data = new this$1.library.visualization.DataTable();
       data.addColumn({type: "string", id: "Name"});
@@ -1539,14 +1564,16 @@
     });
   };
 
-  defaultExport$2.prototype.destroy = function destroy (chart) {
+  // TODO remove resize events
+  defaultExport.prototype.destroy = function destroy (chart) {
     if (chart.chart) {
       chart.chart.clearChart();
     }
   };
 
-  defaultExport$2.prototype.drawChart = function drawChart (chart, type, data, options) {
+  defaultExport.prototype.drawChart = function drawChart (chart, type, data, options) {
     this.destroy(chart);
+    if (chart.destroyed) { return; }
 
     if (chart.options.code) {
       window.console.log("var data = new google.visualization.DataTable(" + data.toJSON() + ");\nvar chart = new google.visualization." + type + "(element);\nchart.draw(data, " + JSON.stringify(options) + ");");
@@ -1558,7 +1585,7 @@
     });
   };
 
-  defaultExport$2.prototype.waitForLoaded = function waitForLoaded (chart, pack, callback) {
+  defaultExport.prototype.waitForLoaded = function waitForLoaded (chart, pack, callback) {
       var this$1 = this;
 
     if (!callback) {
@@ -1582,7 +1609,7 @@
       if (config.language) {
         loadOptions.language = config.language;
       }
-      if (pack === "corechart" && config.mapsApiKey) {
+      if (pack === "geochart" && config.mapsApiKey) {
         loadOptions.mapsApiKey = config.mapsApiKey;
       }
 
@@ -1590,11 +1617,11 @@
     }
   };
 
-  defaultExport$2.prototype.runCallbacks = function runCallbacks () {
+  defaultExport.prototype.runCallbacks = function runCallbacks () {
     var cb, call;
     for (var i = 0; i < callbacks.length; i++) {
       cb = callbacks[i];
-      call = this.library.visualization && ((cb.pack === "corechart" && this.library.visualization.LineChart) || (cb.pack === "timeline" && this.library.visualization.Timeline));
+      call = this.library.visualization && ((cb.pack === "corechart" && this.library.visualization.LineChart) || (cb.pack === "timeline" && this.library.visualization.Timeline) || (cb.pack === "geochart" && this.library.visualization.GeoChart));
       if (call) {
         cb.callback();
         callbacks.splice(i, 1);
@@ -1604,7 +1631,7 @@
   };
 
   // cant use object as key
-  defaultExport$2.prototype.createDataTable = function createDataTable (series, columnType) {
+  defaultExport.prototype.createDataTable = function createDataTable (series, columnType) {
     var i, j, s, d, key, rows = [], sortedLabels = [];
     for (i = 0; i < series.length; i++) {
       s = series[i];
@@ -1748,7 +1775,12 @@
     }
   }
 
-  function fetchDataSource(chart, dataSource) {
+  function fetchDataSource(chart, dataSource, showLoading) {
+    // only show loading message for urls and callbacks
+    if (showLoading && chart.options.loading && (typeof dataSource === "string" || typeof dataSource === "function")) {
+      setText(chart.element, chart.options.loading);
+    }
+
     if (typeof dataSource === "string") {
       pushRequest(dataSource, function (data) {
         chart.rawData = data;
@@ -1858,9 +1890,9 @@
       if (library.product === "Highcharts") {
         return defaultExport$1;
       } else if (library.charts) {
-        return defaultExport$2;
-      } else if (isFunction(library)) {
         return defaultExport;
+      } else if (isFunction(library)) {
+        return defaultExport$2;
       }
     }
     throw new Error("Unknown adapter");
@@ -1903,8 +1935,9 @@
   }
 
   function renderChart(chartType, chart) {
-    if (chart.options.messages && chart.options.messages.empty && dataEmpty(chart.data, chartType)) {
-      setText(chart.element, chart.options.messages.empty);
+    if (dataEmpty(chart.data, chartType)) {
+      var message = chart.options.empty || (chart.options.messages && chart.options.messages.empty) || "No data";
+      setText(chart.element, message);
     } else {
       callAdapter(chartType, chart);
       if (chart.options.download && !chart.__downloadAttached && chart.adapter === "chartjs") {
@@ -1969,8 +2002,14 @@
     return r;
   };
 
-  function detectXType(series, noDatetime) {
-    if (detectXTypeWithFunction(series, isNumber)) {
+  function detectXType(series, noDatetime, options) {
+    if (dataEmpty(series)) {
+      if ((options.xmin || options.xmax) && (!options.xmin || isDate(options.xmin)) && (!options.xmax || isDate(options.xmax))) {
+        return "datetime";
+      } else {
+        return "number";
+      }
+    } else if (detectXTypeWithFunction(series, isNumber)) {
       return "number";
     } else if (!noDatetime && detectXTypeWithFunction(series, isDate)) {
       return "datetime";
@@ -2017,17 +2056,23 @@
     // see if one series or multiple
     if (!isArray(series) || typeof series[0] !== "object" || isArray(series[0])) {
       series = [{name: opts.label, data: series}];
-      chart.hideLegend = true;
+      chart.singleSeriesFormat = true;
     } else {
-      chart.hideLegend = false;
+      chart.singleSeriesFormat = false;
     }
 
-    chart.xtype = keyType ? keyType : (opts.discrete ? "string" : detectXType(series, noDatetime));
-
-    // right format
+    // convert to array
+    // must come before dataEmpty check
     series = copySeries(series);
     for (i = 0; i < series.length; i++) {
-      series[i].data = formatSeriesData(toArr(series[i].data), chart.xtype);
+      series[i].data = toArr(series[i].data);
+    }
+
+    chart.xtype = keyType ? keyType : (opts.discrete ? "string" : detectXType(series, noDatetime, opts));
+
+    // right format
+    for (i = 0; i < series.length; i++) {
+      series[i].data = formatSeriesData(series[i].data, chart.xtype);
     }
 
     return series;
@@ -2058,7 +2103,7 @@
 
     Chartkick.charts[element.id] = this;
 
-    fetchDataSource(this, dataSource);
+    fetchDataSource(this, dataSource, true);
 
     if (this.options.refresh) {
       this.startRefresh();
@@ -2094,7 +2139,7 @@
     if (options) {
       this.__updateOptions(options);
     }
-    fetchDataSource(this, dataSource);
+    fetchDataSource(this, dataSource, true);
   };
 
   Chart.prototype.setOptions = function setOptions (options) {
@@ -2162,13 +2207,14 @@
         return this.chart.toBase64Image();
       }
     } else {
-      // TODO throw error in next major version
-      // throw new Error("Feature only available for Chart.js");
-      return null;
+      throw new Error("Feature only available for Chart.js");
     }
   };
 
   Chart.prototype.destroy = function destroy () {
+    this.destroyed = true;
+    this.stopRefresh();
+
     if (this.__adapterObject) {
       this.__adapterObject.destroy(this);
     }
@@ -2413,6 +2459,14 @@
         }
       }
     },
+    destroyAll: function() {
+      for (var chartId in Chartkick.charts) {
+        if (Chartkick.charts.hasOwnProperty(chartId)) {
+          Chartkick.charts[chartId].destroy();
+          delete Chartkick.charts[chartId];
+        }
+      }
+    },
     config: config,
     options: {},
     adapters: adapters,
@@ -2426,6 +2480,16 @@
   // not ideal, but allows for simpler integration
   if (typeof window !== "undefined" && !window.Chartkick) {
     window.Chartkick = Chartkick;
+
+    // clean up previous charts before Turbolinks loads new page
+    document.addEventListener("turbolinks:before-render", function() {
+      Chartkick.destroyAll();
+    });
+
+    // use setTimeout so charting library can come later in same JS file
+    setTimeout(function() {
+      window.dispatchEvent(new Event("chartkick:load"));
+    }, 0);
   }
 
   // backwards compatibility for esm require
