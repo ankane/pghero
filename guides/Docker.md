@@ -1,5 +1,7 @@
 # PgHero Docker
 
+## Installation
+
 PgHero is available on [Docker Hub](https://hub.docker.com/r/ankane/pghero/).
 
 ```sh

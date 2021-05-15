@@ -10,7 +10,7 @@ A performance dashboard for Postgres
 
 [![Build Status](https://github.com/ankane/pghero/workflows/build/badge.svg?branch=master)](https://github.com/ankane/pghero/actions) [![Docker Pulls](https://img.shields.io/docker/pulls/ankane/pghero)](https://hub.docker.com/repository/docker/ankane/pghero)
 
-## Installation
+## Documentation
 
 PgHero is available as a Docker image, Linux package, and Rails engine.
 
