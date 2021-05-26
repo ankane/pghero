@@ -5,7 +5,9 @@
 
   <%= render partial: "live_queries_table", locals: {queries: @running_queries, vacuum_progress: @vacuum_progress} %>
 
-  <p><%= button_to "Kill all connections", kill_all_path, class: "btn btn-danger" %></p>
+  <% if PgHero.config["show_kill_all_connections"] %>
+    <p><% button_to "Kill all connections", kill_all_path, class: "btn btn-danger" %></p>
+  <% end %>
 
   <p class="text-muted">You may need to restart your app servers afterwards.</p>
 </div>

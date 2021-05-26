@@ -44,3 +44,9 @@ databases:
 
 # Filter data from queries (experimental)
 # filter_data: true
+
+# Show Kill All Connections button on Live Queries tab
+# show_kill_all_connections: true
+
+# On Explain tab, Show Analyze and Visualize options
+# show_analyze_and_visualize: true
