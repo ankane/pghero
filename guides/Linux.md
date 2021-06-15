@@ -90,7 +90,7 @@ EOF
 sudo service nginx restart
 ```
 
-## Autentication
+## Authentication
 
 Add basic authentication with:
 
