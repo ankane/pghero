@@ -4,6 +4,7 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "pg_query"
+require "activerecord-import"
 
 class Minitest::Test
   def database
@@ -34,7 +35,11 @@ states =
       name: "State #{i}"
     }
   end
-State.insert_all states
+if State.respond_to?(:insert_all)
+  State.insert_all states
+else
+  State.import states, validate: false
+end
 ActiveRecord::Base.connection.execute("ANALYZE states")
 
 users =
@@ -54,5 +59,9 @@ users =
       updated_at: Time.now - rand(50).days
     }
   end
-User.insert_all users
+if User.respond_to?(:insert_all)
+  User.insert_all users
+else
+  User.import users, validate: false
+end
 ActiveRecord::Base.connection.execute("ANALYZE users")
