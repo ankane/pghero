@@ -4,7 +4,6 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "pg_query"
-require "activerecord-import"
 
 class Minitest::Test
   def database
@@ -18,6 +17,10 @@ Combustion.path = "test/internal"
 Combustion.initialize! :active_record, :action_controller do
   config.action_controller.logger = logger
   config.active_record.logger = logger
+end
+
+if ActiveRecord::VERSION::STRING.to_f < 6.0
+  require "activerecord-import"
 end
 
 class City < ActiveRecord::Base
