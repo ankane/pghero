@@ -2,6 +2,7 @@ require_relative "test_helper"
 
 class IndexesTest < Minitest::Test
   def test_index_hit_rate
+    skip unless database.system_stats_enabled?
     assert database.index_hit_rate
   end
 

@@ -27,11 +27,13 @@ class ControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_queries
+    skip unless database.query_stats_enabled?
     get pg_hero.queries_path
     assert_response :success
   end
 
   def test_show_query
+    skip unless database.query_stats_enabled?
     get pg_hero.show_query_path(query_hash: 123)
     assert_response :success
   end

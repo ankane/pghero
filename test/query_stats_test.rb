@@ -2,6 +2,7 @@ require_relative "test_helper"
 
 class QueryStatsTest < Minitest::Test
   def test_query_stats
+    skip unless database.query_stats_enabled?
     assert database.query_stats
   end
 
@@ -10,6 +11,7 @@ class QueryStatsTest < Minitest::Test
   end
 
   def test_query_stats_enabled
+    skip unless database.query_stats_enabled?
     assert database.query_stats_enabled?
   end
 
@@ -18,6 +20,7 @@ class QueryStatsTest < Minitest::Test
   end
 
   def test_query_stats_readable?
+    skip unless database.query_stats_enabled?
     assert database.query_stats_readable?
   end
 
@@ -27,11 +30,13 @@ class QueryStatsTest < Minitest::Test
   end
 
   def test_reset_query_stats
+    skip unless database.query_stats_enabled?
     assert database.reset_query_stats
   end
 
   def test_reset_query_stats_database
     skip unless gte12?
+    skip unless database.query_stats_enabled?
 
     assert database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
@@ -54,6 +59,7 @@ class QueryStatsTest < Minitest::Test
 
   def test_reset_query_stats_user
     skip unless gte12?
+    skip unless database.query_stats_enabled?
 
     assert database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
@@ -76,6 +82,7 @@ class QueryStatsTest < Minitest::Test
 
   def test_reset_query_stats_query_hash
     skip unless gte12?
+    skip unless database.query_stats_enabled?
 
     assert database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
@@ -105,6 +112,7 @@ class QueryStatsTest < Minitest::Test
   end
 
   def test_capture_query_stats
+    skip unless database.query_stats_enabled?
     PgHero::QueryStats.delete_all
     refute PgHero::QueryStats.any?
     assert database.capture_query_stats

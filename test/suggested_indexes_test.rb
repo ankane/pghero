@@ -2,6 +2,7 @@ require_relative "test_helper"
 
 class SuggestedIndexesTest < Minitest::Test
   def setup
+    skip unless database.query_stats_enabled?
     database.reset_query_stats
   end
 
@@ -56,6 +57,7 @@ class SuggestedIndexesTest < Minitest::Test
   end
 
   def test_range
+    skip unless database.suggested_indexes_enabled?
     query = "SELECT * FROM users WHERE range = '[0, 0]'"
     result = database.suggested_indexes_by_query(queries: [query])[query]
     assert_equal ["range"], result[:covering_index]

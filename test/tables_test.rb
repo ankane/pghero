@@ -2,6 +2,7 @@ require_relative "test_helper"
 
 class TablesTest < Minitest::Test
   def test_table_hit_rate
+    skip unless database.system_stats_enabled?
     assert database.table_hit_rate
   end
 
