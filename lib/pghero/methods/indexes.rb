@@ -307,6 +307,7 @@ module PgHero
             table_name AS table,
             index_name AS index,
             wastedbytes AS bloat_bytes,
+            round(realbloat, 1) as bloat_pct,
             totalbytes AS index_bytes,
             pg_get_indexdef(rb.indexrelid) AS definition,
             indisprimary AS primary
@@ -317,7 +318,8 @@ module PgHero
           WHERE
             wastedbytes >= #{min_size.to_i}
           ORDER BY
-            wastedbytes DESC,
+            bloat_pct DESC,
+            wastedbytes,
             index_name
         SQL
       end

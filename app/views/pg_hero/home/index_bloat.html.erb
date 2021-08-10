@@ -26,6 +26,7 @@ ALTER INDEX new_index RENAME TO index;</code></pre>
         <tr>
           <th>Index</th>
           <th style="width: 15%;">Bloat</th>
+          <th style="width: 15%;">Percent</th>
           <th style="width: 15%;">Size</th>
         </tr>
       </thead>
@@ -39,6 +40,7 @@ ALTER INDEX new_index RENAME TO index;</code></pre>
               <% end %>
             </td>
             <td><%= PgHero.pretty_size(index[:bloat_bytes]) %></td>
+            <td><%= PgHero.pretty_size(index[:bloat_pct]) %></td>
             <td><%= PgHero.pretty_size(index[:index_bytes]) %></td>
           </tr>
           <% if @show_sql && !index[:primary] %>
