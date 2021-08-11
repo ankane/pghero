@@ -28,12 +28,27 @@ If the above steps don’t help, create an issue. Include:
 
 If you’d like to discuss a new feature, create an issue and start the title with `[Idea]`.
 
+## Local Development
+
+To run the test suite, add `pg_stat_statements` to `shared_preload_libraries`.
+
+Each platform is different, but on OS X with Postgres.app, choose "Server Settings" and find the `postgresql.conf` config file.
+
+The path may be similar to `/Users/you/Library/Application Support/Postgres/var-12/postgresql.conf`
+
+Edit the file and set:
+
+`shared_preload_libraries = 'pg_stat_statements'`
+
+Save the file, restart PostgreSQL, and confirm that the test suite now passes.
+
 ## Pull Requests
 
 Fork the project and create a pull request. A few tips:
 
 - Keep changes to a minimum. If you have multiple features or fixes, submit multiple pull requests.
 - Follow the existing style. The code should read like it’s written by a single person.
+- Run the test suite and ensure there is a passing build.
 
 Feel free to open an issue to get feedback on your idea before spending too much time on it.
 
