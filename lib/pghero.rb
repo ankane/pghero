@@ -191,6 +191,10 @@ module PgHero
       ActiveSupport::NumberHelper.number_to_human_size(value, precision: 3)
     end
 
+    def pretty_pct(value)
+      ActiveSupport::NumberHelper.number_to_percentage(value)
+    end
+
     # delete previous stats
     # go database by database to use an index
     # stats for old databases are not cleaned up since we can't use an index
