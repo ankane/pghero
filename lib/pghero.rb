@@ -192,7 +192,7 @@ module PgHero
     end
 
     def pretty_pct(value)
-      ActiveSupport::NumberHelper.number_to_percentage(value)
+      ActiveSupport::NumberHelper.number_to_percentage(value, precision: 0)
     end
 
     # delete previous stats
