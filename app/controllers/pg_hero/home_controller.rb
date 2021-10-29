@@ -79,8 +79,9 @@ module PgHero
       @title = "Space"
       @days = (params[:days] || 7).to_i
       @database_size = @database.database_size
-      @relation_sizes = params[:tables] ? @database.table_sizes : @database.relation_sizes
-      @space_stats_enabled = @database.space_stats_enabled? && !params[:tables]
+      @only_tables = params[:tables].present?
+      @relation_sizes = @only_tables ? @database.table_sizes : @database.relation_sizes
+      @space_stats_enabled = @database.space_stats_enabled? && !@only_tables
       if @space_stats_enabled
         space_growth = @database.space_growth(days: @days, relation_sizes: @relation_sizes)
         @growth_bytes_by_relation = Hash[ space_growth.map { |r| [[r[:schema], r[:relation]], r[:growth_bytes]] } ]
@@ -92,6 +93,8 @@ module PgHero
       if params[:sort] == "name"
         @relation_sizes.sort_by! { |r| r[:relation] || r[:table] }
       end
+
+      @header_options = @only_tables ? {tables: "t"} : {}
 
       across = params[:across].to_s.split(",")
       @unused_indexes = @database.unused_indexes(max_scans: 0, across: across)

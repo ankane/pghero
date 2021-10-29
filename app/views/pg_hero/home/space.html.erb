@@ -40,10 +40,10 @@
   <table class="table space-table">
     <thead>
       <tr>
-        <th><%= link_to (params[:tables] ? "Table" : "Relation"), {sort: "name", tables: params[:tables]} %></th>
-        <th style="width: 15%;"><%= link_to "Size", {tables: params[:tables]} %></th>
+        <th><%= link_to (@only_tables ? "Table" : "Relation"), @header_options.merge(sort: "name") %></th>
+        <th style="width: 15%;"><%= link_to "Size", @header_options %></th>
         <% if @space_stats_enabled %>
-          <th style="width: 15%;"><%= link_to "#{@days}d Growth", {sort: "growth", tables: params[:tables]} %></th>
+          <th style="width: 15%;"><%= link_to "#{@days}d Growth", @header_options.merge(sort: "growth") %></th>
         <% end %>
       </tr>
     </thead>

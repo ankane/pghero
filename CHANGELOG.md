@@ -1,3 +1,7 @@
+## 2.8.2 (unreleased)
+
+- Fixed sorting by name on space page when historical space stats are disabled
+
 ## 2.8.1 (2021-03-25)
 
 - Added support for pg_query 2
