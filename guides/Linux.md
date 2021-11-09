@@ -90,6 +90,12 @@ EOF
 sudo service nginx restart
 ```
 
+To run under a subpath, also set:
+
+```sh
+sudo pghero config:set RAILS_RELATIVE_URL_ROOT=my-path
+```
+
 ## Authentication
 
 Add basic authentication with:
