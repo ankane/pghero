@@ -149,7 +149,7 @@ module PgHero
       # resolve spec
       if !url && config["spec"]
         raise Error, "Spec requires Rails 6+" unless PgHero.spec_supported?
-        config_options = {env_name: PgHero.env, PgHero.spec_name_key => config["spec"], include_replicas: true}
+        config_options = {env_name: PgHero.env, PgHero.spec_name_key => config["spec"], PgHero.include_replicas_key => true}
         resolved = ActiveRecord::Base.configurations.configs_for(**config_options)
         raise Error, "Spec not found: #{config["spec"]}" unless resolved
         url = ActiveRecord::VERSION::STRING.to_f >= 6.1 ? resolved.configuration_hash : resolved.config
