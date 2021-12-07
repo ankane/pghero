@@ -1,0 +1,12 @@
+source "https://rubygems.org"
+
+gemspec path: ".."
+
+gem "minitest", ">= 5"
+gem "rake"
+
+gem "activerecord", "~> 7.0.0.rc1"
+gem "activerecord-import", github: "zdennis/activerecord-import"
+gem "combustion"
+gem "pg"
+gem "pg_query"
