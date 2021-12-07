@@ -24,7 +24,7 @@ jobs:
           postgres: 10
         - ruby: 2.4
           gemfile: gemfiles/activerecord50.gemfile
-          postgres: 9.6
+          postgres: 10
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
