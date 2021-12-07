@@ -217,14 +217,14 @@ module PgHero
     end
 
     # private
-    # Rails 6.1 deprecate `spec_name` and use `name` for configurations
+    # Rails 6.1 deprecates `spec_name` for `name`
     # https://github.com/rails/rails/pull/38536
     def spec_name_key
       ActiveRecord::VERSION::STRING.to_f >= 6.1 ? :name : :spec_name
     end
 
     # private
-    # Rails 7.0 deprecate `include_replicas` and use `include_hidden`
+    # Rails 7.0 deprecates `include_replicas` for `include_hidden`
     def include_replicas_key
       ActiveRecord::VERSION::MAJOR >= 7 ? :include_hidden : :include_replicas
     end
