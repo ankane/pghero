@@ -2,6 +2,17 @@
   <h1>Space</h1>
 
   <p>Database Size: <%= @database_size %></p>
+  <%- unless @only_tables %>
+    <%- sizes = @relation_sizes.group_by { |h| h[:type] } %>
+    <ul>
+      <li>
+        tables: <%= PgHero.pretty_size sizes["table"].sum { |h| h[:size_bytes] } %> (<%= sizes["table"].count %> count)
+      </li>
+      <li>
+        indices: <%= PgHero.pretty_size sizes["index"].sum { |h| h[:size_bytes] } %> (<%= sizes["index"].count %> count)
+      </li>
+    </ul>
+  <%- end %>
 
   <% if @system_stats_enabled %>
     <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
@@ -18,9 +29,9 @@
 
   <% if @unused_indexes.any? %>
     <p>
-      <%= pluralize(@unused_indexes.size, "unused index") %>. Remove them
+      <%= pluralize(@unused_indexes.size, "unused index") %> (<%= PgHero.pretty_size(@unused_index_size) %>). Remove them
       <% if @show_migrations %>
-        <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
+        <a href="javascript: void(0);" onclick="$('#migration').toggle()">with a migration</a>
       <% end %>
       for faster writes.
 
@@ -29,12 +40,17 @@
       <% end %>
     </p>
 
-    <div id="migration" style="display: none;">
-      <pre>rails generate migration remove_unused_indexes</pre>
-      <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
-<%= pghero_remove_index(query) %><% end %></pre>
-    </div>
+    <% if @show_migrations %>
+      <div id="migration" style="display: none;">
+        <pre>rails generate migration remove_unused_indexes</pre>
+        <p>And paste</p>
+<pre style="overflow: scroll; white-space: pre; word-break: normal;">
+<%- @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
+<%= pghero_remove_index(query) %>
+<%- end %>
+</pre>
+      </div>
+    <% end %>
   <% end %>
 
   <table class="table space-table">
