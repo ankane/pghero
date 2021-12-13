@@ -97,10 +97,14 @@ module PgHero
 
       @header_options = @only_tables ? {tables: "t"} : {}
 
-      across = params[:across].to_s.split(",")
-      @unused_indexes = @database.unused_indexes(max_scans: 0, across: across)
-      @unused_index_size = @unused_indexes.sum { |ui| ui[:size_bytes] }
-      @unused_index_names = Set.new(@unused_indexes.map { |r| r[:index] })
+      @unused_index_names = Set.new
+      unless @only_tables
+        across = params[:across].to_s.split(",")
+        @unused_indexes = @database.unused_indexes(max_scans: 0, across: across)
+        @unused_index_size = @unused_indexes.sum { |ui| ui[:size_bytes] }
+        @unused_index_names = Set.new(@unused_indexes.map { |r| r[:index] })
+      end
+
       @show_migrations = PgHero.show_migrations
       @system_stats_enabled = @database.system_stats_enabled?
       @index_bloat = [] # @database.index_bloat

@@ -2,7 +2,9 @@
   <h1>Space</h1>
 
   Database Size: <%= @database_size %>
-  <%- unless @only_tables %>
+  <%- if @only_tables %>
+    </br></br>
+  <%- else %>
     <%- sizes = @relation_sizes.group_by { |h| h[:type] } %>
     <ul>
       <li>
