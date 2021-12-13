@@ -1,7 +1,7 @@
 <div class="content">
   <h1>Space</h1>
 
-  <p>Database Size: <%= @database_size %></p>
+  Database Size: <%= @database_size %>
   <%- unless @only_tables %>
     <%- sizes = @relation_sizes.group_by { |h| h[:type] } %>
     <ul>
@@ -11,6 +11,34 @@
       <li>
         indices: <%= PgHero.pretty_size sizes["index"].sum { |h| h[:size_bytes] } %> (<%= sizes["index"].count %> count)
       </li>
+      <% if @unused_indexes.any? %>
+        <ul>
+          <li>
+            <span class="unused-index">UNUSED</span>:
+            <%= PgHero.pretty_size(@unused_index_size) %> (<%= @unused_indexes.size %> count). Remove them
+            <% if @show_migrations %>
+              <a href="javascript: void(0);" onclick="$('#migration').toggle()">with a migration</a>
+            <% end %>
+            for faster writes.
+
+            <% if @database.replicating? %>
+              Check they aren’t used on replicas.
+            <% end %>
+          </li>
+        </ul>
+
+        <% if @show_migrations %>
+          <div id="migration" style="display: none;">
+            <pre>rails generate migration remove_unused_indexes</pre>
+            <p>And paste</p>
+<pre style="overflow: scroll; white-space: pre; word-break: normal;">
+<%- @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
+<%= pghero_remove_index(query) %>
+<%- end %>
+</pre>
+          </div>
+        <% end %>
+    <% end %>
     </ul>
   <%- end %>
 
@@ -26,32 +54,6 @@
     <p>Check out <%= link_to "index bloat", index_bloat_path %> for an easy way to reclaim space.</p>
   <% end %>
   -->
-
-  <% if @unused_indexes.any? %>
-    <p>
-      <%= pluralize(@unused_indexes.size, "unused index") %> (<%= PgHero.pretty_size(@unused_index_size) %>). Remove them
-      <% if @show_migrations %>
-        <a href="javascript: void(0);" onclick="$('#migration').toggle()">with a migration</a>
-      <% end %>
-      for faster writes.
-
-      <% if @database.replicating? %>
-        Check they aren’t used on replicas.
-      <% end %>
-    </p>
-
-    <% if @show_migrations %>
-      <div id="migration" style="display: none;">
-        <pre>rails generate migration remove_unused_indexes</pre>
-        <p>And paste</p>
-<pre style="overflow: scroll; white-space: pre; word-break: normal;">
-<%- @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
-<%= pghero_remove_index(query) %>
-<%- end %>
-</pre>
-      </div>
-    <% end %>
-  <% end %>
 
   <table class="table space-table">
     <thead>
