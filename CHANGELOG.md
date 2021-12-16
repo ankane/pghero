@@ -1,4 +1,4 @@
-## 2.8.2 (unreleased)
+## 2.8.2 (2021-12-15)
 
 - Fixed sorting by name on space page when historical space stats are not enabled
 - Fixed deprecation warnings with Active Record 7
