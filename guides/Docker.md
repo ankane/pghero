@@ -18,6 +18,8 @@ Use URL-encoding for any special characters in the username or password. On Mac 
 
 Then visit [http://localhost:8080](http://localhost:8080).
 
+In order to change listen port (i.e. when you use --network=host and 8080 is already in use), you can use PORT environment variable.
+
 ## Authentication
 
 Add basic authentication with:
