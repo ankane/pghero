@@ -32,12 +32,8 @@ class ExplainTest < Minitest::Test
   end
 
   def with_explain_timeout(value)
-    previous_value = PgHero.explain_timeout_sec
-    begin
-      PgHero.explain_timeout_sec = value
+    PgHero.stub(:explain_timeout_sec, value) do
       yield
-    ensure
-      PgHero.explain_timeout_sec = previous_value
     end
   end
 end
