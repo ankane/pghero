@@ -7,10 +7,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby: 3.0
+        - ruby: "3.0"
           gemfile: Gemfile
           postgres: 14
-        - ruby: 3.0
+        - ruby: "3.0"
           gemfile: gemfiles/activerecord61.gemfile
           postgres: 13
         - ruby: 2.7
