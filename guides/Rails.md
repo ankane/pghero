@@ -5,7 +5,7 @@
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'pghero'
+gem "pghero"
 ```
 
 And mount the dashboard in your `config/routes.rb`:
@@ -21,7 +21,7 @@ Be sure to [secure the dashboard](#authentication) in production.
 PgHero can suggest indexes to add. To enable, add to your Gemfile:
 
 ```ruby
-gem 'pg_query', '>= 0.9.0'
+gem "pg_query", ">= 0.9.0"
 ```
 
 and make sure [query stats](#query-stats) are enabled. Read about how it works [here](Suggested-Indexes.md).
@@ -124,7 +124,7 @@ Heroku and Digital Ocean do not currently have an API for database metrics.
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'aws-sdk-cloudwatch'
+gem "aws-sdk-cloudwatch"
 ```
 
 By default, your application’s AWS credentials are used. To use separate credentials, add these variables to your environment:
@@ -161,7 +161,7 @@ This requires the following IAM policy:
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'google-cloud-monitoring-v3'
+gem "google-cloud-monitoring-v3"
 ```
 
 Enable the [Monitoring API](https://console.cloud.google.com/apis/library/monitoring.googleapis.com) and set up your credentials:
@@ -183,7 +183,7 @@ This requires the Monitoring Viewer role.
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'azure_mgmt_monitor'
+gem "azure_mgmt_monitor"
 ```
 
 [Get your credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and add these variables to your environment:
