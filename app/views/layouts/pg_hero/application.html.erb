@@ -45,6 +45,9 @@
             <% end %>
             <li class="<%= controller.action_name == "explain" ? "active" : "" %>"><%= link_to "Explain", explain_path %></li>
             <li class="<%= controller.action_name == "tune" ? "active" : "" %>"><%= link_to "Tune", tune_path %></li>
+            <% if @scheduled_jobs_enabled %>
+              <li class="<%= controller.action_name == "scheduled_jobs" ? "active" : "" %>"><%= link_to "Scheduled Jobs", scheduled_jobs_path %></li>
+            <% end %>
           </ul>
 
           <% if @databases.size > 1 %>

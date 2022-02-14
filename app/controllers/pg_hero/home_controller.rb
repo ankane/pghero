@@ -9,6 +9,7 @@ module PgHero
     before_action :check_api
     before_action :set_database
     before_action :set_query_stats_enabled
+    before_action :set_scheduled_jobs_enabled
     before_action :set_show_details, only: [:index, :queries, :show_query]
     before_action :ensure_query_stats, only: [:queries]
 
@@ -375,6 +376,11 @@ module PgHero
       redirect_backward alert: "The database user does not have permission to reset query stats"
     end
 
+    def scheduled_jobs
+      @scheduled_jobs = @database.scheduled_jobs
+      @job_run_details = @database.job_run_details
+    end
+
     protected
 
     def redirect_backward(options = {})
@@ -401,6 +407,10 @@ module PgHero
       @query_stats_enabled = @database.query_stats_enabled?
       @system_stats_enabled = @database.system_stats_enabled?
       @replica = @database.replica?
+    end
+
+    def set_scheduled_jobs_enabled
+      @scheduled_jobs_enabled = @database.pg_cron_extension_enabled? && @database.pg_cron_readable?
     end
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)

@@ -46,6 +46,17 @@ module PgHero
         false
       end
 
+      def pg_cron_extension_enabled?
+        select_one("SELECT COUNT(*) AS count FROM pg_extension WHERE extname = 'pg_cron'") > 0
+      end
+
+      def pg_cron_readable?
+        select_all("SELECT * FROM cron.job LIMIT 1")
+        true
+      rescue ActiveRecord::StatementInvalid
+        false
+      end
+
       def enable_query_stats
         execute("CREATE EXTENSION IF NOT EXISTS pg_stat_statements")
         true

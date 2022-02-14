@@ -7,6 +7,7 @@ module PgHero
     include Methods::Indexes
     include Methods::Kill
     include Methods::Maintenance
+    include Methods::ScheduledJobs
     include Methods::Queries
     include Methods::QueryStats
     include Methods::Replication
