@@ -12,14 +12,16 @@
       <tr>
         <td><%= query[:pid] %></td>
         <td>
-          <% sec = query[:duration_ms] / 1000.0 %>
-          <% if sec < 1.minute %>
-            <%= sec.round(1) %> s
-          <% elsif sec < 1.day %>
-            <%= Time.at(sec).utc.strftime("%H:%M:%S") %>
-          <% else %>
-            <% days = (sec / 1.day).floor %>
-            <%= days %>d <%= Time.at(sec - days.days).utc.strftime("%H:%M:%S") %>
+          <% if query[:duration_ms] %>
+            <% sec = query[:duration_ms] / 1000.0 %>
+            <% if sec < 1.minute %>
+              <%= sec.round(1) %> s
+            <% elsif sec < 1.day %>
+              <%= Time.at(sec).utc.strftime("%H:%M:%S") %>
+            <% else %>
+              <% days = (sec / 1.day).floor %>
+              <%= days %>d <%= Time.at(sec - days.days).utc.strftime("%H:%M:%S") %>
+            <% end %>
           <% end %>
         </td>
         <td>

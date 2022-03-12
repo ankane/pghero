@@ -1,3 +1,7 @@
+## 2.8.3 (unreleased)
+
+- Fixed error with walsender queries on live queries page
+
 ## 2.8.2 (2021-12-15)
 
 - Fixed sorting by name on space page when historical space stats are not enabled
