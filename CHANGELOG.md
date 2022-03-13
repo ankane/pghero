@@ -1,5 +1,6 @@
 ## 2.8.3 (unreleased)
 
+- Added experimental support for Propshaft
 - Fixed error with walsender queries on live queries page
 
 ## 2.8.2 (2021-12-15)
