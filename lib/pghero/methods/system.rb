@@ -133,8 +133,6 @@ module PgHero
       private
 
       def gcp_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
-        require "google/cloud/monitoring/v3"
-
         # TODO DRY with RDS stats
         duration = (duration || 1.hour).to_i
         period = (period || 1.minute).to_i
@@ -146,10 +144,20 @@ module PgHero
         raise Error, "Invalid metric name" unless metric_name =~ /\A[a-z\/_]+\z/i
         raise Error, "Invalid database id" unless gcp_database_id =~ /\A[a-z0-9\-:]+\z/i
 
-        # we handle three situations:
+        # we handle four situations:
         # 1. google-cloud-monitoring-v3
         # 2. google-cloud-monitoring >= 1
         # 3. google-cloud-monitoring < 1
+        # 4. google-apis-monitoring_v3
+        begin
+          require "google/cloud/monitoring/v3"
+        rescue LoadError
+          begin
+            require "google/cloud/monitoring"
+          rescue LoadError
+            require "google/apis/monitoring_v3"
+          end
+        end
 
         # for situations 1 and 2
         # Google::Cloud::Monitoring.metric_service is documented
@@ -175,7 +183,7 @@ module PgHero
             view: Google::Cloud::Monitoring::V3::ListTimeSeriesRequest::TimeSeriesView::FULL,
             aggregation: aggregation
           })
-        else
+        elsif defined?(Google::Cloud::Monitoring)
           require "google/cloud/monitoring"
 
           client = Google::Cloud::Monitoring::Metric.new
@@ -198,13 +206,31 @@ module PgHero
             Google::Monitoring::V3::ListTimeSeriesRequest::TimeSeriesView::FULL,
             aggregation: aggregation
           )
+        else
+          client = Google::Apis::MonitoringV3::MonitoringService.new
+
+          scope = Google::Apis::MonitoringV3::AUTH_MONITORING_READ
+          client.authorization = Google::Auth.get_application_default([scope])
+
+          # default logging is very verbose, but use app default
+          results = client.list_project_time_series(
+            "projects/#{gcp_database_id.split(":").first}",
+            filter: "metric.type = \"cloudsql.googleapis.com/database/#{metric_name}\" AND resource.label.database_id = \"#{gcp_database_id}\"",
+            interval_start_time: (start_time - period).iso8601,
+            interval_end_time: end_time.iso8601,
+            view: 0, # full
+            aggregation_alignment_period: "#{period}s",
+            aggregation_per_series_aligner: 12 # mean
+          ).time_series
         end
 
         data = {}
         result = results.first
         if result
           result.points.each do |point|
-            time = Time.at(point.interval.start_time.seconds)
+            time = point.interval.start_time
+            # string with google-apis-monitoring_v3
+            time = time.is_a?(String) ? Time.parse(time) : Time.at(time.seconds)
             value = point.value.double_value
             value *= 100 if metric_name == "cpu/utilization"
             data[time] = value
