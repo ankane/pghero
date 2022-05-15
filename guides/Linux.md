@@ -30,7 +30,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Supports Debian 10 (Buster), 9 (Stretch), and 8 (Jesse)
+Supports Debian 11 (Bullseye), Debian 10 (Buster), 9 (Stretch), and 8 (Jesse)
 
 ### CentOS / RHEL
 
