@@ -2,14 +2,6 @@
   <h1>Space</h1>
 
   <p>Database Size: <%= @database_size %></p>
-
-  <% if @system_stats_enabled %>
-    <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
-    <script>
-      new Chartkick.LineChart("chart-1", <%= json_escape(free_space_stats_path.to_json).html_safe %>, {colors: ["#5bc0de"], bytes: true, library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
-    </script>
-  <% end %>
-
   <!--
   <% if @index_bloat.any? %>
     <p>Check out <%= link_to "index bloat", index_bloat_path %> for an easy way to reclaim space.</p>

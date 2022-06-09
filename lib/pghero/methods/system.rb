@@ -62,17 +62,18 @@ module PgHero
           start_time = end_time - duration
 
           resp = client.get_metric_statistics(
-            namespace: "AWS/RDS",
+            namespace: "AWS/EC2",
             metric_name: metric_name,
-            dimensions: [{name: "DBInstanceIdentifier", value: aws_db_instance_identifier}],
+            dimensions: [{name: "InstanceId", value: aws_db_instance_identifier}],
             start_time: start_time.iso8601,
             end_time: end_time.iso8601,
             period: period,
-            statistics: ["Average"]
+            statistics: metric_name == "EBSReadOps" || metric_name == "EBSWriteOps" ? ["Sum"] : ["Average"]
           )
+          File.write('/tmp/herologs.txt', resp)
           data = {}
           resp[:datapoints].sort_by { |d| d[:timestamp] }.each do |d|
-            data[d[:timestamp]] = d[:average]
+            data[d[:timestamp]] = metric_name == "EBSReadOps" || metric_name == "EBSWriteOps" ? d[:sum]/period : d[:average]
           end
 
           add_missing_data(data, start_time, end_time, period) if series
@@ -247,11 +248,8 @@ module PgHero
         when :aws
           metrics = {
             cpu: "CPUUtilization",
-            connections: "DatabaseConnections",
-            replication_lag: "ReplicaLag",
-            read_iops: "ReadIOPS",
-            write_iops: "WriteIOPS",
-            free_space: "FreeStorageSpace"
+            read_iops: "EBSReadOps",
+            write_iops: "EBSWriteOps",
           }
           rds_stats(metrics[metric_key], **options)
         when :gcp
