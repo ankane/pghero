@@ -27,7 +27,7 @@
                   <%= " (#{progress[:index_vacuum_count] + 1})" %>
                 <% end %>
               </strong>
-              <a href="https://www.postgresql.org/docs/12/progress-reporting.html#VACUUM-PROGRESS-REPORTING" target="_blank">(?)</a>
+              <a href="https://www.postgresql.org/docs/13/progress-reporting.html#VACUUM-PROGRESS-REPORTING" target="_blank">(?)</a>
             </div>
             <% case progress[:phase] %>
             <% when "scanning heap",
@@ -53,7 +53,7 @@
           <% elsif progress = create_index_progress[query[:pid]] %>
             <div>
               <strong><%= progress[:phase] %></strong>
-              <a href="https://www.postgresql.org/docs/12/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING" target="_blank">(?)</a>
+              <a href="https://www.postgresql.org/docs/13/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING" target="_blank">(?)</a>
             </div>
             <% case progress[:phase] %>
             <% when "initializing",
