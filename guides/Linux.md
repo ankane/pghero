@@ -17,7 +17,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Supports Ubuntu 20.04 (Focal), 18.04 (Bionic), and 16.04 (Xenial)
+Supports Ubuntu 22.04 (Jammy), 20.04 (Focal), 18.04 (Bionic), and 16.04 (Xenial)
 
 ### Debian
 
