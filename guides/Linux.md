@@ -12,7 +12,7 @@
 ```sh
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/$(. /etc/os-release && echo $VERSION_ID).repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/$(lsb_release -s -r).repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
@@ -25,7 +25,7 @@ Supports Ubuntu 22.04 (Jammy), 20.04 (Focal), 18.04 (Bionic), and 16.04 (Xenial)
 sudo apt-get -y install apt-transport-https
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/$(. /etc/os-release && echo $VERSION_ID).repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/$(lsb_release -s -r).repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
