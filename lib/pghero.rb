@@ -26,6 +26,7 @@ require "pghero/engine" if defined?(Rails)
 require "pghero/version"
 
 module PgHero
+  autoload :Assets, "pghero/assets"
   autoload :Connection, "pghero/connection"
   autoload :Stats, "pghero/stats"
   autoload :QueryStats, "pghero/query_stats"
@@ -227,6 +228,11 @@ module PgHero
     # Rails 7.0 deprecates `include_replicas` for `include_hidden`
     def include_replicas_key
       ActiveRecord::VERSION::MAJOR >= 7 ? :include_hidden : :include_replicas
+    end
+
+    # private
+    def assets
+      @assets ||= PgHero::Assets.new(PgHero::Engine.root.join("app/assets"))
     end
 
     private

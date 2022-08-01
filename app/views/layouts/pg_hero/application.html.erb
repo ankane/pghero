@@ -4,13 +4,19 @@
     <title><%= [@databases.size > 1 ? @database.name : "PgHero", @title].compact.join(" / ") %></title>
 
     <meta charset="utf-8" />
-    <%= favicon_link_tag "pghero/favicon.png" %>
+
     <% if defined?(Propshaft::Railtie) %>
-      <%= stylesheet_link_tag "pghero/nouislider", "pghero/arduino-light", "pghero/application" %>
-      <%= javascript_include_tag "pghero/jquery", "pghero/nouislider", "pghero/Chart.bundle", "pghero/chartkick", "pghero/highlight.pack", "pghero/application" %>
+      <%= favicon_link_tag PgHero.assets.favicon_source, type: PgHero.assets.favicon_type %>
+      <%= stylesheet_link_tag *PgHero.assets.stylesheet_sources %>
+      <%= javascript_include_tag *PgHero.assets.javascript_sources %>
+    <% elsif defined?(Sprockets) %>
+      <%= favicon_link_tag PgHero.assets.favicon_source, type: PgHero.assets.favicon_type %>
+      <%= stylesheet_link_tag PgHero.assets.stylesheet_source %>
+      <%= javascript_include_tag PgHero.assets.javascript_source %>
     <% else %>
-      <%= stylesheet_link_tag "pghero/application" %>
-      <%= javascript_include_tag "pghero/application" %>
+      <%= tag :link, rel: :icon, href: PgHero.assets.favicon_data_uri, type: PgHero.assets.favicon_type %>
+      <%= content_tag :style, PgHero.assets.stylesheet_content.html_safe %>
+      <%= content_tag :script, PgHero.assets.javascript_content.html_safe %>
     <% end %>
   </head>
   <body>
