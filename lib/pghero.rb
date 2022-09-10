@@ -86,12 +86,18 @@ module PgHero
       @password ||= config["password"] || ENV["PGHERO_PASSWORD"]
     end
 
+    # config pattern for https://github.com/ankane/pghero/issues/424
     def stats_database_url
-      @stats_database_url ||= config["stats_database_url"] || ENV["PGHERO_STATS_DATABASE_URL"]
+      @stats_database_url ||= (file_config || {})["stats_database_url"] || ENV["PGHERO_STATS_DATABASE_URL"]
     end
 
     def config
-      @config ||= begin
+      @config ||= file_config || default_config
+    end
+
+    # private
+    def file_config
+      unless defined?(@file_config)
         require "erb"
         require "yaml"
 
@@ -102,40 +108,48 @@ module PgHero
         config = YAML.load(ERB.new(File.read(path)).result) if config_file_exists
         config ||= {}
 
-        if config[env]
-          config[env]
-        elsif config["databases"] # preferred format
-          config
-        elsif config_file_exists
-          raise "Invalid config file"
-        else
-          databases = {}
-
-          if !ENV["PGHERO_DATABASE_URL"] && spec_supported?
-            ActiveRecord::Base.configurations.configs_for(env_name: env, include_replicas_key => true).each do |db|
-              databases[db.send(spec_name_key)] = {"spec" => db.send(spec_name_key)}
-            end
+        @file_config =
+          if config[env]
+            config[env]
+          elsif config["databases"] # preferred format
+            config
+          elsif config_file_exists
+            raise "Invalid config file"
+          else
+            nil
           end
+      end
 
-          if databases.empty?
-            databases["primary"] = {
-              "url" => ENV["PGHERO_DATABASE_URL"] || connection_config(ActiveRecord::Base)
-            }
-          end
+      @file_config
+    end
 
-          if databases.size == 1
-            databases.values.first.merge!(
-              "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"],
-              "gcp_database_id" => ENV["PGHERO_GCP_DATABASE_ID"],
-              "azure_resource_id" => ENV["PGHERO_AZURE_RESOURCE_ID"]
-            )
-          end
+    # private
+    def default_config
+      databases = {}
 
-          {
-            "databases" => databases
-          }
+      if !ENV["PGHERO_DATABASE_URL"] && spec_supported?
+        ActiveRecord::Base.configurations.configs_for(env_name: env, include_replicas_key => true).each do |db|
+          databases[db.send(spec_name_key)] = {"spec" => db.send(spec_name_key)}
         end
       end
+
+      if databases.empty?
+        databases["primary"] = {
+          "url" => ENV["PGHERO_DATABASE_URL"] || connection_config(ActiveRecord::Base)
+        }
+      end
+
+      if databases.size == 1
+        databases.values.first.merge!(
+          "db_instance_identifier" => ENV["PGHERO_DB_INSTANCE_IDENTIFIER"],
+          "gcp_database_id" => ENV["PGHERO_GCP_DATABASE_ID"],
+          "azure_resource_id" => ENV["PGHERO_AZURE_RESOURCE_ID"]
+        )
+      end
+
+      {
+        "databases" => databases
+      }
     end
 
     # ensure we only have one copy of databases
