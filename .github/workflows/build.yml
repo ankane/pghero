@@ -9,22 +9,7 @@ jobs:
         include:
         - ruby: 3.1
           gemfile: Gemfile
-          postgres: 14
-        - ruby: "3.0"
-          gemfile: gemfiles/activerecord61.gemfile
-          postgres: 13
-        - ruby: 2.7
-          gemfile: gemfiles/activerecord60.gemfile
-          postgres: 12
-        - ruby: 2.6
-          gemfile: gemfiles/activerecord52.gemfile
-          postgres: 11
-        - ruby: 2.5
-          gemfile: gemfiles/activerecord51.gemfile
-          postgres: 10
-        - ruby: 2.4
-          gemfile: gemfiles/activerecord50.gemfile
-          postgres: 10
+          postgres: 15
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
