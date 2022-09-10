@@ -18,6 +18,7 @@ Combustion.path = "test/internal"
 Combustion.initialize! :active_record, :action_controller do
   config.action_controller.logger = logger
   config.active_record.logger = logger
+  config.secret_key_base = SecureRandom.hex(64) if Rails::VERSION::STRING.to_f < 5.2
 end
 
 class City < ActiveRecord::Base
