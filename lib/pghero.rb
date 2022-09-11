@@ -127,7 +127,7 @@ module PgHero
     def default_config
       databases = {}
 
-      if !ENV["PGHERO_DATABASE_URL"] && spec_supported?
+      unless ENV["PGHERO_DATABASE_URL"]
         ActiveRecord::Base.configurations.configs_for(env_name: env, include_replicas_key => true).each do |db|
           databases[db.send(spec_name_key)] = {"spec" => db.send(spec_name_key)}
         end
@@ -218,11 +218,6 @@ module PgHero
       each_database do |database|
         database.clean_space_stats
       end
-    end
-
-    # private
-    def spec_supported?
-      ActiveRecord::VERSION::MAJOR >= 6
     end
 
     # private
