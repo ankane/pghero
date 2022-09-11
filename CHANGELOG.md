@@ -1,3 +1,7 @@
+## 3.0.0 (unreleased)
+
+- Dropped support for Ruby < 2.7 and Rails < 6
+
 ## 2.8.3 (2022-05-01)
 
 - Added support for `google-apis-monitoring_v3`
