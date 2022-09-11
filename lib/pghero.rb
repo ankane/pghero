@@ -91,6 +91,10 @@ module PgHero
       @stats_database_url ||= (file_config || {})["stats_database_url"] || ENV["PGHERO_STATS_DATABASE_URL"]
     end
 
+    def visualize_url
+      @visualize_url ||= config["visualize_url"] || ENV["PGHERO_VISUALIZE_URL"] || "https://tatiyants.com/pev/#/plans/new"
+    end
+
     def config
       @config ||= file_config || default_config
     end

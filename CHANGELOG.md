@@ -1,5 +1,6 @@
 ## 3.0.0 (unreleased)
 
+- Added `visualize_url` option to config
 - Changed `capture_query_stats` to only reset stats for current database in Postgres 12+
 - Changed `reset_query_stats` to only reset stats for current database (use `reset_instance_query_stats` to reset stats for entire instance)
 - Dropped support for Ruby < 2.7 and Rails < 6
