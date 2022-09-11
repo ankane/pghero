@@ -17,7 +17,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Supports Ubuntu 22.04 (Jammy), 20.04 (Focal), 18.04 (Bionic), and 16.04 (Xenial)
+Supports Ubuntu 22.04 (Jammy), 20.04 (Focal), and 18.04 (Bionic)
 
 ### Debian
 
@@ -30,7 +30,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Supports Debian 11 (Bullseye), Debian 10 (Buster), 9 (Stretch), and 8 (Jesse)
+Supports Debian 11 (Bullseye)
 
 ### CentOS / RHEL
 
@@ -40,7 +40,7 @@ sudo wget -O /etc/yum.repos.d/pghero.repo \
 sudo yum -y install pghero
 ```
 
-Supports CentOS / RHEL 8 and 7
+Supports CentOS / RHEL 7
 
 ### SUSE Linux Enterprise Server
 
