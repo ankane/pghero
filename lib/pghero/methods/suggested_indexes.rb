@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module SuggestedIndexes
       def suggested_indexes_enabled?
-        defined?(PgQuery) && Gem::Version.new(PgQuery::VERSION) >= Gem::Version.new("0.9.0") && query_stats_enabled?
+        defined?(PgQuery) && Gem::Version.new(PgQuery::VERSION) >= Gem::Version.new("2") && query_stats_enabled?
       end
 
       # TODO clean this mess
@@ -202,68 +202,33 @@ module PgHero
           return {error: "Parse error"}
         end
 
-        if PgQuery::VERSION.to_i >= 2
-          return {error: "Unknown structure"} unless tree.stmts.size == 1
+        return {error: "Unknown structure"} unless tree.stmts.size == 1
 
-          tree = tree.stmts.first.stmt
+        tree = tree.stmts.first.stmt
 
-          table = parse_table_v2(tree) rescue nil
-          unless table
-            error =
-              case tree.node
-              when :insert_stmt
-                "INSERT statement"
-              when :variable_set_stmt
-                "SET statement"
-              when :select_stmt
-                if (tree.select_stmt.from_clause.first.join_expr rescue false)
-                  "JOIN not supported yet"
-                end
+        table = parse_table(tree) rescue nil
+        unless table
+          error =
+            case tree.node
+            when :insert_stmt
+              "INSERT statement"
+            when :variable_set_stmt
+              "SET statement"
+            when :select_stmt
+              if (tree.select_stmt.from_clause.first.join_expr rescue false)
+                "JOIN not supported yet"
               end
-            return {error: error || "Unknown structure"}
-          end
-
-          select = tree[tree.node.to_s]
-          where = (select.where_clause ? parse_where_v2(select.where_clause) : []) rescue nil
-          return {error: "Unknown structure"} unless where
-
-          sort = (select.sort_clause ? parse_sort_v2(select.sort_clause) : []) rescue []
-
-          {table: table, where: where, sort: sort}
-        else
-          # TODO remove support for pg_query < 2 in PgHero 3.0
-
-          return {error: "Unknown structure"} unless tree.size == 1
-
-          tree = tree.first
-
-          # pg_query 1.0.0
-          tree = tree["RawStmt"]["stmt"] if tree["RawStmt"]
-
-          table = parse_table(tree) rescue nil
-          unless table
-            error =
-              case tree.keys.first
-              when "InsertStmt"
-                "INSERT statement"
-              when "VariableSetStmt"
-                "SET statement"
-              when "SelectStmt"
-                if (tree["SelectStmt"]["fromClause"].first["JoinExpr"] rescue false)
-                  "JOIN not supported yet"
-                end
-              end
-            return {error: error || "Unknown structure"}
-          end
-
-          select = tree.values.first
-          where = (select["whereClause"] ? parse_where(select["whereClause"]) : []) rescue nil
-          return {error: "Unknown structure"} unless where
-
-          sort = (select["sortClause"] ? parse_sort(select["sortClause"]) : []) rescue []
-
-          {table: table, where: where, sort: sort}
+            end
+          return {error: error || "Unknown structure"}
         end
+
+        select = tree[tree.node.to_s]
+        where = (select.where_clause ? parse_where(select.where_clause) : []) rescue nil
+        return {error: "Unknown structure"} unless where
+
+        sort = (select.sort_clause ? parse_sort(select.sort_clause) : []) rescue []
+
+        {table: table, where: where, sort: sort}
       end
 
       # TODO better row estimation
@@ -300,7 +265,7 @@ module PgHero
         end
       end
 
-      def parse_table_v2(tree)
+      def parse_table(tree)
         case tree.node
         when :select_stmt
           tree.select_stmt.from_clause.first.range_var.relname
@@ -311,24 +276,13 @@ module PgHero
         end
       end
 
-      def parse_table(tree)
-        case tree.keys.first
-        when "SelectStmt"
-          tree["SelectStmt"]["fromClause"].first["RangeVar"]["relname"]
-        when "DeleteStmt"
-          tree["DeleteStmt"]["relation"]["RangeVar"]["relname"]
-        when "UpdateStmt"
-          tree["UpdateStmt"]["relation"]["RangeVar"]["relname"]
-        end
-      end
-
       # TODO capture values
-      def parse_where_v2(tree)
+      def parse_where(tree)
         aexpr = tree.a_expr
 
         if tree.bool_expr
           if tree.bool_expr.boolop == :AND_EXPR
-            tree.bool_expr.args.flat_map { |v| parse_where_v2(v) }
+            tree.bool_expr.args.flat_map { |v| parse_where(v) }
           else
             raise "Not Implemented"
           end
@@ -342,40 +296,11 @@ module PgHero
         end
       end
 
-      # TODO capture values
-      def parse_where(tree)
-        aexpr = tree["A_Expr"]
-
-        if tree["BoolExpr"]
-          if tree["BoolExpr"]["boolop"] == 0
-            tree["BoolExpr"]["args"].flat_map { |v| parse_where(v) }
-          else
-            raise "Not Implemented"
-          end
-        elsif aexpr && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(aexpr["name"].first["String"]["str"])
-          [{column: aexpr["lexpr"]["ColumnRef"]["fields"].last["String"]["str"], op: aexpr["name"].first["String"]["str"]}]
-        elsif tree["NullTest"]
-          op = tree["NullTest"]["nulltesttype"] == 1 ? "not_null" : "null"
-          [{column: tree["NullTest"]["arg"]["ColumnRef"]["fields"].last["String"]["str"], op: op}]
-        else
-          raise "Not Implemented"
-        end
-      end
-
-      def parse_sort_v2(sort_clause)
+      def parse_sort(sort_clause)
         sort_clause.map do |v|
           {
             column: v.sort_by.node.column_ref.fields.last.string.str,
             direction: v.sort_by.sortby_dir == :SORTBY_DESC ? "desc" : "asc"
-          }
-        end
-      end
-
-      def parse_sort(sort_clause)
-        sort_clause.map do |v|
-          {
-            column: v["SortBy"]["node"]["ColumnRef"]["fields"].last["String"]["str"],
-            direction: v["SortBy"]["sortby_dir"] == 2 ? "desc" : "asc"
           }
         end
       end
