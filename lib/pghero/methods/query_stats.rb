@@ -56,10 +56,8 @@ module PgHero
         true
       end
 
-      # TODO scope by database in PgHero 3.0
-      # (add database: database_name to options)
       def reset_query_stats(**options)
-        reset_instance_query_stats(**options)
+        reset_instance_query_stats(database: database_name, **options)
       end
 
       # resets query stats for the entire instance
@@ -121,7 +119,7 @@ module PgHero
         server_version_num >= 90400
       end
 
-      # resetting query stats will reset across the entire Postgres instance
+      # resetting query stats will reset across the entire Postgres instance in Postgres < 12
       # this is problematic if multiple PgHero databases use the same Postgres instance
       #
       # to get around this, we capture queries for every Postgres database before we
@@ -147,16 +145,15 @@ module PgHero
         # nothing to do
         return if query_stats.empty?
 
-        # use mapping, not query stats here
-        # TODO add option for this, and make default in PgHero 3.0
-        if false # mapping.size == 1 && server_version_num >= 120000
+        # reset individual databases for Postgres 12+ instance
+        if server_version_num >= 120000
           query_stats.each do |db_id, db_query_stats|
             if reset_query_stats(database: mapping[db_id], raise_errors: raise_errors)
               insert_query_stats(db_id, db_query_stats, now)
             end
           end
         else
-          if reset_query_stats(raise_errors: raise_errors)
+          if reset_instance_query_stats(raise_errors: raise_errors)
             query_stats.each do |db_id, db_query_stats|
               insert_query_stats(db_id, db_query_stats, now)
             end
