@@ -5,9 +5,8 @@ module PgHero
         !system_stats_provider.nil?
       end
 
-      # TODO remove defined checks in 3.0
       def system_stats_provider
-        if aws_db_instance_identifier && (defined?(Aws) || defined?(AWS))
+        if aws_db_instance_identifier
           :aws
         elsif gcp_database_id
           :gcp
