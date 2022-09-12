@@ -104,7 +104,7 @@ module PgHero
         # TODO get schema from query structure, then try search path
         schema = PgHero.connection_config(connection_model)[:schema] || "public"
         if tables.any?
-          row_stats = Hash[table_stats(table: tables, schema: schema).map { |i| [i[:table], i[:estimated_rows]] }]
+          row_stats = table_stats(table: tables, schema: schema).to_h { |i| [i[:table], i[:estimated_rows]] }
           col_stats = column_stats(table: tables, schema: schema).group_by { |i| i[:table] }
         end
 
@@ -126,7 +126,7 @@ module PgHero
             total_rows = row_stats[table].to_i
             index[:rows] = total_rows
 
-            ranks = Hash[col_stats[table].to_a.map { |r| [r[:column], r] }]
+            ranks = col_stats[table].to_a.to_h { |r| [r[:column], r] }
             columns = (where + sort).map { |c| c[:column] }.uniq
 
             if columns.any?
@@ -135,7 +135,7 @@ module PgHero
                 sort = sort.first(first_desc + 1) if first_desc
                 where = where.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
 
-                index[:row_estimates] = Hash[where.map { |c| ["#{c[:column]} (#{c[:op] || "sort"})", row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }]
+                index[:row_estimates] = where.to_h { |c| ["#{c[:column]} (#{c[:op] || "sort"})", row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }
 
                 # no index needed if less than 500 rows
                 if total_rows >= 500

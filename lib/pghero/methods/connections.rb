@@ -53,7 +53,7 @@ module PgHero
             2 DESC, 1
         SQL
 
-        Hash[states.map { |s| [s[:state], s[:connections]] }]
+        states.to_h { |s| [s[:state], s[:connections]] }
       end
 
       def connection_sources

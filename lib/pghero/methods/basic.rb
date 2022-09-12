@@ -45,7 +45,7 @@ module PgHero
           if ActiveRecord::VERSION::STRING.to_f >= 6.1
             result = result.map(&:symbolize_keys)
           else
-            result = result.map { |row| Hash[row.map { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] }] }
+            result = result.map { |row| row.to_h { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] } }
           end
           if filter_data
             query_columns.each do |column|

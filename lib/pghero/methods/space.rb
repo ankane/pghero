@@ -49,7 +49,7 @@ module PgHero
       def space_growth(days: 7, relation_sizes: nil)
         if space_stats_enabled?
           relation_sizes ||= self.relation_sizes
-          sizes = Hash[ relation_sizes.map { |r| [[r[:schema], r[:relation]], r[:size_bytes]] } ]
+          sizes = relation_sizes.to_h { |r| [[r[:schema], r[:relation]], r[:size_bytes]] }
           start_at = days.days.ago
 
           stats = select_all_stats <<-SQL
@@ -92,7 +92,7 @@ module PgHero
       def relation_space_stats(relation, schema: "public")
         if space_stats_enabled?
           relation_sizes ||= self.relation_sizes
-          sizes = Hash[ relation_sizes.map { |r| [[r[:schema], r[:relation]], r[:size_bytes]] } ]
+          sizes = relation_sizes.map { |r| [[r[:schema], r[:relation]], r[:size_bytes]] }.to_h
           start_at = 30.days.ago
 
           stats = select_all_stats <<-SQL

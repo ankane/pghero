@@ -30,7 +30,7 @@ module PgHero
       private
 
       def fetch_settings(names)
-        Hash[names.map { |name| [name, select_one("SHOW #{name}")] }]
+        names.to_h { |name| [name, select_one("SHOW #{name}")] }
       end
     end
   end
