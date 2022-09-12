@@ -47,12 +47,7 @@ module PgHero
             aws_options[:secret_access_key] = aws_secret_access_key
           end
 
-          client =
-            if defined?(Aws)
-              Aws::CloudWatch::Client.new(aws_options)
-            else
-              AWS::CloudWatch.new(aws_options).client
-            end
+          client = Aws::CloudWatch::Client.new(aws_options)
 
           duration = (duration || 1.hour).to_i
           period = (period || 1.minute).to_i

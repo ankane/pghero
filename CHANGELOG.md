@@ -6,6 +6,7 @@
 - Removed `access_key_id`, `secret_access_key`, `region`, and `db_instance_identifier` methods (use `aws_` prefixed methods instead)
 - Dropped support for Ruby < 2.7 and Rails < 6
 - Dropped support for pg_query < 2
+- Dropped support for aws-sdk < 2
 
 ## 2.8.3 (2022-05-01)
 
