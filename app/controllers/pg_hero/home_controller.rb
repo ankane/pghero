@@ -196,7 +196,7 @@ module PgHero
           @indexes_by_table = @database.indexes.group_by { |i| i[:table] }
         end
       else
-        render_text "Unknown query"
+        render_text "Unknown query", status: :not_found
       end
     end
 
@@ -217,9 +217,9 @@ module PgHero
       @period = (params[:period] || 60.seconds).to_i
 
       if @duration / @period > 1440
-        render_text "Too many data points"
+        render_text "Too many data points", status: :bad_request
       elsif @period % 60 != 0
-        render_text "Period must be a multiple of 60"
+        render_text "Period must be a multiple of 60", status: :bad_request
       end
     end
 
@@ -445,12 +445,13 @@ module PgHero
     end
 
     def check_api
-      render_text "No support for Rails API. See https://github.com/pghero/pghero for a standalone app." if Rails.application.config.try(:api_only)
+      if Rails.application.config.try(:api_only)
+        render_text "No support for Rails API. See https://github.com/pghero/pghero for a standalone app.", status:  :internal_server_error
+      end
     end
 
-    # TODO return error status code
-    def render_text(message)
-      render plain: message
+    def render_text(message, status:)
+      render plain: message, status: status
     end
 
     def ensure_query_stats

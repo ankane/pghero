@@ -33,7 +33,7 @@ class ControllerTest < ActionDispatch::IntegrationTest
 
   def test_show_query
     get pg_hero.show_query_path(query_hash: 123)
-    assert_response :success
+    assert_response :not_found
   end
 
   def test_system
