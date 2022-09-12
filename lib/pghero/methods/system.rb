@@ -42,10 +42,10 @@ module PgHero
 
       def rds_stats(metric_name, duration: nil, period: nil, offset: nil, series: false)
         if system_stats_enabled?
-          aws_options = {region: region}
-          if access_key_id
-            aws_options[:access_key_id] = access_key_id
-            aws_options[:secret_access_key] = secret_access_key
+          aws_options = {region: aws_region}
+          if aws_access_key_id
+            aws_options[:access_key_id] = aws_access_key_id
+            aws_options[:secret_access_key] = aws_secret_access_key
           end
 
           client =
