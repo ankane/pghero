@@ -101,3 +101,9 @@ Statement timeout for explain
 ```sh
 heroku config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
 ````
+
+Visualize URL for explain
+
+```sh
+heroku config:set PGHERO_VISUALIZE_URL=https://...
+```

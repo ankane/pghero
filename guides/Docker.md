@@ -187,6 +187,9 @@ databases:
 # Statement timeout for explain
 # explain_timeout_sec: 10
 
+# Visualize URL for explain
+# visualize_url: https://...
+
 # Time zone
 # time_zone: "Pacific Time (US & Canada)"
 ```
@@ -256,6 +259,9 @@ data:
 
     # Statement timeout for explain
     # explain_timeout_sec: 10
+
+    # Visualize URL for explain
+    # visualize_url: https://...
 
     # Time zone
     # time_zone: "Pacific Time (US & Canada)"

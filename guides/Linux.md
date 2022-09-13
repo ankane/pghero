@@ -320,6 +320,12 @@ Statement timeout for explain
 sudo pghero config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
 ```
 
+Visualize URL for explain
+
+```sh
+sudo pghero config:set PGHERO_VISUALIZE_URL=https://...
+```
+
 ## Upgrading
 
 Ubuntu and Debian
