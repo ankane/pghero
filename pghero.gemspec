@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
 
   spec.author        = "Andrew Kane"
-  spec.email         = "andrew@chartkick.com"
+  spec.email         = "andrew@ankane.org"
 
   spec.files         = Dir["*.{md,txt}", "{app,config,lib,licenses}/**/*"]
   spec.require_path  = "lib"
