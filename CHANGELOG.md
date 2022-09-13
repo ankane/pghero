@@ -4,6 +4,7 @@
 - Changed `reset_query_stats` to only reset stats for current database (use `reset_instance_query_stats` to reset stats for entire instance)
 - Added `visualize_url` option to config
 - Removed `access_key_id`, `secret_access_key`, `region`, and `db_instance_identifier` methods (use `aws_` prefixed methods instead)
+- Dropped support for Linux packages for EOL versions
 - Dropped support for Ruby < 2.7 and Rails < 6
 - Dropped support for pg_query < 2
 - Dropped support for aws-sdk < 2
