@@ -208,7 +208,7 @@ And build your image:
 docker build -t my-pghero .
 ```
 
-If multiple databases are in the same instance and use historical query stats, PgHero should be configured to capture them together.
+With Postgres < 12, if multiple databases are in the same instance and use historical query stats, PgHero should be configured to capture them together.
 
 ```yml
 databases:
