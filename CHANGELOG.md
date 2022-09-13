@@ -1,4 +1,4 @@
-## 3.0.0 (unreleased)
+## 3.0.0 (2022-09-13)
 
 - Changed `capture_query_stats` to only reset stats for current database in Postgres 12+
 - Changed `reset_query_stats` to only reset stats for current database (use `reset_instance_query_stats` to reset stats for entire instance)
