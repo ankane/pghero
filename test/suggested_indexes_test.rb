@@ -2,7 +2,11 @@ require_relative "test_helper"
 
 class SuggestedIndexesTest < Minitest::Test
   def setup
-    database.reset_query_stats
+    if database.server_version_num >= 120000
+      database.reset_query_stats
+    else
+      database.reset_instance_query_stats
+    end
   end
 
   def test_suggested_indexes_enabled

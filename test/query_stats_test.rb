@@ -27,27 +27,33 @@ class QueryStatsTest < Minitest::Test
   end
 
   def test_reset_query_stats
+    skip unless gte12?
+
     assert database.reset_query_stats
   end
 
-  def test_reset_query_stats_database
+  def test_reset_instance_query_stats
+    assert database.reset_instance_query_stats
+  end
+
+  def test_reset_instance_query_stats_database
     skip unless gte12?
 
     assert database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
     assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
 
-    assert database.reset_query_stats(database: database.database_name)
+    assert database.reset_instance_query_stats(database: database.database_name)
 
     assert_equal 1, database.query_stats.size
     refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
   end
 
-  def test_reset_query_stats_database_invalid
+  def test_reset_instance_query_stats_database_invalid
     skip unless gte12?
 
     error = assert_raises(PgHero::Error) do
-      database.reset_query_stats(database: "pghero_test2")
+      database.reset_instance_query_stats(database: "pghero_test2")
     end
     assert_equal "Database not found: pghero_test2", error.message
   end

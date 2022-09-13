@@ -57,7 +57,8 @@ module PgHero
       end
 
       def reset_query_stats(**options)
-        reset_instance_query_stats(database: database_name, **options)
+        raise PgHero::Error, "Use reset_instance_query_stats to pass database" if options.delete(:database)
+        reset_instance_query_stats(**options, database: database_name)
       end
 
       # resets query stats for the entire instance
@@ -148,7 +149,7 @@ module PgHero
         # reset individual databases for Postgres 12+ instance
         if server_version_num >= 120000
           query_stats.each do |db_id, db_query_stats|
-            if reset_query_stats(database: mapping[db_id], raise_errors: raise_errors)
+            if reset_instance_query_stats(database: mapping[db_id], raise_errors: raise_errors)
               insert_query_stats(db_id, db_query_stats, now)
             end
           end

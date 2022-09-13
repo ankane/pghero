@@ -369,7 +369,11 @@ module PgHero
     end
 
     def reset_query_stats
-      @database.reset_query_stats
+      if @database.server_version_num >= 120000
+        @database.reset_query_stats
+      else
+        @database.reset_instance_query_stats
+      end
       redirect_backward notice: "Query stats reset"
     rescue ActiveRecord::StatementInvalid
       redirect_backward alert: "The database user does not have permission to reset query stats"
