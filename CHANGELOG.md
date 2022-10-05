@@ -1,3 +1,7 @@
+## 3.0.1 (unreleased)
+
+- Fixed message when database user does not have permission to reset query stats
+
 ## 3.0.0 (2022-09-13)
 
 - Changed `capture_query_stats` to only reset stats for current database in Postgres 12+
