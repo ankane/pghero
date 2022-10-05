@@ -2,7 +2,8 @@ require_relative "test_helper"
 
 class IndexesTest < Minitest::Test
   def test_index_hit_rate
-    assert database.index_hit_rate
+    database.index_hit_rate
+    assert true
   end
 
   def test_index_caching
