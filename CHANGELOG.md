@@ -1,4 +1,4 @@
-## 3.0.1 (unreleased)
+## 3.0.1 (2022-10-09)
 
 - Fixed message when database user does not have permission to reset query stats
 
