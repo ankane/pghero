@@ -9,17 +9,17 @@ jobs:
         include:
         - ruby: 3.1
           gemfile: Gemfile
-          postgres: 14
+          postgres: 15
         - ruby: "3.0"
           gemfile: gemfiles/activerecord61.gemfile
-          postgres: 12
+          postgres: 13
         - ruby: 2.7
           gemfile: gemfiles/activerecord60.gemfile
           postgres: 10
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
