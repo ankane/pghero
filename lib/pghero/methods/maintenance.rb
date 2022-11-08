@@ -1,7 +1,7 @@
 module PgHero
   module Methods
     module Maintenance
-      # https://www.postgresql.org/docs/9.1/static/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND
+      # https://www.postgresql.org/docs/current/routine-vacuuming.html#VACUUM-FOR-WRAPAROUND
       # "the system will shut down and refuse to start any new transactions
       # once there are fewer than 1 million transactions left until wraparound"
       # warn when 10,000,000 transactions left
@@ -97,8 +97,8 @@ module PgHero
             last_autovacuum,
             last_analyze,
             last_autoanalyze,
-            n_live_tup,
-            n_dead_tup
+            n_dead_tup AS dead_rows,
+            n_live_tup AS live_rows
           FROM
             pg_stat_user_tables
           JOIN

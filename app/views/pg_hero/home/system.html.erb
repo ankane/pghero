@@ -9,26 +9,26 @@
   <h1>CPU</h1>
   <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
   <script>
-    new Chartkick.LineChart("chart-1", <%= json_escape(cpu_usage_path(path_options).to_json).html_safe %>, {max: 100, colors: ["#5bc0de"]})
+    new Chartkick.LineChart("chart-1", <%= json_escape(cpu_usage_path(path_options).to_json).html_safe %>, {max: 100, colors: ["#5bc0de"], suffix: "%", library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
   </script>
 
   <h1>Load</h1>
   <div id="chart-2" class="chart" style="margin-bottom: 20px;">Loading...</div>
   <script>
-    new Chartkick.LineChart("chart-2", <%= json_escape(load_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de", "#d9534f"]})
+    new Chartkick.LineChart("chart-2", <%= json_escape(load_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de", "#d9534f"], library: {plugins: {tooltip: {intersect: false, mode: "nearest"}}}})
   </script>
 
   <h1>Connections</h1>
   <div id="chart-3" class="chart" style="margin-bottom: 20px;">Loading...</div>
   <script>
-    new Chartkick.LineChart("chart-3", <%= json_escape(connection_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de"]})
+    new Chartkick.LineChart("chart-3", <%= json_escape(connection_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de"], library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
   </script>
 
   <% if @database.replica? %>
     <h1>Replication Lag</h1>
     <div id="chart-4" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
-      new Chartkick.LineChart("chart-4", <%= json_escape(replication_lag_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de"]})
+      new Chartkick.LineChart("chart-4", <%= json_escape(replication_lag_stats_path(path_options).to_json).html_safe %>, {colors: ["#5bc0de"], library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
     </script>
   <% end %>
 </div>

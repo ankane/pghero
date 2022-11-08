@@ -1,92 +1,48 @@
-# PgHero for Linux
-
-Distributions
-
-- [Ubuntu 18.04 (Bionic)](#ubuntu-1804-bionic)
-- [Ubuntu 16.04 (Xenial)](#ubuntu-1604-xenial)
-- [Ubuntu 14.04 (Trusty)](#ubuntu-1404-trusty)
-- [Debian 9 (Stretch)](#debian-9-stretch)
-- [Debian 8 (Jesse)](#debian-8-jesse)
-- [Debian 7 (Wheezy)](#debian-7-wheezy)
-- [CentOS / RHEL 7](#centos--rhel-7)
-- [SUSE Linux Enterprise Server 12](#suse-linux-enterprise-server-12)
-
-64-bit only
+# PgHero Linux
 
 ## Installation
 
-### Ubuntu 18.04 (Bionic)
+- [Ubuntu](#ubuntu)
+- [Debian](#debian)
+- [CentOS / RHEL](#centos--rhel)
+- [SUSE Linux Enterprise Server](#suse-linux-enterprise-server)
+
+### Ubuntu
 
 ```sh
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/18.04.repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/$(. /etc/os-release && echo $VERSION_ID).repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-### Ubuntu 16.04 (Xenial)
+Supports Ubuntu 22.04 (Jammy), 20.04 (Focal), and 18.04 (Bionic)
 
-```sh
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/16.04.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
-### Ubuntu 14.04 (Trusty)
-
-```sh
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/14.04.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
-### Debian 9 (Stretch)
+### Debian
 
 ```sh
 sudo apt-get -y install apt-transport-https
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
 sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/9.repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/$(. /etc/os-release && echo $VERSION_ID).repo
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-### Debian 8 (Jesse)
+Supports Debian 11 (Bullseye)
 
-```sh
-sudo apt-get -y install apt-transport-https
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/8.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
-### Debian 7 (Wheezy)
-
-```sh
-sudo apt-get -y install apt-transport-https
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/7.repo
-sudo apt-get update
-sudo apt-get -y install pghero
-```
-
-### CentOS / RHEL 7
+### CentOS / RHEL
 
 ```sh
 sudo wget -O /etc/yum.repos.d/pghero.repo \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/el/7.repo
+  https://dl.packager.io/srv/pghero/pghero/master/installer/el/$(. /etc/os-release && echo $VERSION_ID).repo
 sudo yum -y install pghero
 ```
 
-### SUSE Linux Enterprise Server 12
+Supports CentOS / RHEL 7
+
+### SUSE Linux Enterprise Server
 
 ```sh
 sudo wget -O /etc/zypp/repos.d/pghero.repo \
@@ -94,19 +50,14 @@ sudo wget -O /etc/zypp/repos.d/pghero.repo \
 sudo zypper install pghero
 ```
 
+Supports SUSE Linux Enterprise Server 12
+
 ## Setup
 
-Add your database.
+Add your database. Use URL-encoding for any special characters in the username or password.
 
 ```sh
 sudo pghero config:set DATABASE_URL=postgres://user:password@hostname:5432/dbname
-```
-
-And optional authentication.
-
-```sh
-sudo pghero config:set PGHERO_USERNAME=link
-sudo pghero config:set PGHERO_PASSWORD=hyrule
 ```
 
 Start the server
@@ -139,6 +90,23 @@ EOF
 sudo service nginx restart
 ```
 
+To run under a subpath, also set:
+
+```sh
+sudo pghero config:set RAILS_RELATIVE_URL_ROOT=my-path
+```
+
+## Authentication
+
+Add basic authentication with:
+
+```sh
+sudo pghero config:set PGHERO_USERNAME=link
+sudo pghero config:set PGHERO_PASSWORD=hyrule
+```
+
+Or use a reverse proxy like [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy), Amazon’s [ALB Authentication](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html), or Google’s [Identity-Aware Proxy](https://cloud.google.com/iap/).
+
 ## Management
 
 ```sh
@@ -164,7 +132,7 @@ To track query stats over time, create a table to store them.
 
 ```sql
 CREATE TABLE "pghero_query_stats" (
-  "id" serial primary key,
+  "id" bigserial primary key,
   "database" text,
   "user" text,
   "query" text,
@@ -190,13 +158,19 @@ sudo pghero run rake pghero:capture_query_stats
 
 After this, a time range slider will appear on the Queries tab.
 
+The query stats table can grow large over time. Remove old stats with:
+
+```sh
+sudo pghero run rake pghero:clean_query_stats
+```
+
 ## Historical Space Stats
 
 To track space stats over time, create a table to store them.
 
 ```sql
 CREATE TABLE "pghero_space_stats" (
-  "id" serial primary key,
+  "id" bigserial primary key,
   "database" text,
   "schema" text,
   "relation" text,
@@ -214,14 +188,69 @@ sudo pghero run rake pghero:capture_space_stats
 
 ## System Stats
 
-CPU usage is available for Amazon RDS.  Add these variables to your environment:
+CPU usage, IOPS, and other stats are available for:
+
+- [Amazon RDS](#amazon-rds)
+- [Google Cloud SQL](#google-cloud-sql)
+- [Azure Database](#azure-database)
+
+Heroku and Digital Ocean do not currently have an API for database metrics.
+
+### Amazon RDS
+
+Add these variables to your environment:
 
 ```sh
-sudo pghero config:set PGHERO_ACCESS_KEY_ID=accesskey123
-sudo pghero config:set PGHERO_SECRET_ACCESS_KEY=secret123
-sudo pghero config:set PGHERO_REGION=us-east-1
-sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=epona
+sudo pghero config:set AWS_ACCESS_KEY_ID=my-access-key
+sudo pghero config:set AWS_SECRET_ACCESS_KEY=my-secret
+sudo pghero config:set AWS_REGION=us-east-1
+sudo pghero config:set PGHERO_DB_INSTANCE_IDENTIFIER=my-instance
 ```
+
+This requires the following IAM policy:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "cloudwatch:GetMetricStatistics",
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+### Google Cloud SQL
+
+Add these variables to your environment:
+
+```sh
+sudo pghero config:set GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+sudo pghero config:set PGHERO_GCP_DATABASE_ID=my-project:my-instance
+```
+
+This requires the Monitoring Viewer role.
+
+### Azure Database
+
+[Get your credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and add these variables to your environment:
+
+```sh
+AZURE_TENANT_ID=...
+AZURE_CLIENT_ID=...
+AZURE_CLIENT_SECRET=...
+AZURE_SUBSCRIPTION_ID=...
+```
+
+Finally, set your database resource URI:
+
+```sh
+PGHERO_AZURE_RESOURCE_ID=/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.DBforPostgreSQL/servers/<database-id>
+```
+
+This requires the Monitoring Reader role.
 
 ## Multiple Databases
 
@@ -235,13 +264,24 @@ databases:
     url: postgres://...
 ```
 
-More information about [connections parameters](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS)
+More information about [connection parameters](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS)
 
 And run:
 
 ```sh
 cat pghero.yml | sudo pghero run sh -c "cat > config/pghero.yml"
 sudo service pghero restart
+```
+
+With Postgres < 12, if multiple databases are in the same instance and use historical query stats, PgHero should be configured to capture them together.
+
+```yml
+databases:
+  primary:
+    url: ...
+  other:
+    url: ...
+    capture_query_stats: primary
 ```
 
 ## Permissions
@@ -278,6 +318,12 @@ Statement timeout for explain
 
 ```sh
 sudo pghero config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
+```
+
+Visualize URL for explain
+
+```sh
+sudo pghero config:set PGHERO_VISUALIZE_URL=https://...
 ```
 
 ## Upgrading

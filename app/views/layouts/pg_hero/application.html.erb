@@ -5,8 +5,13 @@
 
     <meta charset="utf-8" />
     <%= favicon_link_tag "pghero/favicon.png" %>
-    <%= stylesheet_link_tag "pghero/application" %>
-    <%= javascript_include_tag "pghero/application" %>
+    <% if defined?(Propshaft::Railtie) %>
+      <%= stylesheet_link_tag "pghero/nouislider", "pghero/arduino-light", "pghero/application" %>
+      <%= javascript_include_tag "pghero/jquery", "pghero/nouislider", "pghero/Chart.bundle", "pghero/chartkick", "pghero/highlight.pack", "pghero/application" %>
+    <% else %>
+      <%= stylesheet_link_tag "pghero/application" %>
+      <%= javascript_include_tag "pghero/application" %>
+    <% end %>
   </head>
   <body class="flex items-stretch">
     <div class="flex-none sidebar-container" style="width: 200px; border-right: 1px solid #ddd; background-color: #f9fafb;">

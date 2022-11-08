@@ -1,34 +1,23 @@
 require "bundler/setup"
+require "combustion"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "pg_query"
-require "active_record"
-require "activerecord-import"
 
-ActiveRecord::Base.establish_connection adapter: "postgresql", database: "pghero_test"
-
-ActiveRecord::Migration.enable_extension "pg_stat_statements"
-
-ActiveRecord::Migration.create_table :cities, force: true do |t|
-  t.string :name
+class Minitest::Test
+  def database
+    @database ||= PgHero.databases[:primary]
+  end
 end
 
-ActiveRecord::Migration.create_table :states, force: true do |t|
-  t.string :name
-end
+logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)
 
-ActiveRecord::Migration.create_table :users, force: true do |t|
-  t.integer :city_id
-  t.integer :login_attempts
-  t.string :email
-  t.string :zip_code
-  t.boolean :active
-  t.timestamp :created_at
-  t.timestamp :updated_at
+Combustion.path = "test/internal"
+Combustion.initialize! :active_record, :action_controller do
+  config.action_controller.logger = logger
+  config.active_record.logger = logger
 end
-ActiveRecord::Migration.add_index :users, :id # duplicate index
-ActiveRecord::Migration.add_index :users, :updated_at
 
 class City < ActiveRecord::Base
 end
@@ -45,7 +34,7 @@ states =
       name: "State #{i}"
     }
   end
-State.import states, validate: false
+State.insert_all!(states)
 ActiveRecord::Base.connection.execute("ANALYZE states")
 
 users =
@@ -57,9 +46,13 @@ users =
       login_attempts: rand(30),
       zip_code: i % 40 == 0 ? nil : "12345",
       active: true,
+      country: "Test #{rand(30)}",
+      tree_path: "path#{rand(30)}",
+      range: (0..rand(5)),
+      metadata: {favorite_color: "red"},
       created_at: Time.now - rand(50).days,
       updated_at: Time.now - rand(50).days
     }
   end
-User.import users, validate: false
+User.insert_all!(users)
 ActiveRecord::Base.connection.execute("ANALYZE users")

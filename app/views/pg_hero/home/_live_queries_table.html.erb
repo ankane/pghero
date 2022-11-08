@@ -99,7 +99,9 @@
           <% end %>
         </td>
         <td class="text-right" style="padding-right: 0">
-          <%= button_to "Explain", explain_path, params: {query: query[:query]}, form: {target: "_blank"}, class: "btn btn-info" %>
+          <% unless @database.filter_data %>
+            <%= button_to "Explain", explain_path, params: {query: query[:query]}, form: {target: "_blank"}, class: "btn btn-info" %>
+          <% end %>
           <%= button_to "Kill", kill_path(pid: query[:pid]), class: "btn btn-danger" %>
         </td>
       </tr>

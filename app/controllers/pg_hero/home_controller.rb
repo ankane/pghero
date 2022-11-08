@@ -2,22 +2,25 @@ module PgHero
   class HomeController < ActionController::Base
     layout "pg_hero/application"
 
-    protect_from_forgery
+    protect_from_forgery with: :exception
 
-    http_basic_authenticate_with name: ENV["PGHERO_USERNAME"], password: ENV["PGHERO_PASSWORD"] if ENV["PGHERO_PASSWORD"]
+    http_basic_authenticate_with name: PgHero.username, password: PgHero.password if PgHero.password
 
-    if respond_to?(:before_action)
-      before_action :check_api
-      before_action :set_database
-      before_action :set_query_stats_enabled
-      before_action :set_show_details, only: [:index, :queries, :show_query]
-      before_action :ensure_query_stats, only: [:queries]
-    else
-      # no need to check API in earlier versions
-      before_filter :set_database
-      before_filter :set_query_stats_enabled
-      before_filter :set_show_details, only: [:index, :queries, :show_query]
-      before_filter :ensure_query_stats, only: [:queries]
+    before_action :check_api
+    before_action :set_database
+    before_action :set_query_stats_enabled
+    before_action :set_show_details, only: [:index, :queries, :show_query]
+    before_action :ensure_query_stats, only: [:queries]
+
+    if PgHero.config["override_csp"]
+      # note: this does not take into account asset hosts
+      # which can be a string with %d or a proc
+      # https://api.rubyonrails.org/classes/ActionView/Helpers/AssetUrlHelper.html
+      # users should set CSP manually if needed
+      # see https://github.com/ankane/pghero/issues/297
+      after_action do
+        response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline'"
+      end
     end
 
     def index
@@ -31,7 +34,8 @@ module PgHero
         @inactive_replication_slots = @database.replication_slots.select { |r| !r[:active] }
       end
 
-      @autovacuum_queries, @long_running_queries = @database.long_running_queries.partition { |q| q[:query].starts_with?("autovacuum:") }
+      @walsender_queries, long_running_queries = @database.long_running_queries.partition { |q| q[:backend_type] == "walsender" }
+      @autovacuum_queries, @long_running_queries = long_running_queries.partition { |q| q[:query].starts_with?("autovacuum:") }
 
       connection_states = @database.connection_states
       @total_connections = connection_states.values.sum
@@ -48,6 +52,7 @@ module PgHero
 
       @indexes = @database.indexes
       @invalid_indexes = @database.invalid_indexes(indexes: @indexes)
+      @invalid_constraints = @database.invalid_constraints
       @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
 
       if @query_stats_enabled
@@ -74,18 +79,22 @@ module PgHero
       @title = "Space"
       @days = (params[:days] || 7).to_i
       @database_size = @database.database_size
-      @relation_sizes = params[:tables] ? @database.table_sizes : @database.relation_sizes
-      @space_stats_enabled = @database.space_stats_enabled? && !params[:tables]
+      @only_tables = params[:tables].present?
+      @relation_sizes = @only_tables ? @database.table_sizes : @database.relation_sizes
+      @space_stats_enabled = @database.space_stats_enabled? && !@only_tables
       if @space_stats_enabled
         space_growth = @database.space_growth(days: @days, relation_sizes: @relation_sizes)
-        @growth_bytes_by_relation = Hash[ space_growth.map { |r| [[r[:schema], r[:relation]], r[:growth_bytes]] } ]
-        case params[:sort]
-        when "growth"
+        @growth_bytes_by_relation = space_growth.to_h { |r| [[r[:schema], r[:relation]], r[:growth_bytes]] }
+        if params[:sort] == "growth"
           @relation_sizes.sort_by! { |r| s = @growth_bytes_by_relation[[r[:schema], r[:relation]]]; [s ? 0 : 1, -s.to_i, r[:schema], r[:relation]] }
-        when "name"
-          @relation_sizes.sort_by! { |r| r[:relation] || r[:table] }
         end
       end
+
+      if params[:sort] == "name"
+        @relation_sizes.sort_by! { |r| r[:relation] || r[:table] }
+      end
+
+      @header_options = @only_tables ? {tables: "t"} : {}
 
       across = params[:across].to_s.split(",")
       @unused_indexes = @database.unused_indexes(max_scans: 0, across: across)
@@ -100,7 +109,7 @@ module PgHero
       @relation = params[:relation]
       @title = @relation
       relation_space_stats = @database.relation_space_stats(@relation, schema: @schema)
-      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at], (r[:size_bytes].to_f / 1.megabyte).round(1)] }, library: chart_library_options}]
+      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at].change(sec: 0), r[:size_bytes].to_i] }, library: chart_library_options}]
     end
 
     def index_bloat
@@ -178,7 +187,7 @@ module PgHero
           @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:average_time].round(1)] }, library: chart_library_options}]
           @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:calls]] }, library: chart_library_options}]
 
-          @origins = Hash[query_hash_stats.group_by { |r| r[:origin].to_s }.map { |k, v| [k, v.size] }]
+          @origins = query_hash_stats.group_by { |r| r[:origin].to_s }.to_h { |k, v| [k, v.size] }
           @total_count = query_hash_stats.size
         end
 
@@ -186,11 +195,11 @@ module PgHero
         @tables.sort!
 
         if @tables.any?
-          @row_counts = Hash[@database.table_stats(table: @tables).map { |i| [i[:table], i[:estimated_rows]] }]
+          @row_counts = @database.table_stats(table: @tables).to_h { |i| [i[:table], i[:estimated_rows]] }
           @indexes_by_table = @database.indexes.group_by { |i| i[:table] }
         end
       else
-        render_text "Unknown query"
+        render_text "Unknown query", status: :not_found
       end
     end
 
@@ -202,38 +211,57 @@ module PgHero
         "1 week" => {duration: 1.week, period: 30.minutes},
         "2 weeks" => {duration: 2.weeks, period: 1.hours}
       }
+      if @database.system_stats_provider == :azure
+        # doesn't support 10, just 5 and 15
+        @periods["1 day"][:period] = 15.minutes
+      end
+
       @duration = (params[:duration] || 1.hour).to_i
       @period = (params[:period] || 60.seconds).to_i
 
       if @duration / @period > 1440
-        render_text "Too many data points"
+        render_text "Too many data points", status: :bad_request
       elsif @period % 60 != 0
-        render_text "Period must be a multiple of 60"
+        render_text "Period must be a multiple of 60", status: :bad_request
       end
     end
 
     def cpu_usage
-      render json: [{name: "CPU", data: @database.cpu_usage(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}]
+      render json: [{name: "CPU", data: @database.cpu_usage(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}]
     end
 
     def connection_stats
-      render json: [{name: "Connections", data: @database.connection_stats(system_params), library: chart_library_options}]
+      render json: [{name: "Connections", data: @database.connection_stats(**system_params), library: chart_library_options}]
     end
 
     def replication_lag_stats
-      render json: [{name: "Lag", data: @database.replication_lag_stats(system_params), library: chart_library_options}]
+      render json: [{name: "Lag", data: @database.replication_lag_stats(**system_params), library: chart_library_options}]
     end
 
     def load_stats
-      render json: [
-        {name: "Read IOPS", data: @database.read_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options},
-        {name: "Write IOPS", data: @database.write_iops_stats(system_params).map { |k, v| [k, v.round] }, library: chart_library_options}
-      ]
+      stats =
+        case @database.system_stats_provider
+        when :azure
+          [
+            {name: "IO Consumption", data: @database.azure_stats("io_consumption_percent", **system_params), library: chart_library_options}
+          ]
+        when :gcp
+          [
+            {name: "Read Ops", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
+            {name: "Write Ops", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
+          ]
+        else
+          [
+            {name: "Read IOPS", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
+            {name: "Write IOPS", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
+          ]
+        end
+      render json: stats
     end
 
     def free_space_stats
       render json: [
-        {name: "Free Space", data: @database.free_space_stats(duration: 14.days, period: 1.hour).map { |k, v| [k, (v / 1.gigabyte).round] }, library: chart_library_options},
+        {name: "Free Space", data: @database.free_space_stats(duration: 14.days, period: 1.hour), library: chart_library_options},
       ]
     end
 
@@ -274,17 +302,48 @@ module PgHero
 
     def connections
       @title = "Connections"
-      @connection_sources = @database.connection_sources
-      @total_connections = @connection_sources.sum { |cs| cs[:total_connections] }
+      connections = @database.connections
 
-      @connections_by_database = group_connections(@connection_sources, :database)
-      @connections_by_user = group_connections(@connection_sources, :user)
+      @total_connections = connections.count
+      @connection_sources = group_connections(connections, [:database, :user, :source, :ip])
+      @connections_by_database = group_connections_by_key(connections, :database)
+      @connections_by_user = group_connections_by_key(connections, :user)
+
+      if params[:security] && @database.server_version_num >= 90500
+        connections.each do |connection|
+          connection[:ssl_status] =
+            if connection[:ssl]
+              # no way to tell if client used verify-full
+              # so connection may not be actually secure
+              "SSL"
+            else
+              # variety of reasons for no SSL
+              if !connection[:database].present?
+                "Internal Process"
+              elsif !connection[:ip]
+                if connection[:state]
+                  "Socket"
+                else
+                  # tcp or socket, don't have permission to tell
+                  "No SSL"
+                end
+              else
+                # tcp
+                # could separate out localhost since this should be safe
+                "No SSL"
+              end
+            end
+        end
+
+        @connections_by_ssl_status = group_connections_by_key(connections, :ssl_status)
+      end
     end
 
     def maintenance
       @title = "Maintenance"
       @maintenance_info = @database.maintenance_info
       @time_zone = PgHero.time_zone
+      @show_dead_rows = params[:dead_rows]
     end
 
     def kill
@@ -313,20 +372,24 @@ module PgHero
     end
 
     def reset_query_stats
-      @database.reset_query_stats
-      redirect_backward notice: "Query stats reset"
-    rescue ActiveRecord::StatementInvalid
-      redirect_backward alert: "The database user does not have permission to reset query stats"
+      success =
+        if @database.server_version_num >= 120000
+          @database.reset_query_stats
+        else
+          @database.reset_instance_query_stats
+        end
+
+      if success
+        redirect_backward notice: "Query stats reset"
+      else
+        redirect_backward alert: "The database user does not have permission to reset query stats"
+      end
     end
 
     protected
 
     def redirect_backward(options = {})
-      if Rails.version >= "5.1"
-        redirect_back options.merge(fallback_location: root_path)
-      else
-        redirect_to :back, options
-      end
+      redirect_back fallback_location: root_path, **options
     end
 
     def set_database
@@ -367,12 +430,13 @@ module PgHero
     def system_params
       {
         duration: params[:duration],
-        period: params[:period]
+        period: params[:period],
+        series: true
       }.delete_if { |_, v| v.nil? }
     end
 
     def chart_library_options
-      {pointRadius: 0, pointHitRadius: 5, borderWidth: 4}
+      {pointRadius: 0, pointHoverRadius: 0, pointHitRadius: 5, borderWidth: 4}
     end
 
     def set_show_details
@@ -380,20 +444,25 @@ module PgHero
       @show_details = @historical_query_stats_enabled && @database.supports_query_hash?
     end
 
-    def group_connections(connection_sources, key)
-      top_connections = Hash.new(0)
-      connection_sources.each do |source|
-        top_connections[source[key]] += source[:total_connections]
-      end
-      top_connections.sort_by { |k, v| [-v, k] }
+    def group_connections(connections, keys)
+      connections
+        .group_by { |conn| conn.slice(*keys) }
+        .map { |k, v| k.merge(total_connections: v.count) }
+        .sort_by { |v| [-v[:total_connections]] + keys.map { |k| v[k].to_s } }
+    end
+
+    def group_connections_by_key(connections, key)
+      group_connections(connections, [key]).map { |v| [v[key], v[:total_connections]] }.to_h
     end
 
     def check_api
-      render_text "No support for Rails API. See https://github.com/pghero/pghero for a standalone app." if Rails.application.config.try(:api_only)
+      if Rails.application.config.try(:api_only)
+        render_text "No support for Rails API. See https://github.com/pghero/pghero for a standalone app.", status:  :internal_server_error
+      end
     end
 
-    def render_text(message)
-      render plain: message
+    def render_text(message, status:)
+      render plain: message, status: status
     end
 
     def ensure_query_stats

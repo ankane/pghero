@@ -1,9 +1,11 @@
-# PgHero for Rails
+# PgHero Rails
+
+## Installation
 
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'pghero'
+gem "pghero"
 ```
 
 And mount the dashboard in your `config/routes.rb`:
@@ -12,30 +14,28 @@ And mount the dashboard in your `config/routes.rb`:
 mount PgHero::Engine, at: "pghero"
 ```
 
-Be sure to [secure the dashboard](#security) in production.
+Be sure to [secure the dashboard](#authentication) in production.
 
 ### Suggested Indexes
 
 PgHero can suggest indexes to add. To enable, add to your Gemfile:
 
 ```ruby
-gem 'pg_query', '>= 0.9.0'
+gem "pg_query", ">= 2"
 ```
 
 and make sure [query stats](#query-stats) are enabled. Read about how it works [here](Suggested-Indexes.md).
 
-## Security
+## Authentication
 
-#### Basic Authentication
-
-Set the following variables in your environment or an initializer.
+For basic authentication, set the following variables in your environment or an initializer.
 
 ```ruby
 ENV["PGHERO_USERNAME"] = "link"
 ENV["PGHERO_PASSWORD"] = "hyrule"
 ```
 
-#### Devise
+For Devise, use:
 
 ```ruby
 authenticate :user, -> (user) { user.admin? } do
@@ -70,22 +70,22 @@ PgHero.capture_query_stats
 
 After this, a time range slider will appear on the Queries tab.
 
-By default, query stats are stored in your app’s database. Change this with:
-
-```ruby
-ENV["PGHERO_STATS_DATABASE_URL"]
-```
-
-The query stats table can grow large over time. Remove old stats with: [master]
+The query stats table can grow large over time. Remove old stats with:
 
 ```sh
 rake pghero:clean_query_stats
 ```
 
-or: [master]
+or:
 
 ```rb
 PgHero.clean_query_stats
+```
+
+By default, query stats are stored in your app’s database. Change this with:
+
+```ruby
+ENV["PGHERO_STATS_DATABASE_URL"]
 ```
 
 ## Historical Space Stats
@@ -111,21 +111,34 @@ PgHero.capture_space_stats
 
 ## System Stats
 
-CPU usage, IOPS, and other stats are available for Amazon RDS. Add these lines to your application’s Gemfile:
+CPU usage, IOPS, and other stats are available for:
+
+- [Amazon RDS](#amazon-rds)
+- [Google Cloud SQL](#google-cloud-sql)
+- [Azure Database](#azure-database)
+
+Heroku and Digital Ocean do not currently have an API for database metrics.
+
+### Amazon RDS
+
+Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'aws-sdk-cloudwatch'
-# or
-gem 'aws-sdk'
+gem "aws-sdk-cloudwatch"
 ```
 
-And add these variables to your environment:
+By default, your application’s AWS credentials are used. To use separate credentials, add these variables to your environment:
 
 ```sh
-PGHERO_ACCESS_KEY_ID=accesskey123
-PGHERO_SECRET_ACCESS_KEY=secret123
+PGHERO_ACCESS_KEY_ID=my-access-key
+PGHERO_SECRET_ACCESS_KEY=my-secret
 PGHERO_REGION=us-east-1
-PGHERO_DB_INSTANCE_IDENTIFIER=epona
+```
+
+Finally, specify your DB instance identifier.
+
+```sh
+PGHERO_DB_INSTANCE_IDENTIFIER=my-instance
 ```
 
 This requires the following IAM policy:
@@ -143,6 +156,53 @@ This requires the following IAM policy:
 }
 ```
 
+### Google Cloud SQL
+
+Add this line to your application’s Gemfile:
+
+```ruby
+gem "google-cloud-monitoring-v3"
+```
+
+Enable the [Monitoring API](https://console.cloud.google.com/apis/library/monitoring.googleapis.com) and set up your credentials:
+
+```sh
+GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+```
+
+Finally, specify your database id:
+
+```sh
+PGHERO_GCP_DATABASE_ID=my-project:my-instance
+```
+
+This requires the Monitoring Viewer role.
+
+### Azure Database
+
+Add this line to your application’s Gemfile:
+
+```ruby
+gem "azure_mgmt_monitor"
+```
+
+[Get your credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and add these variables to your environment:
+
+```sh
+AZURE_TENANT_ID=...
+AZURE_CLIENT_ID=...
+AZURE_CLIENT_SECRET=...
+AZURE_SUBSCRIPTION_ID=...
+```
+
+Finally, set your database resource URI:
+
+```sh
+PGHERO_AZURE_RESOURCE_ID=/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.DBforPostgreSQL/servers/<database-id>
+```
+
+This requires the Monitoring Reader role.
+
 ## Customization & Multiple Databases
 
 To customize PgHero, create `config/pghero.yml` with:
@@ -152,6 +212,17 @@ rails generate pghero:config
 ```
 
 This allows you to specify multiple databases and change thresholds. Thresholds can be set globally or per-database.
+
+With Postgres < 12, if multiple databases are in the same instance and use historical query stats, PgHero should be configured to capture them together.
+
+```yml
+databases:
+  primary:
+    url: ...
+  other:
+    url: ...
+    capture_query_stats: primary
+```
 
 ## Permissions
 
@@ -174,7 +245,6 @@ PgHero.relation_sizes
 PgHero.index_hit_rate
 PgHero.table_hit_rate
 PgHero.total_connections
-PgHero.locks
 ```
 
 Kill queries
@@ -261,55 +331,13 @@ PgHero.drop_user("ganondorf")
 
 ## Upgrading
 
-### 2.0.0
-
-New features
-
-- Query details page
+### 3.0.0
 
 Breaking changes
 
-- Methods now return symbols for keys instead of strings
-- Methods raise `PgHero::NotEnabled` error when a feature isn’t enabled
-- Requires pg_query 0.9.0+ for suggested indexes
-- Historical query stats require the `pghero_query_stats` table to have `query_hash` and `user` columns
-- Removed `with` option - use:
-
-```ruby
-PgHero.databases[:database2].running_queries
-```
-
-instead of
-
-```ruby
-PgHero.with(:database2) { PgHero.running_queries }
-```
-
-- Removed options from `connection_sources` method
-- Removed `locks` method
-
-### 1.5.0
-
-For query stats grouping by user, create a migration with:
-
-```ruby
-add_column :pghero_query_stats, :user, :text
-```
-
-### 1.3.0
-
-For better query stats grouping with Postgres 9.4+, create a migration with:
-
-```ruby
-add_column :pghero_query_stats, :query_hash, :integer, limit: 8
-```
-
-If you get an error with `queryid`, recreate the `pg_stat_statements` extension.
-
-```sql
-DROP EXTENSION pg_stat_statements;
-CREATE EXTENSION pg_stat_statements;
-```
+- Changed `capture_query_stats` to only reset stats for current database in Postgres 12+
+- Changed `reset_query_stats` to only reset stats for current database (use `reset_instance_query_stats` to reset stats for entire instance)
+- Removed `access_key_id`, `secret_access_key`, `region`, and `db_instance_identifier` methods (use `aws_` prefixed methods instead)
 
 ## Bonus
 

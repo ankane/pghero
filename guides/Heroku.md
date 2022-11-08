@@ -27,7 +27,7 @@ To track query stats over time, create a table to store them.
 
 ```sql
 CREATE TABLE "pghero_query_stats" (
-  "id" serial primary key,
+  "id" bigserial primary key,
   "database" text,
   "user" text,
   "query" text,
@@ -101,3 +101,9 @@ Statement timeout for explain
 ```sh
 heroku config:set PGHERO_EXPLAIN_TIMEOUT_SEC=10 # default
 ````
+
+Visualize URL for explain
+
+```sh
+heroku config:set PGHERO_VISUALIZE_URL=https://...
+```

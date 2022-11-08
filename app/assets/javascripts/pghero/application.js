@@ -1,5 +1,5 @@
 //= require ./jquery
-//= require ./jquery.nouislider.min
+//= require ./nouislider
 //= require ./Chart.bundle
 //= require ./chartkick
 //= require ./highlight.pack
@@ -32,9 +32,9 @@ window.initSlider = function() {
 
   var max = (endAt > 0) ? (endAt - sliderStartAt) / (1000 * 60 * 5) : sliderMax;
 
-  var $slider = $("#slider");
+  var slider = document.getElementById("slider");
 
-  $slider.noUiSlider({
+  noUiSlider.create(slider, {
     range: {
       min: 0,
       max: sliderMax
@@ -44,8 +44,15 @@ window.initSlider = function() {
     start: [min, max]
   });
 
+  // remove outline for mouse only
+  $(".noUi-handle").mousedown(function() {
+    $(this).addClass("no-outline");
+  }).blur(function() {
+    $(this).removeClass("no-outline");
+  });
+
   function updateText() {
-    var values = $slider.val();
+    var values = slider.noUiSlider.get();
     setText("#range-start", values[0]);
     setText("#range-end", values[1]);
   }
@@ -59,7 +66,7 @@ window.initSlider = function() {
         html = "Now";
       }
     } else {
-      html = months[time.getMonth()] + " " + time.getDate() + ", " + pad(time.getHours()) + ":" + pad(time.getMinutes());
+      html = time.getDate() + " " + months[time.getMonth()] + " " + pad(time.getHours()) + ":" + pad(time.getMinutes());
     }
     $(selector).html(html);
   }
@@ -82,7 +89,7 @@ window.initSlider = function() {
   }
 
   function refreshStats(push) {
-    var values = $slider.val();
+    var values = slider.noUiSlider.get();
     var startAt = push ? timeAt(values[0]) : new Date(window.startAt);
     var endAt = timeAt(values[1]);
 
@@ -140,7 +147,8 @@ window.initSlider = function() {
     }
   }
 
-  $slider.on("slide", updateText).on("change", function () {
+  slider.noUiSlider.on("slide", updateText);
+  slider.noUiSlider.on("change", function () {
     refreshStats(true);
   });
   updateText();

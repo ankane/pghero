@@ -47,7 +47,8 @@ module PgHero
           end
         end
 
-        sequences.sort_by { |s| s[:sequence] }
+        # use to_s for unparsable sequences
+        sequences.sort_by { |s| s[:sequence].to_s }
       end
 
       def sequence_danger(threshold: 0.9, sequences: nil)
@@ -114,7 +115,7 @@ module PgHero
         end
 
         # then populate attributes
-        readable = Hash[sequence_attributes.map { |s| [[s[:schema], s[:sequence]], s[:readable]] }]
+        readable = sequence_attributes.to_h { |s| [[s[:schema], s[:sequence]], s[:readable]] }
         sequences.each do |sequence|
           sequence[:readable] = readable[[sequence[:schema], sequence[:sequence]]] || false
         end
