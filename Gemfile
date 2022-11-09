@@ -1,6 +1,11 @@
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in pghero.gemspec
 gemspec
 
-gem "activerecord", "~> 5.2.0"
+gem "minitest", ">= 5"
+gem "rake"
+
+gem "activerecord", "~> 7.0.0"
+gem "combustion"
+gem "pg"
+gem "pg_query"

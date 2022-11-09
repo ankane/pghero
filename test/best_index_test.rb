@@ -6,7 +6,7 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_all_values
-    index = PgHero.best_index("SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at")
+    index = database.best_index("SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at")
     expected = {
       found: true,
       structure: {table: "users", where: [{column: "login_attempts", op: "="}], sort: [{column: "created_at", direction: "asc"}]},
@@ -138,7 +138,6 @@ class BestIndexTest < Minitest::Test
     assert_no_index "Unknown structure", "SELECT FROM users WHERE city_id = 1 AND (login_attempts = 0 OR login_attempts = 1)"
   end
 
-
   def test_multiple_tables
     assert_no_index "JOIN not supported yet", "SELECT * FROM users INNER JOIN cities ON cities.id = users.city_id"
   end
@@ -166,14 +165,14 @@ class BestIndexTest < Minitest::Test
   protected
 
   def assert_best_index(expected, statement)
-    index = PgHero.best_index(statement)
+    index = database.best_index(statement)
     assert_nil index[:explanation]
     assert index[:found]
     assert_equal expected, index[:index]
   end
 
   def assert_no_index(explanation, statement)
-    index = PgHero.best_index(statement)
+    index = database.best_index(statement)
     assert !index[:found]
     assert_equal explanation, index[:explanation]
   end

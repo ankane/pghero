@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module SuggestedIndexes
       def suggested_indexes_enabled?
-        defined?(PgQuery) && Gem::Version.new(PgQuery::VERSION) >= Gem::Version.new("0.9.0") && query_stats_enabled?
+        defined?(PgQuery) && Gem::Version.new(PgQuery::VERSION) >= Gem::Version.new("2") && query_stats_enabled?
       end
 
       # TODO clean this mess
@@ -30,7 +30,23 @@ module PgHero
               if best_index[:found]
                 index = best_index[:index]
                 best_index[:table_indexes] = indexes_by_table[index[:table]].to_a
-                covering_index = existing_columns[index[:using] || "btree"][index[:table]].find { |e| index_covers?(e, index[:columns]) }
+
+                # indexes of same type
+                indexes = existing_columns[index[:using] || "btree"][index[:table]]
+
+                if best_index[:structure][:sort].empty?
+                  # gist indexes without an opclass
+                  # (opclass is part of column name, so columns won't match if opclass present)
+                  indexes += existing_columns["gist"][index[:table]]
+
+                  # hash indexes work for equality
+                  indexes += existing_columns["hash"][index[:table]] if best_index[:structure][:where].all? { |v| v[:op] == "=" }
+
+                  # brin indexes work for all
+                  indexes += existing_columns["brin"][index[:table]]
+                end
+
+                covering_index = indexes.find { |e| index_covers?(e.map { |v| v.sub(/ inet_ops\z/, "") }, index[:columns]) }
                 if covering_index
                   best_index[:covering_index] = covering_index
                   best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"
@@ -48,7 +64,7 @@ module PgHero
       def suggested_indexes(suggested_indexes_by_query: nil, **options)
         indexes = []
 
-        (suggested_indexes_by_query || self.suggested_indexes_by_query(options)).select { |_s, i| i[:found] && !i[:covering_index] }.group_by { |_s, i| i[:index] }.each do |index, group|
+        (suggested_indexes_by_query || self.suggested_indexes_by_query(**options)).select { |_s, i| i[:found] && !i[:covering_index] }.group_by { |_s, i| i[:index] }.each do |index, group|
           details = {}
           group.map(&:second).each do |g|
             details = details.except(:index).deep_merge(g)
@@ -86,9 +102,9 @@ module PgHero
         # get stats about columns for relevant tables
         tables = parts.values.map { |t| t[:table] }.uniq
         # TODO get schema from query structure, then try search path
-        schema = connection_model.connection_config[:schema] || "public"
+        schema = PgHero.connection_config(connection_model)[:schema] || "public"
         if tables.any?
-          row_stats = Hash[table_stats(table: tables, schema: schema).map { |i| [i[:table], i[:estimated_rows]] }]
+          row_stats = table_stats(table: tables, schema: schema).to_h { |i| [i[:table], i[:estimated_rows]] }
           col_stats = column_stats(table: tables, schema: schema).group_by { |i| i[:table] }
         end
 
@@ -110,7 +126,7 @@ module PgHero
             total_rows = row_stats[table].to_i
             index[:rows] = total_rows
 
-            ranks = Hash[col_stats[table].to_a.map { |r| [r[:column], r] }]
+            ranks = col_stats[table].to_a.to_h { |r| [r[:column], r] }
             columns = (where + sort).map { |c| c[:column] }.uniq
 
             if columns.any?
@@ -119,7 +135,7 @@ module PgHero
                 sort = sort.first(first_desc + 1) if first_desc
                 where = where.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
 
-                index[:row_estimates] = Hash[where.map { |c| ["#{c[:column]} (#{c[:op] || "sort"})", row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }]
+                index[:row_estimates] = where.to_h { |c| ["#{c[:column]} (#{c[:op] || "sort"})", row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]).round] }
 
                 # no index needed if less than 500 rows
                 if total_rows >= 500
@@ -185,34 +201,32 @@ module PgHero
         rescue PgQuery::ParseError
           return {error: "Parse error"}
         end
-        return {error: "Unknown structure"} unless tree.size == 1
 
-        tree = tree.first
+        return {error: "Unknown structure"} unless tree.stmts.size == 1
 
-        # pg_query 1.0.0
-        tree = tree["RawStmt"]["stmt"] if tree["RawStmt"]
+        tree = tree.stmts.first.stmt
 
         table = parse_table(tree) rescue nil
         unless table
           error =
-            case tree.keys.first
-            when "InsertStmt"
+            case tree.node
+            when :insert_stmt
               "INSERT statement"
-            when "VariableSetStmt"
+            when :variable_set_stmt
               "SET statement"
-            when "SelectStmt"
-              if (tree["SelectStmt"]["fromClause"].first["JoinExpr"] rescue false)
+            when :select_stmt
+              if (tree.select_stmt.from_clause.first.join_expr rescue false)
                 "JOIN not supported yet"
               end
             end
           return {error: error || "Unknown structure"}
         end
 
-        select = tree.values.first
-        where = (select["whereClause"] ? parse_where(select["whereClause"]) : []) rescue nil
+        select = tree[tree.node.to_s]
+        where = (select.where_clause ? parse_where(select.where_clause) : []) rescue nil
         return {error: "Unknown structure"} unless where
 
-        sort = (select["sortClause"] ? parse_sort(select["sortClause"]) : []) rescue []
+        sort = (select.sort_clause ? parse_sort(select.sort_clause) : []) rescue []
 
         {table: table, where: where, sort: sort}
       end
@@ -252,31 +266,31 @@ module PgHero
       end
 
       def parse_table(tree)
-        case tree.keys.first
-        when "SelectStmt"
-          tree["SelectStmt"]["fromClause"].first["RangeVar"]["relname"]
-        when "DeleteStmt"
-          tree["DeleteStmt"]["relation"]["RangeVar"]["relname"]
-        when "UpdateStmt"
-          tree["UpdateStmt"]["relation"]["RangeVar"]["relname"]
+        case tree.node
+        when :select_stmt
+          tree.select_stmt.from_clause.first.range_var.relname
+        when :delete_stmt
+          tree.delete_stmt.relation.relname
+        when :update_stmt
+          tree.update_stmt.relation.relname
         end
       end
 
       # TODO capture values
       def parse_where(tree)
-        aexpr = tree["A_Expr"]
+        aexpr = tree.a_expr
 
-        if tree["BoolExpr"]
-          if tree["BoolExpr"]["boolop"] == 0
-            tree["BoolExpr"]["args"].flat_map { |v| parse_where(v) }
+        if tree.bool_expr
+          if tree.bool_expr.boolop == :AND_EXPR
+            tree.bool_expr.args.flat_map { |v| parse_where(v) }
           else
             raise "Not Implemented"
           end
-        elsif aexpr && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(aexpr["name"].first["String"]["str"])
-          [{column: aexpr["lexpr"]["ColumnRef"]["fields"].last["String"]["str"], op: aexpr["name"].first["String"]["str"]}]
-        elsif tree["NullTest"]
-          op = tree["NullTest"]["nulltesttype"] == 1 ? "not_null" : "null"
-          [{column: tree["NullTest"]["arg"]["ColumnRef"]["fields"].last["String"]["str"], op: op}]
+        elsif aexpr && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(aexpr.name.first.string.str)
+          [{column: aexpr.lexpr.column_ref.fields.last.string.str, op: aexpr.name.first.string.str}]
+        elsif tree.null_test
+          op = tree.null_test.nulltesttype == :IS_NOT_NULL ? "not_null" : "null"
+          [{column: tree.null_test.arg.column_ref.fields.last.string.str, op: op}]
         else
           raise "Not Implemented"
         end
@@ -285,8 +299,8 @@ module PgHero
       def parse_sort(sort_clause)
         sort_clause.map do |v|
           {
-            column: v["SortBy"]["node"]["ColumnRef"]["fields"].last["String"]["str"],
-            direction: v["SortBy"]["sortby_dir"] == 2 ? "desc" : "asc"
+            column: v.sort_by.node.column_ref.fields.last.string.str,
+            direction: v.sort_by.sortby_dir == :SORTBY_DESC ? "desc" : "asc"
           }
         end
       end

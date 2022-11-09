@@ -1,6 +1,41 @@
 module PgHero
   module Methods
     module Connections
+      def connections
+        if server_version_num >= 90500
+          select_all <<-SQL
+            SELECT
+              pg_stat_activity.pid,
+              datname AS database,
+              usename AS user,
+              application_name AS source,
+              client_addr AS ip,
+              state,
+              ssl
+            FROM
+              pg_stat_activity
+            LEFT JOIN
+              pg_stat_ssl ON pg_stat_activity.pid = pg_stat_ssl.pid
+            ORDER BY
+              pg_stat_activity.pid
+          SQL
+        else
+          select_all <<-SQL
+            SELECT
+              pid,
+              datname AS database,
+              usename AS user,
+              application_name AS source,
+              client_addr AS ip,
+              state
+            FROM
+              pg_stat_activity
+            ORDER BY
+              pid
+          SQL
+        end
+      end
+
       def total_connections
         select_one("SELECT COUNT(*) FROM pg_stat_activity")
       end
@@ -18,7 +53,7 @@ module PgHero
             2 DESC, 1
         SQL
 
-        Hash[states.map { |s| [s[:state], s[:connections]] }]
+        states.to_h { |s| [s[:state], s[:connections]] }
       end
 
       def connection_sources

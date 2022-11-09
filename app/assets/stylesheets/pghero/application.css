@@ -1,5 +1,5 @@
 /*
- *= require ./jquery.nouislider
+ *= require ./nouislider
  *= require ./arduino-light
  *= require_self
  */
@@ -433,4 +433,8 @@ hr {
 
 .duplicate-indexes pre {
   margin-top: 10px;
+}
+
+.no-outline:focus {
+  outline: none;
 }

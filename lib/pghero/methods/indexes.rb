@@ -195,7 +195,7 @@ module PgHero
             FROM
               pg_index
             JOIN
-              pg_class ON pg_class.oid=pg_index.indexrelid
+              pg_class ON pg_class.oid = pg_index.indexrelid
             JOIN
               pg_namespace ON pg_namespace.oid = pg_class.relnamespace
             JOIN

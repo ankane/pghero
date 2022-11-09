@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module QueryStats
       def query_stats(historical: false, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, **options)
-        current_query_stats = historical && end_at && end_at < Time.now ? [] : current_query_stats(options)
+        current_query_stats = historical && end_at && end_at < Time.now ? [] : current_query_stats(**options)
         historical_query_stats = historical && historical_query_stats_enabled? ? historical_query_stats(start_at: start_at, end_at: end_at, **options) : []
 
         query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q[:query_hash], q[:user]] })
@@ -56,8 +56,45 @@ module PgHero
         true
       end
 
-      def reset_query_stats(raise_errors: false)
-        execute("SELECT pg_stat_statements_reset()")
+      def reset_query_stats(**options)
+        raise PgHero::Error, "Use reset_instance_query_stats to pass database" if options.delete(:database)
+        reset_instance_query_stats(**options, database: database_name)
+      end
+
+      # resets query stats for the entire instance
+      # it's possible to reset stats for a specific
+      # database, user or query hash in Postgres 12+
+      def reset_instance_query_stats(database: nil, user: nil, query_hash: nil, raise_errors: false)
+        if database || user || query_hash
+          raise PgHero::Error, "Requires PostgreSQL 12+" if server_version_num < 120000
+
+          if database
+            database_id = execute("SELECT oid FROM pg_database WHERE datname = #{quote(database)}").first.try(:[], "oid")
+            raise PgHero::Error, "Database not found: #{database}" unless database_id
+          else
+            database_id = 0
+          end
+
+          if user
+            user_id = execute("SELECT usesysid FROM pg_user WHERE usename = #{quote(user)}").first.try(:[], "usesysid")
+            raise PgHero::Error, "User not found: #{user}" unless user_id
+          else
+            user_id = 0
+          end
+
+          if query_hash
+            query_id = query_hash.to_i
+            # may not be needed
+            # but not intuitive that all query hashes are reset with 0
+            raise PgHero::Error, "Invalid query hash: #{query_hash}" if query_id == 0
+          else
+            query_id = 0
+          end
+
+          execute("SELECT pg_stat_statements_reset(#{quote(user_id.to_i)}, #{quote(database_id.to_i)}, #{quote(query_id.to_i)})")
+        else
+          execute("SELECT pg_stat_statements_reset()")
+        end
         true
       rescue ActiveRecord::StatementInvalid => e
         raise e if raise_errors
@@ -83,7 +120,7 @@ module PgHero
         server_version_num >= 90400
       end
 
-      # resetting query stats will reset across the entire Postgres instance
+      # resetting query stats will reset across the entire Postgres instance in Postgres < 12
       # this is problematic if multiple PgHero databases use the same Postgres instance
       #
       # to get around this, we capture queries for every Postgres database before we
@@ -104,29 +141,29 @@ module PgHero
           query_stats[database_id] = query_stats(limit: 1000000, database: database_name)
         end
 
-        supports_query_hash = supports_query_hash?
+        query_stats = query_stats.select { |_, v| v.any? }
 
-        if query_stats.any? { |_, v| v.any? } && reset_query_stats(raise_errors: raise_errors)
+        # nothing to do
+        return if query_stats.empty?
+
+        # reset individual databases for Postgres 12+ instance
+        if server_version_num >= 120000
           query_stats.each do |db_id, db_query_stats|
-            if db_query_stats.any?
-              values =
-                db_query_stats.map do |qs|
-                  [
-                    db_id,
-                    qs[:query],
-                    qs[:total_minutes] * 60 * 1000,
-                    qs[:calls],
-                    now,
-                    supports_query_hash ? qs[:query_hash] : nil,
-                    qs[:user]
-                  ]
-                end
-
-              columns = %w[database query total_time calls captured_at query_hash user]
-              insert_stats("pghero_query_stats", columns, values)
+            if reset_instance_query_stats(database: mapping[db_id], raise_errors: raise_errors)
+              insert_query_stats(db_id, db_query_stats, now)
+            end
+          end
+        else
+          if reset_instance_query_stats(raise_errors: raise_errors)
+            query_stats.each do |db_id, db_query_stats|
+              insert_query_stats(db_id, db_query_stats, now)
             end
           end
         end
+      end
+
+      def clean_query_stats
+        PgHero::QueryStats.where(database: id).where("captured_at < ?", 14.days.ago).delete_all
       end
 
       def slow_queries(query_stats: nil, **options)
@@ -166,14 +203,15 @@ module PgHero
         if query_stats_enabled?
           limit ||= 100
           sort ||= "total_minutes"
-          select_all <<-SQL
+          total_time = server_version_num >= 130000 ? "(total_plan_time + total_exec_time)" : "total_time"
+          query = <<-SQL
             WITH query_stats AS (
               SELECT
                 LEFT(query, 10000) AS query,
                 #{supports_query_hash? ? "queryid" : "md5(query)"} AS query_hash,
                 rolname AS user,
-                (total_time / 1000 / 60) AS total_minutes,
-                (total_time / calls) AS average_time,
+                (#{total_time} / 1000 / 60) AS total_minutes,
+                (#{total_time} / calls) AS average_time,
                 calls
               FROM
                 pg_stat_statements
@@ -182,6 +220,7 @@ module PgHero
               INNER JOIN
                 pg_roles ON pg_roles.oid = pg_stat_statements.userid
               WHERE
+                calls > 0 AND
                 pg_database.datname = #{database ? quote(database) : "current_database()"}
                 #{query_hash ? "AND queryid = #{quote(query_hash)}" : nil}
             )
@@ -200,6 +239,11 @@ module PgHero
               #{quote_table_name(sort)} DESC
             LIMIT #{limit.to_i}
           SQL
+
+          # we may be able to skip query_columns
+          # in more recent versions of Postgres
+          # as pg_stat_statements should be already normalized
+          select_all(query, query_columns: [:query])
         else
           raise NotEnabled, "Query stats not enabled"
         end
@@ -208,7 +252,7 @@ module PgHero
       def historical_query_stats(sort: nil, start_at: nil, end_at: nil, query_hash: nil)
         if historical_query_stats_enabled?
           sort ||= "total_minutes"
-          select_all_stats <<-SQL
+          query = <<-SQL
             WITH query_stats AS (
               SELECT
                 #{supports_query_hash? ? "query_hash" : "md5(query)"} AS query_hash,
@@ -244,6 +288,10 @@ module PgHero
               #{quote_table_name(sort)} DESC
             LIMIT 100
           SQL
+
+          # we can skip query_columns if all stored data is normalized
+          # for now, assume it's not
+          select_all_stats(query, query_columns: [:query, :explainable_query])
         else
           raise NotEnabled, "Historical query stats not enabled"
         end
@@ -275,6 +323,24 @@ module PgHero
       # combines ?, ?, ? => ?
       def normalize_query(query)
         squish(query.to_s.gsub(/\?(, ?\?)+/, "?").gsub(/\/\*.+?\*\//, ""))
+      end
+
+      def insert_query_stats(db_id, db_query_stats, now)
+        values =
+          db_query_stats.map do |qs|
+            [
+              db_id,
+              qs[:query],
+              qs[:total_minutes] * 60 * 1000,
+              qs[:calls],
+              now,
+              supports_query_hash? ? qs[:query_hash] : nil,
+              qs[:user]
+            ]
+          end
+
+        columns = %w[database query total_time calls captured_at query_hash user]
+        insert_stats("pghero_query_stats", columns, values)
       end
     end
   end

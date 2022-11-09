@@ -26,6 +26,9 @@
     <% if @autovacuum_queries.any? %>
       <span class="tiny"><%= @autovacuum_queries.size %> autovacuum</span>
     <% end %>
+    <% if @walsender_queries.any? %>
+      <span class="tiny"><%= @walsender_queries.size %> walsender</span>
+    <% end %>
   </div>
   <% if @extended %>
     <div class="alert alert-<%= @good_cache_rate ? "success" : "warning" %>">
@@ -62,11 +65,17 @@
       (<%= link_to pluralize(@unreadable_sequences.size, "unreadable sequence", "unreadable sequences"), {unreadable: "t"} %>)
     <% end %>
   </div>
-  <div class="alert alert-<%= @invalid_indexes.empty? ? "success" : "warning" %>">
-    <% if @invalid_indexes.any? %>
-      <%= pluralize(@invalid_indexes.size, "invalid index", "invalid indexes") %>
+  <div class="alert alert-<%= @invalid_indexes.empty? && @invalid_constraints.empty? ? "success" : "warning" %>">
+    <% if @invalid_indexes.empty? && @invalid_constraints.empty?  %>
+      No invalid indexes or constraints
     <% else %>
-      No invalid indexes
+      <% if @invalid_indexes.any? %>
+        <%= pluralize(@invalid_indexes.size, "invalid index", "invalid indexes") %>
+      <% end %>
+      <% if @invalid_constraints.any? %>
+        <% if @invalid_indexes.any? %>and<% end %>
+        <%= pluralize(@invalid_constraints.size, "invalid constraint", "invalid constraints") %>
+      <% end %>
     <% end %>
   </div>
   <% if @duplicate_indexes %>
@@ -212,7 +221,7 @@
     <h1>High Number of Connections</h1>
     <p><%= pluralize(@total_connections, "connection") %></p>
 
-    <p><%= link_to "Use connection pooling", "http://www.craigkerstiens.com/2014/05/22/on-connection-pooling/", target: "_blank" %> for better performance. <%= link_to "PgBouncer", "https://wiki.postgresql.org/wiki/PgBouncer", target: "_blank" %> is a solid option.</p>
+    <p><%= link_to "Use connection pooling", "https://www.craigkerstiens.com/2014/05/22/postgres-and-connection-pooling/", target: "_blank" %> for better performance. <%= link_to "PgBouncer", "https://wiki.postgresql.org/wiki/PgBouncer", target: "_blank" %> is a solid option.</p>
 
     <%= render partial: "connections_table", locals: {connection_sources: @database.connection_sources.first(10)} %>
   </div>
@@ -332,6 +341,39 @@
   </div>
 <% end %>
 
+<% if @invalid_constraints.any? %>
+  <div class="content">
+    <h1>Invalid Constraints</h1>
+
+    <p>These constraints are marked as <code>NOT VALID</code>. You should validate them.</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @invalid_constraints.each do |constraint| %>
+          <tr>
+            <td>
+              <%= constraint[:name] %>
+              <% if constraint[:schema] != "public" %>
+                <span class="text-muted"><%= constraint[:schema] %></span>
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <td style="border-top: none; padding: 0;">
+              <pre><code>ALTER TABLE <%= pghero_pretty_ident(constraint[:table], schema: constraint[:schema]) %> VALIDATE CONSTRAINT <%= pghero_pretty_ident(constraint[:name]) %>;</code></pre>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
 <% if @duplicate_indexes && @duplicate_indexes.any? %>
   <div class="content">
     <h1>Duplicate Indexes</h1>
@@ -345,10 +387,10 @@
     </p>
 
     <div id="migration2" style="display: none;">
-      <pre>rails g migration remove_unneeded_indexes</pre>
+      <pre>rails generate migration remove_unneeded_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @duplicate_indexes.each do |query| %>
-remove_index <%= query[:unneeded_index][:table].to_sym.inspect %>, name: <%= query[:unneeded_index][:name].to_s.inspect %><% end %></pre>
+<%= pghero_remove_index(query[:unneeded_index]) %><% end %></pre>
     </div>
 
     <table class="table duplicate-indexes">
@@ -387,12 +429,12 @@ remove_index <%= query[:unneeded_index][:table].to_sym.inspect %>, name: <%= que
     </p>
 
     <div id="migration3" style="display: none;">
-      <pre>rails g migration add_suggested_indexes</pre>
+      <pre>rails generate migration add_suggested_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;">commit_db_transaction
 <% @suggested_indexes.each do |index| %>
 <% if index[:using] && index[:using] != "btree" %>
-connection.execute("CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)")
+add_index <%= index[:table].to_sym.inspect %>, <%= index[:columns].first.inspect %>, using: <%= index[:using].inspect %>, algorithm: :concurrently
 <% else %>
 add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(", ") %>], algorithm: :concurrently<% end %>
 <% end %></pre>
@@ -449,10 +491,10 @@ pg_stat_statements.track = all</pre>
     </p>
 
     <div id="migration" style="display: none;">
-      <pre>rails g migration remove_unused_indexes</pre>
+      <pre>rails generate migration remove_unused_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.each do |query| %>
-remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.inspect %><% end %></pre>
+<%= pghero_remove_index(query)%><% end %></pre>
     </div>
 
     <table class="table">

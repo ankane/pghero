@@ -35,6 +35,12 @@ $$
   SELECT public.pg_stat_statements_reset();
 $$ LANGUAGE sql VOLATILE SECURITY DEFINER;
 
+-- improved query stats reset for Postgres 12+ - delete for earlier versions
+CREATE OR REPLACE FUNCTION pghero.pg_stat_statements_reset(userid oid, dbid oid, queryid bigint) RETURNS void AS
+$$
+  SELECT public.pg_stat_statements_reset(userid, dbid, queryid);
+$$ LANGUAGE sql VOLATILE SECURITY DEFINER;
+
 -- suggested indexes
 CREATE OR REPLACE FUNCTION pghero.pg_stats() RETURNS
 TABLE(schemaname name, tablename name, attname name, null_frac real, avg_width integer, n_distinct real) AS
@@ -50,6 +56,12 @@ GRANT CONNECT ON DATABASE <dbname> TO pghero;
 ALTER ROLE pghero SET search_path = pghero, pg_catalog, public;
 GRANT USAGE ON SCHEMA pghero TO pghero;
 GRANT SELECT ON ALL TABLES IN SCHEMA pghero TO pghero;
+
+-- grant permissions for current sequences
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO pghero;
+
+-- grant permissions for future sequences
+ALTER DEFAULT PRIVILEGES FOR ROLE <migrations-user> IN SCHEMA public GRANT SELECT ON SEQUENCES TO pghero;
 ```
 
 ## Thanks

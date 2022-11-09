@@ -6,7 +6,7 @@
   <% if @system_stats_enabled %>
     <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
     <script>
-      new Chartkick.LineChart("chart-1", <%= json_escape(free_space_stats_path.to_json).html_safe %>, {colors: ["#5bc0de"]})
+      new Chartkick.LineChart("chart-1", <%= json_escape(free_space_stats_path.to_json).html_safe %>, {colors: ["#5bc0de"], bytes: true, library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
     </script>
   <% end %>
 
@@ -30,20 +30,20 @@
     </p>
 
     <div id="migration" style="display: none;">
-      <pre>rails g migration remove_unused_indexes</pre>
+      <pre>rails generate migration remove_unused_indexes</pre>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
-remove_index <%= query[:table].to_sym.inspect %>, name: <%= query[:index].to_s.inspect %><% end %></pre>
+<%= pghero_remove_index(query) %><% end %></pre>
     </div>
   <% end %>
 
   <table class="table space-table">
     <thead>
       <tr>
-        <th><%= link_to "Relation", {sort: "name"} %></th>
-        <th style="width: 15%;"><%= link_to "Size", {} %></th>
+        <th><%= link_to (@only_tables ? "Table" : "Relation"), @header_options.merge(sort: "name") %></th>
+        <th style="width: 15%;"><%= link_to "Size", @header_options %></th>
         <% if @space_stats_enabled %>
-          <th style="width: 15%;"><%= link_to "#{@days}d Growth", {sort: "growth"} %></th>
+          <th style="width: 15%;"><%= link_to "#{@days}d Growth", @header_options.merge(sort: "growth") %></th>
         <% end %>
       </tr>
     </thead>

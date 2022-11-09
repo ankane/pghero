@@ -9,6 +9,9 @@
         <th class="text-right">Dead Tuples</th>
         <th class="text-right">Last Vacuum</th>
         <th class="text-right">Last Analyze</th>
+        <% if @show_dead_rows %>
+          <th style="width: 20%;">Dead Row %</th>
+        <% end %>
       </tr>
     </thead>
     <tbody>
@@ -28,15 +31,15 @@
             <% end %>
           </td>
           <td class="text-right">
-            <% if table[:n_live_tup] > 0 %>
-              <%= number_with_delimiter(table[:n_live_tup]) %>
+            <% if table[:live_rows] > 0 %>
+              <%= number_with_delimiter(table[:live_rows]) %>
             <% else %>
               <span class="text-muted">0</span>
             <% end %>
           </td>
           <td class="text-right">
-            <% if table[:n_dead_tup] > 0 %>
-              <span class="text-warning"><%= number_with_delimiter(table[:n_dead_tup]) %></span>
+            <% if table[:dead_rows] > 0 %>
+              <span class="text-warning"><%= number_with_delimiter(table[:dead_rows]) %></span>
             <% else %>
               <span class="text-muted">0</span>
             <% end %>
@@ -44,7 +47,7 @@
           <td class="text-right">
             <% time = [table[:last_autovacuum], table[:last_vacuum]].compact.max %>
             <% if time %>
-              <%= time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %>
+              <%= pghero_formatted_vacuum_times(time) %>
             <% else %>
               <span class="text-muted">Unknown</span>
             <% end %>
@@ -52,11 +55,22 @@
           <td class="text-right">
             <% time = [table[:last_autoanalyze], table[:last_analyze]].compact.max %>
             <% if time %>
-              <%= time.in_time_zone(@time_zone).strftime("%-m/%-e %l:%M %P") %>
+              <%= pghero_formatted_vacuum_times(time) %>
             <% else %>
               <span class="text-muted">Unknown</span>
             <% end %>
           </td>
+          <% if @show_dead_rows %>
+            <td>
+              <% if table[:live_rows] != 0 %>
+                <%# use live rows only for denominator to make it easier to compare with autovacuum_vacuum_scale_factor %>
+                <%# it's not a true percentage, since it can go above 100% %>
+                <%= (100.0 * table[:dead_rows] / table[:live_rows]).round %>%
+              <% else %>
+                <span class="text-muted">Unknown</span>
+              <% end %>
+            </td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>
