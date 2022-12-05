@@ -55,7 +55,7 @@ This table can be in the current database or another database. If another databa
 Schedule the task below to run every 5 minutes.
 
 ```sh
-docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_query_stats
+docker run -ti -e DATABASE_URL=... ankane/pghero rake pghero:capture_query_stats
 ```
 
 After this, a time range slider will appear on the Queries tab.
@@ -63,7 +63,7 @@ After this, a time range slider will appear on the Queries tab.
 The query stats table can grow large over time. Remove old stats with:
 
 ```sh
-docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:clean_query_stats
+docker run -ti -e DATABASE_URL=... ankane/pghero rake pghero:clean_query_stats
 ```
 
 ## Historical Space Stats
@@ -85,7 +85,7 @@ CREATE INDEX ON "pghero_space_stats" ("database", "captured_at");
 Schedule the task below to run once a day.
 
 ```sh
-docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
+docker run -ti -e DATABASE_URL=... ankane/pghero rake pghero:capture_space_stats
 ```
 
 ## System Stats
