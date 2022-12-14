@@ -14,7 +14,7 @@ Start the dashboard:
 docker run -ti -e DATABASE_URL=postgres://user:password@hostname:5432/dbname -p 8080:8080 ankane/pghero
 ```
 
-Use URL-encoding for any special characters in the username or password. For databases on the host machine, use `host.docker.internal` as the hostname (on Linux, this requires Docker 20.04 and `--add-host=host.docker.internal:host-gateway`).
+Use URL-encoding for any special characters in the username or password. For databases on the host machine, use `host.docker.internal` as the hostname (on Linux, this requires Docker 20.04+ and `--add-host=host.docker.internal:host-gateway`).
 
 Then visit [http://localhost:8080](http://localhost:8080).
 
