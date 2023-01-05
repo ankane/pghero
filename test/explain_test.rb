@@ -31,9 +31,49 @@ class ExplainTest < Minitest::Test
     assert_raises(ActiveRecord::StatementInvalid) { database.explain("ANALYZE DELETE FROM cities; DELETE FROM cities; COMMIT") }
   end
 
-  def with_explain_timeout(value)
-    PgHero.stub(:explain_timeout_sec, value) do
-      yield
+  def test_explain_v2
+    database.explain_v2("SELECT 1")
+
+    # not affected by explain option
+    with_explain(false) do
+      database.explain_v2("SELECT 1")
     end
+  end
+
+  def test_explain_v2_analyze
+    database.explain_v2("SELECT 1", analyze: true)
+
+    error = assert_raises(ActiveRecord::StatementInvalid) do
+      database.explain_v2("ANALYZE SELECT 1")
+    end
+    assert_match 'syntax error at or near "ANALYZE"', error.message
+
+    # not affected by explain option
+    with_explain(true) do
+      database.explain_v2("SELECT 1", analyze: true)
+    end
+  end
+
+  def test_explain_v2_format_text
+    assert_match "Result  (cost=", database.explain_v2("SELECT 1", format: "text")
+  end
+
+  def test_explain_v2_format_json
+    assert_match '"Node Type": "Result"', database.explain_v2("SELECT 1", format: "json")
+  end
+
+  def test_explain_v2_format_xml
+    assert_match "<Node-Type>Result</Node-Type>", database.explain_v2("SELECT 1", format: "xml")
+  end
+
+  def test_explain_v2_format_yaml
+    assert_match 'Node Type: "Result"', database.explain_v2("SELECT 1", format: "yaml")
+  end
+
+  def test_explain_v2_format_bad
+    error = assert_raises(ArgumentError) do
+      database.explain_v2("SELECT 1", format: "bad")
+    end
+    assert_equal "Unknown format", error.message
   end
 end

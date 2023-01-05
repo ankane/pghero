@@ -263,22 +263,39 @@ module PgHero
     end
 
     def explain
+      unless @explain_enabled
+        render_text "Explain not enabled", status: :bad_request
+        return
+      end
+
       @title = "Explain"
       @query = params[:query]
+      @explain_analyze_enabled = PgHero.explain_mode == "analyze"
+
       # TODO use get + token instead of post so users can share links
       # need to prevent CSRF and DoS
-      if request.post? && @query
+      if request.post? && @query.present?
         begin
-          prefix =
+          explain_options =
             case params[:commit]
             when "Analyze"
-              "ANALYZE "
+              {analyze: true}
             when "Visualize"
-              "(ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) "
+              if @explain_analyze_enabled
+                {analyze: true, costs: true, verbose: true, buffers: true, format: "json"}
+              else
+                {costs: true, verbose: true, format: "json"}
+              end
             else
-              ""
+              {}
             end
-          @explanation = @database.explain("#{prefix}#{@query}")
+
+          if explain_options[:analyze] && !@explain_analyze_enabled
+            render_text "Explain analyze not enabled", status: :bad_request
+            return
+          end
+
+          @explanation = @database.explain_v2(@query, **explain_options)
           @suggested_index = @database.suggested_indexes(queries: [@query]).first if @database.suggested_indexes_enabled?
           @visualize = params[:commit] == "Visualize"
         rescue ActiveRecord::StatementInvalid => e
@@ -409,6 +426,7 @@ module PgHero
       @query_stats_enabled = @database.query_stats_enabled?
       @system_stats_enabled = @database.system_stats_enabled?
       @replica = @database.replica?
+      @explain_enabled = PgHero.explain_enabled?
     end
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)

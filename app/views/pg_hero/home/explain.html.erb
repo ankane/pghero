@@ -5,7 +5,9 @@
     <div class="field"><%= text_area_tag :query, @query, placeholder: "Enter a SQL query" %></div>
     <p>
       <%= submit_tag "Explain", class: "btn btn-info", style: "margin-right: 10px;" %>
-      <%= submit_tag "Analyze", class: "btn btn-danger", style: "margin-right: 10px;" %>
+      <% if @explain_analyze_enabled %>
+        <%= submit_tag "Analyze", class: "btn btn-danger", style: "margin-right: 10px;" %>
+      <% end %>
       <%= submit_tag "Visualize", class: "btn btn-danger" %>
     </p>
   <% end %>

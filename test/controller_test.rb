@@ -46,6 +46,82 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_explain_not_enabled
+    with_explain(false) do
+      get pg_hero.explain_path
+    end
+    assert_response :bad_request
+    assert_match "Explain not enabled", response.body
+  end
+
+  def test_explain_only
+    post pg_hero.explain_path, params: {query: "SELECT 1"}
+    assert_response :success
+    assert_match "Result  (cost=0.00..0.01 rows=1 width=4)", response.body
+    refute_match "Planning Time:", response.body
+    refute_match "Execution Time:", response.body
+  end
+
+  def test_explain_only_not_enabled
+    with_explain(false) do
+      post pg_hero.explain_path, params: {query: "SELECT 1"}
+    end
+    assert_response :bad_request
+    assert_match "Explain not enabled", response.body
+  end
+
+  def test_explain_only_analyze
+    post pg_hero.explain_path, params: {query: "ANALYZE SELECT 1"}
+    assert_response :success
+    assert_match "syntax error", response.body
+    refute_match "Planning Time:", response.body
+    refute_match "Execution Time:", response.body
+  end
+
+  def test_explain_analyze
+    with_explain("analyze") do
+      post pg_hero.explain_path, params: {query: "SELECT 1", commit: "Analyze"}
+    end
+    assert_response :success
+    assert_match "(actual time=", response.body
+    assert_match "Planning Time:", response.body
+    assert_match "Execution Time:", response.body
+  end
+
+  def test_explain_analyze_timeout
+    with_explain("analyze") do
+      with_explain_timeout(0.01) do
+        post pg_hero.explain_path, params: {query: "SELECT pg_sleep(1)", commit: "Analyze"}
+      end
+    end
+    assert_response :success
+    assert_match "canceling statement due to statement timeout", response.body
+  end
+
+  def test_explain_analyze_not_enabled
+    post pg_hero.explain_path, params: {query: "SELECT 1", commit: "Analyze"}
+    assert_response :bad_request
+    assert_match "Explain analyze not enabled", response.body
+  end
+
+  def test_explain_visualize
+    post pg_hero.explain_path, params: {query: "SELECT 1", commit: "Visualize"}
+    assert_response :success
+    assert_match "https://tatiyants.com/pev/#/plans/new", response.body
+    assert_match "&quot;Node Type&quot;: &quot;Result&quot;", response.body
+    refute_match "Actual Total Time", response.body
+  end
+
+  def test_explain_visualize_analyze
+    with_explain("analyze") do
+      post pg_hero.explain_path, params: {query: "SELECT 1", commit: "Visualize"}
+    end
+    assert_response :success
+    assert_match "https://tatiyants.com/pev/#/plans/new", response.body
+    assert_match "&quot;Node Type&quot;: &quot;Result&quot;", response.body
+    assert_match "Actual Total Time", response.body
+  end
+
   def test_tune
     get pg_hero.tune_path
     assert_response :success

@@ -48,7 +48,9 @@
             <% unless @database.replica? %>
               <li class="<%= controller.action_name == "maintenance" ? "active" : "" %>"><%= link_to "Maintenance", maintenance_path %></li>
             <% end %>
-            <li class="<%= controller.action_name == "explain" ? "active" : "" %>"><%= link_to "Explain", explain_path %></li>
+            <% if @explain_enabled %>
+              <li class="<%= controller.action_name == "explain" ? "active" : "" %>"><%= link_to "Explain", explain_path %></li>
+            <% end %>
             <li class="<%= controller.action_name == "tune" ? "active" : "" %>"><%= link_to "Tune", tune_path %></li>
           </ul>
 

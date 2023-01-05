@@ -9,6 +9,18 @@ class Minitest::Test
   def database
     @database ||= PgHero.databases[:primary]
   end
+
+  def with_explain(value)
+    PgHero.stub(:explain_mode, value) do
+      yield
+    end
+  end
+
+  def with_explain_timeout(value)
+    PgHero.stub(:explain_timeout_sec, value) do
+      yield
+    end
+  end
 end
 
 logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)
