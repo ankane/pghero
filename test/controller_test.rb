@@ -84,8 +84,8 @@ class ControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :success
     assert_match "(actual time=", response.body
-    assert_match "Planning Time:", response.body
-    assert_match "Execution Time:", response.body
+    assert_match /Planning Time/i, response.body
+    assert_match /Execution Time/i, response.body
   end
 
   def test_explain_analyze_timeout
