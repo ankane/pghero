@@ -188,7 +188,9 @@
 
 <% if @long_running_queries.any? %>
   <div class="content">
-    <%= button_to "Kill All", kill_long_running_queries_path, class: "btn btn-danger", style: "float: right;" %>
+    <% if @kill_enabled %>
+      <%= button_to "Kill All", kill_long_running_queries_path, class: "btn btn-danger", style: "float: right;" %>
+    <% end %>
     <h1>Long Running Queries</h1>
 
     <p>We recommend setting a statement timeout on all non-superusers with:</p>

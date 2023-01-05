@@ -8,6 +8,11 @@ class KillTest < Minitest::Test
 
   def test_kill_long_running_queries
     assert database.kill_long_running_queries
+
+    # not affected by kill option
+    with_kill(false) do
+      assert database.kill_long_running_queries
+    end
   end
 
   def test_kill_all

@@ -143,6 +143,35 @@ class ControllerTest < ActionDispatch::IntegrationTest
     # assert_redirected_to "/"
   end
 
+  def test_kill_not_enabled
+    with_kill(false) do
+      post pg_hero.kill_path(pid: 1_000_000_000)
+    end
+    assert_response :bad_request
+    assert_match "Kill not enabled", response.body
+  end
+
+  def test_kill_long_running_queries
+    post pg_hero.kill_long_running_queries_path
+    assert_redirected_to "/"
+  end
+
+  def test_kill_long_running_queries_not_enabled
+    with_kill(false) do
+      post pg_hero.kill_long_running_queries_path(pid: 1_000_000_000)
+    end
+    assert_response :bad_request
+    assert_match "Kill not enabled", response.body
+  end
+
+  def test_kill_all_not_enabled
+    with_kill(false) do
+      post pg_hero.kill_all_path(pid: 1_000_000_000)
+    end
+    assert_response :bad_request
+    assert_match "Kill not enabled", response.body
+  end
+
   def test_reset_query_stats
     post pg_hero.reset_query_stats_path
     assert_redirected_to "/"

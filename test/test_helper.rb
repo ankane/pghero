@@ -21,6 +21,12 @@ class Minitest::Test
       yield
     end
   end
+
+  def with_kill(value)
+    PgHero.stub(:kill_value, value) do
+      yield
+    end
+  end
 end
 
 logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)

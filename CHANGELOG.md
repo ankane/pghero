@@ -1,3 +1,7 @@
+## 3.1.1 (unreleased)
+
+- Added option to disable killing queries and connections
+
 ## 3.1.0 (2023-01-04)
 
 - Fixed explain error message leaking data - [more info](https://github.com/ankane/pghero/issues/439)
