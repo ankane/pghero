@@ -73,7 +73,7 @@ class ControllerTest < ActionDispatch::IntegrationTest
   def test_explain_only_analyze
     post pg_hero.explain_path, params: {query: "ANALYZE SELECT 1"}
     assert_response :success
-    assert_match "syntax error", response.body
+    assert_match "Syntax error with query", response.body
     refute_match "Planning Time:", response.body
     refute_match "Execution Time:", response.body
   end
@@ -95,7 +95,7 @@ class ControllerTest < ActionDispatch::IntegrationTest
       end
     end
     assert_response :success
-    assert_match "canceling statement due to statement timeout", response.body
+    assert_match "Query timed out", response.body
   end
 
   def test_explain_analyze_not_enabled

@@ -1,5 +1,6 @@
 ## 3.1.0 (unreleased)
 
+- Fixed explain error message leaking data - [more info](https://github.com/ankane/pghero/issues/439)
 - Explain analyze is now opt-in - [more info](https://github.com/ankane/pghero/issues/438)
 - Added support for disabling explain and explain analyze
 - Added support for visualize without explain analyze

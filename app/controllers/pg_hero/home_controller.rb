@@ -299,11 +299,21 @@ module PgHero
           @suggested_index = @database.suggested_indexes(queries: [@query]).first if @database.suggested_indexes_enabled?
           @visualize = params[:commit] == "Visualize"
         rescue ActiveRecord::StatementInvalid => e
-          @error = e.message
-
-          if @error.include?("bind message supplies 0 parameters")
-            @error = "Can't explain queries with bind parameters"
-          end
+          message = e.message
+          @error =
+            if message == "Unsafe statement"
+              "Unsafe statement"
+            elsif message.start_with?("PG::ProtocolViolation: ERROR:  bind message supplies 0 parameters")
+              "Can't explain queries with bind parameters"
+            elsif message.start_with?("PG::SyntaxError")
+              "Syntax error with query"
+            elsif message.start_with?("PG::QueryCanceled")
+              "Query timed out"
+            else
+              # default to a generic message
+              # since data can be extracted through the Postgres error message
+              "Error explaining query"
+            end
         end
       end
     end
