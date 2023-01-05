@@ -1,4 +1,4 @@
-## 3.1.0 (unreleased)
+## 3.1.0 (2023-01-04)
 
 - Fixed explain error message leaking data - [more info](https://github.com/ankane/pghero/issues/439)
 - Explain analyze is now opt-in - [more info](https://github.com/ankane/pghero/issues/438)
