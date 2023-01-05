@@ -226,6 +226,7 @@ module PgHero
             )
             SELECT
               query,
+              query AS explainable_query,
               query_hash,
               query_stats.user,
               total_minutes,
@@ -243,7 +244,7 @@ module PgHero
           # we may be able to skip query_columns
           # in more recent versions of Postgres
           # as pg_stat_statements should be already normalized
-          select_all(query, query_columns: [:query])
+          select_all(query, query_columns: [:query, :explainable_query])
         else
           raise NotEnabled, "Query stats not enabled"
         end
