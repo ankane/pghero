@@ -184,6 +184,9 @@ databases:
 # Minimum connections for high connections warning
 # total_connections_threshold: 500
 
+# Explain functionality
+# explain: true / false / analyze
+
 # Statement timeout for explain
 # explain_timeout_sec: 10
 
@@ -256,6 +259,9 @@ data:
 
     # Minimum connections for high connections warning
     # total_connections_threshold: 500
+
+    # Explain functionality
+    # explain: true / false / analyze
 
     # Statement timeout for explain
     # explain_timeout_sec: 10
