@@ -4,7 +4,7 @@
     highlightQueries()
   </script>
 
-  <% if @explainable_query %>
+  <% if @explain_enabled && @explainable_query %>
     <p>
       <%= button_to "Explain", explain_path, params: {query: @explainable_query}, form: {target: "_blank"}, class: "btn btn-info" %>
     </p>

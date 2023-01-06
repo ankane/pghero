@@ -7,27 +7,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby: 3.1
-          gemfile: Gemfile
-          postgres: 14
-        - ruby: "3.0"
-          gemfile: gemfiles/activerecord61.gemfile
-          postgres: 12
-        - ruby: 2.7
-          gemfile: gemfiles/activerecord60.gemfile
-          postgres: 10
+          - ruby: 3.2
+            gemfile: Gemfile
+            postgres: 15
+          - ruby: 3.1
+            gemfile: Gemfile
+            postgres: 14
+          - ruby: "3.0"
+            gemfile: gemfiles/activerecord61.gemfile
+            postgres: 12
+          - ruby: 2.7
+            gemfile: gemfiles/activerecord60.gemfile
+            postgres: 10
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-    - uses: ankane/setup-postgres@v1
-      with:
-        postgres-version: ${{ matrix.postgres }}
-        database: pghero_test
-        config: |
-          shared_preload_libraries = 'pg_stat_statements'
-    - run: bundle exec rake test
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - uses: ankane/setup-postgres@v1
+        with:
+          postgres-version: ${{ matrix.postgres }}
+          database: pghero_test
+          config: |
+            shared_preload_libraries = 'pg_stat_statements'
+      - run: bundle exec rake test
