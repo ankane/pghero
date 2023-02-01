@@ -187,7 +187,7 @@ hr {
 }
 
 #slider-container {
-  padding: 6px 140px 20px 140px;
+  padding: 6px 0px 20px 140px;
 }
 
 .queries-table th a, .space-table th a {
@@ -195,7 +195,7 @@ hr {
 }
 
 #slider {
-  margin-bottom: 20px;
+  margin: 0px 14px 20px 14px;
 }
 
 #range-start {

@@ -395,6 +395,7 @@ module PgHero
       redirect_backward alert: "The database user does not have permission to enable query stats"
     end
 
+    # TODO disable if historical query stats enabled?
     def reset_query_stats
       success =
         if @database.server_version_num >= 120000

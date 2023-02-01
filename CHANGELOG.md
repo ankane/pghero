@@ -1,3 +1,7 @@
+## 3.2.0 (unreleased)
+
+- Removed reset button when historical query stats are enabled
+
 ## 3.1.0 (2023-01-04)
 
 - Fixed explain error message leaking data - [more info](https://github.com/ankane/pghero/issues/439)
