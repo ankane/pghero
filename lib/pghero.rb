@@ -222,9 +222,9 @@ module PgHero
     # delete previous stats
     # go database by database to use an index
     # stats for old databases are not cleaned up since we can't use an index
-    def clean_query_stats
+    def clean_query_stats(before: nil)
       each_database do |database|
-        database.clean_query_stats
+        database.clean_query_stats(before: before)
       end
     end
 

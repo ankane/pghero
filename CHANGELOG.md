@@ -1,5 +1,6 @@
 ## 3.2.0 (unreleased)
 
+- Added support for specifying retention period with `clean_query_stats`
 - Removed reset button when historical query stats are enabled
 
 ## 3.1.0 (2023-01-04)

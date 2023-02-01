@@ -22,6 +22,8 @@ namespace :pghero do
   desc "Remove old query stats"
   task clean_query_stats: :environment do
     puts "Deleting old query stats..."
-    PgHero.clean_query_stats
+    options = {}
+    options[:before] = Integer(ENV["DAYS"]).days.ago if ENV["DAYS"].present?
+    PgHero.clean_query_stats(**options)
   end
 end

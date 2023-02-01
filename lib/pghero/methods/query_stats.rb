@@ -162,8 +162,9 @@ module PgHero
         end
       end
 
-      def clean_query_stats
-        PgHero::QueryStats.where(database: id).where("captured_at < ?", 14.days.ago).delete_all
+      def clean_query_stats(before: nil)
+        before ||= 14.days.ago
+        PgHero::QueryStats.where(database: id).where("captured_at < ?", before).delete_all
       end
 
       def slow_queries(query_stats: nil, **options)
