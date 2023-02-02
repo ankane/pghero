@@ -129,8 +129,9 @@ module PgHero
         insert_stats("pghero_space_stats", columns, values) if values.any?
       end
 
-      def clean_space_stats
-        PgHero::SpaceStats.where(database: id).where("captured_at < ?", 90.days.ago).delete_all
+      def clean_space_stats(before: nil)
+        before ||= 90.days.ago
+        PgHero::SpaceStats.where(database: id).where("captured_at < ?", before).delete_all
       end
 
       def space_stats_enabled?

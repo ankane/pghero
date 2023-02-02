@@ -228,9 +228,9 @@ module PgHero
       end
     end
 
-    def clean_space_stats
+    def clean_space_stats(before: nil)
       each_database do |database|
-        database.clean_space_stats
+        database.clean_space_stats(before: before)
       end
     end
 
