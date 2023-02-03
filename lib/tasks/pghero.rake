@@ -23,7 +23,7 @@ namespace :pghero do
   task clean_query_stats: :environment do
     puts "Deleting old query stats..."
     options = {}
-    options[:before] = Integer(ENV["KEEP_DAYS"]).days.ago if ENV["KEEP_DAYS"].present?
+    options[:before] = Float(ENV["KEEP_DAYS"]).days.ago if ENV["KEEP_DAYS"].present?
     PgHero.clean_query_stats(**options)
   end
 
@@ -31,7 +31,7 @@ namespace :pghero do
   task clean_space_stats: :environment do
     puts "Deleting old space stats..."
     options = {}
-    options[:before] = Integer(ENV["KEEP_DAYS"]).days.ago if ENV["KEEP_DAYS"].present?
+    options[:before] = Float(ENV["KEEP_DAYS"]).days.ago if ENV["KEEP_DAYS"].present?
     PgHero.clean_space_stats(**options)
   end
 end
