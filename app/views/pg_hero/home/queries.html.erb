@@ -3,7 +3,9 @@
     <%= button_to "Reset", reset_query_stats_path, class: "btn btn-danger", style: "float: right;" %>
   <% end %>
 
-  <h1 style="float: left;">Queries</h1>
+  <% if !@historical_query_stats_enabled %>
+    <h1 style="float: left;">Queries</h1>
+  <% end %>
 
   <% if @historical_query_stats_enabled %>
     <%= render partial: "query_stats_slider" %>
