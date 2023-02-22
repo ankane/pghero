@@ -59,27 +59,27 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_like
-    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE ?"
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE $1"
   end
 
   def test_like_where
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = ? AND email LIKE ?"
+    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = $1 AND email LIKE $2"
   end
 
   def test_like_where2
-    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE ? AND active = ?"
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email LIKE $1 AND active = $2"
   end
 
   def test_ilike
-    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email ILIKE ?"
+    assert_best_index ({table: "users", columns: ["email gist_trgm_ops"], using: "gist"}), "SELECT * FROM users WHERE email ILIKE $1"
   end
 
   def test_not_equals
-    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE city_id != ? and login_attempts = 2"
+    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE city_id != $1 and login_attempts = 2"
   end
 
   def test_not_in
-    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE city_id NOT IN (?) and login_attempts = 2"
+    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE city_id NOT IN ($1) and login_attempts = 2"
   end
 
   def test_between
@@ -87,7 +87,7 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_multiple_range
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id > ? and login_attempts > ?"
+    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id > $1 and login_attempts > $2"
   end
 
   def test_where_prepared
@@ -95,7 +95,7 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_where_normalized
-    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = ?"
+    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = $1"
   end
 
   def test_is_null
@@ -103,11 +103,11 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_is_null_equal
-    assert_best_index ({table: "users", columns: ["zip_code", "login_attempts"]}), "SELECT * FROM users WHERE zip_code IS NULL AND login_attempts = ?"
+    assert_best_index ({table: "users", columns: ["zip_code", "login_attempts"]}), "SELECT * FROM users WHERE zip_code IS NULL AND login_attempts = $1"
   end
 
   def test_is_not_null
-    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE zip_code IS NOT NULL AND login_attempts = ?"
+    assert_best_index ({table: "users", columns: ["login_attempts"]}), "SELECT * FROM users WHERE zip_code IS NOT NULL AND login_attempts = $1"
   end
 
   def test_update
@@ -151,7 +151,7 @@ class BestIndexTest < Minitest::Test
   end
 
   def test_system_table
-    assert_no_index "System table", "SELECT COUNT(*) AS count FROM pg_extension WHERE extname = ?"
+    assert_no_index "System table", "SELECT COUNT(*) AS count FROM pg_extension WHERE extname = $1"
   end
 
   def test_insert
