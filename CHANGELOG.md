@@ -1,5 +1,6 @@
 ## 3.2.0 (unreleased)
 
+- Added support for pg_query 4
 - Added `pghero:clean_space_stats` rake task
 - Added support for specifying retention period with `clean_query_stats` and `clean_space_stats`
 - Removed reset button when historical query stats are enabled
