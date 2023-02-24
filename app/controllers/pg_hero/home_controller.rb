@@ -465,7 +465,7 @@ module PgHero
           {}
         end
 
-      @suggested_indexes = !@lock_timeout ? @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes) : {}
+      @suggested_indexes = @lock_timeout ? {} : @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes)
       @query_stats_by_query = @query_stats.index_by { |q| q[:query] }
       @debug = params[:debug].present?
     end
