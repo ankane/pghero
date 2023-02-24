@@ -158,7 +158,6 @@ module PgHero
         end
 
       if !@historical_query_stats_enabled || request.xhr?
-        @indexes = rescue_lock_timeout { @database.indexes } || []
         set_suggested_indexes
       end
 
@@ -443,14 +442,18 @@ module PgHero
     end
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)
+      if @database.suggested_indexes_enabled?
+        @indexes ||= rescue_lock_timeout { @database.indexes } || []
+      end
+
       @suggested_indexes_by_query =
         if !@lock_timeout && @database.suggested_indexes_enabled?
-          @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs[:average_time] >= min_average_time && qs[:calls] >= min_calls })
+          @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs[:average_time] >= min_average_time && qs[:calls] >= min_calls }, indexes: @indexes)
         else
           {}
         end
 
-      @suggested_indexes = @lock_timeout ? {} : @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes)
+      @suggested_indexes = @lock_timeout ? {} : @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query)
       @query_stats_by_query = @query_stats.index_by { |q| q[:query] }
       @debug = params[:debug].present?
     end
