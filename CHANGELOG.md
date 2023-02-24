@@ -1,3 +1,7 @@
+## 3.2.1 (unreleased)
+
+- Improved handling of lock timeouts
+
 ## 3.2.0 (2023-02-21)
 
 - Added support for pg_query 4

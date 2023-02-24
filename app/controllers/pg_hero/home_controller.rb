@@ -50,7 +50,12 @@ module PgHero
 
       @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f, sequences: @readable_sequences)
 
-      @indexes = @database.indexes
+      begin
+        @indexes = @database.indexes
+      rescue ActiveRecord::LockWaitTimeout
+        @indexes = []
+        @lock_timeout = true
+      end
       @invalid_indexes = @database.invalid_indexes(indexes: @indexes)
       @invalid_constraints = @database.invalid_constraints
       @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
@@ -80,7 +85,12 @@ module PgHero
       @days = (params[:days] || 7).to_i
       @database_size = @database.database_size
       @only_tables = params[:tables].present?
-      @relation_sizes = @only_tables ? @database.table_sizes : @database.relation_sizes
+      begin
+        @relation_sizes = @only_tables ? @database.table_sizes : @database.relation_sizes
+      rescue ActiveRecord::LockWaitTimeout
+        @relation_sizes = []
+        @lock_timeout = true
+      end
       @space_stats_enabled = @database.space_stats_enabled? && !@only_tables
       if @space_stats_enabled
         space_growth = @database.space_growth(days: @days, relation_sizes: @relation_sizes)
@@ -157,8 +167,15 @@ module PgHero
           )
         end
 
-      @indexes = @database.indexes
-      set_suggested_indexes
+      if !@historical_query_stats_enabled || request.xhr?
+        begin
+          @indexes = @database.indexes
+        rescue ActiveRecord::LockWaitTimeout
+          @indexes = []
+          @lock_timeout = true
+        end
+        set_suggested_indexes
+      end
 
       # fix back button issue with caching
       response.headers["Cache-Control"] = "must-revalidate, no-store, no-cache, private"
@@ -442,13 +459,13 @@ module PgHero
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)
       @suggested_indexes_by_query =
-        if @database.suggested_indexes_enabled?
+        if !@lock_timeout && @database.suggested_indexes_enabled?
           @database.suggested_indexes_by_query(query_stats: @query_stats.select { |qs| qs[:average_time] >= min_average_time && qs[:calls] >= min_calls })
         else
           {}
         end
 
-      @suggested_indexes = @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes)
+      @suggested_indexes = !@lock_timeout ? @database.suggested_indexes(suggested_indexes_by_query: @suggested_indexes_by_query, indexes: @indexes) : {}
       @query_stats_by_query = @query_stats.index_by { |q| q[:query] }
       @debug = params[:debug].present?
     end
