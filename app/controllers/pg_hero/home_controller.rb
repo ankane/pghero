@@ -52,7 +52,7 @@ module PgHero
 
       begin
         @indexes = @database.indexes
-      rescue ActiveRecord::LockWaitTimeout
+      rescue ActiveRecord::LockWaitTimeout, ActiveRecord::QueryCanceled
         @indexes = []
         @lock_timeout = true
       end
@@ -87,7 +87,7 @@ module PgHero
       @only_tables = params[:tables].present?
       begin
         @relation_sizes = @only_tables ? @database.table_sizes : @database.relation_sizes
-      rescue ActiveRecord::LockWaitTimeout
+      rescue ActiveRecord::LockWaitTimeout, ActiveRecord::QueryCanceled
         @relation_sizes = []
         @lock_timeout = true
       end
@@ -170,7 +170,7 @@ module PgHero
       if !@historical_query_stats_enabled || request.xhr?
         begin
           @indexes = @database.indexes
-        rescue ActiveRecord::LockWaitTimeout
+        rescue ActiveRecord::LockWaitTimeout, ActiveRecord::QueryCanceled
           @indexes = []
           @lock_timeout = true
         end
