@@ -50,7 +50,7 @@ module PgHero
 
       @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f, sequences: @readable_sequences)
 
-      @indexes = rescue_lock_timeout([]) { @database.indexes }
+      @indexes = rescue_lock_timeout { @database.indexes } || []
       @invalid_indexes = @database.invalid_indexes(indexes: @indexes)
       @invalid_constraints = @database.invalid_constraints
       @duplicate_indexes = @database.duplicate_indexes(indexes: @indexes)
@@ -80,7 +80,7 @@ module PgHero
       @days = (params[:days] || 7).to_i
       @database_size = @database.database_size
       @only_tables = params[:tables].present?
-      @relation_sizes = rescue_lock_timeout([]) { @only_tables ? @database.table_sizes : @database.relation_sizes }
+      @relation_sizes = rescue_lock_timeout { @only_tables ? @database.table_sizes : @database.relation_sizes } || []
       @space_stats_enabled = @database.space_stats_enabled? && !@only_tables
       if @space_stats_enabled
         space_growth = @database.space_growth(days: @days, relation_sizes: @relation_sizes)
@@ -158,7 +158,7 @@ module PgHero
         end
 
       if !@historical_query_stats_enabled || request.xhr?
-        @indexes = rescue_lock_timeout([]) { @database.indexes }
+        @indexes = rescue_lock_timeout { @database.indexes } || []
         set_suggested_indexes
       end
 
@@ -499,11 +499,11 @@ module PgHero
       end
     end
 
-    def rescue_lock_timeout(default)
+    def rescue_lock_timeout
       yield
     rescue ActiveRecord::LockWaitTimeout, ActiveRecord::QueryCanceled
       @lock_timeout = true
-      default
+      nil
     end
   end
 end
