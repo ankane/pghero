@@ -194,7 +194,8 @@ module PgHero
 
         if @tables.any?
           @row_counts = @database.table_stats(table: @tables).to_h { |i| [i[:table], i[:estimated_rows]] }
-          @indexes_by_table = @database.indexes.group_by { |i| i[:table] }
+          indexes = rescue_lock_timeout { @database.indexes } || []
+          @indexes_by_table = indexes.group_by { |i| i[:table] }
         end
       else
         render_text "Unknown query", status: :not_found
