@@ -500,12 +500,10 @@ module PgHero
     end
 
     def rescue_lock_timeout(default)
-      begin
-        yield
-      rescue ActiveRecord::LockWaitTimeout, ActiveRecord::QueryCanceled
-        @lock_timeout = true
-        default
-      end
+      yield
+    rescue ActiveRecord::LockWaitTimeout, ActiveRecord::QueryCanceled
+      @lock_timeout = true
+      default
     end
   end
 end
