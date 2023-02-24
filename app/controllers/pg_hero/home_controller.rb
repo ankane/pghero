@@ -499,6 +499,8 @@ module PgHero
       end
     end
 
+    # rescue QueryCanceled for case when
+    # statement timeout is less than lock timeout
     def rescue_lock_timeout
       yield
     rescue ActiveRecord::LockWaitTimeout, ActiveRecord::QueryCanceled
