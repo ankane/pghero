@@ -109,7 +109,7 @@ module PgHero
       @relation = params[:relation]
       @title = @relation
       relation_space_stats = @database.relation_space_stats(@relation, schema: @schema)
-      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at].change(sec: 0), r[:size_bytes].to_i] }}]
+      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at].change(sec: 0), r[:size_bytes].to_i] }, library: chart_library_options}]
     end
 
     def index_bloat
@@ -181,9 +181,9 @@ module PgHero
         if @show_details
           query_hash_stats = @database.query_hash_stats(@query_hash, user: @user)
 
-          @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), (r[:total_minutes] * 60 * 1000).round] }}]
-          @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:average_time].round(1)] }}]
-          @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:calls]] }}]
+          @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), (r[:total_minutes] * 60 * 1000).round] }, library: chart_library_options}]
+          @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:average_time].round(1)] }, library: chart_library_options}]
+          @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:calls]] }, library: chart_library_options}]
 
           @origins = query_hash_stats.group_by { |r| r[:origin].to_s }.to_h { |k, v| [k, v.size] }
           @total_count = query_hash_stats.size
@@ -226,15 +226,15 @@ module PgHero
     end
 
     def cpu_usage
-      render json: [{name: "CPU", data: @database.cpu_usage(**system_params).map { |k, v| [k, v ? v.round : v] }}]
+      render json: [{name: "CPU", data: @database.cpu_usage(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}]
     end
 
     def connection_stats
-      render json: [{name: "Connections", data: @database.connection_stats(**system_params)}]
+      render json: [{name: "Connections", data: @database.connection_stats(**system_params), library: chart_library_options}]
     end
 
     def replication_lag_stats
-      render json: [{name: "Lag", data: @database.replication_lag_stats(**system_params)}]
+      render json: [{name: "Lag", data: @database.replication_lag_stats(**system_params), library: chart_library_options}]
     end
 
     def load_stats
@@ -242,17 +242,17 @@ module PgHero
         case @database.system_stats_provider
         when :azure
           [
-            {name: "IO Consumption", data: @database.azure_stats("io_consumption_percent", **system_params)}
+            {name: "IO Consumption", data: @database.azure_stats("io_consumption_percent", **system_params), library: chart_library_options}
           ]
         when :gcp
           [
-            {name: "Read Ops", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }},
-            {name: "Write Ops", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }}
+            {name: "Read Ops", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
+            {name: "Write Ops", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
           ]
         else
           [
-            {name: "Read IOPS", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }},
-            {name: "Write IOPS", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }}
+            {name: "Read IOPS", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
+            {name: "Write IOPS", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
           ]
         end
       render json: stats
@@ -260,7 +260,7 @@ module PgHero
 
     def free_space_stats
       render json: [
-        {name: "Free Space", data: @database.free_space_stats(duration: 14.days, period: 1.hour)}
+        {name: "Free Space", data: @database.free_space_stats(duration: 14.days, period: 1.hour), library: chart_library_options},
       ]
     end
 
@@ -465,6 +465,10 @@ module PgHero
         period: params[:period],
         series: true
       }.delete_if { |_, v| v.nil? }
+    end
+
+    def chart_library_options
+      {pointRadius: 0, pointHoverRadius: 0, pointHitRadius: 5, borderWidth: 4}
     end
 
     def set_show_details
