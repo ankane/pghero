@@ -5,12 +5,12 @@
 </div>
 
 <script>
-  <%= pghero_js_var("sort", @sort) %>
-  <%= pghero_js_var("minAverageTime", @min_average_time) %>
-  <%= pghero_js_var("minCalls", @min_calls) %>
-  <%= pghero_js_var("debug", @debug) %>
-  <%= pghero_js_var("startAt", params[:start_at] ? @start_at.to_i * 1000 : nil) %>
-  <%= pghero_js_var("endAt", @end_at.to_i * 1000) %>
+  var sort = <%= pghero_js_value(@sort) %>;
+  var minAverageTime = <%= pghero_js_value(@min_average_time) %>;
+  var minCalls = <%= pghero_js_value(@min_calls) %>;
+  var debug = <%= pghero_js_value(@debug) %>;
+  var startAt = <%= pghero_js_value(params[:start_at] ? @start_at.to_i * 1000 : nil) %>;
+  var endAt = <%= pghero_js_value(@end_at.to_i * 1000) %>;
 
   initSlider();
 </script>

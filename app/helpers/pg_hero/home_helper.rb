@@ -12,8 +12,8 @@ module PgHero
       end
     end
 
-    def pghero_js_var(name, value)
-      "var #{name} = #{json_escape(value.to_json(root: false))};".html_safe
+    def pghero_js_value(value)
+      json_escape(value.to_json(root: false)).html_safe
     end
 
     def pghero_remove_index(query)
