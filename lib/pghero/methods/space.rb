@@ -122,11 +122,17 @@ module PgHero
       def capture_space_stats
         now = Time.now
         columns = %w(database schema relation size captured_at)
-        values = []
-        relation_sizes.each do |rs|
-          values << [id, rs[:schema], rs[:relation], rs[:size_bytes].to_i, now]
-        end
-        insert_stats("pghero_space_stats", columns, values) if values.any?
+        values =
+          relation_sizes.map do |rs|
+            {
+              database: id,
+              schema: rs[:schema],
+              relation: rs[:relation],
+              size: rs[:size_bytes].to_i,
+              captured_at: now
+            }
+          end
+        PgHero::SpaceStats.insert_all!(values) if values.any?
       end
 
       def clean_space_stats(before: nil)

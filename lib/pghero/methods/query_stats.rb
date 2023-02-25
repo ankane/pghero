@@ -330,19 +330,17 @@ module PgHero
       def insert_query_stats(db_id, db_query_stats, now)
         values =
           db_query_stats.map do |qs|
-            [
-              db_id,
-              qs[:query],
-              qs[:total_minutes] * 60 * 1000,
-              qs[:calls],
-              now,
-              supports_query_hash? ? qs[:query_hash] : nil,
-              qs[:user]
-            ]
+            {
+              database: db_id,
+              query: qs[:query],
+              total_time: qs[:total_minutes] * 60 * 1000,
+              calls: qs[:calls],
+              captured_at: now,
+              query_hash: supports_query_hash? ? qs[:query_hash] : nil,
+              user: qs[:user]
+            }
           end
-
-        columns = %w[database query total_time calls captured_at query_hash user]
-        insert_stats("pghero_query_stats", columns, values)
+        PgHero::QueryStats.insert_all!(values)
       end
     end
   end
