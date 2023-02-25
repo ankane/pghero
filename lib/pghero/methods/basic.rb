@@ -112,9 +112,8 @@ module PgHero
         ::PgHero::Stats.connection
       end
 
-      # from ActiveSupport
       def squish(str)
-        str.to_s.gsub(/\A[[:space:]]+/, "").gsub(/[[:space:]]+\z/, "").gsub(/[[:space:]]+/, " ")
+        str.to_s.squish
       end
 
       def add_source(sql)
