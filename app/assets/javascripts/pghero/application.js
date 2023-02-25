@@ -5,7 +5,7 @@
 //= require ./highlight.pack
 
 function highlightQueries() {
-  $("pre code").each(function(i, block) {
+  $("pre code").each(function (i, block) {
     hljs.highlightBlock(block);
   });
 }
@@ -45,9 +45,9 @@ function initSlider() {
   });
 
   // remove outline for mouse only
-  $(".noUi-handle").mousedown(function() {
+  $(".noUi-handle").mousedown(function () {
     $(this).addClass("no-outline");
-  }).blur(function() {
+  }).blur(function () {
     $(this).removeClass("no-outline");
   });
 
@@ -115,7 +115,7 @@ function initSlider() {
 
     var path = queriesPath(params);
 
-    $(".queries-table th a").each( function () {
+    $(".queries-table th a").each(function () {
       var p = $.extend({}, params, {sort: $(this).data("sort"), min_average_time: minAverageTime, min_calls: minCalls, debug: debug});
       if (!p.sort) {
         delete p.sort;
@@ -152,7 +152,7 @@ function initSlider() {
     refreshStats(true);
   });
   updateText();
-  $( function () {
+  $(function () {
     refreshStats(false);
   });
 }
