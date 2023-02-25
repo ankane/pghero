@@ -61,14 +61,14 @@ function initSlider() {
     var time = timeAt(offset);
 
     var html = "";
-    if (time == now) {
-      if (selector == "#range-end") {
+    if (time === now) {
+      if (selector === "#range-end") {
         html = "Now";
       }
     } else {
       html = time.getDate() + " " + months[time.getMonth()] + " " + pad(time.getHours()) + ":" + pad(time.getMinutes());
     }
-    $(selector).html(html);
+    $(selector).text(html);
   }
 
   function timeAt(offset) {
@@ -135,7 +135,7 @@ function initSlider() {
 
     var callback = function (response, status, xhr) {
       if (status === "error" ) {
-        $(".queries-info").css("color", "red").html(xhr.status + " " + xhr.statusText);
+        $(".queries-info").css("color", "red").text(xhr.status + " " + xhr.statusText);
       } else {
         highlightQueries();
       }
