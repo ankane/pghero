@@ -156,3 +156,12 @@ function initSlider() {
     refreshStats(false);
   });
 }
+
+Chartkick.options = {
+  dataset: {
+    pointRadius: 0,
+    pointHoverRadius: 0,
+    pointHitRadius: 5,
+    borderWidth: 4
+  }
+};
