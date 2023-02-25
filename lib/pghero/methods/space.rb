@@ -121,7 +121,6 @@ module PgHero
 
       def capture_space_stats
         now = Time.now
-        columns = %w(database schema relation size captured_at)
         values =
           relation_sizes.map do |rs|
             {
