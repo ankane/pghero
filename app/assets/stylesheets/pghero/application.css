@@ -485,6 +485,12 @@ body {
   color: #999;
 }
 
+.pie-chart {
+  height: 260px;
+  line-height: 260px;
+  margin-bottom: 20px;
+}
+
 .unused-index {
   color: #f0ad4e;
   font-size: 11px;
