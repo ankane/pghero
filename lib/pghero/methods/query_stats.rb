@@ -238,7 +238,7 @@ module PgHero
             FROM
               query_stats
             ORDER BY
-              #{quote_table_name(sort)} DESC
+              #{quote_column_name(sort)} DESC
             LIMIT #{limit.to_i}
           SQL
 
@@ -287,7 +287,7 @@ module PgHero
             FROM
               query_stats
             ORDER BY
-              #{quote_table_name(sort)} DESC
+              #{quote_column_name(sort)} DESC
             LIMIT 100
           SQL
 
