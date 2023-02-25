@@ -172,6 +172,7 @@ module PgHero
         query_stats.select { |q| q[:calls].to_i >= slow_query_calls.to_i && q[:average_time].to_f >= slow_query_ms.to_f }
       end
 
+      # TODO option to include current period
       def query_hash_stats(query_hash, user: nil)
         if historical_query_stats_enabled? && supports_query_hash?
           start_at = 24.hours.ago
