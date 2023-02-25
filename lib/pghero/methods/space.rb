@@ -6,7 +6,7 @@ module PgHero
       end
 
       def relation_sizes
-        select_all_size <<-SQL
+        select_all_size <<~SQL
           SELECT
             n.nspname AS schema,
             c.relname AS relation,
@@ -27,7 +27,7 @@ module PgHero
       end
 
       def table_sizes
-        select_all_size <<-SQL
+        select_all_size <<~SQL
           SELECT
             n.nspname AS schema,
             c.relname AS table,
@@ -52,7 +52,7 @@ module PgHero
           sizes = relation_sizes.to_h { |r| [[r[:schema], r[:relation]], r[:size_bytes]] }
           start_at = days.days.ago
 
-          stats = select_all_stats <<-SQL
+          stats = select_all_stats <<~SQL
             WITH t AS (
               SELECT
                 schema,
@@ -95,7 +95,7 @@ module PgHero
           sizes = relation_sizes.map { |r| [[r[:schema], r[:relation]], r[:size_bytes]] }.to_h
           start_at = 30.days.ago
 
-          stats = select_all_stats <<-SQL
+          stats = select_all_stats <<~SQL
             SELECT
               captured_at,
               size AS size_bytes

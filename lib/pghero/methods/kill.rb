@@ -11,7 +11,7 @@ module PgHero
       end
 
       def kill_all
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             pg_terminate_backend(pid)
           FROM

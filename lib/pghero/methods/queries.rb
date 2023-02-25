@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module Queries
       def running_queries(min_duration: nil, all: false)
-        query = <<-SQL
+        query = <<~SQL
           SELECT
             pid,
             state,
@@ -36,7 +36,7 @@ module PgHero
       # from https://wiki.postgresql.org/wiki/Lock_Monitoring
       # and https://big-elephants.com/2013-09/exploring-query-locks-in-postgres/
       def blocked_queries
-        query = <<-SQL
+        query = <<~SQL
           SELECT
             COALESCE(blockingl.relation::regclass::text,blockingl.locktype) as locked_item,
             blockeda.pid AS blocked_pid,

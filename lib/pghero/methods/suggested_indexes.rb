@@ -310,7 +310,7 @@ module PgHero
       end
 
       def column_stats(schema: nil, table: nil)
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             schemaname AS schema,
             tablename AS table,

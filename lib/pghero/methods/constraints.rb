@@ -4,7 +4,7 @@ module PgHero
       # referenced fields can be nil
       # as not all constraints are foreign keys
       def invalid_constraints
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             nsp.nspname AS schema,
             rel.relname AS table,

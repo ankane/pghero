@@ -18,7 +18,7 @@ module PgHero
               "pg_last_xlog_receive_location() = pg_last_xlog_replay_location()"
             end
 
-          select_one <<-SQL
+          select_one <<~SQL
             SELECT
               CASE
                 WHEN NOT pg_is_in_recovery() OR #{lag_condition} THEN 0
@@ -32,7 +32,7 @@ module PgHero
       def replication_slots
         if server_version_num >= 90400
           with_feature_support(:replication_slots, []) do
-            select_all <<-SQL
+            select_all <<~SQL
               SELECT
                 slot_name,
                 database,

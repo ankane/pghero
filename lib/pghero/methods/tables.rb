@@ -2,17 +2,16 @@ module PgHero
   module Methods
     module Tables
       def table_hit_rate
-        select_one(<<-SQL
+        select_one <<~SQL
           SELECT
             sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read), 0) AS rate
           FROM
             pg_statio_user_tables
         SQL
-        )
       end
 
       def table_caching
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             schemaname AS schema,
             relname AS table,
@@ -29,7 +28,7 @@ module PgHero
       end
 
       def unused_tables
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             schemaname AS schema,
             relname AS table,
@@ -45,7 +44,7 @@ module PgHero
       end
 
       def table_stats(schema: nil, table: nil)
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             nspname AS schema,
             relname AS table,

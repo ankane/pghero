@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module Indexes
       def index_hit_rate
-        select_one <<-SQL
+        select_one <<~SQL
           SELECT
             (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read), 0) AS rate
           FROM
@@ -11,7 +11,7 @@ module PgHero
       end
 
       def index_caching
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             schemaname AS schema,
             relname AS table,
@@ -29,7 +29,7 @@ module PgHero
       end
 
       def index_usage
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             schemaname AS schema,
             relname AS table,
@@ -47,7 +47,7 @@ module PgHero
       end
 
       def missing_indexes
-        select_all <<-SQL
+        select_all <<~SQL
           SELECT
             schemaname AS schema,
             relname AS table,
@@ -69,7 +69,7 @@ module PgHero
       end
 
       def unused_indexes(max_scans: 50, across: [])
-        result = select_all_size <<-SQL
+        result = select_all_size <<~SQL
           SELECT
             schemaname AS schema,
             relname AS table,
@@ -104,7 +104,7 @@ module PgHero
       end
 
       def last_stats_reset_time
-        select_one <<-SQL
+        select_one <<~SQL
           SELECT
             pg_stat_get_db_stat_reset_time(oid) AS reset_time
           FROM
@@ -126,7 +126,7 @@ module PgHero
       # TODO parse array properly
       # https://stackoverflow.com/questions/2204058/list-columns-with-indexes-in-postgresql
       def indexes
-        indexes = select_all(<<-SQL
+        indexes = select_all(<<~SQL
           SELECT
             schemaname AS schema,
             t.relname AS table,
@@ -186,7 +186,7 @@ module PgHero
       # thanks @jberkus and @mbanck
       def index_bloat(min_size: nil)
         min_size ||= index_bloat_bytes
-        select_all <<-SQL
+        select_all <<~SQL
           WITH btree_index_atts AS (
             SELECT
               nspname, relname, reltuples, relpages, indrelid, relam,
