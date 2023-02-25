@@ -77,7 +77,7 @@ function initSlider() {
   }
 
   function timeParam(time) {
-    return time.toISOString();
+    return time.toISOString().replace(/\.000Z$/, "Z");
   }
 
   function queriesPath(params) {
