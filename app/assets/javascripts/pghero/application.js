@@ -2,11 +2,12 @@
 //= require ./nouislider
 //= require ./Chart.bundle
 //= require ./chartkick
-//= require ./highlight.pack
+//= require ./highlight.min
 
 function highlightQueries() {
   $("pre code").each(function (i, block) {
-    hljs.highlightBlock(block);
+    $(block).addClass("language-pgsql");
+    hljs.highlightElement(block);
   });
 }
 
