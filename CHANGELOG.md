@@ -1,6 +1,7 @@
 ## 3.2.1 (unreleased)
 
 - Improved handling of lock timeouts
+- Improved syntax highlighting
 
 ## 3.2.0 (2023-02-21)
 
