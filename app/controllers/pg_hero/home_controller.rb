@@ -46,9 +46,14 @@ module PgHero
 
       @transaction_id_danger = @database.transaction_id_danger(threshold: 1500000000)
 
-      @readable_sequences, @unreadable_sequences = @database.sequences.partition { |s| s[:readable] }
+      sequences = rescue_lock_timeout { @database.sequences } || []
+      @readable_sequences, @unreadable_sequences = sequences.partition { |s| s[:readable] }
 
       @sequence_danger = @database.sequence_danger(threshold: (params[:sequence_threshold] || 0.9).to_f, sequences: @readable_sequences)
+
+      # TODO improve rescue_lock_timeout pattern
+      @sequence_timeout = @lock_timeout
+      @lock_timeout = false
 
       @indexes = rescue_lock_timeout { @database.indexes } || []
       @invalid_indexes = @database.invalid_indexes(indexes: @indexes)

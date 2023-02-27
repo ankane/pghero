@@ -55,9 +55,11 @@
       Vacuuming healthy
     <% end %>
   </div>
-  <div class="alert alert-<%= @sequence_danger && @sequence_danger.empty? ? "success" : "warning" %>">
+  <div class="alert alert-<%= @sequence_danger && @sequence_danger.empty? && !@sequence_timeout ? "success" : "warning" %>">
     <% if @sequence_danger.any? %>
       <%= pluralize(@sequence_danger.size, "column") %> approaching overflow
+    <% elsif @sequence_timeout %>
+      Sequences not available (system catalog locked)
     <% else %>
       No columns near integer overflow
     <% end %>
