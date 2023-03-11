@@ -54,6 +54,7 @@ CREATE VIEW pghero.pg_stats AS SELECT * FROM pghero.pg_stats();
 CREATE ROLE pghero WITH LOGIN ENCRYPTED PASSWORD 'secret';
 GRANT CONNECT ON DATABASE <dbname> TO pghero;
 ALTER ROLE pghero SET search_path = pghero, pg_catalog, public;
+ALTER ROLE pghero SET lock_timeout = '1s';
 GRANT USAGE ON SCHEMA pghero TO pghero;
 GRANT SELECT ON ALL TABLES IN SCHEMA pghero TO pghero;
 
