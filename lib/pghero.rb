@@ -40,13 +40,14 @@ module PgHero
 
   # settings
   class << self
-    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :explain_timeout_sec, :total_connections_threshold, :cache_hit_rate_threshold, :env, :show_migrations, :config_path, :filter_data
+    attr_accessor :long_running_query_sec, :slow_query_ms, :slow_query_calls, :explain_timeout_sec, :total_connections_threshold, :unused_index_threshold, :cache_hit_rate_threshold, :env, :show_migrations, :config_path, :filter_data
   end
   self.long_running_query_sec = (ENV["PGHERO_LONG_RUNNING_QUERY_SEC"] || 60).to_i
   self.slow_query_ms = (ENV["PGHERO_SLOW_QUERY_MS"] || 20).to_i
   self.slow_query_calls = (ENV["PGHERO_SLOW_QUERY_CALLS"] || 100).to_i
   self.explain_timeout_sec = (ENV["PGHERO_EXPLAIN_TIMEOUT_SEC"] || 10).to_f
   self.total_connections_threshold = (ENV["PGHERO_TOTAL_CONNECTIONS_THRESHOLD"] || 500).to_i
+  self.unused_index_threshold = 10 * 1024 * 1024
   self.cache_hit_rate_threshold = 99
   self.env = ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
   self.show_migrations = true

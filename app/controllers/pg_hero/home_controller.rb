@@ -76,7 +76,7 @@ module PgHero
         @index_hit_rate = @database.index_hit_rate || 0
         @table_hit_rate = @database.table_hit_rate || 0
         @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold / 100.0 && @index_hit_rate >= @database.cache_hit_rate_threshold / 100.0
-        @unused_indexes = @database.unused_indexes(max_scans: 0)
+        @unused_indexes = @database.unused_indexes(max_scans: 0).select { |i| i[:size_bytes] >= PgHero.unused_index_threshold }
       end
 
       @show_migrations = PgHero.show_migrations
@@ -106,6 +106,7 @@ module PgHero
       across = params[:across].to_s.split(",")
       @unused_indexes = @database.unused_indexes(max_scans: 0, across: across)
       @unused_index_names = Set.new(@unused_indexes.map { |r| r[:index] })
+      @unused_indexes.select! { |i| i[:size_bytes] >= PgHero.unused_index_threshold }
       @show_migrations = PgHero.show_migrations
       @system_stats_enabled = @database.system_stats_enabled?
       @index_bloat = [] # @database.index_bloat

@@ -18,7 +18,7 @@
 
   <% if @unused_indexes.any? %>
     <p>
-      <%= pluralize(@unused_indexes.size, "unused index") %>. Remove them
+      <%= pluralize(@unused_indexes.size, "unused index") %><%= PgHero.unused_index_threshold > 0 ? " over #{PgHero.pretty_size(PgHero.unused_index_threshold)}" : "" %>. Remove them
       <% if @show_migrations %>
         <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
       <% end %>
