@@ -1,3 +1,7 @@
+## 3.3.1 (unreleased)
+
+- Fixed error with Uglifier
+
 ## 3.3.0 (2023-03-11)
 
 - Improved handling of lock timeouts
