@@ -1,4 +1,4 @@
-## 3.3.1 (unreleased)
+## 3.3.1 (2023-03-15)
 
 - Fixed error with Uglifier
 
