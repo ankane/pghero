@@ -194,6 +194,7 @@ module PgHero
       end
 
       def best_index_structure(statement)
+        return {error: "Empty statement"} if statement.to_s.empty?
         return {error: "Too large"} if statement.to_s.length > 10000
 
         begin

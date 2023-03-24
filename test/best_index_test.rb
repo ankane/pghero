@@ -162,6 +162,10 @@ class BestIndexTest < Minitest::Test
     assert_no_index "SET statement", "set client_encoding to 'UTF8'"
   end
 
+  def test_empty_statement
+    assert_no_index "Empty statement", nil
+  end
+
   protected
 
   def assert_best_index(expected, statement)

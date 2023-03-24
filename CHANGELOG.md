@@ -1,3 +1,7 @@
+## 3.3.2 (unreleased)
+
+- Fixed error with suggested indexes and empty statements
+
 ## 3.3.1 (2023-03-15)
 
 - Fixed error with Uglifier
