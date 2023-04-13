@@ -1,4 +1,4 @@
-## 3.3.2 (unreleased)
+## 3.3.2 (2023-04-12)
 
 - Fixed error with suggested indexes and empty statements
 
