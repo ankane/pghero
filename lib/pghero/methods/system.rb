@@ -102,7 +102,8 @@ module PgHero
           end
 
         client = Azure::Monitor::Profiles::Latest::Mgmt::Client.new
-        timespan = "#{start_time.iso8601}/#{end_time.iso8601}"
+        # call utc to convert +00:00 to Z
+        timespan = "#{start_time.utc.iso8601}/#{end_time.utc.iso8601}"
         results = client.metrics.list(
           azure_resource_id,
           metricnames: metric_name,

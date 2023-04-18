@@ -1,6 +1,6 @@
 ## 3.3.3 (unreleased)
 
-- Fixed error with load stats for Azure Flexible Server
+- Fixed error with system stats for Azure Database
 
 ## 3.3.2 (2023-04-12)
 
