@@ -248,9 +248,16 @@ module PgHero
       stats =
         case @database.system_stats_provider
         when :azure
-          [
-            {name: "IO Consumption", data: @database.azure_stats("io_consumption_percent", **system_params), library: chart_library_options}
-          ]
+          if @database.send(:azure_flexible_server?)
+            [
+              {name: "Read IOPS", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},
+              {name: "Write IOPS", data: @database.write_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options}
+            ]
+          else
+            [
+              {name: "IO Consumption", data: @database.azure_stats("io_consumption_percent", **system_params), library: chart_library_options}
+            ]
+          end
         when :gcp
           [
             {name: "Read Ops", data: @database.read_iops_stats(**system_params).map { |k, v| [k, v ? v.round : v] }, library: chart_library_options},

@@ -1,3 +1,7 @@
+## 3.3.3 (unreleased)
+
+- Fixed error with load stats for Azure Flexible Server
+
 ## 3.3.2 (2023-04-12)
 
 - Fixed error with suggested indexes and empty statements
