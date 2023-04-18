@@ -1,4 +1,4 @@
-## 3.3.3 (unreleased)
+## 3.3.3 (2023-04-18)
 
 - Fixed error with system stats for Azure Database
 
