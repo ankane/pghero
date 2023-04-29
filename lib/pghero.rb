@@ -121,7 +121,7 @@ module PgHero
 
         config_file_exists = File.exist?(path)
 
-        config = YAML.safe_load(ERB.new(File.read(path)).result) if config_file_exists
+        config = YAML.safe_load(ERB.new(File.read(path)).result, aliases: true) if config_file_exists
         config ||= {}
 
         @file_config =
