@@ -1,3 +1,7 @@
+## 3.3.4 (unreleased)
+
+- Fixed support for aliases in config file
+
 ## 3.3.3 (2023-04-18)
 
 - Fixed error with system stats for Azure Database
