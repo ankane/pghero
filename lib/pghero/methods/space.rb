@@ -6,42 +6,37 @@ module PgHero
       end
 
       def relation_sizes
+        relation_sizes_impl("('r', 'p', 'I', 'i')")
+      end
+
+      def table_sizes
+        relation_sizes_impl('r', 'p')
+      end
+
+      def relation_sizes_impl(only_relkind)
         select_all_size <<~SQL
           SELECT
+            c.oid as oid,
             n.nspname AS schema,
             c.relname AS relation,
-            CASE WHEN c.relkind = 'r' THEN 'table' ELSE 'index' END AS type,
+            i.inhparent AS parent_oid,
+            CASE
+              WHEN c.relkind IN ('r', 'p') THEN 'table'
+              ELSE 'index'
+            END AS type,
             pg_table_size(c.oid) AS size_bytes
           FROM
             pg_class c
           LEFT JOIN
             pg_namespace n ON n.oid = c.relnamespace
+          LEFT JOIN
+            pg_inherits i ON c.oid = i.inhrelid
           WHERE
             n.nspname NOT IN ('pg_catalog', 'information_schema')
             AND n.nspname !~ '^pg_toast'
-            AND c.relkind IN ('r', 'i')
+            AND c.relkind IN #{only_relkind}
           ORDER BY
             pg_table_size(c.oid) DESC,
-            2 ASC
-        SQL
-      end
-
-      def table_sizes
-        select_all_size <<~SQL
-          SELECT
-            n.nspname AS schema,
-            c.relname AS table,
-            pg_total_relation_size(c.oid) AS size_bytes
-          FROM
-            pg_class c
-          LEFT JOIN
-            pg_namespace n ON n.oid = c.relnamespace
-          WHERE
-            n.nspname NOT IN ('pg_catalog', 'information_schema')
-            AND n.nspname !~ '^pg_toast'
-            AND c.relkind = 'r'
-          ORDER BY
-            pg_total_relation_size(c.oid) DESC,
             2 ASC
         SQL
       end

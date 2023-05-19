@@ -87,7 +87,14 @@ module PgHero
       @days = (params[:days] || 7).to_i
       @database_size = @database.database_size
       @only_tables = params[:tables].present?
-      @relation_sizes, @sizes_timeout = rescue_timeout([]) { @only_tables ? @database.table_sizes : @database.relation_sizes }
+      @relation_sizes, @sizes_timeout = rescue_timeout([]) do
+        if @only_tables
+          @database.table_sizes
+        else
+          @database.relation_sizes
+        end
+      end
+
       @space_stats_enabled = @database.space_stats_enabled? && !@only_tables
       if @space_stats_enabled
         space_growth = @database.space_growth(days: @days, relation_sizes: @relation_sizes)
@@ -98,7 +105,11 @@ module PgHero
       end
 
       if params[:sort] == "name"
-        @relation_sizes.sort_by! { |r| r[:relation] || r[:table] }
+        sort_func = proc { |array| array.sort_by! { |r| r[:relation] || r[:table] } }
+        sort_func.call @relation_sizes
+        @relation_sizes.each do |row|
+          sort_func.call row[:partitions]
+        end
       end
 
       @header_options = @only_tables ? {tables: "t"} : {}

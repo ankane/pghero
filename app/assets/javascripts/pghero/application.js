@@ -157,3 +157,26 @@ function initSlider() {
     refreshStats(false);
   });
 }
+
+$(() => {
+  $('[data-toggle]').each((i, elem) => {
+    const toggler = $(elem);
+    const togglerName = toggler.data('toggle');
+    const stateKeyName = 'toggler-state-' + togglerName;
+    const targets = $('[data-toggle-target=' + togglerName + ']');
+    const checked = localStorage.getItem(stateKeyName) == "true";
+    toggler.prop('checked', checked);
+
+    toggler.on('change', () => {
+      const checked = toggler.prop('checked');
+      localStorage.setItem(stateKeyName, checked.toString());
+      if(checked) {
+        targets.show();
+      } else {
+        targets.hide();
+      }
+    });
+
+    toggler.trigger('change');
+  })
+});

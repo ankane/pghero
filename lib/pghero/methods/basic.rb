@@ -85,11 +85,34 @@ module PgHero
       end
 
       def select_all_size(sql)
-        result = select_all(sql)
-        result.each do |row|
+        rows = select_all(sql)
+        rows.each do |row|
           row[:size] = PgHero.pretty_size(row[:size_bytes])
         end
-        result
+
+        oid_to_row = rows.map do |row|
+          row[:partitions] = []
+          row[:parent] = nil
+          [row[:oid], row]
+        end.to_h
+
+        oid_to_row.each do |oid, row|
+          if parent_oid = row[:parent_oid]
+            parent = oid_to_row[parent_oid]
+            binding.pry unless parent
+            parent[:partitions] << row
+            row[:parent] = oid_to_row[parent_oid]
+          end
+        end
+
+        oid_to_row.values.each do |row|
+          if (partitions = row[:partitions]).any?
+            row[:size_bytes] = row[:partitions].map { |r| r[:size_bytes] }.sum
+            row[:size] = PgHero.pretty_size(row[:size_bytes])
+          end
+        end
+
+        oid_to_row.values
       end
 
       def select_one(sql, conn: nil)

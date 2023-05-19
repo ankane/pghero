@@ -40,9 +40,10 @@
   <% if @sizes_timeout %>
     <p>Breakdown not available (system catalog locked)</p>
   <% else %>
-    <table class="table space-table">
+    <table class="table space-table" style="table-layout: auto">
       <thead>
         <tr>
+          <th></th>
           <th><%= link_to (@only_tables ? "Table" : "Relation"), @header_options.merge(sort: "name") %></th>
           <th style="width: 15%;"><%= link_to "Size", @header_options %></th>
           <% if @space_stats_enabled %>
@@ -50,38 +51,12 @@
           <% end %>
         </tr>
       </thead>
-      <tbody>
-        <% @relation_sizes.each do |query| %>
-          <tr>
-            <td style="<%= query[:type] == "index" ? "font-style: italic;" : "" %>">
-              <span style="word-break: break-all;">
-                <% name = query[:relation] || query[:table] %>
-                <% if @space_stats_enabled %>
-                  <%= link_to name, relation_space_path(name, schema: query[:schema]), target: "_blank", style: "color: inherit;" %>
-                <% else %>
-                  <%= name %>
-                <% end %>
-              </span>
-              <% if query[:schema] != "public" %>
-                <span class="text-muted"><%= query[:schema] %></span>
-              <% end %>
-              <% if @unused_index_names.include?(query[:relation]) %>
-                <span class="unused-index">UNUSED</span>
-              <% end %>
-            </td>
-            <td><%= query[:size] %></td>
-            <% if @space_stats_enabled %>
-              <td>
-                <% if @growth_bytes_by_relation[[query[:schema], query[:relation]]] %>
-                  <% if @growth_bytes_by_relation[[query[:schema], query[:relation]]] < 0 %>-<% end %><%= PgHero.pretty_size(@growth_bytes_by_relation[[query[:schema], query[:relation]]].abs) %>
-                <% else %>
-                  <span class="text-muted">Unknown</span>
-                <% end %>
-              </td>
-            <% end %>
-          </tr>
+      <% @relation_sizes.reject { |row| row[:parent] }.each do |query| %>
+        <%= render partial: "space_row", locals: { query: query } %>
+        <% query[:partitions].each do |partition| %>
+          <%= render partial: "space_row", locals: { query: partition } %>
         <% end %>
-      </tbody>
+      <% end %>
     </table>
   <% end %>
 </div>
