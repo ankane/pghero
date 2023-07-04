@@ -9,10 +9,10 @@ jobs:
         include:
           - ruby: 3.2
             gemfile: gemfiles/activerecord71.gemfile
-            postgres: 15
+            postgres: 16
           - ruby: 3.1
             gemfile: Gemfile
-            postgres: 14
+            postgres: 15
           - ruby: "3.0"
             gemfile: gemfiles/activerecord61.gemfile
             postgres: 12
