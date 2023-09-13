@@ -5,7 +5,7 @@ gemspec path: ".."
 gem "minitest", ">= 5"
 gem "rake"
 
-gem "activerecord", github: "rails/rails"
+gem "activerecord", "7.1.0.beta1"
 gem "combustion"
 gem "pg"
 gem "pg_query"
