@@ -1,3 +1,7 @@
+## 3.4.0 (unreleased)
+
+- Added Docker image for `linux/arm64`
+
 ## 3.3.4 (2023-09-05)
 
 - Fixed support for aliases in config file
