@@ -1,16 +1,34 @@
 <table class="table queries">
   <thead>
     <tr>
-      <th style="width: 25%;">Pid</th>
-      <th style="width: 25%;">Duration</th>
-      <th style="width: 25%;">State</th>
-      <th style="width: 25%;"></th>
+      <th style="width: 20%;">Pid</th>
+      <th style="width: 20%;">
+        <%= link_to "Transaction Duration", sort: "transaction_duration" %>
+      </th>
+      <th style="width: 20%;">
+        <%= link_to "Duration", sort: "duration" %>
+      </th>
+      <th style="width: 20%;">State</th>
+      <th style="width: 20%;"></th>
     </tr>
   </thead>
   <tbody>
     <% queries.reverse.each do |query| %>
       <tr>
         <td><%= query[:pid] %></td>
+        <td>
+          <% if query[:transaction_duration_ms] %>
+            <% sec = query[:transaction_duration_ms] / 1000.0 %>
+            <% if sec < 1.minute %>
+              <%= sec.round(1) %> s
+            <% elsif sec < 1.day %>
+              <%= Time.at(sec).utc.strftime("%H:%M:%S") %>
+            <% else %>
+              <% days = (sec / 1.day).floor %>
+              <%= days %>d <%= Time.at(sec - days.days).utc.strftime("%H:%M:%S") %>
+            <% end %>
+          <% end %>
+        </td>
         <td>
           <% if query[:duration_ms] %>
             <% sec = query[:duration_ms] / 1000.0 %>

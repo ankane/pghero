@@ -127,7 +127,8 @@ module PgHero
 
     def live_queries
       @title = "Live Queries"
-      @running_queries = @database.running_queries(all: true)
+      @sort = %w(transaction_duration duration).include?(params[:sort]) ? params[:sort] : nil
+      @running_queries = @database.running_queries(all: true, sort: @sort)
       @vacuum_progress = @database.vacuum_progress.index_by { |q| q[:pid] }
 
       if params[:state]
