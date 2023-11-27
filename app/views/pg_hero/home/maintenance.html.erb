@@ -1,14 +1,14 @@
 <div class="content">
   <h1>Maintenance</h1>
 
-  <table class="table">
+  <table class="table maintenance-table">
     <thead>
       <tr>
-        <th>Table</th>
-        <th style="width: 20%;">Last Vacuum</th>
-        <th style="width: 20%;">Last Analyze</th>
+        <th><%= link_to "Table", @header_options %></th>
+        <th style="width: 20%;"><%= link_to "Last Vacuum", @header_options.merge(sort: "last_vacuum") %></th>
+        <th style="width: 20%;"><%= link_to "Last Analyze", @header_options.merge(sort: "last_analyze") %></th>
         <% if @show_dead_rows %>
-          <th style="width: 20%;">Dead Rows</th>
+          <th style="width: 20%;"><%= link_to "Dead Rows", @header_options.merge(sort: "dead_rows") %></th>
         <% end %>
       </tr>
     </thead>

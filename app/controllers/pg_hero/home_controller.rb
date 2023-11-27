@@ -387,9 +387,11 @@ module PgHero
 
     def maintenance
       @title = "Maintenance"
-      @maintenance_info = @database.maintenance_info
+      @maintenance_info = @database.maintenance_info(sort: params[:sort])
       @time_zone = PgHero.time_zone
       @show_dead_rows = params[:dead_rows]
+      @header_options = {}
+      @header_options[:dead_rows] = "t" if @show_dead_rows
     end
 
     def kill

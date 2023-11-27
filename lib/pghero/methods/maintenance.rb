@@ -49,7 +49,19 @@ module PgHero
         end
       end
 
-      def maintenance_info
+      def maintenance_info(sort: nil)
+        order_by =
+          case sort
+          when "last_vacuum"
+            "GREATEST(last_vacuum, last_autovacuum), 1, 2"
+          when "last_analyze"
+            "GREATEST(last_analyze, last_autoanalyze), 1, 2"
+          when "dead_rows"
+            "1.0 * n_dead_tup / NULLIF(n_live_tup, 0) DESC NULLS LAST, 1, 2"
+          else
+            "1, 2"
+          end
+
         select_all <<~SQL
           SELECT
             schemaname AS schema,
@@ -63,7 +75,7 @@ module PgHero
           FROM
             pg_stat_user_tables
           ORDER BY
-            1, 2
+            #{order_by}
         SQL
       end
 
