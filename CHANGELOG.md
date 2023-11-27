@@ -1,5 +1,6 @@
 ## 3.4.0 (unreleased)
 
+- Added support for explaining normalized queries with Postgres 16
 - Added Docker image for `linux/arm64`
 
 ## 3.3.4 (2023-09-05)

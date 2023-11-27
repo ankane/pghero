@@ -12,7 +12,7 @@ module PgHero
           if (sql.sub(/;\z/, "").include?(";") || sql.upcase.include?("COMMIT")) && !explain_safe?
             raise ActiveRecord::StatementInvalid, "Unsafe statement"
           end
-          explanation = select_all("EXPLAIN #{sql}").map { |v| v[:"QUERY PLAN"] }.join("\n")
+          explanation = execute("EXPLAIN #{sql}").map { |v| v["QUERY PLAN"] }.join("\n")
         end
 
         explanation
@@ -20,11 +20,12 @@ module PgHero
 
       # TODO rename to explain in 4.0
       # note: this method is not affected by the explain option
-      def explain_v2(sql, analyze: nil, verbose: nil, costs: nil, settings: nil, buffers: nil, wal: nil, timing: nil, summary: nil, format: "text")
+      def explain_v2(sql, analyze: nil, verbose: nil, costs: nil, settings: nil, generic_plan: nil, buffers: nil, wal: nil, timing: nil, summary: nil, format: "text")
         options = []
         add_explain_option(options, "ANALYZE", analyze)
         add_explain_option(options, "VERBOSE", verbose)
         add_explain_option(options, "SETTINGS", settings)
+        add_explain_option(options, "GENERIC_PLAN", generic_plan)
         add_explain_option(options, "COSTS", costs)
         add_explain_option(options, "BUFFERS", buffers)
         add_explain_option(options, "WAL", wal)

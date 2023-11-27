@@ -54,6 +54,16 @@ class ExplainTest < Minitest::Test
     end
   end
 
+  def test_explain_v2_generic_plan
+    assert_raises(ActiveRecord::StatementInvalid) do
+      database.explain_v2("SELECT $1")
+    end
+
+    if explain_normalized?
+      assert_match "Result", database.explain_v2("SELECT $1", generic_plan: true)
+    end
+  end
+
   def test_explain_v2_format_text
     assert_match "Result  (cost=", database.explain_v2("SELECT 1", format: "text")
   end

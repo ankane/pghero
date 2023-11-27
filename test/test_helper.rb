@@ -21,6 +21,10 @@ class Minitest::Test
       yield
     end
   end
+
+  def explain_normalized?
+    database.server_version_num >= 160000
+  end
 end
 
 logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)

@@ -62,6 +62,18 @@ class ControllerTest < ActionDispatch::IntegrationTest
     refute_match /Execution Time/i, response.body
   end
 
+  def test_explain_only_normalized
+    post pg_hero.explain_path, params: {query: "SELECT $1"}
+    assert_response :success
+    if explain_normalized?
+      assert_match "Result  (cost=0.00..0.01 rows=1 width=32)", response.body
+      refute_match /Planning Time/i, response.body
+      refute_match /Execution Time/i, response.body
+    else
+      assert_match "Can&#39;t explain queries with bind parameters", response.body
+    end
+  end
+
   def test_explain_only_not_enabled
     with_explain(false) do
       post pg_hero.explain_path, params: {query: "SELECT 1"}
@@ -86,6 +98,14 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_match "(actual time=", response.body
     assert_match /Planning Time/i, response.body
     assert_match /Execution Time/i, response.body
+  end
+
+  def test_explain_analyze_normalized
+    with_explain("analyze") do
+      post pg_hero.explain_path, params: {query: "SELECT $1", commit: "Analyze"}
+    end
+    assert_response :success
+    assert_match "Can&#39;t explain queries with bind parameters", response.body
   end
 
   def test_explain_analyze_timeout
@@ -120,6 +140,21 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_match "https://tatiyants.com/pev/#/plans/new", response.body
     assert_match "&quot;Node Type&quot;: &quot;Result&quot;", response.body
     assert_match "Actual Total Time", response.body
+  end
+
+  def test_explain_visualize_normalized
+    with_explain("analyze") do
+      post pg_hero.explain_path, params: {query: "SELECT $1", commit: "Visualize"}
+    end
+    assert_response :success
+
+    if explain_normalized?
+      assert_match "https://tatiyants.com/pev/#/plans/new", response.body
+      assert_match "&quot;Node Type&quot;: &quot;Result&quot;", response.body
+      refute_match "Actual Total Time", response.body
+    else
+      assert_match "Can&#39;t explain queries with bind parameters", response.body
+    end
   end
 
   def test_tune
