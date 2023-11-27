@@ -323,8 +323,10 @@ module PgHero
           @error =
             if message == "Unsafe statement"
               "Unsafe statement"
-            elsif message.start_with?("PG::UndefinedParameter") || message.include?("EXPLAIN options ANALYZE and GENERIC_PLAN cannot be used together")
+            elsif message.start_with?("PG::UndefinedParameter")
               "Can't explain queries with bind parameters"
+            elsif message.include?("EXPLAIN options ANALYZE and GENERIC_PLAN cannot be used together")
+              "Can't analyze queries with bind parameters"
             elsif message.start_with?("PG::SyntaxError")
               "Syntax error with query"
             elsif message.start_with?("PG::QueryCanceled")

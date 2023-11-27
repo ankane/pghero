@@ -105,7 +105,11 @@ class ControllerTest < ActionDispatch::IntegrationTest
       post pg_hero.explain_path, params: {query: "SELECT $1", commit: "Analyze"}
     end
     assert_response :success
-    assert_match "Can&#39;t explain queries with bind parameters", response.body
+    if explain_normalized?
+      assert_match "Can&#39;t analyze queries with bind parameters", response.body
+    else
+      assert_match "Can&#39;t explain queries with bind parameters", response.body
+    end
   end
 
   def test_explain_analyze_timeout
