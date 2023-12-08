@@ -38,7 +38,7 @@ ENV["PGHERO_PASSWORD"] = "hyrule"
 For Devise, use:
 
 ```ruby
-authenticate :user, -> (user) { user.admin? } do
+authenticated :user, -> (user) { user.admin? } do
   mount PgHero::Engine, at: "pghero"
 end
 ```
