@@ -390,6 +390,9 @@
 
     <div id="migration2" style="display: none;">
       <pre>rails generate migration remove_unneeded_indexes</pre>
+      <% if @database.drop_idx_concurrently_supported? %>
+        <p><%= pghero_drop_idx_concurrently_explanation %></p>
+      <% end %>
       <p>And paste</p>
       <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @duplicate_indexes.each do |query| %>
 <%= pghero_remove_index(query[:unneeded_index]) %><% end %></pre>

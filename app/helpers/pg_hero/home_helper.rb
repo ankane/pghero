@@ -16,6 +16,15 @@ module PgHero
       json_escape(value.to_json(root: false)).html_safe
     end
 
+    def pghero_drop_idx_concurrently_explanation
+      if @database.drop_idx_concurrently_supported?
+        ret =  "<h2>Tip: Perform DROP INDEX operations using CONCURRENTLY</h2>"
+        ret << "<ul><li>Add <code>disable_ddl_transaction!</code> to your migration</li>"
+        ret << "<li>Add <code>algorithm: :concurrently</code> to each <code>remove_index</code></li></ul>"
+        ret.html_safe
+      end
+    end
+
     def pghero_remove_index(query)
       if query[:columns]
         columns = query[:columns].map(&:to_sym)
@@ -24,6 +33,7 @@ module PgHero
       ret = String.new("remove_index #{query[:table].to_sym.inspect}")
       ret << ", name: #{(query[:name] || query[:index]).to_s.inspect}"
       ret << ", column: #{columns.inspect}" if columns
+      ret << ", algorithm: :concurrently" if @database.drop_idx_concurrently_supported?
       ret
     end
 
