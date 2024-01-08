@@ -1,0 +1,5 @@
+apiVersion: v2
+description: Helm Chart for pghero
+name: pghero
+type: application
+version: 3.4.8

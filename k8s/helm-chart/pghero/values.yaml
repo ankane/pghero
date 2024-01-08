@@ -1,0 +1,31 @@
+#### image
+## Pghero Docker Image
+image: ankane/pghero:v3.4.0
+
+#### imagePullPolicy
+## Pull Policy for Kubernetes Deployment
+imagePullPolicy: IfNotPresent
+
+#### pullSecret
+## Pull Secret for Docker Image
+imagePullSecret: dockerconfigjson
+imagePullSecrets: []
+
+#### port
+## Service port of the pghero
+port: 8080
+
+###config file & secret
+configfile: pghero.yml
+fullpath: /app/config/pghero.yml
+secretname: pghero-secret
+
+#### resources
+## Deployment Resource
+resources:
+  limits:
+    cpu: 200m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi

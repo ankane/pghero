@@ -1,0 +1,26 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: pghero
+spec:
+  releaseName: pghero
+  values:
+    image: ankane/pghero:v3.4.0
+    configfile: pghero.yml
+    fullpath: /app/config/pghero.yml
+    secretname: pghero-secret
+    resources:
+      limits:
+        cpu: 200m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  rollback:
+    disableWait: true
+    cleanupOnFail: true
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  maxHistory: 3
