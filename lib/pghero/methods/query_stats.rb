@@ -172,11 +172,10 @@ module PgHero
         query_stats.select { |q| q[:calls].to_i >= slow_query_calls.to_i && q[:average_time].to_f >= slow_query_ms.to_f }
       end
 
-      # TODO option to include current period
-      def query_hash_stats(query_hash, user: nil)
+      def query_hash_stats(query_hash, user: nil, current: false)
         if historical_query_stats_enabled? && supports_query_hash?
           start_at = 24.hours.ago
-          select_all_stats <<~SQL
+          stats = select_all_stats <<~SQL
             SELECT
               captured_at,
               total_time / 1000 / 60 AS total_minutes,
@@ -193,6 +192,15 @@ module PgHero
             ORDER BY
               1 ASC
           SQL
+          if current
+            captured_at = Time.current
+            current_stats = current_query_stats(query_hash: query_hash, user: user, origin: true)
+            current_stats.each do |r|
+              r[:captured_at] = captured_at
+            end
+            stats += current_stats
+          end
+          stats
         else
           raise NotEnabled, "Query hash stats not enabled"
         end
@@ -201,7 +209,7 @@ module PgHero
       private
 
       # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
-      def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil)
+      def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil, user: nil, origin: false)
         if query_stats_enabled?
           limit ||= 100
           sort ||= "total_minutes"
@@ -225,10 +233,12 @@ module PgHero
                 calls > 0 AND
                 pg_database.datname = #{database ? quote(database) : "current_database()"}
                 #{query_hash ? "AND queryid = #{quote(query_hash)}" : nil}
+                #{user ? "AND rolname = #{quote(user)}" : nil}
             )
             SELECT
               query,
               query AS explainable_query,
+              #{origin ? "(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," : nil}
               query_hash,
               query_stats.user,
               total_minutes,
