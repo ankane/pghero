@@ -1,5 +1,6 @@
 ## 3.4.1 (unreleased)
 
+- Added current stats to query details page
 - Improved tune page for latest PgTune
 
 ## 3.4.0 (2023-11-28)
