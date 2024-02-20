@@ -7,9 +7,9 @@ class SpaceTest < Minitest::Test
 
   def test_relation_sizes
     relation_sizes = database.relation_sizes
-    assert relation_sizes.find { |r| r[:relation] == "users" }
-    assert relation_sizes.find { |r| r[:relation] == "users_pkey" }
-    assert relation_sizes.find { |r| r[:relation] == "all_users" }
+    assert relation_sizes.find { |r| r[:relation] == "users" && r[:type] == "table" }
+    assert relation_sizes.find { |r| r[:relation] == "users_pkey" && r[:type] == "index" }
+    assert relation_sizes.find { |r| r[:relation] == "all_users" && r[:type] == "matview" }
   end
 
   def test_table_sizes
