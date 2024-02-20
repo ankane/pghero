@@ -1,3 +1,7 @@
+## 3.4.2 (unreleased)
+
+- Fixed error with `slow_queries` method
+
 ## 3.4.1 (2024-02-07)
 
 - Added current stats to query details page

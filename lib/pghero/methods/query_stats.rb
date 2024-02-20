@@ -168,7 +168,7 @@ module PgHero
       end
 
       def slow_queries(query_stats: nil, **options)
-        query_stats ||= self.query_stats(options)
+        query_stats ||= self.query_stats(**options)
         query_stats.select { |q| q[:calls].to_i >= slow_query_calls.to_i && q[:average_time].to_f >= slow_query_ms.to_f }
       end
 
