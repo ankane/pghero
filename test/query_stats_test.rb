@@ -122,6 +122,10 @@ class QueryStatsTest < Minitest::Test
     assert database.clean_query_stats
   end
 
+  def test_slow_queries
+    assert database.slow_queries
+  end
+
   def gte12?
     database.server_version_num >= 120000
   end
