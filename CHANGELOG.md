@@ -1,5 +1,6 @@
 ## 3.4.2 (unreleased)
 
+- Added materialized views to space page
 - Fixed error with `slow_queries` method
 
 ## 3.4.1 (2024-02-07)
