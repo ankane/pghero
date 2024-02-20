@@ -74,3 +74,14 @@ users =
 User.insert_all!(users)
 ActiveRecord::Base.connection.execute("ANALYZE users")
 ActiveRecord::Base.connection.execute("CREATE MATERIALIZED VIEW all_users AS SELECT * FROM users")
+ActiveRecord::Base.connection.execute(<<~SQL)
+  CREATE TABLE partitioned_users (
+    city_id integer NOT NULL
+  ) PARTITION BY RANGE (city_id);
+
+  CREATE TABLE partitioned_users_1 PARTITION OF partitioned_users
+    FOR VALUES FROM (1) TO (1000);
+
+  CREATE TABLE partitioned_users_2 PARTITION OF partitioned_users
+    FOR VALUES FROM (1001) TO (2000);
+SQL

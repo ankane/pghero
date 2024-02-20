@@ -10,7 +10,12 @@ module PgHero
           SELECT
             n.nspname AS schema,
             c.relname AS relation,
-            CASE c.relkind WHEN 'r' THEN 'table' WHEN 'm' then 'matview' ELSE 'index' END AS type,
+            CASE c.relkind
+              WHEN 'r' THEN 'table'
+              WHEN 'p' THEN 'partitioned table'
+              WHEN 'm' then 'matview'
+              ELSE 'index'
+            END AS type,
             pg_table_size(c.oid) AS size_bytes
           FROM
             pg_class c
@@ -19,7 +24,7 @@ module PgHero
           WHERE
             n.nspname NOT IN ('pg_catalog', 'information_schema')
             AND n.nspname !~ '^pg_toast'
-            AND c.relkind IN ('r', 'm', 'i')
+            AND c.relkind IN ('r', 'p', 'm', 'i')
           ORDER BY
             pg_table_size(c.oid) DESC,
             2 ASC
