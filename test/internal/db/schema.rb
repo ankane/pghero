@@ -31,7 +31,7 @@ ActiveRecord::Schema.define do
     t.string :name
   end
 
-  create_table :users, force: true do |t|
+  create_table :users, force: :cascade do |t|
     t.integer :city_id
     t.integer :login_attempts
     t.string :email

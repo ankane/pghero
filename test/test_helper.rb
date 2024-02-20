@@ -73,3 +73,4 @@ users =
   end
 User.insert_all!(users)
 ActiveRecord::Base.connection.execute("ANALYZE users")
+ActiveRecord::Base.connection.execute("CREATE MATERIALIZED VIEW all_users AS SELECT * FROM users")
