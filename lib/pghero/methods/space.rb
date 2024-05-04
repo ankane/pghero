@@ -5,7 +5,7 @@ module PgHero
         PgHero.pretty_size select_one("SELECT pg_database_size(current_database())")
       end
 
-      def relation_sizes(matviews: false)
+      def relation_sizes
         select_all_size <<~SQL
           SELECT
             n.nspname AS schema,
@@ -19,7 +19,7 @@ module PgHero
           WHERE
             n.nspname NOT IN ('pg_catalog', 'information_schema')
             AND n.nspname !~ '^pg_toast'
-            AND c.relkind IN ('r', 'i'#{matviews ? ", 'm'" : ""})
+            AND c.relkind IN ('r', 'm', 'i')
           ORDER BY
             pg_table_size(c.oid) DESC,
             2 ASC
