@@ -87,7 +87,7 @@ module PgHero
       @days = (params[:days] || 7).to_i
       @database_size = @database.database_size
       @only_tables = params[:tables].present?
-      @relation_sizes, @sizes_timeout = rescue_timeout([]) { @only_tables ? @database.table_sizes : @database.relation_sizes }
+      @relation_sizes, @sizes_timeout = rescue_timeout([]) { @only_tables ? @database.table_sizes : @database.relation_sizes(matviews: true) }
       @space_stats_enabled = @database.space_stats_enabled? && !@only_tables
       if @space_stats_enabled
         space_growth = @database.space_growth(days: @days, relation_sizes: @relation_sizes)
