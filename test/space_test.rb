@@ -10,6 +10,9 @@ class SpaceTest < Minitest::Test
     assert relation_sizes.find { |r| r[:relation] == "users" && r[:type] == "table" }
     assert relation_sizes.find { |r| r[:relation] == "users_pkey" && r[:type] == "index" }
     assert relation_sizes.find { |r| r[:relation] == "all_users" && r[:type] == "matview" }
+    assert relation_sizes.find { |r| r[:relation] == "partitioned_users" && r[:type] == "partitioned table" }
+    assert relation_sizes.find { |r| r[:relation] == "partitioned_users_1" && r[:type] == "table" }
+    assert relation_sizes.find { |r| r[:relation] == "partitioned_users_2" && r[:type] == "table" }
   end
 
   def test_table_sizes

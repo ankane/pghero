@@ -1,5 +1,6 @@
 ## 3.4.2 (unreleased)
 
+- Added partitioned tables to space page
 - Added materialized views to space page
 - Fixed error with `slow_queries` method
 
