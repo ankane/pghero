@@ -1,4 +1,4 @@
-## 3.5.0 (unreleased)
+## 3.5.0 (2024-05-21)
 
 - Added materialized views to space page and `relation_sizes` method
 - Added Linux package for Debian 12
