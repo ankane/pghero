@@ -30,7 +30,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Supports Debian 11 (Bullseye)
+Supports Debian 11 (Bullseye) and 12 (Bookworm)
 
 ### CentOS / RHEL
 
