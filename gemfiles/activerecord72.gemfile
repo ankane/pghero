@@ -1,0 +1,11 @@
+source "https://rubygems.org"
+
+gemspec path: ".."
+
+gem "minitest", ">= 5"
+gem "rake"
+
+gem "activerecord", "~> 7.2.0.alpha", github: "rails/rails", branch: "7-2-stable"
+gem "combustion"
+gem "pg"
+gem "pg_query"
