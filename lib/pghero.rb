@@ -243,14 +243,12 @@ module PgHero
 
     # private
     def connection_config(model)
-      ActiveRecord::VERSION::STRING.to_f >= 6.1 ? model.connection_db_config.configuration_hash : model.connection_config
+      model.connection_db_config.configuration_hash
     end
 
     # private
-    # Rails 6.1 deprecates `spec_name` for `name`
-    # https://github.com/rails/rails/pull/38536
     def spec_name_key
-      ActiveRecord::VERSION::STRING.to_f >= 6.1 ? :name : :spec_name
+      :name
     end
 
     # private

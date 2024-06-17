@@ -145,7 +145,7 @@ module PgHero
         config_options = {env_name: PgHero.env, PgHero.spec_name_key => config["spec"], PgHero.include_replicas_key => true}
         resolved = ActiveRecord::Base.configurations.configs_for(**config_options)
         raise Error, "Spec not found: #{config["spec"]}" unless resolved
-        url = ActiveRecord::VERSION::STRING.to_f >= 6.1 ? resolved.configuration_hash : resolved.config
+        url = resolved.configuration_hash
       end
 
       url = url.dup

@@ -10,17 +10,14 @@ jobs:
           - ruby: 3.3
             gemfile: gemfiles/activerecord72.gemfile
             postgres: 16
-          - ruby: 3.2
+          - ruby: 3.3
             gemfile: Gemfile
-            postgres: 15
-          - ruby: 3.1
-            gemfile: gemfiles/activerecord70.gemfile
             postgres: 14
-          - ruby: "3.0"
-            gemfile: gemfiles/activerecord61.gemfile
+          - ruby: 3.2
+            gemfile: gemfiles/activerecord70.gemfile
             postgres: 12
-          - ruby: 2.7
-            gemfile: gemfiles/activerecord60.gemfile
+          - ruby: 3.1
+            gemfile: gemfiles/activerecord61.gemfile
             postgres: 10
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}

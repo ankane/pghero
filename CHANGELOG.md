@@ -1,3 +1,7 @@
+## 3.6.0 (unreleased)
+
+- Dropped support for Ruby < 3.1 and Rails < 6.1
+
 ## 3.5.0 (2024-05-21)
 
 - Added materialized views to space page and `relation_sizes` method

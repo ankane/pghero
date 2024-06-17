@@ -44,10 +44,8 @@ module PgHero
           result = conn.select_all(add_source(squish(sql)))
           if ActiveRecord::VERSION::MAJOR >= 8
             result = result.to_a.map(&:symbolize_keys)
-          elsif ActiveRecord::VERSION::STRING.to_f >= 6.1
-            result = result.map(&:symbolize_keys)
           else
-            result = result.map { |row| row.to_h { |col, val| [col.to_sym, result.column_types[col].send(:cast_value, val)] } }
+            result = result.map(&:symbolize_keys)
           end
           if filter_data
             query_columns.each do |column|
