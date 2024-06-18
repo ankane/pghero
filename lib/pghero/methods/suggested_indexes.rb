@@ -46,7 +46,7 @@ module PgHero
                   indexes += existing_columns["brin"][index[:table]]
                 end
 
-                covering_index = indexes.find { |e| index_covers?(e.map { |v| v.sub(/ inet_ops\z/, "") }, index[:columns]) }
+                covering_index = indexes.find { |e| index_covers?(e.map { |v| v.delete_suffix(" inet_ops") }, index[:columns]) }
                 if covering_index
                   best_index[:covering_index] = covering_index
                   best_index[:explanation] = "Covered by index on (#{covering_index.join(", ")})"

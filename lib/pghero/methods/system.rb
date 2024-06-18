@@ -136,8 +136,8 @@ module PgHero
         start_time = end_time - duration
 
         # validate input since we need to interpolate below
-        raise Error, "Invalid metric name" unless metric_name =~ /\A[a-z\/_]+\z/i
-        raise Error, "Invalid database id" unless gcp_database_id =~ /\A[a-z0-9\-:]+\z/i
+        raise Error, "Invalid metric name" unless /\A[a-z\/_]+\z/i.match?(metric_name)
+        raise Error, "Invalid database id" unless /\A[a-z0-9\-:]+\z/i.match?(gcp_database_id)
 
         # we handle four situations:
         # 1. google-cloud-monitoring-v3

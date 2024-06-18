@@ -322,7 +322,7 @@ module PgHero
             all_queries_total_minutes: stats2.sum { |s| s[:all_queries_total_minutes] }
           }
           value[:total_percent] = value[:total_minutes] * 100.0 / value[:all_queries_total_minutes]
-          value[:explainable_query] = stats2.map { |s| s[:explainable_query] }.select { |q| q && explainable?(q) }.first
+          value[:explainable_query] = stats2.map { |s| s[:explainable_query] }.find { |q| q && explainable?(q) }
           query_stats << value
         end
         query_stats

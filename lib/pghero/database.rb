@@ -126,7 +126,7 @@ module PgHero
         # rough check for Postgres adapter
         # keep this message generic so it's useful
         # when empty url set in Docker image pghero.yml
-        unless @connection_model.connection.adapter_name =~ /postg/i
+        unless @connection_model.connection.adapter_name.match?(/postg/i)
           raise Error, "Invalid connection URL"
         end
         @adapter_checked = true

@@ -5,7 +5,7 @@ module PgHero
       if schema && schema != "public"
         ident = "#{schema}.#{table}"
       end
-      if ident =~ /\A[a-z0-9_]+\z/
+      if /\A[a-z0-9_]+\z/.match?(ident)
         ident
       else
         @database.quote_ident(ident)

@@ -9,7 +9,7 @@ module PgHero
 
         # use transaction for safety
         with_transaction(statement_timeout: (explain_timeout_sec * 1000).round, rollback: true) do
-          if (sql.sub(/;\z/, "").include?(";") || sql.upcase.include?("COMMIT")) && !explain_safe?
+          if (sql.delete_suffix(";").include?(";") || sql.upcase.include?("COMMIT")) && !explain_safe?
             raise ActiveRecord::StatementInvalid, "Unsafe statement"
           end
           explanation = execute("EXPLAIN #{sql}").map { |v| v["QUERY PLAN"] }.join("\n")
