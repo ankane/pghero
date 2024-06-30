@@ -166,6 +166,8 @@ module PgHero
 
       if !@historical_query_stats_enabled || request.xhr?
         set_suggested_indexes
+      else
+        @debug = params[:debug].present?
       end
 
       # fix back button issue with caching
