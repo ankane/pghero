@@ -86,7 +86,7 @@
         <% @tables.each do |table| %>
           <tr>
             <td><%= table %></td>
-            <td><%= @row_counts[table] %></td>
+            <td><%= number_with_delimiter(@row_counts[table]) if @row_counts[table] %></td>
             <td>
               <% if @indexes_timeout %>
                 Not available
