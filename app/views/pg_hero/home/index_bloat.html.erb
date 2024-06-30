@@ -25,15 +25,15 @@ ALTER INDEX new_index RENAME TO index;</code></pre>
       <thead>
         <tr>
           <th>Index</th>
-          <th style="width: 15%;">Bloat</th>
-          <th style="width: 15%;">Size</th>
+          <th class="width-15">Bloat</th>
+          <th class="width-15">Size</th>
         </tr>
       </thead>
       <tbody>
         <% @index_bloat.each do |index| %>
           <tr>
             <td>
-              <span style="word-break: break-all;"><%= index[:index] %></span>
+              <span class="break-all"><%= index[:index] %></span>
               <% if index[:primary] %>
                 <span class="primary-key">PRIMARY</span>
               <% end %>
@@ -43,7 +43,7 @@ ALTER INDEX new_index RENAME TO index;</code></pre>
           </tr>
           <% if @show_sql && !index[:primary] %>
             <tr>
-              <td colspan="3" style="border-top: none; padding: 0;">
+              <td colspan="3" class="query-row">
                 <% new_index = "new_#{index[:index]}".first(63) %>
                 <pre><code><%= index[:definition].sub(" INDEX ", " INDEX CONCURRENTLY \n    ").sub(index[:index], new_index) %>;
 
@@ -67,6 +67,6 @@ ALTER INDEX <%= pghero_pretty_ident(new_index) %>
   <% end %>
 </div>
 
-<script>
+<%= javascript_tag nonce: true do %>
   highlightQueries();
-</script>
+<% end %>

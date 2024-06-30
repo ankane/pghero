@@ -1,10 +1,10 @@
 <table class="table queries">
   <thead>
     <tr>
-      <th style="width: 25%;">Pid</th>
-      <th style="width: 25%;">Duration</th>
-      <th style="width: 25%;">State</th>
-      <th style="width: 25%;"></th>
+      <th class="width-25">Pid</th>
+      <th class="width-25">Duration</th>
+      <th class="width-25">State</th>
+      <th class="width-25"></th>
     </tr>
   </thead>
   <tbody>
@@ -39,15 +39,15 @@
         </td>
       </tr>
       <tr>
-        <td colspan="6" style="border-top: none; padding: 0;">
+        <td colspan="4" class="query-row">
           <%= query[:source] %> <span class="text-muted"><%= query[:user] %></span>
-          <pre style="margin-top: 1em;"><code><%= query[:query] %></code></pre>
+          <pre class="query-pre"><code><%= query[:query] %></code></pre>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
-<script>
+<%= javascript_tag nonce: true do %>
   highlightQueries();
-</script>
+<% end %>

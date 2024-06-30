@@ -127,7 +127,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th style="width: 33%;">Column</th>
+          <th class="width-33">Column</th>
           <th>Sequence</th>
         </tr>
       </thead>
@@ -251,7 +251,7 @@
       <thead>
         <tr>
           <th>Table</th>
-          <th style="width: 20%;">Transactions Left</th>
+          <th class="width-20">Transactions Left</th>
         </tr>
       </thead>
       <tbody>
@@ -279,9 +279,9 @@
       <thead>
         <tr>
           <th>Column</th>
-          <th style="width: 20%;">Type</th>
-          <th style="width: 20%;">Values Left</th>
-          <th style="width: 10%;">% Left</th>
+          <th class="width-20">Type</th>
+          <th class="width-20">Values Left</th>
+          <th class="width-10">% Left</th>
         </tr>
       </thead>
       <tbody>
@@ -332,7 +332,7 @@
             </td>
           </tr>
           <tr>
-            <td style="border-top: none; padding: 0;">
+            <td class="query-row">
               <pre><code>DROP INDEX CONCURRENTLY <%= pghero_pretty_ident(index[:name], schema: index[:schema]) %>;
 <%= index[:definition].sub("CREATE INDEX ", "CREATE INDEX CONCURRENTLY ") %>;</code></pre>
             </td>
@@ -366,7 +366,7 @@
             </td>
           </tr>
           <tr>
-            <td style="border-top: none; padding: 0;">
+            <td class="query-row">
               <pre><code>ALTER TABLE <%= pghero_pretty_ident(constraint[:table], schema: constraint[:schema]) %> VALIDATE CONSTRAINT <%= pghero_pretty_ident(constraint[:name]) %>;</code></pre>
             </td>
           </tr>
@@ -383,15 +383,15 @@
     <p>
       These indexes exist, but aren’t needed. Remove them
       <% if @show_migrations %>
-      <a href="javascript: void(0);" onclick="document.getElementById('migration2').style.display = 'block';">with a migration</a>
+      <a href="#" class="migration-link">with a migration</a>
       <% end %>
       for faster writes.
     </p>
 
-    <div id="migration2" style="display: none;">
+    <div class="migration">
       <pre>rails generate migration remove_unneeded_indexes</pre>
       <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @duplicate_indexes.each do |query| %>
+      <pre><% @duplicate_indexes.each do |query| %>
 <%= pghero_remove_index(query[:unneeded_index]) %><% end %></pre>
     </div>
 
@@ -426,14 +426,14 @@
       Add indexes to speed up queries.
       <% if @show_migrations %>
       Here’s a
-      <a href="javascript: void(0);" onclick="document.getElementById('migration3').style.display = 'block';">migration</a> to help.
+      <a href="#" class="migration-link">migration</a> to help.
       <% end %>
     </p>
 
-    <div id="migration3" style="display: none;">
+    <div class="migration">
       <pre>rails generate migration add_suggested_indexes</pre>
       <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;">commit_db_transaction
+      <pre>commit_db_transaction
 <% @suggested_indexes.each do |index| %>
 <% if index[:using] && index[:using] != "btree" %>
 add_index <%= index[:table].to_sym.inspect %>, <%= index[:columns].first.inspect %>, using: <%= index[:using].inspect %>, algorithm: :concurrently
@@ -487,15 +487,15 @@ pg_stat_statements.track = all</pre>
     <p>
       Unused indexes cause unnecessary overhead. Remove them
       <% if @show_migrations %>
-        <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
+        <a href="#" class="migration-link">with a migration</a>
       <% end %>
       for faster writes.
     </p>
 
-    <div id="migration" style="display: none;">
+    <div class="migration">
       <pre>rails generate migration remove_unused_indexes</pre>
       <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.each do |query| %>
+      <pre><% @unused_indexes.each do |query| %>
 <%= pghero_remove_index(query)%><% end %></pre>
     </div>
 
@@ -503,7 +503,7 @@ pg_stat_statements.track = all</pre>
       <thead>
         <tr>
           <th>Name</th>
-          <th style="width: 20%;">Index Size</th>
+          <th class="width-20">Index Size</th>
         </tr>
       </thead>
       <tbody>
@@ -518,6 +518,6 @@ pg_stat_statements.track = all</pre>
   </div>
 <% end %>
 
-<script>
+<%= javascript_tag nonce: true do %>
   highlightQueries();
-</script>
+<% end %>

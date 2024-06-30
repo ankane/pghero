@@ -2,9 +2,9 @@
   <% unless local_assigns[:xhr] %>
     <thead>
       <tr>
-        <th style="width: 33.33%;"><%= local_assigns[:sort_headers] ? link_to("Total Time", {sort: nil}, data: {sort: nil}) : "Total Time" %></th>
-        <th style="width: 33.33%;"><%= local_assigns[:sort_headers] ? link_to("Average Time", {sort: "average_time"}, data: {sort: "average_time"}) : "Average Time" %></th>
-        <th style="width: 33.33%;"><%= local_assigns[:sort_headers] ? link_to("Calls", {sort: "calls"}, data: {sort: "calls"}) : "Calls" %></th>
+        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Total Time", {sort: nil}, data: {sort: nil}) : "Total Time" %></th>
+        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Average Time", {sort: "average_time"}, data: {sort: "average_time"}) : "Average Time" %></th>
+        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Calls", {sort: "calls"}, data: {sort: "calls"}) : "Calls" %></th>
       </tr>
     </thead>
   <% end %>
@@ -57,8 +57,8 @@
         </td>
       </tr>
       <tr>
-        <td colspan="3" style="border-top: none; padding: 0;">
-          <pre><code style="max-height: 230px; overflow: hidden;" onclick="this.style.maxHeight = 'none';"><%= query[:query] %></code></pre>
+        <td colspan="3" class="query-row">
+          <pre><code class="query-code"><%= query[:query] %></code></pre>
           <% if query[:query] == "<insufficient privilege>" %>
             <p class="text-muted">For security reasons, only superusers can see queries executed by other users.</p>
           <% end %>

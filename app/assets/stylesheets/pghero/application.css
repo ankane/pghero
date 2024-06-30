@@ -483,12 +483,12 @@ body {
   line-height: 300px;
   text-align: center;
   color: #999;
+  margin-bottom: 20px;
 }
 
 .pie-chart {
   height: 260px;
   line-height: 260px;
-  margin-bottom: 20px;
 }
 
 .unused-index {
@@ -503,8 +503,18 @@ body {
   font-weight: bold;
 }
 
+.origins-table {
+  table-layout: auto;
+}
+
 .origin {
   word-break: break-word;
+  width: 90%;
+}
+
+.origin-pct {
+  text-align: right;
+  width: 10%;
 }
 
 .duplicate-indexes td {
@@ -517,4 +527,94 @@ body {
 
 .no-outline:focus {
   outline: none;
+}
+
+.width-10 {
+  width: 10%;
+}
+
+.width-15 {
+  width: 15%;
+}
+
+.width-20 {
+  width: 20%;
+}
+
+.width-25 {
+  width: 25%;
+}
+
+.width-33 {
+  width: 33.33%;
+}
+
+.right-5 {
+  margin-right: 5px;
+}
+
+.query-row {
+  border-top: none;
+  padding: 0;
+}
+
+.query-pre {
+  margin-top: 1em;
+}
+
+.query-code {
+  max-height: 230px;
+  overflow: hidden;
+}
+
+.break-all {
+  word-break: break-all;
+}
+
+.migration {
+  display: none;
+}
+
+.migration pre {
+  overflow: scroll;
+  white-space: pre;
+  word-break: normal;
+}
+
+.space-index {
+  font-style: italic;
+}
+
+a.relation-link {
+  color: inherit;
+}
+
+.push-left {
+  float: left;
+}
+
+.clear-both {
+  clear: both;
+}
+
+.create-index {
+  color: #eee;
+  background-color: #333;
+}
+
+.hide {
+  display: none;
+}
+
+.show-details {
+  float: right;
+  color: #f0ad4e;
+  margin-top: 0px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.details pre {
+  color: #f0ad4e;
+  background-color: #333;
 }

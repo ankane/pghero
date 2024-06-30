@@ -7,10 +7,10 @@
     <%= favicon_link_tag "pghero/favicon.png" %>
     <% if defined?(Propshaft::Railtie) %>
       <%= stylesheet_link_tag "pghero/nouislider", "pghero/arduino-light", "pghero/application" %>
-      <%= javascript_include_tag "pghero/jquery", "pghero/nouislider", "pghero/Chart.bundle", "pghero/chartkick", "pghero/highlight.min", "pghero/application" %>
+      <%= javascript_include_tag "pghero/jquery", "pghero/nouislider", "pghero/Chart.bundle", "pghero/chartkick", "pghero/highlight.min", "pghero/application", nonce: true %>
     <% else %>
       <%= stylesheet_link_tag "pghero/application" %>
-      <%= javascript_include_tag "pghero/application" %>
+      <%= javascript_include_tag "pghero/application", nonce: true %>
     <% end %>
   </head>
   <body>

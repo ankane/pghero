@@ -157,3 +157,17 @@ function initSlider() {
     refreshStats(false);
   });
 }
+
+$(document).on("click", ".query-code", function () {
+  this.style.maxHeight = "none";
+});
+
+$(document).on("click", ".migration-link", function (e) {
+  e.preventDefault();
+  $(this).parent().next(".migration").css("display", "block");
+});
+
+$(document).on("click", ".show-details", function () {
+  $(this).nextAll(".details").css("display", "block");
+  $(this).css("display", "none");
+});

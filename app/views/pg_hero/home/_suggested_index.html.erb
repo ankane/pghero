@@ -1,11 +1,11 @@
 <% if index && !details[:covering_index] %>
   <% unless @debug %>
-    <div style="float: right; color: #f0ad4e; margin-top: 0px; padding: 10px; cursor: pointer;" onclick="document.getElementById('details-<%= index.object_id %>').style.display = 'block'; this.style.display = 'none';">Details</div>
+    <div class="show-details">Details</div>
   <% end %>
-  <code><pre style="color: #eee; background-color: #333;">CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)</pre></code>
+  <code><pre class="create-index">CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)</pre></code>
 <% end %>
-<div id="details-<%= index.object_id %>" style="<%= "display: none;" unless @debug %>">
-  <code><pre style="color: #f0ad4e; background-color: #333;"><% if details[:explanation] %><%= details[:explanation] %>
+<div class="details <%= "hide" unless @debug %>">
+  <code><pre><% if details[:explanation] %><%= details[:explanation] %>
 <% end %><% if details[:row_estimates] %>Rows: <%= details[:rows] %>
 Row progression: <%= details[:row_progression].to_a.join(", ") %>
 

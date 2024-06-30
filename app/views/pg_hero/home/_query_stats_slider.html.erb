@@ -4,7 +4,7 @@
   <div id="range-start"></div>
 </div>
 
-<script>
+<%= javascript_tag nonce: true do %>
   var sort = <%= pghero_js_value(@sort) %>;
   var minAverageTime = <%= pghero_js_value(@min_average_time) %>;
   var minCalls = <%= pghero_js_value(@min_calls) %>;
@@ -13,4 +13,4 @@
   var endAt = <%= pghero_js_value(@end_at.to_i * 1000) %>;
 
   initSlider();
-</script>
+<% end %>

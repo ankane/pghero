@@ -4,10 +4,10 @@
   <p>Database Size: <%= @database_size %></p>
 
   <% if @system_stats_enabled %>
-    <div id="chart-1" class="chart" style="margin-bottom: 20px;">Loading...</div>
-    <script>
+    <div id="chart-1" class="chart">Loading...</div>
+    <%= javascript_tag nonce: true do %>
       new Chartkick.LineChart("chart-1", <%= pghero_js_value(free_space_stats_path) %>, {colors: ["#5bc0de"], bytes: true, library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
-    </script>
+    <% end %>
   <% end %>
 
   <!--
@@ -20,7 +20,7 @@
     <p>
       <%= pluralize(@unused_indexes.size, "unused index") %>. Remove them
       <% if @show_migrations %>
-        <a href="javascript: void(0);" onclick="document.getElementById('migration').style.display = 'block';">with a migration</a>
+        <a href="#" class="migration-link">with a migration</a>
       <% end %>
       for faster writes.
 
@@ -29,10 +29,10 @@
       <% end %>
     </p>
 
-    <div id="migration" style="display: none;">
+    <div class="migration">
       <pre>rails generate migration remove_unused_indexes</pre>
       <p>And paste</p>
-      <pre style="overflow: scroll; white-space: pre; word-break: normal;"><% @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
+      <pre><% @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
 <%= pghero_remove_index(query) %><% end %></pre>
     </div>
   <% end %>
@@ -44,20 +44,20 @@
       <thead>
         <tr>
           <th><%= link_to (@only_tables ? "Table" : "Relation"), @header_options.merge(sort: "name") %></th>
-          <th style="width: 15%;"><%= link_to "Size", @header_options %></th>
+          <th class="width-15"><%= link_to "Size", @header_options %></th>
           <% if @space_stats_enabled %>
-            <th style="width: 15%;"><%= link_to "#{@days}d Growth", @header_options.merge(sort: "growth") %></th>
+            <th class="width-15"><%= link_to "#{@days}d Growth", @header_options.merge(sort: "growth") %></th>
           <% end %>
         </tr>
       </thead>
       <tbody>
         <% @relation_sizes.each do |query| %>
           <tr>
-            <td style="<%= query[:type] == "index" ? "font-style: italic;" : "" %>">
-              <span style="word-break: break-all;">
+            <td class="<%= query[:type] == "index" ? "space-index" : "" %>">
+              <span class="break-all">
                 <% name = query[:relation] || query[:table] %>
                 <% if @space_stats_enabled %>
-                  <%= link_to name, relation_space_path(name, schema: query[:schema]), target: "_blank", style: "color: inherit;" %>
+                  <%= link_to name, relation_space_path(name, schema: query[:schema]), target: "_blank", class: "relation-link" %>
                 <% else %>
                   <%= name %>
                 <% end %>
