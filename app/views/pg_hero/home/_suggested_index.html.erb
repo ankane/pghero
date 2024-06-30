@@ -7,7 +7,8 @@
 <div class="details<%= " hide" unless @debug %>">
   <code><pre><% if details[:explanation] %><%= details[:explanation] %>
 <% end %><% if details[:row_estimates] %>Rows: <%= details[:rows] %>
-Row progression: <%= details[:row_progression].to_a.join(", ") %>
+<% if details[:row_progression] %>Row progression: <%= details[:row_progression].to_a.join(", ") %>
+<% end %>
 
 Row estimates
 <%= details[:row_estimates].to_a.map { |k, v| "- #{k}: #{v}" }.join("\n") %><% end %><% if details[:table_indexes] %>
