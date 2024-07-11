@@ -1,6 +1,7 @@
 ## 3.6.0 (2024-07-10)
 
 - Improved CSP support
+- Dropped support for Linux packages for Ubuntu 18.04, CentOS 7, and SLES 12
 - Dropped support for Ruby < 3.1 and Rails < 6.1
 
 ## 3.5.0 (2024-05-21)
