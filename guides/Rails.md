@@ -82,6 +82,20 @@ or:
 PgHero.clean_query_stats
 ```
 
+Schedule a task to remove old stats once a week.
+
+By default, query stats older than 14 days will be deleted. Change this with:
+
+```ruby
+ENV["KEEP_DAYS"]
+```
+
+or:
+
+```ruby
+PgHero.clean_query_stats(before: 30)
+```
+
 By default, query stats are stored in your app’s database. Change this with:
 
 ```ruby
