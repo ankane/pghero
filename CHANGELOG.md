@@ -1,4 +1,4 @@
-## 3.6.0 (unreleased)
+## 3.6.0 (2024-07-10)
 
 - Improved CSP support
 - Dropped support for Ruby < 3.1 and Rails < 6.1
