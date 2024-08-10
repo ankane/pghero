@@ -8,10 +8,10 @@ jobs:
       matrix:
         include:
           - ruby: 3.3
-            gemfile: gemfiles/activerecord72.gemfile
+            gemfile: Gemfile
             postgres: 16
           - ruby: 3.3
-            gemfile: Gemfile
+            gemfile: gemfiles/activerecord71.gemfile
             postgres: 14
           - ruby: 3.2
             gemfile: gemfiles/activerecord70.gemfile

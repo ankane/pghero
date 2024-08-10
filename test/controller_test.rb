@@ -176,11 +176,11 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_kill
-    # prevent warning for now
-    # post pg_hero.kill_path(pid: 1_000_000_000)
-    # assert_redirected_to "/"
-  end
+  # prevent warning for now
+  # def test_kill
+  #   post pg_hero.kill_path(pid: 1_000_000_000)
+  #   assert_redirected_to "/"
+  # end
 
   def test_reset_query_stats
     post pg_hero.reset_query_stats_path
