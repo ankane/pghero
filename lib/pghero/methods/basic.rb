@@ -92,8 +92,8 @@ module PgHero
         result
       end
 
-      def select_one(sql, conn: nil)
-        select_all(sql, conn: conn).first.values.first
+      def select_one(sql)
+        select_all(sql).first.values.first
       end
 
       def execute(sql)
