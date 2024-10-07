@@ -96,10 +96,6 @@ module PgHero
         select_all(sql, conn: conn).first.values.first
       end
 
-      def select_one_stats(sql)
-        select_one(sql, conn: stats_connection)
-      end
-
       def execute(sql)
         connection.execute(add_source(sql))
       end
