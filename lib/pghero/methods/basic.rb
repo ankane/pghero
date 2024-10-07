@@ -31,13 +31,18 @@ module PgHero
       end
 
       def quote_ident(value)
-        connection.quote_column_name(value)
+        with_connection { |c| c.quote_column_name(value) }
       end
 
       private
 
-      def select_all(sql, conn: nil, query_columns: [])
-        conn ||= connection
+      def select_all(sql, stats: false, query_columns: [])
+        with_connection(stats: stats) do |conn|
+          select_all_leased(sql, conn: conn, query_columns: query_columns)
+        end
+      end
+
+      def select_all_leased(sql, conn:, query_columns:)
         # squish for logs
         retries = 0
         begin
@@ -81,7 +86,7 @@ module PgHero
       end
 
       def select_all_stats(sql, **options)
-        select_all(sql, **options, conn: stats_connection)
+        select_all(sql, **options, stats: true)
       end
 
       def select_all_size(sql)
@@ -97,15 +102,12 @@ module PgHero
       end
 
       def execute(sql)
-        connection.execute(add_source(sql))
+        with_connection { |c| c.execute(add_source(sql)) }
       end
 
-      def connection
-        connection_model.connection
-      end
-
-      def stats_connection
-        ::PgHero::Stats.connection
+      def with_connection(stats: false, &block)
+        model = stats ? ::PgHero::Stats : connection_model
+        model.connection_pool.with_connection(&block)
       end
 
       def squish(str)
@@ -117,15 +119,15 @@ module PgHero
       end
 
       def quote(value)
-        connection.quote(value)
+        with_connection { |c| c.quote(value) }
       end
 
       def quote_table_name(value)
-        connection.quote_table_name(value)
+        with_connection { |c| c.quote_table_name(value) }
       end
 
       def quote_column_name(value)
-        connection.quote_column_name(value)
+        with_connection { |c| c.quote_column_name(value) }
       end
 
       def unquote(part)
@@ -146,7 +148,7 @@ module PgHero
       end
 
       def table_exists?(table)
-        stats_connection.table_exists?(table)
+        with_connection(stats: true) { |c| c.table_exists?(table) }
       end
     end
   end

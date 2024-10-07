@@ -79,7 +79,9 @@ module PgHero
         suggested_indexes.each do |index|
           p index
           if create
-            connection.execute("CREATE INDEX CONCURRENTLY ON #{quote_table_name(index[:table])} (#{index[:columns].map { |c| quote_column_name(c) }.join(",")})")
+            with_connection do |connection|
+              connection.execute("CREATE INDEX CONCURRENTLY ON #{quote_table_name(index[:table])} (#{index[:columns].map { |c| quote_column_name(c) }.join(",")})")
+            end
           end
         end
       end
