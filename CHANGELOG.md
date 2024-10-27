@@ -491,4 +491,18 @@ PgHero.with(:database2) { PgHero.running_queries }
 
 ## 0.1.0 (2014-07-23)
 
-- First major release
+- Improved explanations
+- Updated design
+
+## 0.0.3 (2024-07-22)
+
+- Fixed `missing_indexes` method
+
+## 0.0.2 (2024-07-21)
+
+- Added `unused_tables` method
+- Added `database_size` method
+
+## 0.0.1 (2024-07-21)
+
+- First release
