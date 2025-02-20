@@ -30,7 +30,7 @@
     </p>
 
     <div class="migration">
-      <pre>rails generate migration remove_unused_indexes</pre>
+      <pre>bin/rails generate migration remove_unused_indexes</pre>
       <p>And paste</p>
       <pre><% @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
 <%= pghero_remove_index(query) %><% end %></pre>

@@ -389,7 +389,7 @@
     </p>
 
     <div class="migration">
-      <pre>rails generate migration remove_unneeded_indexes</pre>
+      <pre>bin/rails generate migration remove_unneeded_indexes</pre>
       <p>And paste</p>
       <pre><% @duplicate_indexes.each do |query| %>
 <%= pghero_remove_index(query[:unneeded_index]) %><% end %></pre>
@@ -431,7 +431,7 @@
     </p>
 
     <div class="migration">
-      <pre>rails generate migration add_suggested_indexes</pre>
+      <pre>bin/rails generate migration add_suggested_indexes</pre>
       <p>And paste</p>
       <pre>commit_db_transaction
 <% @suggested_indexes.each do |index| %>
@@ -493,7 +493,7 @@ pg_stat_statements.track = all</pre>
     </p>
 
     <div class="migration">
-      <pre>rails generate migration remove_unused_indexes</pre>
+      <pre>bin/rails generate migration remove_unused_indexes</pre>
       <p>And paste</p>
       <pre><% @unused_indexes.each do |query| %>
 <%= pghero_remove_index(query)%><% end %></pre>
