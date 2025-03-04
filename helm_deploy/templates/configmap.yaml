@@ -1,0 +1,14 @@
+# templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pghero.fullname" . }}-config
+  labels:
+    {{ include "pghero.labels" . | nindent 4 }}
+data:
+  pghero.yml: |-
+    databases:
+    {{- range $name, $url := .Values.databases }}
+      {{ $name }}:
+        url: {{ $url }}
+    {{- end }}

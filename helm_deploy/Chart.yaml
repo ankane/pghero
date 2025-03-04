@@ -1,0 +1,5 @@
+apiVersion: v2
+name: pghero
+version: 0.1.0
+type: application
+description: A Helm chart for deploying PgHero

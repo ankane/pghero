@@ -1,0 +1,45 @@
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pghero.fullname" . }}
+  labels:
+    {{ include "pghero.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "pghero.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "pghero.fullname" . }}
+    spec:
+      containers:
+      - name: pghero
+        image: {{ .Values.image.repository }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: PGHERO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "pghero.fullname" . }}-secret
+              key: PGHERO_USERNAME
+        - name: PGHERO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "pghero.fullname" . }}-secret
+              key: PGHERO_PASSWORD
+        volumeMounts:
+        - name: pghero-config
+          mountPath: /app/config/pghero.yml
+          subPath: pghero.yml
+          readOnly: true
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+      volumes:
+      - name: pghero-config
+        configMap:
+          name: {{ include "pghero.fullname" . }}-config

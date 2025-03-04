@@ -1,0 +1,19 @@
+# values.yaml
+databases:
+  postgres1: postgres://username:password@dbaddress:dbport/postgres
+  postgres2: postgres://username:password@dbaddress:dbport/postgres
+  #other dbs
+    
+replicaCount: 1
+image:
+  repository: ankane/pghero
+  pullPolicy: Always
+service:
+  type: ClusterIP
+  port: 8080
+ingress:
+  enabled: true
+  className: "ingressclassname"
+  host: pghero.example.com
+  path: /
+  annotations: {}

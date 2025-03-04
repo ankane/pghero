@@ -18,6 +18,7 @@ Select your preferred method of installation to get started.
 
 - [Docker](guides/Docker.md)
 - [Linux](guides/Linux.md)
+- [Helm](guides/Helm.md)
 - [Rails](guides/Rails.md)
 
 ## Related Projects
