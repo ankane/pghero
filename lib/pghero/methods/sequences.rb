@@ -39,12 +39,17 @@ module PgHero
 
         add_sequence_attributes(sequences)
 
-        sequences.select { |s| s[:readable] }.each_slice(1024) do |slice|
-          sql = slice.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")
+        last_value = {}
+        sequences.select { |s| s[:readable] }.map { |s| [s[:schema], s[:sequence]] }.uniq.each_slice(1024) do |slice|
+          sql = slice.map { |s| "SELECT last_value FROM #{quote_ident(s[0])}.#{quote_ident(s[1])}" }.join(" UNION ALL ")
 
           select_all(sql).zip(slice) do |row, seq|
-            seq[:last_value] = row[:last_value]
+            last_value[seq] = row[:last_value]
           end
+        end
+
+        sequences.select { |s| s[:readable] }.each do |seq|
+          seq[:last_value] = last_value[[seq[:schema], seq[:sequence]]]
         end
 
         # use to_s for unparsable sequences
