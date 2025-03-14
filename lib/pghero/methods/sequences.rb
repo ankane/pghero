@@ -39,7 +39,17 @@ module PgHero
 
         add_sequence_attributes(sequences)
 
+        processed_sequences = Set.new
+
         sequences.select { |s| s[:readable] }.each_slice(1024) do |slice|
+          slice.select! do |s|
+            sequence_key = [s[:schema], s[:sequence]]
+            next false if processed_sequences.include?(sequence_key)
+
+            processed_sequences.add(sequence_key)
+            true
+          end
+
           sql = slice.map { |s| "SELECT last_value FROM #{quote_ident(s[:schema])}.#{quote_ident(s[:sequence])}" }.join(" UNION ALL ")
 
           select_all(sql).zip(slice) do |row, seq|
