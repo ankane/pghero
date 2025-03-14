@@ -1,3 +1,7 @@
+## 3.6.2 (unreleased)
+
+- Improved query in `sequences` method
+
 ## 3.6.1 (2024-10-14)
 
 - Fixed error when Propshaft is installed but not used
