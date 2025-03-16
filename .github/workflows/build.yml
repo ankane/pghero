@@ -2,7 +2,7 @@ name: build
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -22,6 +22,7 @@ jobs:
           - ruby: 3.1
             gemfile: gemfiles/activerecord61.gemfile
             postgres: 10
+            os: ubuntu-22.04
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
