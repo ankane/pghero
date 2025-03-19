@@ -12,6 +12,17 @@
       <%= stylesheet_link_tag "pghero/application" %>
       <%= javascript_include_tag "pghero/application", nonce: true %>
     <% end %>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.database-selector').select2();
+            $('.database-selector').change(function(){
+		        window.location.href = $(this).val();
+	        });
+        });
+
+    </script>
   </head>
   <body>
     <div class="container">
@@ -30,10 +41,15 @@
       <div class="grid">
         <div class="col-3-12">
           <% if @databases.size > 1 %>
-            <p class="nav-header"><%= @database.name %></p>
+            <select class="database-selector" name="state" style="width: 100%">
+                <% @databases.each do |database| %>
+                    <option <%= ("selected" if @database.id == database.id)%> value="/<%= database.id %>"><%=database.name%></option>
+                <% end %>
+            </select>
+            <br>
           <% end %>
 
-          <ul class="nav">
+          <ul class="nav" style="margin-top: 15px;">
             <!-- poor man's active_link_to -->
             <li class="<%= controller.action_name == "index" ? "active" : "" %>"><%= link_to "Overview", root_path %></li>
             <% if @system_stats_enabled %>
@@ -53,17 +69,6 @@
             <% end %>
             <li class="<%= controller.action_name == "tune" ? "active" : "" %>"><%= link_to "Tune", tune_path %></li>
           </ul>
-
-          <% if @databases.size > 1 %>
-            <p class="nav-header">Databases</p>
-            <ul class="nav">
-              <% @databases.each do |database| %>
-                <li class="<%= ("active-database" if @database.id == database.id) %>">
-                  <%= link_to database.name, action_name == "show_query" ? root_path(database: database.id) : {database: database.id} %>
-                </li>
-              <% end %>
-            </ul>
-          <% end %>
         </div>
 
         <div class="col-9-12">
