@@ -1,4 +1,4 @@
-## 3.6.2 (unreleased)
+## 3.6.2 (2025-03-21)
 
 - Improved query in `sequences` method
 
