@@ -79,13 +79,13 @@ module PgHero
     # use method instead of attr_accessor to ensure
     # this works if variable set after PgHero is loaded
     def username
-      @username ||= config["username"] || ENV["PGHERO_USERNAME"]
+      @username ||= (file_config || {})["username"] || ENV["PGHERO_USERNAME"]
     end
 
     # use method instead of attr_accessor to ensure
     # this works if variable set after PgHero is loaded
     def password
-      @password ||= config["password"] || ENV["PGHERO_PASSWORD"]
+      @password ||= (file_config || {})["password"] || ENV["PGHERO_PASSWORD"]
     end
 
     # config pattern for https://github.com/ankane/pghero/issues/424
