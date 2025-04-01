@@ -252,9 +252,8 @@ module PgHero
     end
 
     # private
-    # Rails 7.0 deprecates `include_replicas` for `include_hidden`
     def include_replicas_key
-      ActiveRecord::VERSION::MAJOR >= 7 ? :include_hidden : :include_replicas
+      :include_hidden
     end
 
     private

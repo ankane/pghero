@@ -1,3 +1,7 @@
+## 3.7.0 (unreleased)
+
+- Dropped support for Ruby < 3.2 and Rails < 7
+
 ## 3.6.2 (2025-03-21)
 
 - Improved query in `sequences` method
