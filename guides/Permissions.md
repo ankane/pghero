@@ -51,10 +51,16 @@ $$ LANGUAGE sql VOLATILE SECURITY DEFINER;
 CREATE VIEW pghero.pg_stats AS SELECT * FROM pghero.pg_stats();
 
 -- create user
+-- note when using Heroku it is recommended to manage creating this user on the resource credentials page
 CREATE ROLE pghero WITH LOGIN ENCRYPTED PASSWORD 'secret';
+
 GRANT CONNECT ON DATABASE <dbname> TO pghero;
+
+-- Note these two commands do not apply to Heroku, as the search_path includes $user and attempting to set
+-- search_path or lock_timeout results in a permissions denied error (even as the connnection superuser)
 ALTER ROLE pghero SET search_path = pghero, pg_catalog, public;
 ALTER ROLE pghero SET lock_timeout = '1s';
+
 GRANT USAGE ON SCHEMA pghero TO pghero;
 GRANT SELECT ON ALL TABLES IN SCHEMA pghero TO pghero;
 
@@ -64,6 +70,17 @@ GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO pghero;
 -- grant permissions for future sequences
 ALTER DEFAULT PRIVILEGES FOR ROLE <migrations-user> IN SCHEMA public GRANT SELECT ON SEQUENCES TO pghero;
 ```
+
+## Heroku caveats
+
+Note that you will need to drop this schema before attempting to upgrade the database instances on Heroku, and recreate it as a post-upgrade step. From Heroku support staff:
+
+> The `pg:upgrade` process will always try to upgrade pg_stat_statements as part of the upgrade procedure. The upgrade process of pg_stat_statements itself will try recreating some of its own objects, and if you have your own objects that depend on pg_stat_statements, the extension upgrade will fail.
+>
+> Specifically, this happens within the context of running ALTER EXTENSION "pg_stat_statements" UPDATE; to upgrade this extension.
+>
+> ERROR:  cannot drop view pg_stat_statements because other objects depend on it
+> DETAIL:  function pghero.pg_stat_statements() depends on type pg_stat_statements
 
 ## Thanks
 
