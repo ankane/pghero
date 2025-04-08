@@ -73,7 +73,10 @@ module PgHero
     end
 
     def time_zone
-      @time_zone || Time.zone
+      @time_zone ||= begin
+        self.time_zone = (file_config || {})["time_zone"] || Time.zone
+        @time_zone
+      end
     end
 
     # use method instead of attr_accessor to ensure

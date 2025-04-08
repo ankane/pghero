@@ -16,8 +16,6 @@ module PgHero
           app.config.assets.precompile << proc { |path| path == "pghero/favicon.png" }
         end
       end
-
-      PgHero.time_zone = PgHero.config["time_zone"] if PgHero.config["time_zone"]
     end
   end
 end
