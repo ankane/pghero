@@ -17,7 +17,8 @@ module PgHero
         end
       end
 
-      PgHero.time_zone = PgHero.config["time_zone"] if PgHero.config["time_zone"]
+      file_config = PgHero.file_config || {}
+      PgHero.time_zone = file_config["time_zone"] if file_config["time_zone"]
     end
   end
 end
