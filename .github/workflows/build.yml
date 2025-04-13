@@ -12,13 +12,10 @@ jobs:
             postgres: 17
           - ruby: 3.3
             gemfile: gemfiles/activerecord72.gemfile
-            postgres: 16
+            postgres: 15
           - ruby: 3.2
             gemfile: gemfiles/activerecord71.gemfile
-            postgres: 14
-          - ruby: 3.2
-            gemfile: gemfiles/activerecord70.gemfile
-            postgres: 12
+            postgres: 13
             os: ubuntu-22.04
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
