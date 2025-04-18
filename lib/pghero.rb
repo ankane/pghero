@@ -151,7 +151,7 @@ module PgHero
 
       if databases.empty?
         databases["primary"] = {
-          "url" => ENV["PGHERO_DATABASE_URL"] || default_connection_config
+          "url" => ENV["PGHERO_DATABASE_URL"]
         }
       end
 
@@ -166,11 +166,6 @@ module PgHero
       {
         "databases" => databases
       }
-    end
-
-    # private
-    def default_connection_config
-      connection_config(ActiveRecord::Base) if ActiveRecord::VERSION::STRING.to_f < 7.1
     end
 
     # ensure we only have one copy of databases
