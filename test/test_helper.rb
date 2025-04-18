@@ -1,5 +1,4 @@
 require "bundler/setup"
-require "logger" # for Active Support < 7.1
 require "combustion"
 Bundler.require(:default)
 require "minitest/autorun"
