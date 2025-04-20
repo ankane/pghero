@@ -3,7 +3,7 @@ require "combustion"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
-require "pg_query"
+require "pg_query" if RUBY_ENGINE != "truffleruby"
 
 class Minitest::Test
   def database
@@ -24,6 +24,10 @@ class Minitest::Test
 
   def explain_normalized?
     database.server_version_num >= 160000
+  end
+
+  def pg_query?
+    RUBY_ENGINE != "truffleruby"
   end
 end
 

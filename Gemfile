@@ -8,4 +8,4 @@ gem "rake"
 gem "activerecord", "~> 8.0.0"
 gem "combustion"
 gem "pg"
-gem "pg_query"
+gem "pg_query", platform: :mri
