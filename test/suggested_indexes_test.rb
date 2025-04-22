@@ -2,8 +2,6 @@ require_relative "test_helper"
 
 class SuggestedIndexesTest < Minitest::Test
   def setup
-    skip unless pg_query?
-
     if database.server_version_num >= 120000
       database.reset_query_stats
     else

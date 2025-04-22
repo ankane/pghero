@@ -1,10 +1,6 @@
 require_relative "test_helper"
 
 class BestIndexTest < Minitest::Test
-  def setup
-    skip unless pg_query?
-  end
-
   def test_where
     assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = 1"
   end

@@ -3,7 +3,7 @@ require "combustion"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
-require "pg_query" if RUBY_ENGINE != "truffleruby"
+require "pg_query"
 
 class Minitest::Test
   def database
@@ -24,10 +24,6 @@ class Minitest::Test
 
   def explain_normalized?
     database.server_version_num >= 160000
-  end
-
-  def pg_query?
-    RUBY_ENGINE != "truffleruby"
   end
 end
 
@@ -71,8 +67,8 @@ users =
       tree_path: "path#{rand(30)}",
       range: (0..rand(5)),
       metadata: {favorite_color: "red"},
-      created_at: Time.now - rand(50).days,
-      updated_at: Time.now - rand(50).days
+      created_at: Time.now - i.seconds,
+      updated_at: Time.now - i.seconds
     }
   end
 User.insert_all!(users)
