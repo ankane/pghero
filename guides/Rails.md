@@ -82,6 +82,14 @@ or:
 PgHero.clean_query_stats
 ```
 
+This deletes all query stats for the current database that were captured more than 14 days ago.
+
+You could change the threshold with:
+
+```rb
+PgHero.clean_query_stats(before: 12.hours.ago)
+```
+
 By default, query stats are stored in your app’s database. Change this with:
 
 ```ruby
