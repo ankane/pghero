@@ -1,7 +1,7 @@
 ## 3.7.0 (unreleased)
 
-- Dropped support for Ruby < 3.2 and Rails < 7.1
 - Dropped support for Linux package for Ubuntu 20.04
+- Dropped support for Ruby < 3.2 and Rails < 7.1
 
 ## 3.6.2 (2025-03-21)
 
