@@ -15,7 +15,7 @@ sudo apt-get update
 sudo apt-get -y install pghero
 ```
 
-Supports Ubuntu 24.04 (Noble), Ubuntu 22.04 (Jammy), and 20.04 (Focal)
+Supports Ubuntu 24.04 (Noble) and Ubuntu 22.04 (Jammy)
 
 ### Debian
 
