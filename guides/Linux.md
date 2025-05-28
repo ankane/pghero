@@ -164,6 +164,12 @@ Schedule the task below to run once a day.
 sudo pghero run rake pghero:capture_space_stats
 ```
 
+Remove old stats with:
+
+```sh
+sudo pghero run rake pghero:clean_space_stats KEEP_DAYS=90
+```
+
 ## System Stats
 
 CPU usage, IOPS, and other stats are available for:

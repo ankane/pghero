@@ -88,6 +88,12 @@ Schedule the task below to run once a day.
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_space_stats
 ```
 
+Remove old stats with:
+
+```sh
+docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:clean_space_stats KEEP_DAYS=90
+```
+
 ## System Stats
 
 CPU usage, IOPS, and other stats are available for:

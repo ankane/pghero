@@ -109,6 +109,18 @@ Or with a scheduler like Clockwork, use:
 PgHero.capture_space_stats
 ```
 
+Remove old stats with:
+
+```sh
+rake pghero:clean_space_stats KEEP_DAYS=90
+```
+
+or:
+
+```rb
+PgHero.clean_space_stats(before: 90.days.ago)
+```
+
 ## System Stats
 
 CPU usage, IOPS, and other stats are available for:
