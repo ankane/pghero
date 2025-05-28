@@ -139,7 +139,7 @@ After this, a time range slider will appear on the Queries tab.
 The query stats table can grow large over time. Remove old stats with:
 
 ```sh
-sudo pghero run rake pghero:clean_query_stats
+sudo pghero run rake pghero:clean_query_stats KEEP_DAYS=14
 ```
 
 ## Historical Space Stats

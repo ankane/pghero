@@ -73,13 +73,13 @@ After this, a time range slider will appear on the Queries tab.
 The query stats table can grow large over time. Remove old stats with:
 
 ```sh
-rake pghero:clean_query_stats
+rake pghero:clean_query_stats KEEP_DAYS=14
 ```
 
 or:
 
 ```rb
-PgHero.clean_query_stats
+PgHero.clean_query_stats(before: 14.days.ago)
 ```
 
 By default, query stats are stored in your app’s database. Change this with:
