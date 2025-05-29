@@ -437,7 +437,7 @@ module PgHero
 
     protected
 
-    def redirect_backward(options = {})
+    def redirect_backward(**options)
       redirect_back fallback_location: root_path, **options
     end
 
