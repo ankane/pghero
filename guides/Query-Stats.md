@@ -37,10 +37,6 @@ CREATE extension pg_stat_statements;
 
 Follow the instructions above.
 
-#### FATAL: could not access file "pg_stat_statements": No such file or directory
-
-Run `apt-get install postgresql-contrib-9.3` and follow the instructions above.
-
 #### The database user does not have permission to ...
 
 The database user is not a superuser.  You can manually enable stats from the `psql` console with:
