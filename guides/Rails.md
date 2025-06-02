@@ -341,16 +341,6 @@ Drop a user
 PgHero.drop_user("ganondorf")
 ```
 
-## Upgrading
-
-### 3.0.0
-
-Breaking changes
-
-- Changed `capture_query_stats` to only reset stats for current database in Postgres 12+
-- Changed `reset_query_stats` to only reset stats for current database (use `reset_instance_query_stats` to reset stats for entire instance)
-- Removed `access_key_id`, `secret_access_key`, `region`, and `db_instance_identifier` methods (use `aws_` prefixed methods instead)
-
 ## Bonus
 
 - See where queries come from with [Marginalia](https://github.com/basecamp/marginalia) - comments appear on the Live Queries tab.
