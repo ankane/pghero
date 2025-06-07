@@ -171,3 +171,18 @@ $(document).on("click", ".show-details", function () {
   $(this).nextAll(".details").css("display", "block");
   $(this).css("display", "none");
 });
+
+$(document).on("click", "#copy-explanation", function (e) {
+  e.preventDefault();
+  const button = $(this);
+  const explanation = button.closest(".explanation-container").find("pre code").text();
+
+  navigator.clipboard.writeText(explanation).then(function () {
+    button.text('Copied!');
+    setTimeout(function () {
+      button.text('Copy');
+    }, 2000);
+  }).catch(function (err) {
+    console.error('Could not copy text: ', err);
+  });
+});
