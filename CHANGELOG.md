@@ -350,7 +350,7 @@ PgHero.with(:database2) { PgHero.running_queries }
 ## 1.4.0 (2016-08-24)
 
 - Updated for Rails 5
-- Fixed error when `pg_stat_statements` not enabled in `shared_libaries`
+- Fixed error when `pg_stat_statements` not enabled in `shared_libraries`
 
 ## 1.3.2 (2016-08-03)
 
@@ -462,7 +462,7 @@ PgHero.with(:database2) { PgHero.running_queries }
 
 ## 0.1.7 (2014-11-12)
 
-- Added support for pg_stat_statments on Amazon RDS
+- Added support for pg_stat_statements on Amazon RDS
 - Added `long_running_query_sec`, `slow_query_ms` and `slow_query_calls` options
 
 ## 0.1.6 (2014-10-09)
