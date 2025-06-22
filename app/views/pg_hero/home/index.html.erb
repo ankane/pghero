@@ -56,14 +56,14 @@
     <% end %>
   </div>
   <div class="alert alert-<%= @sequence_danger && @sequence_danger.empty? && !@sequences_timeout ? "success" : "warning" %>">
-    <% if @sequence_danger.any? %>
-      <%= pluralize(@sequence_danger.size, "column") %> approaching overflow
+    <% if @sequence_danger&.any? %>
+      <%= pluralize(@sequence_danger&.size, "column") %> approaching overflow
     <% elsif @sequences_timeout %>
       Sequences not available (system catalog locked)
     <% else %>
       No columns near integer overflow
     <% end %>
-    <% if @unreadable_sequences.any? %>
+    <% if @unreadable_sequences&.any? %>
       (<%= link_to pluralize(@unreadable_sequences.size, "unreadable sequence", "unreadable sequences"), {unreadable: "t"} %>)
     <% end %>
   </div>
@@ -118,7 +118,7 @@
   <% end %>
 </div>
 
-<% if params[:unreadable] && @unreadable_sequences.any? %>
+<% if params[:unreadable] && @unreadable_sequences&.any? %>
   <div class="content">
     <h1>Unreadable Sequences</h1>
 
