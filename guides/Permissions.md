@@ -22,6 +22,7 @@ $$
 $$ LANGUAGE sql VOLATILE SECURITY DEFINER;
 
 -- query stats
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 CREATE OR REPLACE FUNCTION pghero.pg_stat_statements() RETURNS SETOF pg_stat_statements AS
 $$
   SELECT * FROM public.pg_stat_statements;
