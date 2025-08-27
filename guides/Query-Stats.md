@@ -18,7 +18,7 @@ track_activity_query_size = 2048
 Then restart PostgreSQL. As a superuser from the `psql` console, run:
 
 ```psql
-CREATE extension pg_stat_statements;
+CREATE EXTENSION pg_stat_statements;
 ```
 
 #### Amazon RDS
@@ -28,7 +28,7 @@ Change `shared_preload_libraries` to `pg_stat_statements` in your [Parameter Gro
 As a superuser from the `psql` console, run:
 
 ```psql
-CREATE extension pg_stat_statements;
+CREATE EXTENSION pg_stat_statements;
 ```
 
 ## Common Issues
@@ -42,7 +42,7 @@ Follow the instructions above.
 The database user is not a superuser.  You can manually enable stats from the `psql` console with:
 
 ```psql
-CREATE extension pg_stat_statements;
+CREATE EXTENSION pg_stat_statements;
 ```
 
 and reset stats with:
