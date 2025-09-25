@@ -9,7 +9,7 @@ jobs:
         include:
           - ruby: 3.4
             gemfile: gemfiles/activerecord81.gemfile
-            postgres: 17
+            postgres: 18
           - ruby: 3.4
             gemfile: Gemfile
             postgres: 16
