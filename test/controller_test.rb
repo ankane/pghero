@@ -58,8 +58,8 @@ class ControllerTest < ActionDispatch::IntegrationTest
     post pg_hero.explain_path, params: {query: "SELECT 1"}
     assert_response :success
     assert_match "Result  (cost=0.00..0.01 rows=1 width=4)", response.body
-    refute_match /Planning Time/i, response.body
-    refute_match /Execution Time/i, response.body
+    refute_match(/Planning Time/i, response.body)
+    refute_match(/Execution Time/i, response.body)
   end
 
   def test_explain_only_normalized
@@ -67,8 +67,8 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     if explain_normalized?
       assert_match "Result  (cost=0.00..0.01 rows=1 width=32)", response.body
-      refute_match /Planning Time/i, response.body
-      refute_match /Execution Time/i, response.body
+      refute_match(/Planning Time/i, response.body)
+      refute_match(/Execution Time/i, response.body)
     else
       assert_match "Can&#39;t explain queries with bind parameters", response.body
     end
@@ -86,8 +86,8 @@ class ControllerTest < ActionDispatch::IntegrationTest
     post pg_hero.explain_path, params: {query: "ANALYZE SELECT 1"}
     assert_response :success
     assert_match "Syntax error with query", response.body
-    refute_match /Planning Time/i, response.body
-    refute_match /Execution Time/i, response.body
+    refute_match(/Planning Time/i, response.body)
+    refute_match(/Execution Time/i, response.body)
   end
 
   def test_explain_analyze
@@ -96,8 +96,8 @@ class ControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :success
     assert_match "(actual time=", response.body
-    assert_match /Planning Time/i, response.body
-    assert_match /Execution Time/i, response.body
+    assert_match(/Planning Time/i, response.body)
+    assert_match(/Execution Time/i, response.body)
   end
 
   def test_explain_analyze_normalized
