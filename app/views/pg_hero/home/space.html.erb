@@ -31,6 +31,9 @@
 
     <div class="migration">
       <pre>rails generate migration remove_unused_indexes</pre>
+      <% if @database.drop_idx_concurrently_supported? %>
+        <p><%= pghero_drop_idx_concurrently_explanation %></p>
+      <% end %>
       <p>And paste</p>
       <pre><% @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
 <%= pghero_remove_index(query) %><% end %></pre>

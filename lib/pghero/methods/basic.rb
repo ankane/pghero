@@ -34,6 +34,10 @@ module PgHero
         with_connection { |c| c.quote_column_name(value) }
       end
 
+      def drop_idx_concurrently_supported?
+        server_version_num >= 140000
+      end
+
       private
 
       def select_all(sql, stats: false, query_columns: [])
