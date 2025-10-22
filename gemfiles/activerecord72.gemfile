@@ -2,9 +2,8 @@ source "https://rubygems.org"
 
 gemspec path: ".."
 
-gem "minitest", ">= 5"
 gem "rake"
-
+gem "minitest"
 gem "activerecord", "~> 7.2.0"
 gem "combustion"
 gem "pg"

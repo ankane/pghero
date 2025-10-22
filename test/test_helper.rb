@@ -2,8 +2,6 @@ require "bundler/setup"
 require "combustion"
 Bundler.require(:default)
 require "minitest/autorun"
-require "minitest/pride"
-require "pg_query"
 
 class Minitest::Test
   def database
