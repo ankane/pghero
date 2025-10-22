@@ -4,7 +4,7 @@ gemspec path: ".."
 
 gem "rake"
 gem "minitest"
-gem "activerecord", "~> 8.1.0.beta1"
+gem "activerecord", "~> 8.0.0"
 gem "combustion"
 gem "pg"
 gem "pg_query"
