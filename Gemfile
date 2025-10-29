@@ -2,8 +2,8 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "minitest"
 gem "rake"
+gem "minitest"
 gem "activerecord", "~> 8.1.0"
 gem "combustion"
 gem "pg"
