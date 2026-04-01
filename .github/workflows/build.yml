@@ -15,15 +15,12 @@ jobs:
             postgres: 16
           - ruby: 3.3
             gemfile: gemfiles/activerecord72.gemfile
-            postgres: 15
-          - ruby: 3.2
-            gemfile: gemfiles/activerecord71.gemfile
             postgres: 13
             os: ubuntu-22.04
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
