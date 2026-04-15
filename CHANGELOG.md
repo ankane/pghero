@@ -1,4 +1,4 @@
-## 3.8.0 (unreleased)
+## 3.8.0 (2026-04-15)
 
 - Updated tune page for latest PgTune
 - Dropped support for Ruby < 3.3 and Rails < 7.2
