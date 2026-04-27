@@ -133,6 +133,7 @@ module PgHero
 
             if columns.any?
               if columns.all? { |c| ranks[c] }
+                sort_by_op, sort = sort.partition { |c| c[:op] }
                 first_desc = sort.index { |c| c[:direction] == "desc" }
                 sort = sort.first(first_desc + 1) if first_desc
                 where = where.sort_by { |c| [row_estimates(ranks[c[:column]], total_rows, total_rows, c[:op]), c[:column]] } + sort
@@ -141,11 +142,44 @@ module PgHero
 
                 # no index needed if less than 500 rows
                 if total_rows >= 500
-
-                  if ["~~", "~~*"].include?(where.first[:op])
+                  if where.any? && ["~~", "~~*"].include?(where.first[:op])
                     index[:found] = true
                     index[:row_progression] = [total_rows, index[:row_estimates].values.first]
                     index[:index] = {table: table, columns: ["#{where.first[:column]} gist_trgm_ops"], using: "gist"}
+                  elsif where.empty? && sort.empty? && sort_by_op.size == 1
+                    s = sort_by_op.first
+                    if ["<->", "<#>", "<=>", "<+>", "<~>", "<%>"].include?(s[:op])
+                      if !structure[:limit_set]
+                        index[:explanation] = "No limit"
+                      elsif s[:direction] != "asc"
+                        index[:explanation] = "DESC order"
+                      elsif s[:nulls] != "last"
+                        index[:explanation] = "NULLS FIRST order"
+                      elsif s[:value].nil?
+                        index[:explanation] = "NULL value"
+                      else
+                        # TODO single query for all columns
+                        column_type = self.column_type(schema: schema, table: table, column: s[:column])
+                        opclasses =
+                          case column_type
+                          when "vector"
+                            {"<->" => "vector_l2_ops", "<#>" => "vector_ip_ops", "<=>" => "vector_cosine_ops", "<+>" => "vector_l1_ops"}
+                          when "halfvec"
+                            {"<->" => "halfvec_l2_ops", "<#>" => "halfvec_ip_ops", "<=>" => "halfvec_cosine_ops", "<+>" => "halfvec_l1_ops"}
+                          when "bit"
+                            {"<~>" => "bit_hamming_ops", "<%>" => "bit_jaccard_ops"}
+                          when "sparsevec"
+                            {"<->" => "sparsevec_l2_ops", "<#>" => "sparsevec_ip_ops", "<=>" => "sparsevec_cosine_ops", "<+>" => "sparsevec_l1_ops"}
+                          else
+                            {}
+                          end
+                        opclass = opclasses[s[:op]]
+                        if opclass
+                          index[:found] = true
+                          index[:index] = {table: table, columns: ["#{s[:column]} #{opclass}"], using: "hnsw"}
+                        end
+                      end
+                    end
                   else
                     # if most values are unique, no need to index others
                     rows_left = total_rows
@@ -231,7 +265,9 @@ module PgHero
 
         sort = (select.sort_clause ? parse_sort(select.sort_clause) : []) rescue []
 
-        {table: table, where: where, sort: sort}
+        limit_set = !select.limit_count.nil? rescue false
+
+        {table: table, where: where, sort: sort, limit_set: limit_set}
       end
 
       # TODO better row estimation
@@ -303,12 +339,49 @@ module PgHero
         @str_method ||= Gem::Version.new(PgQuery::VERSION) >= Gem::Version.new("4") ? :sval : :str
       end
 
+      def sort_value(a_expr)
+        rexpr = a_expr.rexpr
+        a_const = a_expr.rexpr.a_const
+        if rexpr.param_ref
+          "$#{rexpr.param_ref.number}"
+        elsif Gem::Version.new(PgQuery::VERSION) >= Gem::Version.new("4")
+          a_const.isnull ? nil : a_const.sval.send(str_method)
+        else
+          a_const.val.null ? nil : a_const.val.string.send(str_method)
+        end
+      end
+
+      def sort_nulls(sort_by)
+        case sort_by.sortby_nulls
+        when :SORTBY_NULLS_FIRST
+          "first"
+        when :SORTBY_NULLS_LAST
+          "last"
+        else # :SORTBY_NULLS_DEFAULT
+          if sort_by.sortby_dir == :SORTBY_DESC
+            "first"
+          else
+            "last"
+          end
+        end
+      end
+
       def parse_sort(sort_clause)
         sort_clause.map do |v|
-          {
-            column: v.sort_by.node.column_ref.fields.last.string.send(str_method),
-            direction: v.sort_by.sortby_dir == :SORTBY_DESC ? "desc" : "asc"
-          }
+          if (a_expr = v.sort_by.node.a_expr)
+            {
+              column: a_expr.lexpr.column_ref.fields.last.string.send(str_method),
+              op: a_expr.name.first.string.send(str_method),
+              value: sort_value(a_expr),
+              direction: v.sort_by.sortby_dir == :SORTBY_DESC ? "desc" : "asc",
+              nulls: sort_nulls(v.sort_by)
+            }
+          else
+            {
+              column: v.sort_by.node.column_ref.fields.last.string.send(str_method),
+              direction: v.sort_by.sortby_dir == :SORTBY_DESC ? "desc" : "asc"
+            }
+          end
         end
       end
 
@@ -327,6 +400,19 @@ module PgHero
             #{table ? "AND tablename IN (#{Array(table).map { |t| quote(t) }.join(", ")})" : ""}
           ORDER BY
             1, 2, 3
+        SQL
+      end
+
+      def column_type(schema:, table:, column:)
+        select_one <<~SQL
+          SELECT
+            udt_name
+          FROM
+            information_schema.columns
+          WHERE
+            table_schema = #{quote(schema)}
+            AND table_name = #{quote(table)}
+            AND column_name = #{quote(column)}
         SQL
       end
     end

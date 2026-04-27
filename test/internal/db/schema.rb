@@ -2,6 +2,7 @@ ActiveRecord::Schema.define do
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "ltree"
+  enable_extension "vector" if ENV["TEST_VECTOR"]
 
   create_table :pghero_query_stats, force: true do |t|
     t.text :database
@@ -42,6 +43,12 @@ ActiveRecord::Schema.define do
     t.column :range, :int4range
     t.column :last_known_ip, :inet
     t.column :metadata, :jsonb
+    if ENV["TEST_VECTOR"]
+      t.column :embedding, "vector(3)"
+      t.column :half_embedding, "halfvec(3)"
+      t.column :binary_embedding, "bit(3)"
+      t.column :sparse_embedding, "sparsevec(3)"
+    end
     t.timestamp :created_at
     t.timestamp :updated_at
     t.index :id # duplicate index

@@ -9,7 +9,7 @@ class BestIndexTest < Minitest::Test
     index = database.best_index("SELECT * FROM users WHERE login_attempts = 1 ORDER BY created_at")
     expected = {
       found: true,
-      structure: {table: "users", where: [{column: "login_attempts", op: "="}], sort: [{column: "created_at", direction: "asc"}]},
+      structure: {table: "users", where: [{column: "login_attempts", op: "="}], sort: [{column: "created_at", direction: "asc"}], limit_set: false},
       index: {table: "users", columns: ["login_attempts", "created_at"]},
       rows: 5000,
       row_estimates: {"login_attempts (=)" => 167, "created_at (sort)" => 1},
@@ -166,6 +166,49 @@ class BestIndexTest < Minitest::Test
     assert_no_index "Empty statement", nil
   end
 
+  def test_order_distance_vector
+    skip unless vector_extension?
+
+    assert_best_index ({table: "users", columns: ["embedding vector_l2_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY embedding <-> '[1,2,3]' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["embedding vector_ip_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY embedding <#> '[1,2,3]' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["embedding vector_cosine_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY embedding <=> '[1,2,3]' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["embedding vector_l1_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY embedding <+> '[1,2,3]' LIMIT 1"
+
+    assert_best_index ({table: "users", columns: ["embedding vector_l2_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY embedding <-> $1 LIMIT 1"
+    assert_best_index ({table: "users", columns: ["embedding vector_l2_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY embedding <-> '[1,2,3]' NULLS LAST LIMIT 1"
+    assert_no_index "No limit", "SELECT * FROM users ORDER BY embedding <-> '[1,2,3]'"
+    assert_no_index "DESC order", "SELECT * FROM users ORDER BY embedding <-> '[1,2,3]' DESC LIMIT 1"
+    assert_no_index "NULLS FIRST order", "SELECT * FROM users ORDER BY embedding <-> '[1,2,3]' NULLS FIRST LIMIT 1"
+    assert_no_index "NULL value", "SELECT * FROM users ORDER BY embedding <-> NULL LIMIT 1"
+
+    assert_best_index ({table: "users", columns: ["city_id"]}), "SELECT * FROM users WHERE city_id = 1  ORDER BY embedding <-> '[1,2,3]' LIMIT 1"
+  end
+
+  def test_order_distance_halfvec
+    skip unless vector_extension?
+
+    assert_best_index ({table: "users", columns: ["half_embedding halfvec_l2_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY half_embedding <-> '[1,2,3]' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["half_embedding halfvec_ip_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY half_embedding <#> '[1,2,3]' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["half_embedding halfvec_cosine_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY half_embedding <=> '[1,2,3]' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["half_embedding halfvec_l1_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY half_embedding <+> '[1,2,3]' LIMIT 1"
+  end
+
+  def test_order_distance_bit
+    skip unless vector_extension?
+
+    assert_best_index ({table: "users", columns: ["binary_embedding bit_hamming_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY binary_embedding <~> '101' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["binary_embedding bit_jaccard_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY binary_embedding <%> '101' LIMIT 1"
+  end
+
+  def test_order_distance_sparsevec
+    skip unless vector_extension?
+
+    assert_best_index ({table: "users", columns: ["sparse_embedding sparsevec_l2_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY sparse_embedding <-> '{}/3' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["sparse_embedding sparsevec_ip_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY sparse_embedding <#> '{}/3' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["sparse_embedding sparsevec_cosine_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY sparse_embedding <=> '{}/3' LIMIT 1"
+    assert_best_index ({table: "users", columns: ["sparse_embedding sparsevec_l1_ops"], using: "hnsw"}), "SELECT * FROM users ORDER BY sparse_embedding <+> '{}/3' LIMIT 1"
+  end
+
   protected
 
   def assert_best_index(expected, statement)
@@ -179,5 +222,9 @@ class BestIndexTest < Minitest::Test
     index = database.best_index(statement)
     assert !index[:found]
     assert_equal explanation, index[:explanation]
+  end
+
+  def vector_extension?
+    ENV["TEST_VECTOR"]
   end
 end

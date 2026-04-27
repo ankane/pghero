@@ -1,3 +1,7 @@
+## 3.9.0 (unreleased)
+
+- Added suggested indexes for pgvector
+
 ## 3.8.0 (2026-04-15)
 
 - Updated tune page for latest PgTune
