@@ -15,6 +15,13 @@ class Minitest::Test
     PgHero.remove_instance_variable(:@config)
   end
 
+  def with_kill_connections(value)
+    PgHero.config.merge!({"kill_connections" => value})
+    yield
+  ensure
+    PgHero.remove_instance_variable(:@config)
+  end
+
   def with_explain_timeout(value)
     previous_value = PgHero.explain_timeout_sec
     begin
