@@ -50,3 +50,6 @@ databases:
 
 # Filter data from queries (experimental)
 # filter_data: true
+
+# Disable kill connection buttons (enabled by default)
+# kill_connections: false
