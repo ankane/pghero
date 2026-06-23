@@ -18,7 +18,7 @@ function initSlider() {
   }
 
   function pad(num) {
-    return (num < 10) ? "0" + num : num;
+    return num < 10 ? "0" + num : num;
   }
 
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
