@@ -29,9 +29,9 @@ function initSlider() {
   var sliderMax = 24 * 12 * days;
 
   startAt = startAt || sliderStartAt;
-  var min = (startAt > 0) ? (startAt - sliderStartAt) / (1000 * 60 * 5) : 0;
+  var min = startAt > 0 ? (startAt - sliderStartAt) / (1000 * 60 * 5) : 0;
 
-  var max = (endAt > 0) ? (endAt - sliderStartAt) / (1000 * 60 * 5) : sliderMax;
+  var max = endAt > 0 ? (endAt - sliderStartAt) / (1000 * 60 * 5) : sliderMax;
 
   var slider = document.getElementById("slider");
 
@@ -73,8 +73,8 @@ function initSlider() {
   }
 
   function timeAt(offset) {
-    var time = new Date(sliderStartAt + (offset * 5) * 60 * 1000);
-    return (time > now) ? now : time;
+    var time = new Date(sliderStartAt + offset * 5 * 60 * 1000);
+    return time > now ? now : time;
   }
 
   function timeParam(time) {
@@ -94,7 +94,7 @@ function initSlider() {
     var startAt = push ? timeAt(values[0]) : new Date(window.startAt);
     var endAt = timeAt(values[1]);
 
-    var params = {}
+    var params = {};
     if (startAt.getTime() != sliderStartAt) {
       params.start_at = timeParam(startAt);
     }
