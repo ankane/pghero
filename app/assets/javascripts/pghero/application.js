@@ -133,9 +133,8 @@ function initSlider() {
       $(this).attr("href", queriesPath(p));
     });
 
-
     var callback = function (response, status, xhr) {
-      if (status === "error" ) {
+      if (status === "error") {
         $(".queries-info").css("color", "red").text(xhr.status + " " + xhr.statusText);
       } else {
         highlightQueries();
