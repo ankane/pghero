@@ -1,12 +1,11 @@
-//= require ./jquery
 //= require ./nouislider
 //= require ./Chart.bundle
 //= require ./chartkick
 //= require ./highlight.min
 
 function highlightQueries() {
-  $("pre code").each(function (i, block) {
-    $(block).addClass("language-pgsql");
+  document.querySelectorAll("pre code").forEach(function (block, i) {
+    block.classList.add("language-pgsql");
     hljs.highlightElement(block);
   });
 }
@@ -46,10 +45,12 @@ function initSlider() {
   });
 
   // remove outline for mouse only
-  $(".noUi-handle").mousedown(function () {
-    $(this).addClass("no-outline");
-  }).blur(function () {
-    $(this).removeClass("no-outline");
+  var handle = document.querySelector(".noUi-handle");
+  handle.addEventListener("mousedown", function (e) {
+    e.target.classList.add("no-outline");
+  });
+  handle.addEventListener("blur", function (e) {
+    e.target.classList.remove("no-outline");
   });
 
   function updateText() {
@@ -69,7 +70,7 @@ function initSlider() {
     } else {
       html = time.getDate() + " " + months[time.getMonth()] + " " + pad(time.getHours()) + ":" + pad(time.getMinutes());
     }
-    $(selector).text(html);
+    selector.textContent = html;
   }
 
   function timeAt(offset) {
@@ -84,7 +85,7 @@ function initSlider() {
   function queriesPath(params) {
     var path = "queries";
     if (params.start_at || params.end_at || params.sort || params.min_average_time || params.min_calls || params.debug) {
-      path += "?" + $.param(params);
+      path += "?" + (new URLSearchParams(params)).toString();
     }
     return path;
   }
@@ -116,8 +117,8 @@ function initSlider() {
 
     var path = queriesPath(params);
 
-    $(".queries-table th a").each(function () {
-      var p = $.extend({}, params, {sort: $(this).data("sort"), min_average_time: minAverageTime, min_calls: minCalls, debug: debug});
+    document.querySelectorAll(".queries-table th a").forEach(function (link) {
+      var p = Object.assign({}, params, {sort: link.getAttribute("data-sort"), min_average_time: minAverageTime, min_calls: minCalls, debug: debug});
       if (!p.sort) {
         delete p.sort;
       }
@@ -130,18 +131,27 @@ function initSlider() {
       if (!p.debug) {
         delete p.debug;
       }
-      $(this).attr("href", queriesPath(p));
+      link.setAttribute("href", queriesPath(p));
     });
 
-
-    var callback = function (response, status, xhr) {
-      if (status === "error" ) {
-        $(".queries-info").css("color", "red").text(xhr.status + " " + xhr.statusText);
-      } else {
+    var queries = document.getElementById("queries");
+    queries.innerHTML = '<tr><td colspan="3"><p class="queries-info text-muted">...</p></td></tr>';
+    fetch(path, {headers: {"X-Requested-With": "XMLHttpRequest"}})
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        }
+        return response.text();
+      })
+      .then(function (text) {
+        queries.innerHTML = text;
         highlightQueries();
-      }
-    };
-    $("#queries").html('<tr><td colspan="3"><p class="queries-info text-muted">...</p></td></tr>').load(path, callback);
+      })
+      .catch(function (error) {
+        var queriesInfo = document.querySelector(".queries-info");
+        queriesInfo.style.color = "red";
+        queriesInfo.textContent = error.message;
+      });
 
     if (push && history.pushState) {
       history.pushState(null, null, path);
@@ -153,21 +163,30 @@ function initSlider() {
     refreshStats(true);
   });
   updateText();
-  $(function () {
+  document.addEventListener("DOMContentLoaded", function () {
     refreshStats(false);
   });
 }
 
-$(document).on("click", ".query-code", function () {
-  this.style.maxHeight = "none";
+document.addEventListener("click", function (e) {
+  const target = e.target.closest(".query-code");
+  if (target) {
+    target.style.maxHeight = "none";
+  }
 });
 
-$(document).on("click", ".migration-link", function (e) {
-  e.preventDefault();
-  $(this).parent().next(".migration").css("display", "block");
+document.addEventListener("click", function (e) {
+  const target = e.target.closest(".migration-link");
+  if (target) {
+    e.preventDefault()
+    target.parentElement.nextElementSibling.style.display = "block";
+  }
 });
 
-$(document).on("click", ".show-details", function () {
-  $(this).nextAll(".details").css("display", "block");
-  $(this).css("display", "none");
+document.addEventListener("click", function (e) {
+  const target = e.target.closest(".show-details");
+  if (target) {
+    target.nextElementSibling.nextElementSibling.style.display = "block";
+    target.style.display = "none";
+  }
 });
