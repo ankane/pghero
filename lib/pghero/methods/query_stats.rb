@@ -208,7 +208,7 @@ module PgHero
 
       private
 
-      # http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
+      # https://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
       def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil, user: nil, origin: false)
         if query_stats_enabled?
           limit ||= 100
