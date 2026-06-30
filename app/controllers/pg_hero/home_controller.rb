@@ -9,6 +9,7 @@ module PgHero
     before_action :set_query_stats_enabled
     before_action :set_show_details, only: [:index, :queries, :show_query]
     before_action :ensure_query_stats, only: [:queries]
+    before_action :ensure_kill_connections_enabled, only: [:kill, :kill_long_running_queries, :kill_all]
 
     if PgHero.config["override_csp"]
       # note: this does not take into account asset hosts
@@ -462,6 +463,7 @@ module PgHero
       @system_stats_enabled = @database.system_stats_enabled?
       @replica = @database.replica?
       @explain_enabled = PgHero.explain_enabled?
+      @kill_connections_enabled = PgHero.kill_connections_enabled?
     end
 
     def set_suggested_indexes(min_average_time = 0, min_calls = 0)
@@ -522,6 +524,12 @@ module PgHero
     def ensure_query_stats
       unless @query_stats_enabled
         redirect_to root_path, alert: "Query stats not enabled"
+      end
+    end
+
+    def ensure_kill_connections_enabled
+      unless @kill_connections_enabled
+        render_text "Kill connections not enabled", status: :bad_request
       end
     end
 
