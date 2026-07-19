@@ -20,7 +20,7 @@ Supports Ubuntu 22.04 (Jammy) and 24.04 (Noble)
 ### Debian
 
 ```sh
-sudo apt-get -y install apt-transport-https gnupg wget
+sudo apt-get -y install gnupg wget
 sudo mkdir -p /etc/apt/keyrings
 wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo gpg -o /etc/apt/keyrings/pghero.pgp --dearmor
 echo "deb [signed-by=/etc/apt/keyrings/pghero.pgp] https://dl.packager.io/srv/deb/pghero/pghero/master/debian $(. /etc/os-release && echo $VERSION_ID) main" | sudo tee /etc/apt/sources.list.d/pghero.list
