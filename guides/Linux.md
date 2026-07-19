@@ -8,9 +8,9 @@
 ### Ubuntu
 
 ```sh
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/ubuntu/$(. /etc/os-release && echo $VERSION_ID).repo
+sudo apt-get -y install gnupg wget
+wget -qO- https://dl.packager.io/srv/pghero/pghero/key | gpg -o /etc/apt/keyrings/pghero-archive-keyring.pgp --dearmor
+echo "deb [signed-by=/etc/apt/keyrings/pghero-archive-keyring.pgp] https://dl.packager.io/srv/deb/pghero/pghero/master/ubuntu $(. /etc/os-release && echo $VERSION_ID) main" | sudo tee /etc/apt/sources.list.d/pghero.list
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
@@ -20,10 +20,10 @@ Supports Ubuntu 22.04 (Jammy) and 24.04 (Noble)
 ### Debian
 
 ```sh
-sudo apt-get -y install apt-transport-https
-wget -qO- https://dl.packager.io/srv/pghero/pghero/key | sudo apt-key add -
-sudo wget -O /etc/apt/sources.list.d/pghero.list \
-  https://dl.packager.io/srv/pghero/pghero/master/installer/debian/$(. /etc/os-release && echo $VERSION_ID).repo
+sudo apt-get -y install apt-transport-https gnupg wget
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- https://dl.packager.io/srv/pghero/pghero/key | gpg -o /etc/apt/keyrings/pghero-archive-keyring.pgp --dearmor
+echo "deb [signed-by=/etc/apt/keyrings/pghero-archive-keyring.pgp] https://dl.packager.io/srv/deb/pghero/pghero/master/debian $(. /etc/os-release && echo $VERSION_ID) main" | sudo tee /etc/apt/sources.list.d/pghero.list
 sudo apt-get update
 sudo apt-get -y install pghero
 ```
