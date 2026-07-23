@@ -93,7 +93,7 @@ module PgHero
           SELECT
             n.nspname AS schema,
             c.relname AS sequence,
-            has_sequence_privilege(c.oid, 'SELECT') AND (c.relpersistence = 'p' OR NOT pg_is_in_recovery()) AS readable
+            has_sequence_privilege(c.oid, 'SELECT') AND (c.relpersistence <> 'u' OR NOT pg_is_in_recovery()) AS readable
           FROM
             pg_class c
           INNER JOIN
