@@ -182,6 +182,49 @@ class ControllerTest < ActionDispatch::IntegrationTest
   #   assert_redirected_to "/"
   # end
 
+  def test_live_queries_kill_button
+    get pg_hero.live_queries_path
+    assert_response :success
+    assert_match "Kill all connections", response.body
+  end
+
+  def test_live_queries_kill_button_disabled
+    with_kill_connections(false) do
+      get pg_hero.live_queries_path
+    end
+    assert_response :success
+    refute_match "Kill all connections", response.body
+  end
+
+  def test_kill_all_not_enabled
+    with_kill_connections(false) do
+      post pg_hero.kill_all_path
+    end
+    assert_response :bad_request
+    assert_match "Kill connections not enabled", response.body
+  end
+
+  def test_kill_long_running_queries_not_enabled
+    with_kill_connections(false) do
+      post pg_hero.kill_long_running_queries_path
+    end
+    assert_response :bad_request
+    assert_match "Kill connections not enabled", response.body
+  end
+
+  def test_kill_not_enabled
+    with_kill_connections(false) do
+      post pg_hero.kill_path(pid: 1_000_000_000)
+    end
+    assert_response :bad_request
+    assert_match "Kill connections not enabled", response.body
+  end
+
+  def test_kill_long_running_queries_enabled_by_default
+    post pg_hero.kill_long_running_queries_path
+    assert_redirected_to "/"
+  end
+
   def test_reset_query_stats
     post pg_hero.reset_query_stats_path
     assert_redirected_to "/"

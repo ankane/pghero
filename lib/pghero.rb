@@ -99,8 +99,18 @@ module PgHero
     end
 
     # private
+    def kill_connections_enabled?
+      kill_connections.nil? || kill_connections == true
+    end
+
+    # private
     def explain_mode
       @config["explain"]
+    end
+
+    # private
+    def kill_connections
+      @config["kill_connections"]
     end
 
     def visualize_url
