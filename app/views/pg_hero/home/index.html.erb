@@ -461,9 +461,8 @@ add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym
         <%= button_to "Enable", enable_query_stats_path, class: "btn btn-info" %>
       </p>
     <% else %>
-      <p>Make them available by adding the following lines to <code>postgresql.conf</code>:</p>
-      <pre>shared_preload_libraries = 'pg_stat_statements'
-pg_stat_statements.track = all</pre>
+      <p>Make them available by adding the following line to <code>postgresql.conf</code>:</p>
+      <pre>shared_preload_libraries = 'pg_stat_statements'</pre>
       <p>Restart the server for the changes to take effect.</p>
     <% end %>
   </div>
