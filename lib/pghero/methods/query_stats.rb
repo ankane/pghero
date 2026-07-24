@@ -13,6 +13,7 @@ module PgHero
         query_stats.each do |query|
           query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
           query[:total_percent] = query[:total_minutes] * 100.0 / all_queries_total_minutes
+          query.delete(:all_queries_total_minutes)
         end
 
         sort = options[:sort] || "total_minutes"
