@@ -1,3 +1,7 @@
+## 3.8.1 (unreleased)
+
+- Fixed error with unlogged sequences on replicas
+
 ## 3.8.0 (2026-04-15)
 
 - Updated tune page for latest PgTune
