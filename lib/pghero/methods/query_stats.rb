@@ -6,7 +6,7 @@ module PgHero
         historical_query_stats = historical && historical_query_stats_enabled? ? historical_query_stats(start_at: start_at, end_at: end_at, **options) : []
 
         query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q[:query_hash], q[:user]] })
-        query_stats = combine_query_stats(query_stats.group_by { |q| [normalize_query(q[:query]), q[:user]] })
+        query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query], q[:user]] })
 
         # add percentages
         all_queries_total_minutes = [current_query_stats, historical_query_stats].sum { |s| (s.first || {})[:all_queries_total_minutes] || 0 }
@@ -312,12 +312,6 @@ module PgHero
 
       def explainable?(query)
         query =~ /select/i && (server_version_num >= 160000 || (!query.include?("?)") && !query.include?("= ?") && !query.include?("$1") && query !~ /limit \?/i))
-      end
-
-      # removes comments
-      # combines ?, ?, ? => ?
-      def normalize_query(query)
-        squish(query.to_s.gsub(/\?(, ?\?)+/, "?").gsub(/\/\*.+?\*\//, ""))
       end
 
       def insert_query_stats(db_id, db_query_stats, now)
