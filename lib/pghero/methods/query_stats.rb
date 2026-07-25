@@ -7,8 +7,19 @@ module PgHero
           raise ArgumentError, "Invalid sort"
         end
 
-        current_query_stats = historical && end_at && end_at < Time.now ? [] : current_query_stats(sort: sort, **options)
-        historical_query_stats = historical && historical_query_stats_enabled? ? historical_query_stats(start_at: start_at, end_at: end_at, sort: sort, **options) : []
+        current_query_stats =
+          if historical && end_at && end_at < Time.now
+            []
+          else
+            current_query_stats(sort: sort, **options)
+          end
+
+        historical_query_stats =
+          if historical && historical_query_stats_enabled?
+            historical_query_stats(start_at: start_at, end_at: end_at, sort: sort, **options)
+          else
+            []
+          end
 
         query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q[:query_hash], q[:user]] })
         query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query], q[:user]] })
