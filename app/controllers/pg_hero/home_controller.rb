@@ -438,12 +438,6 @@ module PgHero
       end
     end
 
-    def check_server_version
-      if @database.server_version_num < 140000
-        render_text "Requires PostgreSQL 14+", status: :internal_server_error
-      end
-    end
-
     def default_url_options
       {database: params[:database]}
     end
@@ -503,6 +497,12 @@ module PgHero
     def check_api
       if Rails.application.config.try(:api_only)
         render_text "No support for Rails API. See https://github.com/pghero/pghero for a standalone app.", status:  :internal_server_error
+      end
+    end
+
+    def check_server_version
+      if @database.server_version_num < 140000
+        render_text "Requires PostgreSQL 14+", status: :internal_server_error
       end
     end
 
