@@ -20,18 +20,18 @@ module PgHero
           raise ArgumentError, "Invalid sort"
         end
 
-        current_query_stats =
+        current_query_stats, current_total_time =
           if !current || (historical && end_at && end_at < Time.now)
-            []
+            [[], 0]
           else
             current_query_stats(limit: limit, sort: sort, user: user, query_hash: query_hash)
           end
 
-        historical_query_stats =
+        historical_query_stats, historical_total_time =
           if historical && historical_query_stats_enabled?
             historical_query_stats(limit: limit, sort: sort, user: user, query_hash: query_hash, start_at: start_at, end_at: end_at)
           else
-            []
+            [[], 0]
           end
 
         query_stats = current_query_stats + historical_query_stats
@@ -39,9 +39,7 @@ module PgHero
         query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query], q[:user]] })
 
         # add percentages
-        all_queries_total_time = 0
-        all_queries_total_time += current_query_stats.first[:all_queries_total_time] if current_query_stats.any?
-        all_queries_total_time += historical_query_stats.first[:all_queries_total_time] if historical_query_stats.any?
+        all_queries_total_time = current_total_time + historical_total_time
         query_stats.each do |query|
           query[:average_time] = query[:total_time] / query[:calls]
           query[:total_percent] = query[:total_time] * 100.0 / all_queries_total_time
@@ -176,7 +174,7 @@ module PgHero
         stats = select_all_stats(sql, binds)
         if current
           captured_at = Time.now
-          current_stats = current_query_stats(query_hash: query_hash, user: user, origin: true)
+          current_stats, _ = current_query_stats(query_hash: query_hash, user: user, origin: true)
           current_stats.each do |r|
             stats << {
               captured_at: captured_at,
@@ -223,19 +221,22 @@ module PgHero
               #{"AND rolname = :user" if user}
               #{"AND queryid = :query_hash" if query_hash}
           )
-          SELECT
-            query,
-            #{"(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," if origin}
-            query_hash,
-            query_stats.user,
-            total_time,
-            calls,
-            (SELECT SUM(total_time) FROM query_stats) AS all_queries_total_time
-          FROM
-            query_stats
-          ORDER BY
-            #{quote_column_name(sort)} DESC
-          LIMIT :limit
+          (
+            SELECT
+              query,
+              #{"(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," if origin}
+              query_hash,
+              query_stats.user,
+              total_time,
+              calls
+            FROM
+              query_stats
+            ORDER BY
+              #{quote_column_name(sort)} DESC
+            LIMIT :limit
+          ) UNION ALL (
+            SELECT NULL, #{"NULL, " if origin}NULL, NULL, SUM(total_time), NULL FROM query_stats
+          )
         SQL
 
         binds = {limit: limit.to_i}
@@ -245,7 +246,9 @@ module PgHero
         # we may be able to skip query_columns
         # in more recent versions of Postgres
         # as pg_stat_statements should be already normalized
-        select_all(query, binds, query_columns: [:query])
+        result = select_all(query, binds, query_columns: [:query])
+        total = result.pop
+        [result, total[:total_time] || 0]
       end
 
       def historical_query_stats(limit: nil, sort: nil, user: nil, query_hash: nil, start_at: nil, end_at: nil)
@@ -275,18 +278,21 @@ module PgHero
             GROUP BY
               1, 2
           )
-          SELECT
-            query_hash,
-            query_stats.user,
-            query,
-            total_time,
-            calls,
-            (SELECT SUM(total_time) FROM query_stats) AS all_queries_total_time
-          FROM
-            query_stats
-          ORDER BY
-            #{quote_column_name(sort)} DESC
-          LIMIT :limit
+          (
+            SELECT
+              query_hash,
+              query_stats.user,
+              query,
+              total_time,
+              calls
+            FROM
+              query_stats
+            ORDER BY
+              #{quote_column_name(sort)} DESC
+            LIMIT :limit
+          ) UNION ALL (
+            SELECT NULL, NULL, NULL, SUM(total_time), NULL FROM query_stats
+          )
         SQL
 
         binds = {id: id, limit: limit.to_i}
@@ -297,7 +303,9 @@ module PgHero
 
         # we can skip query_columns if all stored data is normalized
         # for now, assume it's not
-        select_all_stats(query, binds, query_columns: [:query])
+        result = select_all_stats(query, binds, query_columns: [:query])
+        total = result.pop
+        [result, total[:total_time] || 0]
       end
 
       def combine_query_stats(grouped_stats)
