@@ -98,6 +98,9 @@ class QueryStatsTest < Minitest::Test
     assert_equal "primary", qs.database
     assert_equal 1, qs.calls
     refute_empty database.query_stats(current: false, historical: true)
+    ActiveRecord::Base.connection.select_all("SELECT 2")
+    qs = database.query_stats(historical: true).find { |v| v[:query] == "SELECT $1" }
+    assert_equal 2, qs[:calls]
   end
 
   def test_clean_query_stats
