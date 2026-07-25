@@ -65,9 +65,8 @@ module PgHero
       (config["unused_index_bytes"] || PgHero.config["unused_index_bytes"] || 10.megabytes).to_i
     end
 
-    # defaults to 100 megabytes
     def index_bloat_bytes
-      (config["index_bloat_bytes"] || PgHero.config["index_bloat_bytes"] || 104857600).to_i
+      (config["index_bloat_bytes"] || PgHero.config["index_bloat_bytes"] || 100.megabytes).to_i
     end
 
     def aws_access_key_id
