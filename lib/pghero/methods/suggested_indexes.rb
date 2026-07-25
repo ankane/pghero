@@ -102,7 +102,7 @@ module PgHero
         end
 
         # get stats about columns for relevant tables
-        tables = parts.values.map { |t| t[:table] }.uniq
+        tables = parts.values.filter_map { |t| t[:table] }.uniq
         # TODO get schema from query structure, then try search path
         schema = PgHero.connection_config(connection_model)[:schema] || "public"
         if tables.any?
