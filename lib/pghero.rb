@@ -106,6 +106,10 @@ module PgHero
       @visualize_url ||= config["visualize_url"] || ENV["PGHERO_VISUALIZE_URL"] || "https://tatiyants.com/pev/#/plans/new"
     end
 
+    def kill_enabled?
+      !config["disable_kill"]
+    end
+
     def config
       @config ||= file_config || default_config
     end

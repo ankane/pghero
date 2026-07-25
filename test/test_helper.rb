@@ -25,6 +25,13 @@ class Minitest::Test
     end
   end
 
+  def with_disable_kill
+    PgHero.config.merge!({"disable_kill" => true})
+    yield
+  ensure
+    PgHero.remove_instance_variable(:@config)
+  end
+
   def explain_normalized?
     database.server_version_num >= 160000
   end

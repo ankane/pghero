@@ -47,5 +47,8 @@ databases:
 # aws_secret_access_key: <%%= ENV["AWS_SECRET_ACCESS_KEY"] %>
 # aws_region: us-east-1
 
+# Disable killing queries and connections
+# disable_kill: true
+
 # Filter data from queries (experimental)
 # filter_data: true

@@ -1,5 +1,6 @@
 ## 4.0.0 (unreleased)
 
+- Added option to disable killing queries and connections
 - Fixed error with unlogged sequences on replicas
 - Removed `reset_instance_query_stats` method (use `reset_query_stats` instead)
 - Removed `create_user` and `drop_user` methods
