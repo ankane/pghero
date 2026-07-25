@@ -118,7 +118,7 @@ class QueryStatsTest < Minitest::Test
     database.capture_query_stats
     qs = PgHero::QueryStats.find_by!(query: "SELECT $1")
     ActiveRecord::Base.connection.select_all("SELECT 1")
-    assert_equal 1, database.query_hash_stats(qs.query_hash).size
-    assert_equal 2, database.query_hash_stats(qs.query_hash, current: true).size
+    assert_equal 2, database.query_hash_stats(qs.query_hash).size
+    assert_equal 1, database.query_hash_stats(qs.query_hash, current: false).size
   end
 end
