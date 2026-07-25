@@ -119,9 +119,9 @@ module PgHero
 
       def capture_query_stats(raise_errors: false)
         now = Time.now
-        db_query_stats = query_stats(limit: 1000000, database: database_name)
+        db_query_stats = query_stats(limit: 1000000)
         if db_query_stats.any? && reset_query_stats(raise_errors: raise_errors)
-          insert_query_stats(database_name, db_query_stats, now)
+          insert_query_stats(id, db_query_stats, now)
         end
       end
 
