@@ -189,7 +189,7 @@ module PgHero
         @explainable_query = stats[:query] if @database.send(:explainable?, stats[:query])
 
         if @show_details
-          query_hash_stats = @database.query_hash_stats(@query_hash, user: @user, current: true)
+          query_hash_stats = @database.query_hash_stats(@query_hash, user: @user)
 
           @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), (r[:total_minutes] * 60 * 1000).round] }, library: chart_library_options}]
           @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:average_time].round(1)] }, library: chart_library_options}]
