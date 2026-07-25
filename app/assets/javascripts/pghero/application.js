@@ -5,8 +5,10 @@
 
 function highlightQueries() {
   document.querySelectorAll("pre code").forEach(function (block, i) {
-    block.classList.add("language-pgsql");
-    hljs.highlightElement(block);
+    if (!block.classList.contains("language-pgsql")) {
+      block.classList.add("language-pgsql");
+      hljs.highlightElement(block);
+    }
   });
 }
 
