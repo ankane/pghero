@@ -76,11 +76,11 @@ module PgHero
 
       def reset_query_stats(user: nil, query_hash: nil, raise_errors: false)
         database = database_name
-        database_id = select_all("SELECT oid FROM pg_database WHERE datname = #{quote(database)}").first.try(:[], :oid)
+        database_id = select_one("SELECT oid FROM pg_database WHERE datname = #{quote(database)}")
         raise PgHero::Error, "Database not found: #{database}" unless database_id
 
         if user
-          user_id = select_all("SELECT usesysid FROM pg_user WHERE usename = #{quote(user)}").first.try(:[], :usesysid)
+          user_id = select_one("SELECT usesysid FROM pg_user WHERE usename = #{quote(user)}")
           raise PgHero::Error, "User not found: #{user}" unless user_id
         else
           user_id = 0
