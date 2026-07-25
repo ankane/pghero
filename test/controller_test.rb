@@ -15,6 +15,7 @@ class ControllerTest < ActionDispatch::IntegrationTest
   def test_space
     get pg_hero.space_path
     assert_response :success
+    assert_match "UNUSED", response.body
   end
 
   def test_relation_space
