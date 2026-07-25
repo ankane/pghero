@@ -320,7 +320,7 @@ module PgHero
             pg_stats
           WHERE
             schemaname = :schema
-            #{table ? "AND tablename IN (:table)" : ""}
+            #{"AND tablename IN (:table)" if table}
           ORDER BY
             1, 2, 3
         SQL

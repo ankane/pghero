@@ -20,8 +20,8 @@ module PgHero
             state <> 'idle'
             AND pid <> pg_backend_pid()
             AND datname = current_database()
-            #{min_duration ? "AND NOW() - COALESCE(query_start, xact_start) > interval :min_duration" : nil}
-            #{all ? nil : "AND query <> '<insufficient privilege>'"}
+            #{"AND NOW() - COALESCE(query_start, xact_start) > interval :min_duration" if min_duration}
+            #{"AND query <> '<insufficient privilege>'" if !all}
           ORDER BY
             COALESCE(query_start, xact_start) DESC
         SQL

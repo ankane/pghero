@@ -56,8 +56,8 @@ module PgHero
             pg_namespace ON pg_namespace.oid = pg_class.relnamespace
           WHERE
             relkind = 'r'
-            #{schema ? "AND nspname = :schema" : nil}
-            #{table ? "AND relname IN (:table)" : nil}
+            #{"AND nspname = :schema" if schema}
+            #{"AND relname IN (:table)" if table}
           ORDER BY
             1, 2
         SQL

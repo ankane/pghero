@@ -62,7 +62,7 @@ module PgHero
       end
 
       def analyze(table, verbose: false)
-        execute "ANALYZE #{verbose ? "VERBOSE " : ""}#{quote_table_name(table)}"
+        execute "ANALYZE #{"VERBOSE " if verbose}#{quote_table_name(table)}"
         true
       end
 

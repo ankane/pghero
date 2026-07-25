@@ -167,7 +167,7 @@ module PgHero
             database = :id
             AND captured_at >= :start_at
             AND query_hash = :query_hash
-            #{user ? "AND \"user\" = :user" : ""}
+            #{"AND \"user\" = :user" if user}
           ORDER BY
             1 ASC
         SQL
@@ -209,7 +209,7 @@ module PgHero
               queryid AS query_hash,
               rolname AS user,
               (total_plan_time + total_exec_time) AS total_time,
-              #{sort == "average_time" ? "(total_plan_time + total_exec_time) / calls AS average_time," : ""}
+              #{"(total_plan_time + total_exec_time) / calls AS average_time," if sort == "average_time"}
               calls
             FROM
               pg_stat_statements
@@ -220,12 +220,12 @@ module PgHero
             WHERE
               calls > 0 AND
               pg_database.datname = current_database()
-              #{user ? "AND rolname = :user" : nil}
-              #{query_hash ? "AND queryid = :query_hash" : nil}
+              #{"AND rolname = :user" if user}
+              #{"AND queryid = :query_hash" if query_hash}
           )
           SELECT
             query,
-            #{origin ? "(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," : nil}
+            #{"(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," if origin}
             query_hash,
             query_stats.user,
             total_time,
@@ -262,15 +262,15 @@ module PgHero
               pghero_query_stats.user AS user,
               MIN(LEFT(query, 10000)) AS query,
               SUM(total_time) AS total_time,
-              #{sort == "average_time" ? "SUM(total_time) / SUM(calls) AS average_time," : ""}
+              #{"SUM(total_time) / SUM(calls) AS average_time," if sort == "average_time"}
               SUM(calls) AS calls
             FROM
               pghero_query_stats
             WHERE
               database = :id
-              #{start_at ? "AND captured_at >= :start_at" : ""}
-              #{end_at ? "AND captured_at <= :end_at" : ""}
-              #{user ? "AND \"user\" = :user" : ""}
+              #{"AND captured_at >= :start_at" if start_at}
+              #{"AND captured_at <= :end_at" if end_at}
+              #{"AND \"user\" = :user" if user}
               #{query_hash ? "AND query_hash = :query_hash" : "AND query_hash IS NOT NULL"}
             GROUP BY
               1, 2
