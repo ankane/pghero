@@ -8,11 +8,15 @@ class Minitest::Test
     @database ||= PgHero.databases[:primary]
   end
 
-  def with_explain(value)
-    PgHero.config.merge!({"explain" => value})
+  def with_config(value)
+    PgHero.config.merge!(value)
     yield
   ensure
     PgHero.remove_instance_variable(:@config)
+  end
+
+  def with_explain(value, &block)
+    with_config({"explain" => value}, &block)
   end
 
   def with_explain_timeout(value)
@@ -25,11 +29,8 @@ class Minitest::Test
     end
   end
 
-  def with_disable_kill
-    PgHero.config.merge!({"disable_kill" => true})
-    yield
-  ensure
-    PgHero.remove_instance_variable(:@config)
+  def with_disable_kill(&block)
+    with_config({"disable_kill" => true}, &block)
   end
 
   def explain_normalized?
