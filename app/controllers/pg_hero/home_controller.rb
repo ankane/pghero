@@ -186,7 +186,7 @@ module PgHero
       stats = @database.query_stats(historical: true, query_hash: @query_hash, start_at: 24.hours.ago).find { |qs| qs[:user] == @user }
       if stats
         @query = stats[:query]
-        @explainable_query = stats[:explainable_query]
+        @explainable_query = stats[:query] if @database.send(:explainable?, stats[:query])
 
         if @show_details
           query_hash_stats = @database.query_hash_stats(@query_hash, user: @user, current: true)

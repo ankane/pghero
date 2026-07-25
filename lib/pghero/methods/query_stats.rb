@@ -227,7 +227,6 @@ module PgHero
             )
             SELECT
               query,
-              query AS explainable_query,
               #{origin ? "(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," : nil}
               query_hash,
               query_stats.user,
@@ -244,7 +243,7 @@ module PgHero
           # we may be able to skip query_columns
           # in more recent versions of Postgres
           # as pg_stat_statements should be already normalized
-          select_all(query, query_columns: [:query, :explainable_query])
+          select_all(query, query_columns: [:query])
         else
           raise NotEnabled, "Query stats not enabled"
         end
@@ -276,7 +275,6 @@ module PgHero
               query_hash,
               query_stats.user,
               query[1] AS query,
-              query[array_length(query, 1)] AS explainable_query,
               total_minutes,
               calls,
               (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
@@ -289,7 +287,7 @@ module PgHero
 
           # we can skip query_columns if all stored data is normalized
           # for now, assume it's not
-          select_all_stats(query, query_columns: [:query, :explainable_query])
+          select_all_stats(query, query_columns: [:query])
         else
           raise NotEnabled, "Historical query stats not enabled"
         end
@@ -307,7 +305,6 @@ module PgHero
             all_queries_total_minutes: stats2.sum { |s| s[:all_queries_total_minutes] }
           }
           value[:total_percent] = value[:total_minutes] * 100.0 / value[:all_queries_total_minutes]
-          value[:explainable_query] = stats2.map { |s| s[:explainable_query] }.find { |q| q && explainable?(q) }
           query_stats << value
         end
         query_stats
