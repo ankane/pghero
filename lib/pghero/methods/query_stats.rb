@@ -175,7 +175,7 @@ module PgHero
         binds[:user] = user if user
         stats = select_all_stats(sql, binds)
         if current
-          captured_at = Time.current
+          captured_at = Time.now
           current_stats = current_query_stats(query_hash: query_hash, user: user, origin: true)
           current_stats.each do |r|
             stats << {

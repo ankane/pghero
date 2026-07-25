@@ -119,6 +119,7 @@ class QueryStatsTest < Minitest::Test
     qs = PgHero::QueryStats.find_by!(query: "SELECT $1 /*hello*/")
     ActiveRecord::Base.connection.select_all("SELECT 1 /*world*/")
     assert_equal 2, database.query_hash_stats(qs.query_hash).size
+    assert database.query_hash_stats(qs.query_hash).map { |v| v[:captured_at] }.all? { |v| v.instance_of?(Time) }
     assert_equal 1, database.query_hash_stats(qs.query_hash, current: false).size
     assert_equal ["hello", "world"], database.query_hash_stats(qs.query_hash).map { |v| v[:origin] }.sort
   end
