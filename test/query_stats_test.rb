@@ -97,7 +97,7 @@ class QueryStatsTest < Minitest::Test
     qs = PgHero::QueryStats.find_by!(query: "SELECT $1")
     assert_equal "primary", qs.database
     assert_equal 1, qs.calls
-    assert database.query_stats(historical: true)
+    refute_empty database.query_stats(current: false, historical: true)
   end
 
   def test_clean_query_stats

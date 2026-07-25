@@ -1,14 +1,14 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(historical: false, sort: nil, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, **options)
+      def query_stats(current: true, historical: false, sort: nil, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, **options)
         sort ||= "total_minutes"
         unless ["total_minutes", "average_time", "calls"].include?(sort)
           raise ArgumentError, "Invalid sort"
         end
 
         current_query_stats =
-          if historical && end_at && end_at < Time.now
+          if !current || (historical && end_at && end_at < Time.now)
             []
           else
             current_query_stats(sort: sort, **options)
