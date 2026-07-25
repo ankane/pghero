@@ -21,7 +21,8 @@ module PgHero
             []
           end
 
-        query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q[:query_hash], q[:user]] })
+        query_stats = current_query_stats + historical_query_stats
+        query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query_hash], q[:user]] })
         query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query], q[:user]] })
 
         # add percentages
@@ -29,7 +30,6 @@ module PgHero
         query_stats.each do |query|
           query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
           query[:total_percent] = query[:total_minutes] * 100.0 / all_queries_total_minutes
-          query.delete(:all_queries_total_minutes)
         end
 
         query_stats = query_stats.sort_by { |q| -q[sort.to_sym] }.first(100)
@@ -292,8 +292,7 @@ module PgHero
             user: stats[0][:user],
             query_hash: stats[0][:query_hash],
             total_minutes: stats.sum { |s| s[:total_minutes] },
-            calls: stats.sum { |s| s[:calls] }.to_i,
-            all_queries_total_minutes: stats.sum { |s| s[:all_queries_total_minutes] }
+            calls: stats.sum { |s| s[:calls] }.to_i
           }
         end
       end
