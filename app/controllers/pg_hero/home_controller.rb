@@ -77,7 +77,7 @@ module PgHero
         @index_hit_rate = @database.index_hit_rate || 0
         @table_hit_rate = @database.table_hit_rate || 0
         @good_cache_rate = @table_hit_rate >= @database.cache_hit_rate_threshold / 100.0 && @index_hit_rate >= @database.cache_hit_rate_threshold / 100.0
-        @unused_indexes = @database.unused_indexes(max_scans: 0)
+        @unused_indexes = @database.unused_indexes(max_scans: 0, min_size: @database.unused_index_bytes)
       end
 
       @show_migrations = PgHero.show_migrations
@@ -105,7 +105,7 @@ module PgHero
       @header_options = @only_tables ? {tables: "t"} : {}
 
       across = params[:across].to_s.split(",")
-      @unused_indexes = @database.unused_indexes(max_scans: 0, across: across)
+      @unused_indexes = @database.unused_indexes(max_scans: 0, min_size: @database.unused_index_bytes, across: across)
       @unused_index_names = Set.new(@unused_indexes.map { |r| r[:index] })
       @show_migrations = PgHero.show_migrations
       @system_stats_enabled = @database.system_stats_enabled?

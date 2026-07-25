@@ -68,7 +68,7 @@ module PgHero
          SQL
       end
 
-      def unused_indexes(max_scans: 50, across: [])
+      def unused_indexes(max_scans: 50, min_size: 0, across: [])
         sql = <<~SQL
           SELECT
             schemaname AS schema,
@@ -83,11 +83,12 @@ module PgHero
           WHERE
             NOT indisunique
             AND idx_scan <= :max_scans
+            AND pg_relation_size(i.indexrelid) >= :min_size
           ORDER BY
             pg_relation_size(i.indexrelid) DESC,
             relname ASC
         SQL
-        result = select_all_size(sql, {max_scans: max_scans.to_i})
+        result = select_all_size(sql, {max_scans: max_scans.to_i, min_size: min_size.to_i})
 
         across.each do |database_id|
           database = PgHero.databases.values.find { |d| d.id == database_id }

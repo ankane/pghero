@@ -61,6 +61,10 @@ module PgHero
       (config["long_running_query_sec"] || PgHero.config["long_running_query_sec"] || PgHero.long_running_query_sec).to_i
     end
 
+    def unused_index_bytes
+      (config["unused_index_bytes"] || PgHero.config["unused_index_bytes"] || 10.megabytes).to_i
+    end
+
     # defaults to 100 megabytes
     def index_bloat_bytes
       (config["index_bloat_bytes"] || PgHero.config["index_bloat_bytes"] || 104857600).to_i
