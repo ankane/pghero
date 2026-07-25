@@ -18,7 +18,7 @@
 
   <% if @unused_indexes.any? %>
     <p>
-      <%= pluralize(@unused_indexes.size, "unused index") %><%= @database.unused_index_bytes > 0 ? " over #{PgHero.pretty_size(@database.unused_index_bytes)}" : "" %>. Remove them
+      <%= pluralize(@unused_indexes.size, "unused index", "unused indexes") %><%= @database.unused_index_bytes > 0 ? " over #{PgHero.pretty_size(@database.unused_index_bytes)}" : "" %>. Remove them
       <% if @show_migrations %>
         <a href="#" class="migration-link">with a migration</a>
       <% end %>

@@ -16,6 +16,13 @@ class ControllerTest < ActionDispatch::IntegrationTest
     get pg_hero.space_path
     assert_response :success
     assert_match "UNUSED", response.body
+    refute_match "unused indexes", response.body
+
+    with_config({"unused_index_bytes" => 0}) do
+      get pg_hero.space_path
+      assert_response :success
+      assert_match "unused indexes", response.body
+    end
   end
 
   def test_relation_space
