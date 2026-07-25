@@ -101,7 +101,7 @@ module PgHero
 
         # for situations 1 and 2
         # Google::Cloud::Monitoring.metric_service doesn't work for situation 1
-        if defined?(Google::Cloud::Monitoring::V3::MetricService::Client)
+        if defined?(Google::Cloud::Monitoring::V3)
           client = Google::Cloud::Monitoring::V3::MetricService::Client.new
 
           interval = Google::Cloud::Monitoring::V3::TimeInterval.new
