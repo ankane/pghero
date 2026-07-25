@@ -29,7 +29,7 @@ module PgHero
 
         historical_query_stats =
           if historical && historical_query_stats_enabled?
-            historical_query_stats(limit: limit, sort: sort, start_at: start_at, end_at: end_at, user: user, query_hash: query_hash)
+            historical_query_stats(limit: limit, sort: sort, user: user, query_hash: query_hash, start_at: start_at, end_at: end_at)
           else
             []
           end
@@ -248,7 +248,7 @@ module PgHero
         select_all(query, binds, query_columns: [:query])
       end
 
-      def historical_query_stats(limit: nil, sort: nil, start_at: nil, end_at: nil, user: nil, query_hash: nil)
+      def historical_query_stats(limit: nil, sort: nil, user: nil, query_hash: nil, start_at: nil, end_at: nil)
         if !historical_query_stats_enabled?
           raise NotEnabled, "Historical query stats not enabled"
         end
