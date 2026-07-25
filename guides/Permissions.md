@@ -30,12 +30,6 @@ $$ LANGUAGE sql VOLATILE SECURITY DEFINER;
 CREATE VIEW pghero.pg_stat_statements AS SELECT * FROM pghero.pg_stat_statements();
 
 -- query stats reset
-CREATE OR REPLACE FUNCTION pghero.pg_stat_statements_reset() RETURNS void AS
-$$
-  SELECT public.pg_stat_statements_reset();
-$$ LANGUAGE sql VOLATILE SECURITY DEFINER;
-
--- improved query stats reset for Postgres 12+ - delete for earlier versions
 CREATE OR REPLACE FUNCTION pghero.pg_stat_statements_reset(userid oid, dbid oid, queryid bigint) RETURNS void AS
 $$
   SELECT public.pg_stat_statements_reset(userid, dbid, queryid);
