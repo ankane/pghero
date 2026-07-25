@@ -82,7 +82,7 @@ module PgHero
             pg_index i ON ui.indexrelid = i.indexrelid
           WHERE
             NOT indisunique
-            AND idx_scan <= #{max_scans.to_i}
+            AND idx_scan <= #{quote(max_scans.to_i)}
           ORDER BY
             pg_relation_size(i.indexrelid) DESC,
             relname ASC
@@ -315,7 +315,7 @@ module PgHero
           INNER JOIN
             pg_index i ON i.indexrelid = rb.indexrelid
           WHERE
-            wastedbytes >= #{min_size.to_i}
+            wastedbytes >= #{quote(min_size.to_i)}
           ORDER BY
             wastedbytes DESC,
             index_name

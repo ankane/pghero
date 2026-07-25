@@ -140,8 +140,8 @@ module PgHero
 
       def with_transaction(lock_timeout: nil, statement_timeout: nil, rollback: false)
         connection_model.transaction do
-          select_all "SET LOCAL statement_timeout = #{statement_timeout.to_i}" if statement_timeout
-          select_all "SET LOCAL lock_timeout = #{lock_timeout.to_i}" if lock_timeout
+          select_all "SET LOCAL statement_timeout = #{quote(statement_timeout.to_i)}" if statement_timeout
+          select_all "SET LOCAL lock_timeout = #{quote(lock_timeout.to_i)}" if lock_timeout
           yield
           raise ActiveRecord::Rollback if rollback
         end

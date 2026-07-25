@@ -215,7 +215,7 @@ module PgHero
               query_stats
             ORDER BY
               #{quote_column_name(sort)} DESC
-            LIMIT #{limit.to_i}
+            LIMIT #{quote(limit.to_i)}
           SQL
 
           # we may be able to skip query_columns
