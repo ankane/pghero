@@ -2,6 +2,7 @@ require_relative "test_helper"
 
 class ExplainTest < Minitest::Test
   def setup
+    super
     City.delete_all
   end
 

@@ -2,6 +2,7 @@ require_relative "test_helper"
 
 class SuggestedIndexesTest < Minitest::Test
   def setup
+    super
     database.reset_query_stats
   end
 
