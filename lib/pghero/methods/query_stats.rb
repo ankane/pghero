@@ -286,20 +286,16 @@ module PgHero
       end
 
       def combine_query_stats(grouped_stats)
-        query_stats = []
-        grouped_stats.each do |_, stats2|
-          value = {
-            query: (stats2.find { |s| s[:query] } || {})[:query],
-            user: (stats2.find { |s| s[:user] } || {})[:user],
-            query_hash: (stats2.find { |s| s[:query_hash] } || {})[:query_hash],
-            total_minutes: stats2.sum { |s| s[:total_minutes] },
-            calls: stats2.sum { |s| s[:calls] }.to_i,
-            all_queries_total_minutes: stats2.sum { |s| s[:all_queries_total_minutes] }
+        grouped_stats.map do |_, stats|
+          {
+            query: stats[0][:query],
+            user: stats[0][:user],
+            query_hash: stats[0][:query_hash],
+            total_minutes: stats.sum { |s| s[:total_minutes] },
+            calls: stats.sum { |s| s[:calls] }.to_i,
+            all_queries_total_minutes: stats.sum { |s| s[:all_queries_total_minutes] }
           }
-          value[:total_percent] = value[:total_minutes] * 100.0 / value[:all_queries_total_minutes]
-          query_stats << value
         end
-        query_stats
       end
 
       def explainable?(query)
