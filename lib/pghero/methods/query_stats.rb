@@ -288,17 +288,17 @@ module PgHero
         query =~ /select/i && (server_version_num >= 160000 || (!query.include?("?)") && !query.include?("= ?") && !query.include?("$1") && query !~ /limit \?/i))
       end
 
-      def insert_query_stats(db_query_stats, captured_at)
+      def insert_query_stats(query_stats, captured_at)
         values =
-          db_query_stats.map do |qs|
+          query_stats.map do |qs|
             {
               database: id,
+              user: qs[:user],
               query: qs[:query],
+              query_hash: qs[:query_hash],
               total_time: qs[:total_minutes] * 60 * 1000,
               calls: qs[:calls],
-              captured_at: captured_at,
-              query_hash: qs[:query_hash],
-              user: qs[:user]
+              captured_at: captured_at
             }
           end
         PgHero::QueryStats.insert_all!(values)
