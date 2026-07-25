@@ -91,7 +91,7 @@ module PgHero
 
         # we handle three situations:
         # 1. google-cloud-monitoring-v3
-        # 2. google-cloud-monitoring >= 1
+        # 2. google-cloud-monitoring
         # 3. google-apis-monitoring_v3
         begin
           require "google/cloud/monitoring/v3"
