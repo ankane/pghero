@@ -119,4 +119,8 @@ class QueryStatsTest < Minitest::Test
   def test_slow_queries
     assert database.slow_queries
   end
+
+  def test_query_hash_stats
+    assert database.query_hash_stats(123, current: true)
+  end
 end
