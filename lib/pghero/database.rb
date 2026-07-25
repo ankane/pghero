@@ -16,7 +16,6 @@ module PgHero
     include Methods::SuggestedIndexes
     include Methods::System
     include Methods::Tables
-    include Methods::Users
 
     attr_reader :id, :config
 

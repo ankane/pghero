@@ -21,7 +21,6 @@ require_relative "pghero/methods/space"
 require_relative "pghero/methods/suggested_indexes"
 require_relative "pghero/methods/system"
 require_relative "pghero/methods/tables"
-require_relative "pghero/methods/users"
 
 require_relative "pghero/database"
 require_relative "pghero/engine" if defined?(Rails)
