@@ -1,7 +1,7 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(historical: false, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, sort: nil, **options)
+      def query_stats(historical: false, sort: nil, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, **options)
         sort ||= "total_minutes"
         unless ["total_minutes", "average_time", "calls"].include?(sort)
           raise ArgumentError, "Invalid sort"
@@ -16,7 +16,7 @@ module PgHero
 
         historical_query_stats =
           if historical && historical_query_stats_enabled?
-            historical_query_stats(start_at: start_at, end_at: end_at, sort: sort, **options)
+            historical_query_stats(sort: sort, start_at: start_at, end_at: end_at, **options)
           else
             []
           end
