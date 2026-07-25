@@ -15,7 +15,7 @@ module PgHero
         add_explain_option(options, "SUMMARY", summary)
         options << "FORMAT #{explain_format(format)}"
 
-        sql = squish("(#{options.join(", ")}) #{sql}")
+        sql = "(#{options.join(", ")}) #{sql}"
         explanation = nil
 
         # use transaction for safety
