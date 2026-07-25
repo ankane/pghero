@@ -208,7 +208,7 @@ module PgHero
               LEFT(query, 10000) AS query,
               queryid AS query_hash,
               rolname AS user,
-              (total_plan_time + total_exec_time) AS total_time,
+              total_plan_time + total_exec_time AS total_time,
               #{"(total_plan_time + total_exec_time) / calls AS average_time," if sort == "average_time"}
               calls
             FROM
