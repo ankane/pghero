@@ -183,7 +183,7 @@ module PgHero
       @user = params[:user].to_s
       @title = @query_hash
 
-      stats = @database.query_stats(historical: true, query_hash: @query_hash, start_at: 24.hours.ago).find { |qs| qs[:user] == @user }
+      stats = @database.query_stats(historical: true, user: @user, query_hash: @query_hash, start_at: 24.hours.ago).first
       if stats
         @query = stats[:query]
         @explainable_query = stats[:query] if @database.send(:explainable?, stats[:query])

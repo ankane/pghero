@@ -10,6 +10,7 @@ module PgHero
         end_at: nil,
         min_average_time: nil,
         min_calls: nil,
+        user: nil,
         query_hash: nil
       )
         limit ||= 100
@@ -23,12 +24,12 @@ module PgHero
           if !current || (historical && end_at && end_at < Time.now)
             []
           else
-            current_query_stats(limit: limit, sort: sort, query_hash: query_hash)
+            current_query_stats(limit: limit, sort: sort, user: user, query_hash: query_hash)
           end
 
         historical_query_stats =
           if historical && historical_query_stats_enabled?
-            historical_query_stats(limit: limit, sort: sort, start_at: start_at, end_at: end_at, query_hash: query_hash)
+            historical_query_stats(limit: limit, sort: sort, start_at: start_at, end_at: end_at, user: user, query_hash: query_hash)
           else
             []
           end
@@ -247,7 +248,7 @@ module PgHero
         select_all(query, binds, query_columns: [:query])
       end
 
-      def historical_query_stats(limit: nil, sort: nil, start_at: nil, end_at: nil, query_hash: nil)
+      def historical_query_stats(limit: nil, sort: nil, start_at: nil, end_at: nil, user: nil, query_hash: nil)
         if !historical_query_stats_enabled?
           raise NotEnabled, "Historical query stats not enabled"
         end
@@ -270,6 +271,7 @@ module PgHero
               AND query_hash IS NOT NULL
               #{start_at ? "AND captured_at >= :start_at" : ""}
               #{end_at ? "AND captured_at <= :end_at" : ""}
+              #{user ? "AND \"user\" = :user" : ""}
               #{query_hash ? "AND query_hash = :query_hash" : ""}
             GROUP BY
               1, 2
@@ -291,6 +293,7 @@ module PgHero
         binds = {id: id, limit: limit.to_i}
         binds[:start_at] = start_at if start_at
         binds[:end_at] = end_at if end_at
+        binds[:user] = user if user
         binds[:query_hash] = query_hash if query_hash
 
         # we can skip query_columns if all stored data is normalized
