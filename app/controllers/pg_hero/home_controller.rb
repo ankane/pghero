@@ -440,7 +440,7 @@ module PgHero
 
     def check_server_version
       if @database.server_version_num < 140000
-        render plain: "Requires PostgreSQL 14+"
+        render_text "Requires PostgreSQL 14+", status: :internal_server_error
       end
     end
 
