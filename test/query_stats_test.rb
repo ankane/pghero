@@ -114,11 +114,12 @@ class QueryStatsTest < Minitest::Test
   def test_query_hash_stats
     PgHero::QueryStats.delete_all
     database.reset_query_stats
-    ActiveRecord::Base.connection.select_all("SELECT 1")
+    ActiveRecord::Base.connection.select_all("SELECT 1 /*hello*/")
     database.capture_query_stats
-    qs = PgHero::QueryStats.find_by!(query: "SELECT $1")
-    ActiveRecord::Base.connection.select_all("SELECT 1")
+    qs = PgHero::QueryStats.find_by!(query: "SELECT $1 /*hello*/")
+    ActiveRecord::Base.connection.select_all("SELECT 1 /*world*/")
     assert_equal 2, database.query_hash_stats(qs.query_hash).size
     assert_equal 1, database.query_hash_stats(qs.query_hash, current: false).size
+    assert_equal ["hello", "world"], database.query_hash_stats(qs.query_hash).map { |v| v[:origin] }.sort
   end
 end
