@@ -4,6 +4,11 @@ class ControllerTest < ActionDispatch::IntegrationTest
   def test_index
     get pg_hero.root_path
     assert_response :success
+    assert_match "long running queries", response.body
+
+    get pg_hero.root_path(extended: true)
+    assert_response :success
+    assert_match "cache hit rate", response.body
   end
 
   def test_space
