@@ -225,12 +225,13 @@ module PgHero
           LIMIT :limit
         SQL
 
-        # we may be able to skip query_columns
-        # in more recent versions of Postgres
-        # as pg_stat_statements should be already normalized
         binds = {limit: limit.to_i}
         binds[:query_hash] = query_hash if query_hash
         binds[:user] = user if user
+
+        # we may be able to skip query_columns
+        # in more recent versions of Postgres
+        # as pg_stat_statements should be already normalized
         select_all(query, binds, query_columns: [:query])
       end
 
