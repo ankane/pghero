@@ -187,6 +187,13 @@ class ControllerTest < ActionDispatch::IntegrationTest
   def test_maintenance
     get pg_hero.maintenance_path
     assert_response :success
+    assert_match "Last Vacuum", response.body
+    assert_match "Last Analyze", response.body
+    refute_match "Dead Rows", response.body
+
+    get pg_hero.maintenance_path(dead_rows: true)
+    assert_response :success
+    assert_match "Dead Rows", response.body
   end
 
   # prevent warning for now
