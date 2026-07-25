@@ -8,7 +8,7 @@ module PgHero
             state,
             application_name AS source,
             age(NOW(), COALESCE(query_start, xact_start)) AS duration,
-            (wait_event IS NOT NULL),
+            wait_event IS NOT NULL AS waiting,
             query,
             COALESCE(query_start, xact_start) AS started_at,
             EXTRACT(EPOCH FROM NOW() - COALESCE(query_start, xact_start)) * 1000.0 AS duration_ms,
