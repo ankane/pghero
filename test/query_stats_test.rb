@@ -90,9 +90,13 @@ class QueryStatsTest < Minitest::Test
   def test_capture_query_stats
     PgHero::QueryStats.delete_all
     refute PgHero::QueryStats.any?
+    database.reset_query_stats
+    ActiveRecord::Base.connection.select_all("SELECT 1")
     assert database.capture_query_stats
     assert PgHero::QueryStats.any?
-    assert_equal PgHero::QueryStats.last.database, "primary"
+    qs = PgHero::QueryStats.find_by!(query: "SELECT $1")
+    assert_equal "primary", qs.database
+    assert_equal 1, qs.calls
     assert database.query_stats(historical: true)
   end
 
