@@ -181,10 +181,13 @@ module PgHero
             captured_at = Time.current
             current_stats = current_query_stats(query_hash: query_hash, user: user, origin: true)
             current_stats.each do |r|
-              r[:captured_at] = captured_at
-              r.delete(:all_queries_total_minutes)
+              stats << {
+                captured_at: captured_at,
+                total_minutes: r[:total_minutes],
+                calls: r[:calls],
+                origin: r[:origin]
+              }
             end
-            stats += current_stats
           end
           stats.each do |query|
             query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
