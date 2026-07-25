@@ -74,43 +74,28 @@ module PgHero
         true
       end
 
-      def reset_query_stats(**options)
-        raise PgHero::Error, "Use reset_instance_query_stats to pass database" if options.delete(:database)
-        reset_instance_query_stats(**options, database: database_name)
-      end
+      def reset_query_stats(user: nil, query_hash: nil, raise_errors: false)
+        database = database_name
+        database_id = execute("SELECT oid FROM pg_database WHERE datname = #{quote(database)}").first.try(:[], "oid")
+        raise PgHero::Error, "Database not found: #{database}" unless database_id
 
-      # resets query stats for the entire instance
-      # it's possible to reset stats for a specific
-      # database, user or query hash in Postgres 12+
-      def reset_instance_query_stats(database: nil, user: nil, query_hash: nil, raise_errors: false)
-        if database || user || query_hash
-          if database
-            database_id = execute("SELECT oid FROM pg_database WHERE datname = #{quote(database)}").first.try(:[], "oid")
-            raise PgHero::Error, "Database not found: #{database}" unless database_id
-          else
-            database_id = 0
-          end
-
-          if user
-            user_id = execute("SELECT usesysid FROM pg_user WHERE usename = #{quote(user)}").first.try(:[], "usesysid")
-            raise PgHero::Error, "User not found: #{user}" unless user_id
-          else
-            user_id = 0
-          end
-
-          if query_hash
-            query_id = query_hash.to_i
-            # may not be needed
-            # but not intuitive that all query hashes are reset with 0
-            raise PgHero::Error, "Invalid query hash: #{query_hash}" if query_id == 0
-          else
-            query_id = 0
-          end
-
-          execute("SELECT pg_stat_statements_reset(#{quote(user_id.to_i)}, #{quote(database_id.to_i)}, #{quote(query_id.to_i)})")
+        if user
+          user_id = execute("SELECT usesysid FROM pg_user WHERE usename = #{quote(user)}").first.try(:[], "usesysid")
+          raise PgHero::Error, "User not found: #{user}" unless user_id
         else
-          execute("SELECT pg_stat_statements_reset()")
+          user_id = 0
         end
+
+        if query_hash
+          query_id = query_hash.to_i
+          # may not be needed
+          # but not intuitive that all query hashes are reset with 0
+          raise PgHero::Error, "Invalid query hash: #{query_hash}" if query_id == 0
+        else
+          query_id = 0
+        end
+
+        execute("SELECT pg_stat_statements_reset(#{quote(user_id.to_i)}, #{quote(database_id.to_i)}, #{quote(query_id.to_i)})")
         true
       rescue ActiveRecord::StatementInvalid => e
         raise e if raise_errors

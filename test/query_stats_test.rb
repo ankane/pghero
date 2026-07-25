@@ -43,28 +43,6 @@ class QueryStatsTest < Minitest::Test
     assert database.reset_query_stats
   end
 
-  def test_reset_instance_query_stats
-    assert database.reset_instance_query_stats
-  end
-
-  def test_reset_instance_query_stats_database
-    assert database.reset_query_stats
-    ActiveRecord::Base.connection.select_all("SELECT 1")
-    assert database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
-
-    assert database.reset_instance_query_stats(database: database.database_name)
-
-    assert_equal 1, database.query_stats.size
-    refute database.query_stats.any? { |qs| qs[:query] == "SELECT $1" }
-  end
-
-  def test_reset_instance_query_stats_database_invalid
-    error = assert_raises(PgHero::Error) do
-      database.reset_instance_query_stats(database: "pghero_test2")
-    end
-    assert_equal "Database not found: pghero_test2", error.message
-  end
-
   def test_reset_query_stats_user
     assert database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
