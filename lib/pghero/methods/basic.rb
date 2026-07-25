@@ -37,6 +37,7 @@ module PgHero
       private
 
       def select_all(sql, binds = nil, stats: false, query_columns: [])
+        sql = add_source(squish(sql))
         if binds && !binds.empty?
           model = stats ? ::PgHero::Stats : connection_model
           sql = model.sanitize_sql_array([sql, binds])
@@ -51,7 +52,7 @@ module PgHero
         # squish for logs
         retries = 0
         begin
-          result = conn.select_all(add_source(squish(sql)))
+          result = conn.select_all(sql)
           if ActiveRecord::VERSION::MAJOR >= 8
             result = result.to_a.map(&:symbolize_keys)
           else
