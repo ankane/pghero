@@ -6,12 +6,12 @@ module PgHero
         historical: false,
         limit: nil,
         sort: nil,
+        user: nil,
+        query_hash: nil,
         start_at: nil,
         end_at: nil,
         min_average_time: nil,
-        min_calls: nil,
-        user: nil,
-        query_hash: nil
+        min_calls: nil
       )
         limit ||= 100
 
@@ -195,7 +195,7 @@ module PgHero
       private
 
       # https://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
-      def current_query_stats(limit: nil, sort: nil, query_hash: nil, user: nil, origin: false)
+      def current_query_stats(limit: nil, sort: nil, user: nil, query_hash: nil, origin: false)
         if !query_stats_enabled?
           raise NotEnabled, "Query stats not enabled"
         end
@@ -220,8 +220,8 @@ module PgHero
             WHERE
               calls > 0 AND
               pg_database.datname = current_database()
-              #{query_hash ? "AND queryid = :query_hash" : nil}
               #{user ? "AND rolname = :user" : nil}
+              #{query_hash ? "AND queryid = :query_hash" : nil}
           )
           SELECT
             query,
@@ -239,8 +239,8 @@ module PgHero
         SQL
 
         binds = {limit: limit.to_i}
-        binds[:query_hash] = query_hash if query_hash
         binds[:user] = user if user
+        binds[:query_hash] = query_hash if query_hash
 
         # we may be able to skip query_columns
         # in more recent versions of Postgres
