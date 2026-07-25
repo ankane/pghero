@@ -39,7 +39,7 @@ module PgHero
       def select_all(sql, binds = nil, stats: false, query_columns: [])
         sql = add_source(sql.to_str.squish)
         if binds && !binds.empty?
-          model = stats ? ::PgHero::Stats : connection_model
+          model = stats ? PgHero::Stats : connection_model
           sql = model.sanitize_sql_array([sql, binds])
         end
 
@@ -112,7 +112,7 @@ module PgHero
       end
 
       def with_connection(stats: false, &block)
-        model = stats ? ::PgHero::Stats : connection_model
+        model = stats ? PgHero::Stats : connection_model
         model.connection_pool.with_connection(&block)
       end
 

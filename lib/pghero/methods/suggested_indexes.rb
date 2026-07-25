@@ -287,7 +287,7 @@ module PgHero
           if tree.bool_expr.boolop == :AND_EXPR
             tree.bool_expr.args.flat_map { |v| parse_where(v) }
           else
-            raise "Not Implemented"
+            raise Error, "Not Implemented"
           end
         elsif aexpr && ["=", "<>", ">", ">=", "<", "<=", "~~", "~~*", "BETWEEN"].include?(aexpr.name.first.string.sval)
           [{column: aexpr.lexpr.column_ref.fields.last.string.sval, op: aexpr.name.first.string.sval}]
@@ -295,7 +295,7 @@ module PgHero
           op = tree.null_test.nulltesttype == :IS_NOT_NULL ? "not_null" : "null"
           [{column: tree.null_test.arg.column_ref.fields.last.string.sval, op: op}]
         else
-          raise "Not Implemented"
+          raise Error, "Not Implemented"
         end
       end
 

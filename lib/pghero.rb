@@ -129,7 +129,7 @@ module PgHero
           elsif config["databases"] # preferred format
             config
           elsif config_file_exists
-            raise "Invalid config file"
+            raise Error, "Invalid config file"
           else
             nil
           end

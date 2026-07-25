@@ -88,11 +88,11 @@ module PgHero
       def reset_query_stats(user: nil, query_hash: nil, raise_errors: false)
         database = database_name
         database_id = select_one("SELECT oid FROM pg_database WHERE datname = :database", {database: database})
-        raise PgHero::Error, "Database not found: #{database}" unless database_id
+        raise Error, "Database not found: #{database}" unless database_id
 
         if user
           user_id = select_one("SELECT usesysid FROM pg_user WHERE usename = :user", {user: user})
-          raise PgHero::Error, "User not found: #{user}" unless user_id
+          raise Error, "User not found: #{user}" unless user_id
         else
           user_id = 0
         end
@@ -101,7 +101,7 @@ module PgHero
           query_id = query_hash.to_i
           # may not be needed
           # but not intuitive that all query hashes are reset with 0
-          raise PgHero::Error, "Invalid query hash: #{query_hash}" if query_id == 0
+          raise Error, "Invalid query hash: #{query_hash}" if query_id == 0
         else
           query_id = 0
         end
