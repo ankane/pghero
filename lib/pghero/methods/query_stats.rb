@@ -290,9 +290,9 @@ module PgHero
       def combine_query_stats(grouped_stats)
         grouped_stats.map do |_, stats|
           {
-            query: stats[0][:query],
-            user: stats[0][:user],
-            query_hash: stats[0][:query_hash],
+            query: stats.filter_map { |v| v[:query] }.first,
+            user: stats.filter_map { |v| v[:user] }.first,
+            query_hash: stats.filter_map { |v| v[:query_hash] }.first,
             total_minutes: stats.sum { |s| s[:total_minutes] },
             calls: stats.sum { |s| s[:calls] }.to_i
           }
