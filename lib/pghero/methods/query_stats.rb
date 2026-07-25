@@ -178,7 +178,7 @@ module PgHero
       private
 
       # https://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
-      def current_query_stats(limit: nil, sort: nil, database: nil, query_hash: nil, user: nil, origin: false)
+      def current_query_stats(limit: nil, sort: nil, query_hash: nil, user: nil, origin: false)
         if query_stats_enabled?
           limit ||= 100
           sort ||= "total_minutes"
@@ -199,7 +199,7 @@ module PgHero
                 pg_roles ON pg_roles.oid = pg_stat_statements.userid
               WHERE
                 calls > 0 AND
-                pg_database.datname = #{database ? quote(database) : "current_database()"}
+                pg_database.datname = current_database()
                 #{query_hash ? "AND queryid = #{quote(query_hash)}" : nil}
                 #{user ? "AND rolname = #{quote(user)}" : nil}
             )
