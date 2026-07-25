@@ -313,7 +313,7 @@ module PgHero
       end
 
       def explainable?(query)
-        query =~ /select/i && (server_version_num >= 160000 || (!query.include?("?)") && !query.include?("= ?") && !query.include?("$1") && query !~ /limit \?/i))
+        query =~ /select/i && (server_version_num >= 160000 || !query.include?("$1"))
       end
 
       def insert_query_stats(query_stats, captured_at)
