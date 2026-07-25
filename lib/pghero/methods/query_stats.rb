@@ -130,36 +130,11 @@ module PgHero
         %w(query_hash user) - PgHero::QueryStats.column_names
       end
 
-      # resetting query stats will reset across the entire Postgres instance in Postgres < 12
-      # this is problematic if multiple PgHero databases use the same Postgres instance
-      #
-      # to get around this, we capture queries for every Postgres database before we
-      # reset query stats for the Postgres instance with the `capture_query_stats` option
       def capture_query_stats(raise_errors: false)
-        return if config["capture_query_stats"] && config["capture_query_stats"] != true
-
-        # get all databases that use same query stats and build mapping
-        mapping = {id => database_name}
-        PgHero.databases.select { |_, d| d.config["capture_query_stats"] == id }.each do |_, d|
-          mapping[d.id] = d.database_name
-        end
-
         now = Time.now
-
-        query_stats = {}
-        mapping.each do |database_id, database_name|
-          query_stats[database_id] = query_stats(limit: 1000000, database: database_name)
-        end
-
-        query_stats = query_stats.select { |_, v| v.any? }
-
-        # nothing to do
-        return if query_stats.empty?
-
-        query_stats.each do |db_id, db_query_stats|
-          if reset_instance_query_stats(database: mapping[db_id], raise_errors: raise_errors)
-            insert_query_stats(db_id, db_query_stats, now)
-          end
+        query_stats = self.query_stats(limit: 1000000, database: database_name)
+        if query_stats.any? && reset_query_stats(raise_errors: raise_errors)
+          insert_query_stats(database_name, query_stats, now)
         end
       end
 
