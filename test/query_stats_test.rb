@@ -3,6 +3,14 @@ require_relative "test_helper"
 class QueryStatsTest < Minitest::Test
   def test_query_stats
     assert database.query_stats
+    assert database.query_stats(sort: "average_time")
+    assert database.query_stats(sort: "calls")
+  end
+
+  def test_query_stats_historical
+    assert database.query_stats(historical: true)
+    assert database.query_stats(historical: true, sort: "average_time")
+    assert database.query_stats(historical: true, sort: "calls")
   end
 
   def test_query_stats_available
