@@ -15,8 +15,8 @@ module PgHero
       )
         limit ||= 100
 
-        sort ||= "total_minutes"
-        unless ["total_minutes", "average_time", "calls"].include?(sort)
+        sort ||= "total_time"
+        unless ["total_time", "average_time", "calls"].include?(sort)
           raise ArgumentError, "Invalid sort"
         end
 
@@ -39,12 +39,12 @@ module PgHero
         query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query], q[:user]] })
 
         # add percentages
-        all_queries_total_minutes = 0
-        all_queries_total_minutes += current_query_stats.first[:all_queries_total_minutes] if current_query_stats.any?
-        all_queries_total_minutes += historical_query_stats.first[:all_queries_total_minutes] if historical_query_stats.any?
+        all_queries_total_time = 0
+        all_queries_total_time += current_query_stats.first[:all_queries_total_time] if current_query_stats.any?
+        all_queries_total_time += historical_query_stats.first[:all_queries_total_time] if historical_query_stats.any?
         query_stats.each do |query|
-          query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
-          query[:total_percent] = query[:total_minutes] * 100.0 / all_queries_total_minutes
+          query[:average_time] = query[:total_time] / query[:calls]
+          query[:total_percent] = query[:total_time] * 100.0 / all_queries_total_time
         end
 
         query_stats = query_stats.sort_by { |q| -q[sort.to_sym] }.first(limit)
@@ -158,7 +158,7 @@ module PgHero
         sql = <<~SQL
           SELECT
             captured_at,
-            total_time / 1000 / 60 AS total_minutes,
+            total_time,
             calls,
             (SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin
           FROM
@@ -180,14 +180,14 @@ module PgHero
           current_stats.each do |r|
             stats << {
               captured_at: captured_at,
-              total_minutes: r[:total_minutes],
+              total_time: r[:total_time],
               calls: r[:calls],
               origin: r[:origin]
             }
           end
         end
         stats.each do |query|
-          query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
+          query[:average_time] = query[:total_time] / query[:calls]
         end
         stats
       end
@@ -201,14 +201,14 @@ module PgHero
         end
 
         limit ||= 100
-        sort ||= "total_minutes"
+        sort ||= "total_time"
         query = <<~SQL
           WITH query_stats AS (
             SELECT
               LEFT(query, 10000) AS query,
               queryid AS query_hash,
               rolname AS user,
-              (total_plan_time + total_exec_time) / 1000 / 60 AS total_minutes,
+              (total_plan_time + total_exec_time) AS total_time,
               #{sort == "average_time" ? "(total_plan_time + total_exec_time) / calls AS average_time," : ""}
               calls
             FROM
@@ -228,9 +228,9 @@ module PgHero
             #{origin ? "(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," : nil}
             query_hash,
             query_stats.user,
-            total_minutes,
+            total_time,
             calls,
-            (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+            (SELECT SUM(total_time) FROM query_stats) AS all_queries_total_time
           FROM
             query_stats
           ORDER BY
@@ -254,14 +254,14 @@ module PgHero
         end
 
         limit ||= 100
-        sort ||= "total_minutes"
+        sort ||= "total_time"
         query = <<~SQL
           WITH query_stats AS (
             SELECT
               query_hash,
               pghero_query_stats.user AS user,
               array_agg(LEFT(query, 10000) ORDER BY REPLACE(LEFT(query, 1000), '?', '!') COLLATE "C" ASC) AS query,
-              SUM(total_time) / 1000 / 60 AS total_minutes,
+              SUM(total_time) AS total_time,
               #{sort == "average_time" ? "SUM(total_time) / SUM(calls) AS average_time," : ""}
               SUM(calls) AS calls
             FROM
@@ -279,9 +279,9 @@ module PgHero
             query_hash,
             query_stats.user,
             query[1] AS query,
-            total_minutes,
+            total_time,
             calls,
-            (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+            (SELECT SUM(total_time) FROM query_stats) AS all_queries_total_time
           FROM
             query_stats
           ORDER BY
@@ -306,7 +306,7 @@ module PgHero
             query: stats.filter_map { |v| v[:query] }.first,
             user: stats.filter_map { |v| v[:user] }.first,
             query_hash: stats.filter_map { |v| v[:query_hash] }.first,
-            total_minutes: stats.sum { |s| s[:total_minutes] },
+            total_time: stats.sum { |s| s[:total_time] },
             calls: stats.sum { |s| s[:calls] }.to_i
           }
         end
@@ -324,7 +324,7 @@ module PgHero
               user: qs[:user],
               query: qs[:query],
               query_hash: qs[:query_hash],
-              total_time: qs[:total_minutes] * 60 * 1000,
+              total_time: qs[:total_time],
               calls: qs[:calls],
               captured_at: captured_at
             }
