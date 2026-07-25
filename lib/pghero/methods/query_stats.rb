@@ -165,7 +165,6 @@ module PgHero
             SELECT
               captured_at,
               total_time / 1000 / 60 AS total_minutes,
-              (total_time / calls) AS average_time,
               calls,
               (SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin
             FROM
@@ -183,8 +182,12 @@ module PgHero
             current_stats = current_query_stats(query_hash: query_hash, user: user, origin: true)
             current_stats.each do |r|
               r[:captured_at] = captured_at
+              r.delete(:all_queries_total_minutes)
             end
             stats += current_stats
+          end
+          stats.each do |query|
+            query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
           end
           stats
         else
