@@ -182,6 +182,11 @@ class ControllerTest < ActionDispatch::IntegrationTest
   def test_connections
     get pg_hero.connections_path
     assert_response :success
+    refute_match "By Security", response.body
+
+    get pg_hero.connections_path(security: true)
+    assert_response :success
+    assert_match "By Security", response.body
   end
 
   def test_maintenance
