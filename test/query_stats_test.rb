@@ -5,6 +5,11 @@ class QueryStatsTest < Minitest::Test
     assert database.query_stats
     assert database.query_stats(sort: "average_time")
     assert database.query_stats(sort: "calls")
+
+    error = assert_raises(ArgumentError) do
+      database.query_stats(sort: "invalid")
+    end
+    assert_equal "Invalid sort", error.message
   end
 
   def test_query_stats_historical

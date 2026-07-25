@@ -1,9 +1,14 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(historical: false, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, **options)
-        current_query_stats = historical && end_at && end_at < Time.now ? [] : current_query_stats(**options)
-        historical_query_stats = historical && historical_query_stats_enabled? ? historical_query_stats(start_at: start_at, end_at: end_at, **options) : []
+      def query_stats(historical: false, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, sort: nil, **options)
+        sort ||= "total_minutes"
+        unless ["total_minutes", "average_time", "calls"].include?(sort)
+          raise ArgumentError, "Invalid sort"
+        end
+
+        current_query_stats = historical && end_at && end_at < Time.now ? [] : current_query_stats(sort: sort, **options)
+        historical_query_stats = historical && historical_query_stats_enabled? ? historical_query_stats(start_at: start_at, end_at: end_at, sort: sort, **options) : []
 
         query_stats = combine_query_stats((current_query_stats + historical_query_stats).group_by { |q| [q[:query_hash], q[:user]] })
         query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query], q[:user]] })
@@ -16,7 +21,6 @@ module PgHero
           query.delete(:all_queries_total_minutes)
         end
 
-        sort = options[:sort] || "total_minutes"
         query_stats = query_stats.sort_by { |q| -q[sort.to_sym] }.first(100)
         if min_average_time
           query_stats.reject! { |q| q[:average_time] < min_average_time }
