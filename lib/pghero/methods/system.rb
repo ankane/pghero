@@ -89,19 +89,14 @@ module PgHero
         raise Error, "Invalid metric name" unless /\A[a-z\/_]+\z/i.match?(metric_name)
         raise Error, "Invalid database id" unless /\A[a-z0-9\-:]+\z/i.match?(gcp_database_id)
 
-        # we handle four situations:
+        # we handle three situations:
         # 1. google-cloud-monitoring-v3
         # 2. google-cloud-monitoring >= 1
-        # 3. google-cloud-monitoring < 1
-        # 4. google-apis-monitoring_v3
+        # 3. google-apis-monitoring_v3
         begin
           require "google/cloud/monitoring/v3"
         rescue LoadError
-          begin
-            require "google/cloud/monitoring"
-          rescue LoadError
-            require "google/apis/monitoring_v3"
-          end
+          require "google/apis/monitoring_v3"
         end
 
         # for situations 1 and 2
@@ -128,29 +123,6 @@ module PgHero
             view: Google::Cloud::Monitoring::V3::ListTimeSeriesRequest::TimeSeriesView::FULL,
             aggregation: aggregation
           })
-        elsif defined?(Google::Cloud::Monitoring)
-          require "google/cloud/monitoring"
-
-          client = Google::Cloud::Monitoring::Metric.new
-
-          interval = Google::Monitoring::V3::TimeInterval.new
-          interval.end_time = Google::Protobuf::Timestamp.new(seconds: end_time.to_i)
-          # subtract period to make sure we get first data point
-          interval.start_time = Google::Protobuf::Timestamp.new(seconds: (start_time - period).to_i)
-
-          aggregation = Google::Monitoring::V3::Aggregation.new
-          # may be better to use ALIGN_NEXT_OLDER for space stats to show most recent data point
-          # stick with average for now to match AWS
-          aggregation.per_series_aligner = Google::Monitoring::V3::Aggregation::Aligner::ALIGN_MEAN
-          aggregation.alignment_period = period
-
-          results = client.list_time_series(
-            "projects/#{gcp_database_id.split(":").first}",
-            "metric.type = \"cloudsql.googleapis.com/database/#{metric_name}\" AND resource.label.database_id = \"#{gcp_database_id}\"",
-            interval,
-            Google::Monitoring::V3::ListTimeSeriesRequest::TimeSeriesView::FULL,
-            aggregation: aggregation
-          )
         else
           client = Google::Apis::MonitoringV3::MonitoringService.new
 
