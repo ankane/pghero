@@ -36,7 +36,12 @@ module PgHero
 
       private
 
-      def select_all(sql, stats: false, query_columns: [])
+      def select_all(sql, binds = nil, stats: false, query_columns: [])
+        if binds && !binds.empty?
+          model = stats ? ::PgHero::Stats : connection_model
+          sql = model.sanitize_sql_array([sql, binds])
+        end
+
         with_connection(stats: stats) do |conn|
           select_all_leased(sql, conn: conn, query_columns: query_columns)
         end
@@ -85,20 +90,20 @@ module PgHero
         end
       end
 
-      def select_all_stats(sql, **options)
-        select_all(sql, **options, stats: true)
+      def select_all_stats(sql, binds = nil, **options)
+        select_all(sql, binds, **options, stats: true)
       end
 
-      def select_all_size(sql)
-        result = select_all(sql)
+      def select_all_size(sql, binds = nil)
+        result = select_all(sql, binds)
         result.each do |row|
           row[:size] = PgHero.pretty_size(row[:size_bytes])
         end
         result
       end
 
-      def select_one(sql)
-        select_all(sql).first&.values&.first
+      def select_one(sql, binds = nil)
+        select_all(sql, binds).first&.values&.first
       end
 
       def execute(sql)
@@ -116,10 +121,6 @@ module PgHero
 
       def add_source(sql)
         "#{sql} /*pghero*/"
-      end
-
-      def quote(value)
-        with_connection { |c| c.quote(value) }
       end
 
       def quote_table_name(value)
@@ -140,8 +141,8 @@ module PgHero
 
       def with_transaction(lock_timeout: nil, statement_timeout: nil, rollback: false)
         connection_model.transaction do
-          select_all "SET LOCAL statement_timeout = #{quote(statement_timeout.to_i)}" if statement_timeout
-          select_all "SET LOCAL lock_timeout = #{quote(lock_timeout.to_i)}" if lock_timeout
+          select_all("SET LOCAL statement_timeout = :timeout", {timeout: statement_timeout.to_i}) if statement_timeout
+          select_all("SET LOCAL lock_timeout = :timeout", {timeout: lock_timeout.to_i}) if lock_timeout
           yield
           raise ActiveRecord::Rollback if rollback
         end

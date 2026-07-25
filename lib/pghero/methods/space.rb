@@ -52,7 +52,7 @@ module PgHero
           sizes = relation_sizes.to_h { |r| [[r[:schema], r[:relation]], r[:size_bytes]] }
           start_at = days.days.ago
 
-          stats = select_all_stats <<~SQL
+          sql = <<~SQL
             WITH t AS (
               SELECT
                 schema,
@@ -61,8 +61,8 @@ module PgHero
               FROM
                 pghero_space_stats
               WHERE
-                database = #{quote(id)}
-                AND captured_at >= #{quote(start_at)}
+                database = :id
+                AND captured_at >= :start_at
               GROUP BY
                 1, 2
             )
@@ -75,6 +75,7 @@ module PgHero
             ORDER BY
               1, 2
           SQL
+          stats = select_all_stats(sql, {id: id, start_at: start_at})
 
           stats.each do |r|
             relation = [r[:schema], r[:relation]]
@@ -95,20 +96,22 @@ module PgHero
           sizes = relation_sizes.map { |r| [[r[:schema], r[:relation]], r[:size_bytes]] }.to_h
           start_at = 30.days.ago
 
-          stats = select_all_stats <<~SQL
+          sql = <<~SQL
             SELECT
               captured_at,
               size AS size_bytes
             FROM
               pghero_space_stats
             WHERE
-              database = #{quote(id)}
-              AND captured_at >= #{quote(start_at)}
-              AND schema = #{quote(schema)}
-              AND relation = #{quote(relation)}
+              database = :id
+              AND captured_at >= :start_at
+              AND schema = :schema
+              AND relation = :relation
             ORDER BY
               1 ASC
           SQL
+          binds = {id: id, start_at: start_at, schema: schema, relation: relation}
+          stats = select_all_stats(sql, binds)
 
           stats << {
             captured_at: Time.now,

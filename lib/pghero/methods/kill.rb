@@ -2,7 +2,7 @@ module PgHero
   module Methods
     module Kill
       def kill(pid)
-        select_one("SELECT pg_terminate_backend(#{quote(pid.to_i)})")
+        select_one("SELECT pg_terminate_backend(:pid)", {pid: pid.to_i})
       end
 
       def kill_long_running_queries(min_duration: nil)

@@ -69,7 +69,7 @@ module PgHero
       end
 
       def unused_indexes(max_scans: 50, across: [])
-        result = select_all_size <<~SQL
+        sql = <<~SQL
           SELECT
             schemaname AS schema,
             relname AS table,
@@ -82,11 +82,12 @@ module PgHero
             pg_index i ON ui.indexrelid = i.indexrelid
           WHERE
             NOT indisunique
-            AND idx_scan <= #{quote(max_scans.to_i)}
+            AND idx_scan <= :max_scans
           ORDER BY
             pg_relation_size(i.indexrelid) DESC,
             relname ASC
         SQL
+        result = select_all_size(sql, {max_scans: max_scans.to_i})
 
         across.each do |database_id|
           database = PgHero.databases.values.find { |d| d.id == database_id }
@@ -186,7 +187,7 @@ module PgHero
       # thanks @jberkus and @mbanck
       def index_bloat(min_size: nil)
         min_size ||= index_bloat_bytes
-        select_all <<~SQL
+        sql = <<~SQL
           WITH btree_index_atts AS (
             SELECT
               nspname, relname, reltuples, relpages, indrelid, relam,
@@ -315,11 +316,12 @@ module PgHero
           INNER JOIN
             pg_index i ON i.indexrelid = rb.indexrelid
           WHERE
-            wastedbytes >= #{quote(min_size.to_i)}
+            wastedbytes >= :min_size
           ORDER BY
             wastedbytes DESC,
             index_name
         SQL
+        select_all(sql, {min_size: min_size.to_i})
       end
 
       protected

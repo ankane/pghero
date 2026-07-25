@@ -44,7 +44,7 @@ module PgHero
       end
 
       def table_stats(schema: nil, table: nil)
-        select_all <<~SQL
+        sql = <<~SQL
           SELECT
             nspname AS schema,
             relname AS table,
@@ -56,11 +56,15 @@ module PgHero
             pg_namespace ON pg_namespace.oid = pg_class.relnamespace
           WHERE
             relkind = 'r'
-            #{schema ? "AND nspname = #{quote(schema)}" : nil}
-            #{table ? "AND relname IN (#{Array(table).map { |t| quote(t) }.join(", ")})" : nil}
+            #{schema ? "AND nspname = :schema" : nil}
+            #{table ? "AND relname IN (:table)" : nil}
           ORDER BY
             1, 2
         SQL
+        binds = {}
+        binds[:schema] = schema if schema
+        binds[:table] = Array(table) if table
+        select_all(sql, binds)
       end
     end
   end

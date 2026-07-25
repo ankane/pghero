@@ -20,13 +20,15 @@ module PgHero
             state <> 'idle'
             AND pid <> pg_backend_pid()
             AND datname = current_database()
-            #{min_duration ? "AND NOW() - COALESCE(query_start, xact_start) > interval #{quote("#{min_duration.to_i} seconds")}" : nil}
+            #{min_duration ? "AND NOW() - COALESCE(query_start, xact_start) > interval :min_duration" : nil}
             #{all ? nil : "AND query <> '<insufficient privilege>'"}
           ORDER BY
             COALESCE(query_start, xact_start) DESC
         SQL
 
-        select_all(query, query_columns: [:query])
+        binds = {}
+        binds[:min_duration] = "#{min_duration.to_i} seconds" if min_duration
+        select_all(query, binds, query_columns: [:query])
       end
 
       def long_running_queries

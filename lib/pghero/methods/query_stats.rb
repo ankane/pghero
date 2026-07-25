@@ -76,11 +76,11 @@ module PgHero
 
       def reset_query_stats(user: nil, query_hash: nil, raise_errors: false)
         database = database_name
-        database_id = select_one("SELECT oid FROM pg_database WHERE datname = #{quote(database)}")
+        database_id = select_one("SELECT oid FROM pg_database WHERE datname = :database", {database: database})
         raise PgHero::Error, "Database not found: #{database}" unless database_id
 
         if user
-          user_id = select_one("SELECT usesysid FROM pg_user WHERE usename = #{quote(user)}")
+          user_id = select_one("SELECT usesysid FROM pg_user WHERE usename = :user", {user: user})
           raise PgHero::Error, "User not found: #{user}" unless user_id
         else
           user_id = 0
@@ -95,7 +95,8 @@ module PgHero
           query_id = 0
         end
 
-        execute("SELECT pg_stat_statements_reset(#{quote(user_id.to_i)}, #{quote(database_id.to_i)}, #{quote(query_id.to_i)})")
+        binds = {user_id: user_id, database_id: database_id, query_id: query_id}
+        select_all("SELECT pg_stat_statements_reset(:user_id, :database_id, :query_id)", binds)
         true
       rescue ActiveRecord::StatementInvalid => e
         raise e if raise_errors
@@ -141,7 +142,7 @@ module PgHero
         end
 
         start_at = 24.hours.ago
-        stats = select_all_stats <<~SQL
+        sql = <<~SQL
           SELECT
             captured_at,
             total_time / 1000 / 60 AS total_minutes,
@@ -150,13 +151,16 @@ module PgHero
           FROM
             pghero_query_stats
           WHERE
-            database = #{quote(id)}
-            AND captured_at >= #{quote(start_at)}
-            AND query_hash = #{quote(query_hash)}
-            #{user ? "AND \"user\" = #{quote(user)}" : ""}
+            database = :id
+            AND captured_at >= :start_at
+            AND query_hash = :query_hash
+            #{user ? "AND \"user\" = :user" : ""}
           ORDER BY
             1 ASC
         SQL
+        binds = {id: id, start_at: start_at, query_hash: query_hash}
+        binds[:user] = user if user
+        stats = select_all_stats(sql, binds)
         if current
           captured_at = Time.current
           current_stats = current_query_stats(query_hash: query_hash, user: user, origin: true)
@@ -203,8 +207,8 @@ module PgHero
             WHERE
               calls > 0 AND
               pg_database.datname = current_database()
-              #{query_hash ? "AND queryid = #{quote(query_hash)}" : nil}
-              #{user ? "AND rolname = #{quote(user)}" : nil}
+              #{query_hash ? "AND queryid = :query_hash" : nil}
+              #{user ? "AND rolname = :user" : nil}
           )
           SELECT
             query,
@@ -218,13 +222,16 @@ module PgHero
             query_stats
           ORDER BY
             #{quote_column_name(sort)} DESC
-          LIMIT #{quote(limit.to_i)}
+          LIMIT :limit
         SQL
 
         # we may be able to skip query_columns
         # in more recent versions of Postgres
         # as pg_stat_statements should be already normalized
-        select_all(query, query_columns: [:query])
+        binds = {limit: limit.to_i}
+        binds[:query_hash] = query_hash if query_hash
+        binds[:user] = user if user
+        select_all(query, binds, query_columns: [:query])
       end
 
       def historical_query_stats(sort: nil, start_at: nil, end_at: nil, query_hash: nil)
@@ -245,11 +252,11 @@ module PgHero
             FROM
               pghero_query_stats
             WHERE
-              database = #{quote(id)}
+              database = :id
               AND query_hash IS NOT NULL
-              #{start_at ? "AND captured_at >= #{quote(start_at)}" : ""}
-              #{end_at ? "AND captured_at <= #{quote(end_at)}" : ""}
-              #{query_hash ? "AND query_hash = #{quote(query_hash)}" : ""}
+              #{start_at ? "AND captured_at >= :start_at" : ""}
+              #{end_at ? "AND captured_at <= :end_at" : ""}
+              #{query_hash ? "AND query_hash = :query_hash" : ""}
             GROUP BY
               1, 2
           )
@@ -269,7 +276,11 @@ module PgHero
 
         # we can skip query_columns if all stored data is normalized
         # for now, assume it's not
-        select_all_stats(query, query_columns: [:query])
+        binds = {id: id}
+        binds[:start_at] = start_at if start_at
+        binds[:end_at] = end_at if end_at
+        binds[:query_hash] = query_hash if query_hash
+        select_all_stats(query, binds, query_columns: [:query])
       end
 
       def combine_query_stats(grouped_stats)

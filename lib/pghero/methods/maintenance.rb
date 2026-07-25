@@ -6,14 +6,11 @@ module PgHero
       # once there are fewer than 1 million transactions left until wraparound"
       # warn when 10,000,000 transactions left
       def transaction_id_danger(threshold: 10000000, max_value: 2146483648)
-        max_value = max_value.to_i
-        threshold = threshold.to_i
-
-        select_all <<~SQL
+        sql = <<~SQL
           SELECT
             n.nspname AS schema,
             c.relname AS table,
-            #{quote(max_value)} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_left
+            :max_value - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid)) AS transactions_left
           FROM
             pg_class c
           INNER JOIN
@@ -22,10 +19,11 @@ module PgHero
             pg_class t ON c.reltoastrelid = t.oid
           WHERE
             c.relkind = 'r'
-            AND (#{quote(max_value)} - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < #{quote(threshold)}
+            AND (:max_value - GREATEST(AGE(c.relfrozenxid), AGE(t.relfrozenxid))) < :threshold
           ORDER BY
            3, 1, 2
         SQL
+        select_all(sql, {max_value: max_value.to_i, threshold: threshold.to_i})
       end
 
       def autovacuum_danger

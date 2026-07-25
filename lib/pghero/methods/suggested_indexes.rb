@@ -309,7 +309,7 @@ module PgHero
       end
 
       def column_stats(schema: nil, table: nil)
-        select_all <<~SQL
+        sql = <<~SQL
           SELECT
             schemaname AS schema,
             tablename AS table,
@@ -319,11 +319,14 @@ module PgHero
           FROM
             pg_stats
           WHERE
-            schemaname = #{quote(schema)}
-            #{table ? "AND tablename IN (#{Array(table).map { |t| quote(t) }.join(", ")})" : ""}
+            schemaname = :schema
+            #{table ? "AND tablename IN (:table)" : ""}
           ORDER BY
             1, 2, 3
         SQL
+        binds = {schema: schema}
+        binds[:table] = Array(table) if table
+        select_all(sql, binds)
       end
     end
   end
