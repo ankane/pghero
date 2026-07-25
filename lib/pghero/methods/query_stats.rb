@@ -121,7 +121,7 @@ module PgHero
         now = Time.now
         db_query_stats = query_stats(limit: 1000000)
         if db_query_stats.any? && reset_query_stats(raise_errors: raise_errors)
-          insert_query_stats(id, db_query_stats, now)
+          insert_query_stats(db_query_stats, now)
         end
       end
 
@@ -288,15 +288,15 @@ module PgHero
         query =~ /select/i && (server_version_num >= 160000 || (!query.include?("?)") && !query.include?("= ?") && !query.include?("$1") && query !~ /limit \?/i))
       end
 
-      def insert_query_stats(db_id, db_query_stats, now)
+      def insert_query_stats(db_query_stats, captured_at)
         values =
           db_query_stats.map do |qs|
             {
-              database: db_id,
+              database: id,
               query: qs[:query],
               total_time: qs[:total_minutes] * 60 * 1000,
               calls: qs[:calls],
-              captured_at: now,
+              captured_at: captured_at,
               query_hash: qs[:query_hash],
               user: qs[:user]
             }
