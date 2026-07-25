@@ -260,7 +260,7 @@ module PgHero
             SELECT
               query_hash,
               pghero_query_stats.user AS user,
-              (array_agg(LEFT(query, 10000) ORDER BY REPLACE(LEFT(query, 1000), '?', '!') COLLATE "C" ASC))[1] AS query,
+              MIN(LEFT(query, 10000)) AS query,
               SUM(total_time) AS total_time,
               #{sort == "average_time" ? "SUM(total_time) / SUM(calls) AS average_time," : ""}
               SUM(calls) AS calls
