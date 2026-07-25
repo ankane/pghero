@@ -275,12 +275,13 @@ module PgHero
           LIMIT 100
         SQL
 
-        # we can skip query_columns if all stored data is normalized
-        # for now, assume it's not
         binds = {id: id}
         binds[:start_at] = start_at if start_at
         binds[:end_at] = end_at if end_at
         binds[:query_hash] = query_hash if query_hash
+
+        # we can skip query_columns if all stored data is normalized
+        # for now, assume it's not
         select_all_stats(query, binds, query_columns: [:query])
       end
 
