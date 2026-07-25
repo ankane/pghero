@@ -1,7 +1,17 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(current: true, historical: false, limit: nil, sort: nil, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, query_hash: nil)
+      def query_stats(
+        current: true,
+        historical: false,
+        limit: nil,
+        sort: nil,
+        start_at: nil,
+        end_at: nil,
+        min_average_time: nil,
+        min_calls: nil,
+        query_hash: nil
+      )
         limit ||= 100
 
         sort ||= "total_minutes"
