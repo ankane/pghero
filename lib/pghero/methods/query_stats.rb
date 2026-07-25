@@ -196,7 +196,7 @@ module PgHero
               queryid AS query_hash,
               rolname AS user,
               (total_plan_time + total_exec_time) / 1000 / 60 AS total_minutes,
-              (total_plan_time + total_exec_time) / calls AS average_time,
+              #{sort == "average_time" ? "(total_plan_time + total_exec_time) / calls AS average_time," : ""}
               calls
             FROM
               pg_stat_statements
@@ -248,7 +248,7 @@ module PgHero
               pghero_query_stats.user AS user,
               array_agg(LEFT(query, 10000) ORDER BY REPLACE(LEFT(query, 1000), '?', '!') COLLATE "C" ASC) AS query,
               SUM(total_time) / 1000 / 60 AS total_minutes,
-              SUM(total_time) / SUM(calls) AS average_time,
+              #{sort == "average_time" ? "SUM(total_time) / SUM(calls) AS average_time," : ""}
               SUM(calls) AS calls
             FROM
               pghero_query_stats
