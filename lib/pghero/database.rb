@@ -137,7 +137,7 @@ module PgHero
 
       # resolve spec
       if !url && config["spec"]
-        config_options = {env_name: PgHero.env, PgHero.spec_name_key => config["spec"], PgHero.include_replicas_key => true}
+        config_options = {env_name: PgHero.env, name: config["spec"], include_hidden: true}
         resolved = ActiveRecord::Base.configurations.configs_for(**config_options)
         raise Error, "Spec not found: #{config["spec"]}" unless resolved
         url = resolved.configuration_hash

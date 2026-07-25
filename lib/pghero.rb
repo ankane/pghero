@@ -144,8 +144,8 @@ module PgHero
       databases = {}
 
       unless ENV["PGHERO_DATABASE_URL"]
-        ActiveRecord::Base.configurations.configs_for(env_name: env, include_replicas_key => true).each do |db|
-          databases[db.send(spec_name_key)] = {"spec" => db.send(spec_name_key)}
+        ActiveRecord::Base.configurations.configs_for(env_name: env, include_hidden: true).each do |db|
+          databases[db.name] = {"spec" => db.name}
         end
       end
 
@@ -238,16 +238,6 @@ module PgHero
     # private
     def connection_config(model)
       model.connection_db_config.configuration_hash
-    end
-
-    # private
-    def spec_name_key
-      :name
-    end
-
-    # private
-    def include_replicas_key
-      :include_hidden
     end
 
     private
