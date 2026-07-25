@@ -132,10 +132,10 @@ module PgHero
       end
 
       def capture_query_stats(raise_errors: false)
-        now = Time.now
+        captured_at = Time.now
         db_query_stats = query_stats(limit: 100)
         if db_query_stats.any? && reset_query_stats(raise_errors: raise_errors)
-          insert_query_stats(db_query_stats, now)
+          insert_query_stats(db_query_stats, captured_at)
         end
       end
 
