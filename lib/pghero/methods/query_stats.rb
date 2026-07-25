@@ -268,11 +268,10 @@ module PgHero
               pghero_query_stats
             WHERE
               database = :id
-              AND query_hash IS NOT NULL
               #{start_at ? "AND captured_at >= :start_at" : ""}
               #{end_at ? "AND captured_at <= :end_at" : ""}
               #{user ? "AND \"user\" = :user" : ""}
-              #{query_hash ? "AND query_hash = :query_hash" : ""}
+              #{query_hash ? "AND query_hash = :query_hash" : "AND query_hash IS NOT NULL"}
             GROUP BY
               1, 2
           )
