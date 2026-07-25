@@ -100,8 +100,7 @@ module PgHero
         end
 
         # for situations 1 and 2
-        # Google::Cloud::Monitoring.metric_service is documented
-        # but doesn't work for situation 1
+        # Google::Cloud::Monitoring.metric_service doesn't work for situation 1
         if defined?(Google::Cloud::Monitoring::V3::MetricService::Client)
           client = Google::Cloud::Monitoring::V3::MetricService::Client.new
 
