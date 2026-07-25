@@ -1,7 +1,9 @@
 module PgHero
   module Methods
     module QueryStats
-      def query_stats(current: true, historical: false, sort: nil, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, limit: nil, query_hash: nil)
+      def query_stats(current: true, historical: false, limit: nil, sort: nil, start_at: nil, end_at: nil, min_average_time: nil, min_calls: nil, query_hash: nil)
+        limit ||= 100
+
         sort ||= "total_minutes"
         unless ["total_minutes", "average_time", "calls"].include?(sort)
           raise ArgumentError, "Invalid sort"
@@ -11,13 +13,12 @@ module PgHero
           if !current || (historical && end_at && end_at < Time.now)
             []
           else
-            current_query_stats(sort: sort, limit: limit, query_hash: query_hash)
+            current_query_stats(limit: limit, sort: sort, query_hash: query_hash)
           end
 
         historical_query_stats =
           if historical && historical_query_stats_enabled?
-            raise ArgumentError, "Limit not supported for historical query stats" if limit
-            historical_query_stats(sort: sort, start_at: start_at, end_at: end_at, query_hash: query_hash)
+            historical_query_stats(limit: limit, sort: sort, start_at: start_at, end_at: end_at, query_hash: query_hash)
           else
             []
           end
@@ -35,7 +36,7 @@ module PgHero
           query[:total_percent] = query[:total_minutes] * 100.0 / all_queries_total_minutes
         end
 
-        query_stats = query_stats.sort_by { |q| -q[sort.to_sym] }.first(100)
+        query_stats = query_stats.sort_by { |q| -q[sort.to_sym] }.first(limit)
         if min_average_time
           query_stats.reject! { |q| q[:average_time] < min_average_time }
         end
@@ -121,7 +122,7 @@ module PgHero
 
       def capture_query_stats(raise_errors: false)
         now = Time.now
-        db_query_stats = query_stats(limit: 1000000)
+        db_query_stats = query_stats(limit: 100)
         if db_query_stats.any? && reset_query_stats(raise_errors: raise_errors)
           insert_query_stats(db_query_stats, now)
         end
@@ -236,11 +237,12 @@ module PgHero
         select_all(query, binds, query_columns: [:query])
       end
 
-      def historical_query_stats(sort: nil, start_at: nil, end_at: nil, query_hash: nil)
+      def historical_query_stats(limit: nil, sort: nil, start_at: nil, end_at: nil, query_hash: nil)
         if !historical_query_stats_enabled?
           raise NotEnabled, "Historical query stats not enabled"
         end
 
+        limit ||= 100
         sort ||= "total_minutes"
         query = <<~SQL
           WITH query_stats AS (
@@ -273,10 +275,10 @@ module PgHero
             query_stats
           ORDER BY
             #{quote_column_name(sort)} DESC
-          LIMIT 100
+          LIMIT :limit
         SQL
 
-        binds = {id: id}
+        binds = {id: id, limit: limit.to_i}
         binds[:start_at] = start_at if start_at
         binds[:end_at] = end_at if end_at
         binds[:query_hash] = query_hash if query_hash
