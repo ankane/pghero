@@ -136,140 +136,140 @@ module PgHero
       end
 
       def query_hash_stats(query_hash, user: nil, current: true)
-        if historical_query_stats_enabled?
-          start_at = 24.hours.ago
-          stats = select_all_stats <<~SQL
-            SELECT
-              captured_at,
-              total_time / 1000 / 60 AS total_minutes,
-              calls,
-              (SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin
-            FROM
-              pghero_query_stats
-            WHERE
-              database = #{quote(id)}
-              AND captured_at >= #{quote(start_at)}
-              AND query_hash = #{quote(query_hash)}
-              #{user ? "AND \"user\" = #{quote(user)}" : ""}
-            ORDER BY
-              1 ASC
-          SQL
-          if current
-            captured_at = Time.current
-            current_stats = current_query_stats(query_hash: query_hash, user: user, origin: true)
-            current_stats.each do |r|
-              stats << {
-                captured_at: captured_at,
-                total_minutes: r[:total_minutes],
-                calls: r[:calls],
-                origin: r[:origin]
-              }
-            end
-          end
-          stats.each do |query|
-            query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
-          end
-          stats
-        else
+        if !historical_query_stats_enabled?
           raise NotEnabled, "Query hash stats not enabled"
         end
+
+        start_at = 24.hours.ago
+        stats = select_all_stats <<~SQL
+          SELECT
+            captured_at,
+            total_time / 1000 / 60 AS total_minutes,
+            calls,
+            (SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin
+          FROM
+            pghero_query_stats
+          WHERE
+            database = #{quote(id)}
+            AND captured_at >= #{quote(start_at)}
+            AND query_hash = #{quote(query_hash)}
+            #{user ? "AND \"user\" = #{quote(user)}" : ""}
+          ORDER BY
+            1 ASC
+        SQL
+        if current
+          captured_at = Time.current
+          current_stats = current_query_stats(query_hash: query_hash, user: user, origin: true)
+          current_stats.each do |r|
+            stats << {
+              captured_at: captured_at,
+              total_minutes: r[:total_minutes],
+              calls: r[:calls],
+              origin: r[:origin]
+            }
+          end
+        end
+        stats.each do |query|
+          query[:average_time] = query[:total_minutes] * 1000 * 60 / query[:calls]
+        end
+        stats
       end
 
       private
 
       # https://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/
       def current_query_stats(limit: nil, sort: nil, query_hash: nil, user: nil, origin: false)
-        if query_stats_enabled?
-          limit ||= 100
-          sort ||= "total_minutes"
-          query = <<~SQL
-            WITH query_stats AS (
-              SELECT
-                LEFT(query, 10000) AS query,
-                queryid AS query_hash,
-                rolname AS user,
-                ((total_plan_time + total_exec_time) / 1000 / 60) AS total_minutes,
-                ((total_plan_time + total_exec_time) / calls) AS average_time,
-                calls
-              FROM
-                pg_stat_statements
-              INNER JOIN
-                pg_database ON pg_database.oid = pg_stat_statements.dbid
-              INNER JOIN
-                pg_roles ON pg_roles.oid = pg_stat_statements.userid
-              WHERE
-                calls > 0 AND
-                pg_database.datname = current_database()
-                #{query_hash ? "AND queryid = #{quote(query_hash)}" : nil}
-                #{user ? "AND rolname = #{quote(user)}" : nil}
-            )
-            SELECT
-              query,
-              #{origin ? "(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," : nil}
-              query_hash,
-              query_stats.user,
-              total_minutes,
-              calls,
-              (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
-            FROM
-              query_stats
-            ORDER BY
-              #{quote_column_name(sort)} DESC
-            LIMIT #{quote(limit.to_i)}
-          SQL
-
-          # we may be able to skip query_columns
-          # in more recent versions of Postgres
-          # as pg_stat_statements should be already normalized
-          select_all(query, query_columns: [:query])
-        else
+        if !query_stats_enabled?
           raise NotEnabled, "Query stats not enabled"
         end
+
+        limit ||= 100
+        sort ||= "total_minutes"
+        query = <<~SQL
+          WITH query_stats AS (
+            SELECT
+              LEFT(query, 10000) AS query,
+              queryid AS query_hash,
+              rolname AS user,
+              ((total_plan_time + total_exec_time) / 1000 / 60) AS total_minutes,
+              ((total_plan_time + total_exec_time) / calls) AS average_time,
+              calls
+            FROM
+              pg_stat_statements
+            INNER JOIN
+              pg_database ON pg_database.oid = pg_stat_statements.dbid
+            INNER JOIN
+              pg_roles ON pg_roles.oid = pg_stat_statements.userid
+            WHERE
+              calls > 0 AND
+              pg_database.datname = current_database()
+              #{query_hash ? "AND queryid = #{quote(query_hash)}" : nil}
+              #{user ? "AND rolname = #{quote(user)}" : nil}
+          )
+          SELECT
+            query,
+            #{origin ? "(SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin," : nil}
+            query_hash,
+            query_stats.user,
+            total_minutes,
+            calls,
+            (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+          FROM
+            query_stats
+          ORDER BY
+            #{quote_column_name(sort)} DESC
+          LIMIT #{quote(limit.to_i)}
+        SQL
+
+        # we may be able to skip query_columns
+        # in more recent versions of Postgres
+        # as pg_stat_statements should be already normalized
+        select_all(query, query_columns: [:query])
       end
 
       def historical_query_stats(sort: nil, start_at: nil, end_at: nil, query_hash: nil)
-        if historical_query_stats_enabled?
-          sort ||= "total_minutes"
-          query = <<~SQL
-            WITH query_stats AS (
-              SELECT
-                query_hash,
-                pghero_query_stats.user AS user,
-                array_agg(LEFT(query, 10000) ORDER BY REPLACE(LEFT(query, 1000), '?', '!') COLLATE "C" ASC) AS query,
-                (SUM(total_time) / 1000 / 60) AS total_minutes,
-                (SUM(total_time) / SUM(calls)) AS average_time,
-                SUM(calls) AS calls
-              FROM
-                pghero_query_stats
-              WHERE
-                database = #{quote(id)}
-                AND query_hash IS NOT NULL
-                #{start_at ? "AND captured_at >= #{quote(start_at)}" : ""}
-                #{end_at ? "AND captured_at <= #{quote(end_at)}" : ""}
-                #{query_hash ? "AND query_hash = #{quote(query_hash)}" : ""}
-              GROUP BY
-                1, 2
-            )
-            SELECT
-              query_hash,
-              query_stats.user,
-              query[1] AS query,
-              total_minutes,
-              calls,
-              (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
-            FROM
-              query_stats
-            ORDER BY
-              #{quote_column_name(sort)} DESC
-            LIMIT 100
-          SQL
-
-          # we can skip query_columns if all stored data is normalized
-          # for now, assume it's not
-          select_all_stats(query, query_columns: [:query])
-        else
+        if !historical_query_stats_enabled?
           raise NotEnabled, "Historical query stats not enabled"
         end
+
+        sort ||= "total_minutes"
+        query = <<~SQL
+          WITH query_stats AS (
+            SELECT
+              query_hash,
+              pghero_query_stats.user AS user,
+              array_agg(LEFT(query, 10000) ORDER BY REPLACE(LEFT(query, 1000), '?', '!') COLLATE "C" ASC) AS query,
+              (SUM(total_time) / 1000 / 60) AS total_minutes,
+              (SUM(total_time) / SUM(calls)) AS average_time,
+              SUM(calls) AS calls
+            FROM
+              pghero_query_stats
+            WHERE
+              database = #{quote(id)}
+              AND query_hash IS NOT NULL
+              #{start_at ? "AND captured_at >= #{quote(start_at)}" : ""}
+              #{end_at ? "AND captured_at <= #{quote(end_at)}" : ""}
+              #{query_hash ? "AND query_hash = #{quote(query_hash)}" : ""}
+            GROUP BY
+              1, 2
+          )
+          SELECT
+            query_hash,
+            query_stats.user,
+            query[1] AS query,
+            total_minutes,
+            calls,
+            (SELECT SUM(total_minutes) FROM query_stats) AS all_queries_total_minutes
+          FROM
+            query_stats
+          ORDER BY
+            #{quote_column_name(sort)} DESC
+          LIMIT 100
+        SQL
+
+        # we can skip query_columns if all stored data is normalized
+        # for now, assume it's not
+        select_all_stats(query, query_columns: [:query])
       end
 
       def combine_query_stats(grouped_stats)
