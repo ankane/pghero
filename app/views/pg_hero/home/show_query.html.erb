@@ -46,16 +46,16 @@
 
   <!-- chart -->
   <% if @chart_data %>
-    <h1>Total Time <small>ms</small></h1>
+    <h1>Total Time</h1>
     <div id="chart-1" class="chart">Loading...</div>
     <%= javascript_tag nonce: true do %>
-      new Chartkick.LineChart("chart-1", <%= pghero_js_value(@chart_data) %>, {colors: ["#5bc0de"], legend: false, library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
+      new Chartkick.LineChart("chart-1", <%= pghero_js_value(@chart_data) %>, {colors: ["#5bc0de"], legend: false, suffix: " ms", library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
     <% end %>
 
-    <h1>Average Time <small>ms</small></h1>
+    <h1>Average Time</h1>
     <div id="chart-2" class="chart">Loading...</div>
     <%= javascript_tag nonce: true do %>
-      new Chartkick.LineChart("chart-2", <%= pghero_js_value(@chart2_data) %>, {colors: ["#5bc0de"], legend: false, library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
+      new Chartkick.LineChart("chart-2", <%= pghero_js_value(@chart2_data) %>, {colors: ["#5bc0de"], legend: false, suffix: " ms", library: {plugins: {tooltip: {intersect: false, mode: "index"}}}})
     <% end %>
 
     <h1>Calls</h1>

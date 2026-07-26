@@ -119,7 +119,7 @@ module PgHero
       @relation = params[:relation]
       @title = @relation
       relation_space_stats = @database.relation_space_stats(@relation, schema: @schema)
-      @chart_data = [{name: "Value", data: relation_space_stats.map { |r| [r[:captured_at].change(sec: 0), r[:size_bytes].to_i] }, library: chart_library_options}]
+      @chart_data = [{name: "Size", data: relation_space_stats.map { |r| [r[:captured_at].change(sec: 0), r[:size_bytes].to_i] }, library: chart_library_options}]
     end
 
     def index_bloat
@@ -193,9 +193,9 @@ module PgHero
         if @show_details
           query_hash_stats = @database.query_hash_stats(@query_hash, user: @user)
 
-          @chart_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:total_time].round] }, library: chart_library_options}]
-          @chart2_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:average_time].round(1)] }, library: chart_library_options}]
-          @chart3_data = [{name: "Value", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:calls]] }, library: chart_library_options}]
+          @chart_data = [{name: "Total Time", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:total_time].round] }, library: chart_library_options}]
+          @chart2_data = [{name: "Average Time", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:average_time].round(1)] }, library: chart_library_options}]
+          @chart3_data = [{name: "Calls", data: query_hash_stats.map { |r| [r[:captured_at].change(sec: 0), r[:calls]] }, library: chart_library_options}]
 
           @origins = query_hash_stats.group_by { |r| r[:origin].to_s }.to_h { |k, v| [k, v.size] }
           @total_count = query_hash_stats.size
