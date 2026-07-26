@@ -118,8 +118,6 @@ function initSlider() {
       params.debug = debug;
     }
 
-    const path = queriesPath(params);
-
     const showAll = document.getElementById("show-all");
     if (showAll) {
       const showAllParams = Object.assign({}, params);
@@ -134,6 +132,7 @@ function initSlider() {
 
     const queries = document.getElementById("queries");
     queries.innerHTML = '<tr><td colspan="3"><p class="queries-info text-muted">...</p></td></tr>';
+    const path = queriesPath(params);
     fetch(path, {headers: {"X-Requested-With": "XMLHttpRequest"}})
       .then(function (response) {
         if (!response.ok) {
