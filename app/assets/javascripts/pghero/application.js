@@ -128,23 +128,8 @@ function initSlider() {
     }
 
     document.querySelectorAll(".queries-table th a").forEach(function (link) {
-      const p = Object.assign({}, params, {sort: link.getAttribute("data-sort"), min_average_time: minAverageTime, min_calls: minCalls, user: user, debug: debug});
-      if (!p.sort) {
-        delete p.sort;
-      }
-      if (!p.min_average_time) {
-        delete p.min_average_time;
-      }
-      if (!p.min_calls) {
-        delete p.min_calls;
-      }
-      if (!p.user) {
-        delete p.user;
-      }
-      if (!p.debug) {
-        delete p.debug;
-      }
-      link.setAttribute("href", queriesPath(p));
+      const linkParams = Object.assign({}, params, {sort: link.getAttribute("data-sort")});
+      link.setAttribute("href", queriesPath(linkParams));
     });
 
     const queries = document.getElementById("queries");
