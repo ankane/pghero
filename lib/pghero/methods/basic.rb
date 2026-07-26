@@ -36,14 +36,20 @@ module PgHero
 
       private
 
-      def select_all(sql, binds = nil, stats: false, query_columns: [])
-        sql = add_source(sql.to_str.squish)
+      def prepare_sql(sql, binds = nil, stats: false)
+        sql += " /*pghero*/"
         if binds && !binds.empty?
           model = stats ? PgHero::Stats : connection_model
           sql = model.sanitize_sql_array([sql, binds])
         end
 
         with_connection(stats: stats) do |conn|
+          yield conn, sql
+        end
+      end
+
+      def select_all(sql, binds = nil, stats: false, query_columns: [])
+        prepare_sql(sql.to_str.squish, binds, stats: stats) do |conn, sql|
           select_all_leased(sql, conn: conn, query_columns: query_columns)
         end
       end
@@ -108,11 +114,9 @@ module PgHero
       end
 
       def execute(sql, binds = nil)
-        if binds && !binds.empty?
-          sql = connection_model.sanitize_sql_array([sql, binds])
+        prepare_sql(sql, binds) do |conn, sql|
+          conn.execute(sql)
         end
-
-        with_connection { |c| c.execute(add_source(sql)) }
       end
 
       def with_connection(stats: false, &block)
