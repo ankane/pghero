@@ -144,7 +144,7 @@ module PgHero
       @min_average_time = params[:min_average_time] ? params[:min_average_time].to_i : nil
       @min_calls = params[:min_calls] ? params[:min_calls].to_i : nil
       @user = params[:user] ? params[:user].to_s : nil
-      @link_user = true
+      @link_user = !@user
 
       if @historical_query_stats_enabled
         begin
