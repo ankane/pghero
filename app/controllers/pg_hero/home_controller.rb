@@ -183,11 +183,11 @@ module PgHero
     def show_query
       @query_hash = params[:query_hash].to_i
       @user = params[:user].to_s
-      @title = @query_hash
 
       stats = @database.query_stats(historical: true, user: @user, query_hash: @query_hash, start_at: 24.hours.ago).first
       if stats
         @query = stats[:query]
+        @title = @query.truncate(70)
         @explainable_query = stats[:query] if @database.send(:explainable?, stats[:query])
 
         if @show_details
