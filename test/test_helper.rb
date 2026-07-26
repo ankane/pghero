@@ -36,6 +36,8 @@ class Minitest::Test
   def with_running_query(query)
     # TODO manually checkout connection if needed
     t = Thread.new { ActiveRecord::Base.connection.execute(query) }
+    # TODO ensure query started
+    sleep(0.01)
     yield
     t.join
   end
