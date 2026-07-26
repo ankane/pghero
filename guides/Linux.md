@@ -237,17 +237,6 @@ cat pghero.yml | sudo pghero run sh -c "cat > config/pghero.yml"
 sudo service pghero restart
 ```
 
-With Postgres < 12, if multiple databases are in the same instance and use historical query stats, PgHero should be configured to capture them together.
-
-```yml
-databases:
-  primary:
-    url: ...
-  other:
-    url: ...
-    capture_query_stats: primary
-```
-
 ## Permissions
 
 We recommend [setting up a dedicated user](Permissions.md) for PgHero.
