@@ -2,9 +2,9 @@
   <% unless local_assigns[:xhr] %>
     <thead>
       <tr>
-        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Total Time", {sort: nil}, data: {sort: nil}) : "Total Time" %></th>
-        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Average Time", {sort: "average_time"}, data: {sort: "average_time"}) : "Average Time" %></th>
-        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Calls", {sort: "calls"}, data: {sort: "calls"}) : "Calls" %></th>
+        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Total Time", {sort: nil, user: @user}, data: {sort: nil}) : "Total Time" %></th>
+        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Average Time", {sort: "average_time", user: @user}, data: {sort: "average_time"}) : "Average Time" %></th>
+        <th class="width-33"><%= local_assigns[:sort_headers] ? link_to("Calls", {sort: "calls", user: @user}, data: {sort: "calls"}) : "Calls" %></th>
       </tr>
     </thead>
   <% end %>
@@ -45,7 +45,7 @@
 
           <span class="user">
             <% if query[:user] %>
-              <%= query[:user] %>
+              <%= @link_user ? link_to(query[:user], {user: query[:user], sort: @sort}) : query[:user] %>
               <% if @show_details %>
                 &middot;
               <% end %>

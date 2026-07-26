@@ -84,7 +84,7 @@ function initSlider() {
 
   function queriesPath(params) {
     let path = "queries";
-    if (params.start_at || params.end_at || params.sort || params.min_average_time || params.min_calls || params.debug) {
+    if (params.start_at || params.end_at || params.sort || params.min_average_time || params.min_calls || params.user || params.debug) {
       path += "?" + (new URLSearchParams(params)).toString();
     }
     return path;
@@ -111,6 +111,9 @@ function initSlider() {
     if (minCalls) {
       params.min_calls = minCalls;
     }
+    if (user) {
+      params.user = user;
+    }
     if (debug) {
       params.debug = debug;
     }
@@ -118,7 +121,7 @@ function initSlider() {
     const path = queriesPath(params);
 
     document.querySelectorAll(".queries-table th a").forEach(function (link) {
-      const p = Object.assign({}, params, {sort: link.getAttribute("data-sort"), min_average_time: minAverageTime, min_calls: minCalls, debug: debug});
+      const p = Object.assign({}, params, {sort: link.getAttribute("data-sort"), min_average_time: minAverageTime, min_calls: minCalls, user: user, debug: debug});
       if (!p.sort) {
         delete p.sort;
       }
@@ -127,6 +130,9 @@ function initSlider() {
       }
       if (!p.min_calls) {
         delete p.min_calls;
+      }
+      if (!p.user) {
+        delete p.user;
       }
       if (!p.debug) {
         delete p.debug;

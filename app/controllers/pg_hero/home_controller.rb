@@ -143,6 +143,8 @@ module PgHero
       @sort = %w(average_time calls).include?(params[:sort]) ? params[:sort] : nil
       @min_average_time = params[:min_average_time] ? params[:min_average_time].to_i : nil
       @min_calls = params[:min_calls] ? params[:min_calls].to_i : nil
+      @user = params[:user] ? params[:user].to_s : nil
+      @link_user = true
 
       if @historical_query_stats_enabled
         begin
@@ -166,6 +168,11 @@ module PgHero
             min_calls: @min_calls
           )
         end
+
+      if @user
+        # filter in Ruby for accurate percent of total time
+        @query_stats = @query_stats.select { |v| v[:user] == @user }
+      end
 
       if !@historical_query_stats_enabled || request.xhr?
         set_suggested_indexes

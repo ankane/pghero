@@ -22,6 +22,11 @@
     <% if @error %>
       <div class="alert alert-danger">Cannot understand start or end time.</div>
     <% elsif @query_stats.any? || @historical_query_stats_enabled %>
+      <% if @user %>
+        <div class="clear-both">
+          <p>Showing queries for <code><%= @user %></code> user. <%= link_to "Show all", {sort: @sort} %></p>
+        </div>
+      <% end %>
       <%= render partial: "queries_table", locals: {queries: @query_stats, sort_headers: true} %>
       <%= javascript_tag nonce: true do %>
         highlightQueries();
