@@ -39,6 +39,7 @@ class Minitest::Test
     # TODO ensure query started
     sleep(0.05)
     yield
+    # TODO cancel query instead of waiting
     t.join
   end
 
