@@ -124,10 +124,6 @@ module PgHero
         model.connection_pool.with_connection(&block)
       end
 
-      def add_source(sql)
-        "#{sql} /*pghero*/"
-      end
-
       def quote_table_name(value)
         with_connection { |c| c.quote_table_name(value) }
       end
