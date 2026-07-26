@@ -49,13 +49,13 @@ module PgHero
       end
 
       def select_all(sql, binds = nil, stats: false, query_columns: [])
+        # squish for logs
         prepare_sql(sql.to_str.squish, binds, stats: stats) do |conn, sql|
           select_all_leased(sql, conn: conn, query_columns: query_columns)
         end
       end
 
       def select_all_leased(sql, conn:, query_columns:)
-        # squish for logs
         retries = 0
         begin
           result = conn.select_all(sql)
