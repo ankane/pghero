@@ -113,7 +113,8 @@ module PgHero
         end
 
         binds = {user_id: user_id, database_id: database_id, query_id: query_id}
-        select_all("SELECT pg_stat_statements_reset(:user_id, :database_id, :query_id)", binds)
+        # use execute to prevent "unknown OID 2278" warning
+        execute("SELECT pg_stat_statements_reset(:user_id, :database_id, :query_id)", binds)
         true
       rescue ActiveRecord::StatementInvalid => e
         raise e if raise_errors

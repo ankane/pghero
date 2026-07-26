@@ -107,7 +107,11 @@ module PgHero
         select_all(sql, binds).first&.values&.first
       end
 
-      def execute(sql)
+      def execute(sql, binds = nil)
+        if binds && !binds.empty?
+          sql = connection_model.sanitize_sql_array([sql, binds])
+        end
+
         with_connection { |c| c.execute(add_source(sql)) }
       end
 
