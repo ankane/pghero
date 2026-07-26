@@ -155,6 +155,12 @@ module PgHero
         end
       end
 
+      @link_options = {sort: @sort}
+      if @historical_query_stats_enabled
+        @link_options[:start_at] = @start_at.utc.iso8601 if params[:start_at]
+        @link_options[:end_at] = @end_at.utc.iso8601 if params[:end_at]
+      end
+
       @query_stats =
         if @historical_query_stats_enabled && !request.xhr?
           []

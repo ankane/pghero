@@ -45,7 +45,7 @@
 
           <span class="user">
             <% if query[:user] %>
-              <%= @link_user ? link_to(query[:user], {user: query[:user], sort: @sort}) : query[:user] %>
+              <%= @link_user ? link_to(query[:user], {user: query[:user]}.merge(@link_options)) : query[:user] %>
               <% if @show_details %>
                 &middot;
               <% end %>

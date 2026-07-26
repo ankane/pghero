@@ -24,7 +24,7 @@
     <% elsif @query_stats.any? || @historical_query_stats_enabled %>
       <% if @user %>
         <div class="clear-both">
-          <p>Showing queries for <code><%= @user %></code> user. <%= link_to "Show all", {sort: @sort} %></p>
+          <p>Showing queries for <code><%= @user %></code> user. <%= link_to "Show all", @link_options %></p>
         </div>
       <% end %>
       <%= render partial: "queries_table", locals: {queries: @query_stats, sort_headers: true} %>
