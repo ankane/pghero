@@ -6,18 +6,14 @@ class QueriesTest < Minitest::Test
   end
 
   def test_filter_data
-    query = "SELECT pg_sleep(1)"
-    # TODO manually checkout connection if needed
-    t = Thread.new { ActiveRecord::Base.connection.execute(query) }
-    sleep(0.5)
+    with_running_query("SELECT pg_sleep(1)") do
+      sleep(0.5)
+      assert_equal "SELECT pg_sleep(1)", database.running_queries.first[:query]
 
-    assert_equal query, database.running_queries.first[:query]
-
-    with_filter_data do
-      assert_equal "SELECT pg_sleep($1)", database.running_queries.first[:query]
+      with_filter_data do
+        assert_equal "SELECT pg_sleep($1)", database.running_queries.first[:query]
+      end
     end
-
-    t.join
   end
 
   def test_long_running_queries

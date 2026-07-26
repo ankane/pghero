@@ -33,6 +33,13 @@ class Minitest::Test
     with_config({"disable_kill" => true}, &block)
   end
 
+  def with_running_query(query)
+    # TODO manually checkout connection if needed
+    t = Thread.new { ActiveRecord::Base.connection.execute(query) }
+    yield
+    t.join
+  end
+
   def explain_normalized?
     database.server_version_num >= 160000
   end
