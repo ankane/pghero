@@ -618,3 +618,9 @@ a.relation-link {
   color: #f0ad4e;
   background-color: #333;
 }
+
+#copy {
+  float: right;
+  margin-top: 10px;
+  margin-right: 10px;
+}

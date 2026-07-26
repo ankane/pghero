@@ -187,3 +187,24 @@ document.addEventListener("click", function (e) {
     target.style.display = "none";
   }
 });
+
+document.addEventListener("click", function (e) {
+  const target = e.target.closest("#copy");
+  if (target) {
+    const explanation = document.getElementById("explanation").textContent;
+    navigator.clipboard.writeText(explanation).then(function () {
+      const buttonText = target.textContent;
+      target.textContent = "Copied!";
+      setTimeout(function () {
+        target.textContent = buttonText;
+      }, 2000);
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const copyButton = document.getElementById("copy");
+  if (copyButton && navigator.clipboard) {
+    copyButton.classList.remove("hide");
+  }
+});

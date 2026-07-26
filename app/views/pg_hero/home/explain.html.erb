@@ -15,8 +15,9 @@
   <% if @explanation %>
     <% if @visualize %>
       <p>Paste the output below into the <%= link_to "explain visualizer", PgHero.visualize_url, target: "_blank" %></p>
+      <button id="copy" class="btn btn-info hide">Copy</button>
     <% end %>
-    <pre><code><%= @explanation %></code></pre>
+    <pre><code id="explanation"><%= @explanation %></code></pre>
     <% unless @visualize %>
       <p><%= link_to "See how to interpret this", "https://www.postgresql.org/docs/current/static/using-explain.html", target: "_blank" %></p>
     <% end %>
