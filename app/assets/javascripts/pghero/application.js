@@ -120,6 +120,13 @@ function initSlider() {
 
     const path = queriesPath(params);
 
+    const showAll = document.getElementById("show-all");
+    if (showAll) {
+      const showAllParams = Object.assign({}, params);
+      delete showAllParams.user;
+      showAll.setAttribute("href", queriesPath(showAllParams));
+    }
+
     document.querySelectorAll(".queries-table th a").forEach(function (link) {
       const p = Object.assign({}, params, {sort: link.getAttribute("data-sort"), min_average_time: minAverageTime, min_calls: minCalls, user: user, debug: debug});
       if (!p.sort) {
