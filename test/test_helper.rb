@@ -33,6 +33,18 @@ class Minitest::Test
     with_config({"disable_kill" => true}, &block)
   end
 
+  def with_filter_data
+    previous_value = PgHero.filter_data
+    begin
+      PgHero.filter_data = true
+      database.remove_instance_variable(:@filter_data)
+      yield
+    ensure
+      PgHero.filter_data = previous_value
+      database.remove_instance_variable(:@filter_data)
+    end
+  end
+
   def with_running_query(query)
     # TODO manually checkout connection if needed
     t = Thread.new { ActiveRecord::Base.connection.execute(query) }

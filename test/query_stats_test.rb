@@ -123,4 +123,16 @@ class QueryStatsTest < Minitest::Test
     assert_equal 1, database.query_hash_stats(qs.query_hash, current: false).size
     assert_equal ["hello", "world"], database.query_hash_stats(qs.query_hash).map { |v| v[:origin] }.sort
   end
+
+  def test_filter_data
+    PgHero::QueryStats.delete_all
+    database.reset_query_stats
+    ActiveRecord::Base.connection.select_all("SELECT 1")
+    assert database.capture_query_stats
+    ActiveRecord::Base.connection.select_all("SELECT 1")
+    with_filter_data do
+      qs = database.query_stats(historical: true).find { |v| v[:query] == "SELECT $1" }
+      assert_equal 2, qs[:calls]
+    end
+  end
 end

@@ -22,16 +22,4 @@ class QueriesTest < Minitest::Test
   def test_blocked_queries
     assert database.blocked_queries
   end
-
-  def with_filter_data
-    previous_value = PgHero.filter_data
-    begin
-      PgHero.filter_data = true
-      database.remove_instance_variable(:@filter_data)
-      yield
-    ensure
-      PgHero.filter_data = previous_value
-      database.remove_instance_variable(:@filter_data)
-    end
-  end
 end
