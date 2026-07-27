@@ -37,7 +37,6 @@ module PgHero
       private
 
       def prepare_sql(sql, binds = nil, stats: false)
-        sql += " /*pghero*/"
         if binds && !binds.empty?
           model = stats ? PgHero::Stats : connection_model
           sql = model.sanitize_sql_array([sql, binds])
