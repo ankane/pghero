@@ -104,7 +104,7 @@ module PgHero
         # get stats about columns for relevant tables
         tables = parts.values.filter_map { |t| t[:table] }.uniq
         # TODO get schema from query structure, then try search path
-        schema = PgHero.connection_config(connection_model)[:schema] || "public"
+        schema = connection_model.connection_db_config.configuration_hash[:schema] || "public"
         if tables.any?
           row_stats = table_stats(table: tables, schema: schema).to_h { |i| [i[:table], i[:estimated_rows]] }
           col_stats = column_stats(table: tables, schema: schema).group_by { |i| i[:table] }

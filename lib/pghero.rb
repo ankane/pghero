@@ -238,11 +238,6 @@ module PgHero
       end
     end
 
-    # private
-    def connection_config(model)
-      model.connection_db_config.configuration_hash
-    end
-
     private
 
     def each_database
