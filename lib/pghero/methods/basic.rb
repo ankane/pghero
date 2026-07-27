@@ -67,7 +67,7 @@ module PgHero
             query_columns.each do |column|
               result.each do |row|
                 begin
-                  row[column] = PgQuery.normalize(row[column])
+                  row[column] = PgQuery.normalize(row[column]) unless row[column].nil?
                 rescue PgQuery::ParseError
                   # try replacing "interval $1" with "$1::interval"
                   # see https://github.com/lfittl/pg_query/issues/169 for more info
