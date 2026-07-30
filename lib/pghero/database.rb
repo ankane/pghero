@@ -62,7 +62,7 @@ module PgHero
     end
 
     def unused_index_bytes
-      (config["unused_index_bytes"] || PgHero.config["unused_index_bytes"] || 10.megabytes).to_i
+      ((config["unused_index_megabytes"] || PgHero.config["unused_index_megabytes"] || 10).to_f * 1.megabyte).to_i
     end
 
     def index_bloat_bytes

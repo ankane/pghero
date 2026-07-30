@@ -23,6 +23,9 @@ databases:
 # Minimum connections for high connections warning
 # total_connections_threshold: 500
 
+# Minimum size for unused indexes
+# unused_index_megabytes: 10
+
 # Explain functionality
 # explain: true / false / analyze
 
