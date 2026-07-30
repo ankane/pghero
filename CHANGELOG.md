@@ -1,6 +1,8 @@
 ## 4.0.0 (unreleased)
 
-- Added option to disable killing queries and connections
+- Added `disable_kill` option to disable killing queries and connections
+- Added `unused_index_megabytes` option to set minimum size for unused indexes
+- Added copy button to explain visualize page
 - Fixed error with unlogged sequences on replicas
 - Removed `reset_instance_query_stats` method (use `reset_query_stats` instead)
 - Removed `create_user` and `drop_user` methods
