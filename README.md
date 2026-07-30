@@ -12,12 +12,11 @@ A performance dashboard for Postgres
 
 ## Documentation
 
-PgHero is available as a Docker image, Linux package, and Rails engine.
+PgHero is available as a Docker image and Rails engine.
 
 Select your preferred method of installation to get started.
 
 - [Docker](guides/Docker.md)
-- [Linux](guides/Linux.md)
 - [Rails](guides/Rails.md)
 
 ## Related Projects

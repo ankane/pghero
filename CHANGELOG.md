@@ -9,7 +9,7 @@
 - Dropped support for Sprockets < 4
 - Dropped support for google-cloud-monitoring < 1
 - Dropped support for system stats for Azure Database (Ruby SDK no longer supported)
-- Dropped support for Linux package for Debian 11
+- Dropped support for Linux packages
 
 ## 3.8.0 (2026-04-15)
 
