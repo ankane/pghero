@@ -4,11 +4,11 @@
 //= require ./highlight.min
 
 function highlightQueries() {
-  document.querySelectorAll("code.language-pgsql").forEach(function (block, i) {
+  for (const block of document.querySelectorAll("code.language-pgsql")) {
     if (!block.dataset.highlighted) {
       hljs.highlightElement(block);
     }
-  });
+  }
 }
 
 function initSlider() {
@@ -124,10 +124,10 @@ function initSlider() {
       showAll.setAttribute("href", queriesPath(showAllParams));
     }
 
-    document.querySelectorAll(".queries-table th a").forEach(function (link) {
+    for (const link of document.querySelectorAll(".queries-table th a")) {
       const linkParams = Object.assign({}, params, {sort: link.getAttribute("data-sort")});
       link.setAttribute("href", queriesPath(linkParams));
-    });
+    }
 
     const queries = document.getElementById("queries");
     queries.innerHTML = '<tr><td colspan="3"><p class="queries-info text-muted">...</p></td></tr>';
