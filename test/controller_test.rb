@@ -28,11 +28,13 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "UNUSED", response.body
     assert_match "No unused indexes", response.body
+  end
 
-    with_config({"unused_index_bytes" => 0}) do
+  def test_space_unused_index_megabytes
+    with_config({"unused_index_megabytes" => 0}) do
       get pg_hero.space_path
       assert_response :success
-      assert_match "unused indexes", response.body
+      assert_match "unused indexes. Remove them", response.body
     end
   end
 
@@ -211,7 +213,9 @@ class ControllerTest < ActionDispatch::IntegrationTest
     get pg_hero.connections_path
     assert_response :success
     refute_match "By Security", response.body
+  end
 
+  def test_connections_security
     get pg_hero.connections_path(security: true)
     assert_response :success
     assert_match "By Security", response.body
@@ -223,7 +227,9 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_match "Last Vacuum", response.body
     assert_match "Last Analyze", response.body
     refute_match "Dead Rows", response.body
+  end
 
+  def test_maintenance_dead_rows
     get pg_hero.maintenance_path(dead_rows: true)
     assert_response :success
     assert_match "Dead Rows", response.body
