@@ -2,10 +2,10 @@
   <% unless @debug %>
     <div class="show-details">Details</div>
   <% end %>
-  <code><pre class="create-index">CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)</pre></code>
+  <pre class="create-index"><code>CREATE INDEX CONCURRENTLY ON <%= index[:table] %><% if index[:using] %> USING <%= index[:using] %><% end %> (<%= index[:columns].join(", ") %>)</code></pre>
 <% end %>
 <div class="details<%= " hide" unless @debug %>">
-  <code><pre><% if details[:explanation] %><%= details[:explanation] %>
+  <pre><% if details[:explanation] %><%= details[:explanation] %>
 <% end %><% if details[:row_estimates] %>Rows: <%= details[:rows] %>
 <% if details[:row_progression] %>Row progression: <%= details[:row_progression].to_a.join(", ") %>
 <% end %>
@@ -15,5 +15,5 @@ Row estimates
 
 Existing indexes
 <% details[:table_indexes].sort_by { |i| [i[:primary] ? 0 : 1, i[:columns]] }.each do |i3| %>- <%= i3[:columns].join(", ") %><% if i3[:using] != "btree" %> <%= i3[:using].to_s.upcase %><% end %><% if i3[:primary] %> PRIMARY<% elsif i3[:unique] %> UNIQUE<% end %>
-<% end %><% end %></pre></code>
+<% end %><% end %></pre>
 </div>
