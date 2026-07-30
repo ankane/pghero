@@ -197,6 +197,14 @@ class ControllerTest < ActionDispatch::IntegrationTest
   def test_tune
     get pg_hero.tune_path
     assert_response :success
+    assert_match "shared_buffers", response.body
+    refute_match "autovacuum", response.body
+  end
+
+  def test_tune_autovacuum
+    get pg_hero.tune_path(autovacuum: true)
+    assert_response :success
+    assert_match "autovacuum", response.body
   end
 
   def test_connections
