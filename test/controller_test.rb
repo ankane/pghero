@@ -6,17 +6,28 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "long running queries", response.body
     refute_match "hit rate", response.body
+  end
 
+  def test_index_extended
     get pg_hero.root_path(extended: true)
     assert_response :success
     assert_match "hit rate", response.body
+    assert_match "unused indexes", response.body
+  end
+
+  def test_index_connections
+    with_config({"total_connections_threshold" => 1}) do
+      get pg_hero.root_path
+    end
+    assert_response :success
+    assert_match "High number of connections", response.body
   end
 
   def test_space
     get pg_hero.space_path
     assert_response :success
     assert_match "UNUSED", response.body
-    refute_match "unused indexes", response.body
+    assert_match "No unused indexes", response.body
 
     with_config({"unused_index_bytes" => 0}) do
       get pg_hero.space_path
