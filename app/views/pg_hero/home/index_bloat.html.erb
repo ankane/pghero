@@ -6,7 +6,7 @@
     <p>Indexes can become <%= link_to "bloated over time", "https://www.compose.com/articles/postgresql-bloat-origins-monitoring-and-managing/", target: "_blank" %>. Recreate them to remove bloat.</p>
 
     <p>For each index, run:</p>
-    <pre><code>CREATE INDEX CONCURRENTLY new_index ...;
+    <pre><code class="language-pgsql">CREATE INDEX CONCURRENTLY new_index ...;
 ANALYZE table;
 DROP INDEX CONCURRENTLY index;
 ANALYZE table;
@@ -45,7 +45,7 @@ ALTER INDEX new_index RENAME TO index;</code></pre>
             <tr>
               <td colspan="3" class="query-row">
                 <% new_index = "new_#{index[:index]}".first(63) %>
-                <pre><code><%= index[:definition].sub(" INDEX ", " INDEX CONCURRENTLY \n    ").sub(index[:index], new_index) %>;
+                <pre><code class="language-pgsql"><%= index[:definition].sub(" INDEX ", " INDEX CONCURRENTLY \n    ").sub(index[:index], new_index) %>;
 
 ANALYZE <%= pghero_pretty_ident(index[:table], schema: index[:schema]) %>;
 

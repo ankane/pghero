@@ -58,7 +58,7 @@
       </tr>
       <tr>
         <td colspan="3" class="query-row">
-          <pre><code class="query-code"><%= query[:query] %></code></pre>
+          <pre><code class="query-code language-pgsql"><%= query[:query] %></code></pre>
           <% if query[:query] == "<insufficient privilege>" %>
             <p class="text-muted">For security reasons, only superusers can see queries executed by other users.</p>
           <% end %>

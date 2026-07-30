@@ -4,9 +4,8 @@
 //= require ./highlight.min
 
 function highlightQueries() {
-  document.querySelectorAll("pre code").forEach(function (block, i) {
-    if (!block.classList.contains("language-pgsql")) {
-      block.classList.add("language-pgsql");
+  document.querySelectorAll("code.language-pgsql").forEach(function (block, i) {
+    if (!block.dataset.highlighted) {
       hljs.highlightElement(block);
     }
   });
