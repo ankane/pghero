@@ -35,6 +35,8 @@
       <pre><% @unused_indexes.sort_by { |q| [-q[:size_bytes], q[:index]] }.each do |query| %>
 <%= pghero_remove_index(query) %><% end %></pre>
     </div>
+  <% else %>
+    <p>No unused indexes<%= @database.unused_index_bytes > 0 ? " over #{PgHero.pretty_size(@database.unused_index_bytes)}" : "" %></p>
   <% end %>
 
   <% if @sizes_timeout %>
