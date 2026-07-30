@@ -391,10 +391,9 @@
     </p>
 
     <div class="migration">
-      <pre>rails generate migration remove_unneeded_indexes</pre>
+      <pre><code>rails generate migration remove_unneeded_indexes</code></pre>
       <p>And paste</p>
-      <pre><% @duplicate_indexes.each do |query| %>
-<%= pghero_remove_index(query[:unneeded_index]) %><% end %></pre>
+      <pre><code><%= @duplicate_indexes.map { |q| pghero_remove_index(q[:unneeded_index]) }.join("\n") %></code></pre>
     </div>
 
     <table class="table duplicate-indexes">
@@ -433,15 +432,15 @@
     </p>
 
     <div class="migration">
-      <pre>rails generate migration add_suggested_indexes</pre>
+      <pre><code>rails generate migration add_suggested_indexes</code></pre>
       <p>And paste</p>
-      <pre>commit_db_transaction
+      <pre><code>commit_db_transaction
 <% @suggested_indexes.each do |index| %>
 <% if index[:using] && index[:using] != "btree" %>
 add_index <%= index[:table].to_sym.inspect %>, <%= index[:columns].first.inspect %>, using: <%= index[:using].inspect %>, algorithm: :concurrently
 <% else %>
 add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym).map(&:inspect).join(", ") %>], algorithm: :concurrently<% end %>
-<% end %></pre>
+<% end %></code></pre>
     </div>
 
     <% @suggested_indexes.each_with_index do |index, i| %>
@@ -464,7 +463,7 @@ add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym
       </p>
     <% else %>
       <p>Make them available by adding the following line to <code>postgresql.conf</code>:</p>
-      <pre>shared_preload_libraries = 'pg_stat_statements'</pre>
+      <pre><code>shared_preload_libraries = 'pg_stat_statements'</code></pre>
       <p>Restart the server for the changes to take effect.</p>
     <% end %>
   </div>
@@ -494,10 +493,9 @@ add_index <%= index[:table].to_sym.inspect %>, [<%= index[:columns].map(&:to_sym
     </p>
 
     <div class="migration">
-      <pre>rails generate migration remove_unused_indexes</pre>
+      <pre><code>rails generate migration remove_unused_indexes</code></pre>
       <p>And paste</p>
-      <pre><% @unused_indexes.each do |query| %>
-<%= pghero_remove_index(query)%><% end %></pre>
+      <pre><code><%= @unused_indexes.map { |q| pghero_remove_index(q) }.join("\n") %></code></pre>
     </div>
 
     <table class="table">
