@@ -175,7 +175,7 @@ document.addEventListener("click", function (e) {
 document.addEventListener("click", function (e) {
   const target = e.target.closest(".migration-link");
   if (target) {
-    e.preventDefault()
+    e.preventDefault();
     target.parentElement.nextElementSibling.style.display = "block";
   }
 });
