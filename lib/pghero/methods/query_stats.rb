@@ -36,7 +36,6 @@ module PgHero
 
         query_stats = current_query_stats + historical_query_stats
         query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query_hash], q[:user]] })
-        query_stats = combine_query_stats(query_stats.group_by { |q| [q[:query], q[:user]] })
         query_stats.each do |query|
           query[:average_time] = query[:total_time] / query[:calls]
         end
