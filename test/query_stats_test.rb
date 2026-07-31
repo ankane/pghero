@@ -89,6 +89,7 @@ class QueryStatsTest < Minitest::Test
 
   def test_capture_query_stats
     PgHero::QueryStats.delete_all
+
     refute PgHero::QueryStats.any?
     database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
@@ -113,6 +114,7 @@ class QueryStatsTest < Minitest::Test
 
   def test_query_hash_stats
     PgHero::QueryStats.delete_all
+
     database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1 /*hello*/")
     database.capture_query_stats
@@ -126,6 +128,7 @@ class QueryStatsTest < Minitest::Test
 
   def test_filter_data
     PgHero::QueryStats.delete_all
+
     database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
     assert database.capture_query_stats
@@ -147,9 +150,13 @@ class QueryStatsTest < Minitest::Test
       {database: "replica", user: "test", query: "SELECT $1 /*hello*/", query_hash: 2, total_time: 1000, calls: 1, captured_at: captured_at},
     ])
 
-    assert_output(/Success/) do
-      assert_nil PgHero.backfill_query_stats
+    # ensure safe to run multiple times
+    3.times do
+      assert_output(/Success/) do
+        assert_nil PgHero.backfill_query_stats
+      end
     end
+
     assert_equal 2, PgHero::Query.count
     assert_equal 3, PgHero::QueryStats.count
     assert PgHero::QueryStats.all.all? { |v| v.query.nil? }
