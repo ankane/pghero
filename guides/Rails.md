@@ -266,3 +266,20 @@ If you have multiple databases, specify a database with:
 ```ruby
 PgHero.databases["db2"].running_queries
 ```
+
+## Upgrading
+
+### 4.0
+
+If historical query stats are enabled, run:
+
+```sh
+rails generate pghero:upgrade_query_stats
+rails db:migrate
+```
+
+And backfill with:
+
+```sh
+rails pghero:backfill_query_stats VACUUM=full
+```

@@ -287,6 +287,28 @@ spec:
 
 We recommend [setting up a dedicated user](Permissions.md) for PgHero.
 
+## Upgrading
+
+### 4.0
+
+If historical query stats are enabled, update the schema:
+
+```sql
+CREATE TABLE "pghero_queries" (
+  "id" bigserial primary key,
+  "query" text
+);
+CREATE INDEX ON "pghero_queries" using hash ("query");
+
+ALTER TABLE "pghero_query_stats" ADD COLUMN "query_id" bigint;
+```
+
+And backfill with:
+
+```sh
+docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:backfill_query_stats VACUUM=full
+```
+
 ## Credits
 
 Thanks to [Brian Morton](https://github.com/bmorton) for the [original Docker image](https://github.com/bmorton/pghero_solo).
