@@ -142,15 +142,16 @@ class QueryStatsTest < Minitest::Test
 
     captured_at = Time.now
     PgHero::QueryStats.insert_all!([
-      {database: "primary", user: "test", query: "SELECT $1", total_time: 1, calls: 0, captured_at: captured_at},
-      {database: "replica", user: "test", query: "SELECT $1", total_time: 1, calls: 0, captured_at: captured_at}
+      {database: "primary", user: "test", query: "SELECT $1", query_hash: 1, total_time: 1000, calls: 1, captured_at: captured_at},
+      {database: "replica", user: "test", query: "SELECT $1", query_hash: 2, total_time: 1000, calls: 1, captured_at: captured_at},
+      {database: "replica", user: "test", query: "SELECT $1 /*hello*/", query_hash: 2, total_time: 1000, calls: 1, captured_at: captured_at},
     ])
 
     assert_output(/Success/) do
       assert_nil PgHero.backfill_query_stats
     end
-    assert_equal 1, PgHero::Query.count
-    assert_equal 2, PgHero::QueryStats.count
+    assert_equal 2, PgHero::Query.count
+    assert_equal 3, PgHero::QueryStats.count
     assert PgHero::QueryStats.all.all? { |v| v.query.nil? }
   end
 end
