@@ -152,10 +152,9 @@ class QueryStatsTest < Minitest::Test
 
     # ensure safe to run multiple times
     3.times do
-      assert_output(/Success/) do
-        assert_nil PgHero.backfill_query_stats
-      end
+      assert_nil PgHero.backfill_query_stats
     end
+    assert_nil PgHero.vacuum_query_stats
 
     assert_equal 2, PgHero::Query.count
     assert_equal 3, PgHero::QueryStats.count

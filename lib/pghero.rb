@@ -240,6 +240,7 @@ module PgHero
       end
     end
 
+    # private
     def backfill_query_stats
       queries = PgHero::QueryStats.where.not(query: nil).distinct.pluck(:query)
       queries.each_slice(1000) do |batch|
@@ -257,15 +258,12 @@ module PgHero
         PgHero::QueryStats.upsert_all(values, unique_by: [:id]) if values.any?
       end
 
-      # try to vacuum
-      vacuum_command = "VACUUM (FULL, ANALYZE) pghero_query_stats"
-      vacuumed = PgHero::QueryStats.connection.execute(vacuum_command) rescue false
-      if vacuumed
-        puts "Success!"
-      else
-        puts "Backfill succeeded, but unable to vacuum. For best performance, run:\n\n#{vacuum_command};"
-      end
+      nil
+    end
 
+    # private
+    def vacuum_query_stats
+      PgHero::QueryStats.connection.execute("VACUUM (FULL, ANALYZE) pghero_query_stats")
       nil
     end
 
