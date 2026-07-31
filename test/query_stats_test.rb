@@ -151,5 +151,6 @@ class QueryStatsTest < Minitest::Test
     end
     assert_equal 1, PgHero::Query.count
     assert_equal 2, PgHero::QueryStats.count
+    assert PgHero::QueryStats.all.all? { |v| v.query.nil? }
   end
 end
