@@ -125,15 +125,15 @@ module PgHero
       def historical_query_stats_enabled?
         # TODO use schema from config
         # make sure primary database is PostgreSQL first
-        query_stats_table_exists? && capture_query_stats? && !missing_query_stats_columns.any?
+        queries_table_exists? && query_stats_table_exists? && capture_query_stats?
+      end
+
+      def queries_table_exists?
+        table_exists?("pghero_queries")
       end
 
       def query_stats_table_exists?
         table_exists?("pghero_query_stats")
-      end
-
-      def missing_query_stats_columns
-        %w(query_hash user) - PgHero::QueryStats.column_names
       end
 
       def capture_query_stats(raise_errors: false)

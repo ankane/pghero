@@ -9,11 +9,23 @@
 
   <% if @historical_query_stats_enabled %>
     <%= render partial: "query_stats_slider" %>
-  <% elsif @database.query_stats_table_exists? && (columns = @database.missing_query_stats_columns).any? %>
+  <% elsif @database.query_stats_table_exists? && !@database.queries_table_exists? %>
     <div class="clear-both">
-      <p>Add missing columns to re-enable historical query stats.</p>
-      <pre><code class="language-pgsql"><% @database.missing_query_stats_columns.each do |column| %>ALTER TABLE pghero_query_stats ADD COLUMN "<%= column %>" <%= column == "query_hash" ? "bigint" : "text" %>;
-<% end %></code></pre>
+      <p>Migrate your database to re-enable historical query stats:</p>
+      <% if PgHero.show_migrations %>
+      <pre><code>rails generate pghero:upgrade_query_stats
+rails db:migrate</code></pre>
+      <% else %>
+      <pre><code class="language-pgsql">CREATE TABLE pghero_queries (
+  id bigserial PRIMARY KEY,
+  query text
+);
+CREATE INDEX ON pghero_queries USING hash (query);
+
+ALTER TABLE pghero_query_stats ADD COLUMN query_id bigint;</code></pre>
+      <% end %>
+      <p>And backfill the data:</p>
+      <pre><code>rails pghero:backfill_query_stats</code></pre>
       <p>Then restart the web server.</p>
     </div>
   <% end %>
