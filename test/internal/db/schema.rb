@@ -12,6 +12,7 @@ ActiveRecord::Schema.define do
     t.text :database
     t.text :user
     t.references :query, index: false
+    t.text :query # for backfill
     t.integer :query_hash, limit: 8
     t.float :total_time
     t.integer :calls, limit: 8
