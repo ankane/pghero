@@ -9,7 +9,7 @@ module PgHero
     before_action :check_server_version
     before_action :set_query_stats_enabled
     before_action :set_show_details, only: [:index, :queries, :show_query]
-    before_action :ensure_query_stats, only: [:queries]
+    before_action :ensure_query_stats, only: [:queries, :reset_query_stats]
     before_action :ensure_kill_enabled, only: [:kill, :kill_long_running_queries, :kill_all]
 
     if PgHero.config["override_csp"]
