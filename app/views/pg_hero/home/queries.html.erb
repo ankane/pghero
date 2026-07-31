@@ -11,7 +11,7 @@
     <%= render partial: "query_stats_slider" %>
   <% elsif @database.query_stats_table_exists? && !@database.queries_table_exists? %>
     <div class="clear-both">
-      <p>Migrate your database to re-enable historical query stats:</p>
+      <p>Update the database to re-enable historical query stats.</p>
       <% if PgHero.show_migrations %>
       <pre><code>rails generate pghero:upgrade_query_stats
 rails db:migrate</code></pre>
