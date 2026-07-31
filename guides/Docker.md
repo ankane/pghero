@@ -38,7 +38,7 @@ To track query stats over time, create a table to store them.
 
 ```sql
 CREATE TABLE "pghero_query_stats" (
-  "id" bigserial primary key,
+  "id" bigserial PRIMARY KEY,
   "database" text,
   "user" text,
   "query" text,
@@ -72,7 +72,7 @@ To track space stats over time, create a table to store them.
 
 ```sql
 CREATE TABLE "pghero_space_stats" (
-  "id" bigserial primary key,
+  "id" bigserial PRIMARY KEY,
   "database" text,
   "schema" text,
   "relation" text,
@@ -295,10 +295,10 @@ If historical query stats are enabled, update the schema:
 
 ```sql
 CREATE TABLE "pghero_queries" (
-  "id" bigserial primary key,
+  "id" bigserial PRIMARY KEY,
   "query" text
 );
-CREATE INDEX ON "pghero_queries" using hash ("query");
+CREATE INDEX ON "pghero_queries" USING hash ("query");
 
 ALTER TABLE "pghero_query_stats" ADD COLUMN "query_id" bigint;
 ```
