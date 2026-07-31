@@ -212,7 +212,7 @@ module PgHero
         when 2
           [query_hash].pack("H16").unpack1("q>")
         when 1
-          Integer(query_hash)
+          query_hash.to_i
         end
 
       if @query_hash
