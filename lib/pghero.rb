@@ -240,46 +240,6 @@ module PgHero
       end
     end
 
-    # private
-    def backfill_query_stats
-      queries = PgHero::QueryStats.where.not(query: nil).distinct.pluck(:query)
-      queries.each_slice(1000) do |batch|
-        add_queries(batch)
-      end
-
-      query_ids = PgHero::Query.all.pluck(:id, :query).to_h { |v| [v[1], v[0]] }
-
-      # avoid filter in query to keep planning predictable
-      PgHero::QueryStats.select(:id, :database, :query_id, :query).find_in_batches do |batch|
-        values =
-          batch.filter_map do |v|
-            {id: v.id, query_id: query_ids[v.query], query: nil} if v.query_id.nil?
-          end
-        PgHero::QueryStats.upsert_all(values, unique_by: [:id]) if values.any?
-      end
-
-      nil
-    end
-
-    # private
-    def vacuum_query_stats
-      PgHero::QueryStats.connection.execute("VACUUM (FULL, ANALYZE) pghero_query_stats")
-      nil
-    end
-
-    # private
-    # duplicates are fine, but could use advisory lock to prevent them
-    def add_queries(queries)
-      queries = queries.uniq
-      query_ids = PgHero::Query.where(query: queries).to_h { |q| [q.query, q.id] }
-      new_queries = queries - query_ids.keys
-      new_ids = PgHero::Query.insert_all!(new_queries.map { |q| {query: q} }).rows.map(&:first)
-      new_queries.zip(new_ids) do |query, id|
-        query_ids[query] = id
-      end
-      query_ids
-    end
-
     private
 
     def each_database

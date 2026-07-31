@@ -3,9 +3,19 @@ class <%= migration_class_name %> < ActiveRecord::Migration<%= migration_version
     create_table :pghero_queries do |t|
       t.text :query
     end
-
     add_index :pghero_queries, :query, using: :hash
-
     add_reference :pghero_query_stats, :query, index: false
+
+    execute <<~SQL
+      INSERT INTO pghero_queries (query)
+        SELECT DISTINCT query FROM pghero_query_stats WHERE query IS NOT NULL
+    SQL
+
+    execute <<~SQL
+      UPDATE pghero_query_stats SET query_id = pghero_queries.id, query = NULL
+        FROM pghero_queries WHERE pghero_queries.query = pghero_query_stats.query
+    SQL
+
+    remove_column :pghero_query_stats, :query
   end
 end

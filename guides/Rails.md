@@ -277,9 +277,3 @@ If historical query stats are enabled, run:
 rails generate pghero:upgrade_query_stats
 rails db:migrate
 ```
-
-And backfill with:
-
-```sh
-rails pghero:backfill_query_stats VACUUM=full
-```

@@ -351,7 +351,7 @@ module PgHero
 
       def insert_query_stats(query_stats, captured_at)
         PgHero::QueryStats.transaction do
-          query_ids = PgHero.add_queries(query_stats.map { |qs| qs[:query] })
+          query_ids = add_queries(query_stats.map { |qs| qs[:query] })
           values =
             query_stats.map do |qs, query_id|
               {
@@ -366,6 +366,18 @@ module PgHero
             end
           PgHero::QueryStats.insert_all!(values)
         end
+      end
+
+      # duplicates are fine, but could use advisory lock to prevent them
+      def add_queries(queries)
+        queries = queries.uniq
+        query_ids = PgHero::Query.where(query: queries).to_h { |q| [q.query, q.id] }
+        new_queries = queries - query_ids.keys
+        new_ids = PgHero::Query.insert_all!(new_queries.map { |q| {query: q} }).rows.map(&:first)
+        new_queries.zip(new_ids) do |query, id|
+          query_ids[query] = id
+        end
+        query_ids
       end
     end
   end

@@ -34,17 +34,4 @@ namespace :pghero do
     options[:before] = Float(ENV["KEEP_DAYS"]).days.ago if ENV["KEEP_DAYS"].present?
     PgHero.clean_space_stats(**options)
   end
-
-  desc "Backfill query stats"
-  task backfill_query_stats: :environment do
-    puts "Backfilling query stats..."
-    PgHero.backfill_query_stats
-
-    if ENV["VACUUM"] == "full"
-      puts "Vacuuming query stats..."
-      PgHero.vacuum_query_stats
-    end
-
-    puts "Success!"
-  end
 end
