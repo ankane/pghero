@@ -15,17 +15,27 @@
       <% if PgHero.show_migrations %>
       <pre><code>rails generate pghero:upgrade_query_stats
 rails db:migrate</code></pre>
+      <p>And backfill the data:</p>
+      <pre><code>rails pghero:backfill_query_stats</code></pre>
       <% else %>
       <pre><code class="language-pgsql">CREATE TABLE pghero_queries (
-  id bigserial PRIMARY KEY,
-  query text
+    id bigserial PRIMARY KEY,
+    query text
 );
 CREATE INDEX ON pghero_queries USING hash (query);
 
-ALTER TABLE pghero_query_stats ADD COLUMN query_id bigint;</code></pre>
+ALTER TABLE pghero_query_stats ADD COLUMN query_id bigint;
+
+INSERT INTO pghero_queries (query)
+    SELECT DISTINCT query FROM pghero_query_stats WHERE query IS NOT NULL;
+
+UPDATE pghero_query_stats
+    SET query_id = pghero_queries.id, query = NULL
+    FROM pghero_queries
+    WHERE pghero_queries.query = pghero_query_stats.query;
+
+VACUUM (FULL, ANALYZE) pghero_query_stats;</code></pre>
       <% end %>
-      <p>And backfill the data:</p>
-      <pre><code>rails pghero:backfill_query_stats</code></pre>
       <p>Then restart the web server.</p>
     </div>
   <% end %>
