@@ -308,6 +308,8 @@ INSERT INTO pghero_queries (query)
 UPDATE pghero_query_stats SET query_id = pghero_queries.id, query = NULL
     FROM pghero_queries WHERE pghero_queries.query = pghero_query_stats.query;
 
+ALTER TABLE pghero_query_stats DROP COLUMN query;
+
 VACUUM (FULL, ANALYZE) pghero_query_stats;
 ```
 
