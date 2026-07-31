@@ -210,6 +210,7 @@ module PgHero
       @query_hash =
         case hash_format
         when 2
+          # this format uses big endian to match Postgres to_hex
           [query_hash].pack("H16").unpack1("q>")
         when 1
           query_hash.to_i
