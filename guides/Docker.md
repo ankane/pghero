@@ -305,10 +305,8 @@ ALTER TABLE pghero_query_stats ADD COLUMN query_id bigint;
 INSERT INTO pghero_queries (query)
     SELECT DISTINCT query FROM pghero_query_stats WHERE query IS NOT NULL;
 
-UPDATE pghero_query_stats
-    SET query_id = pghero_queries.id, query = NULL
-    FROM pghero_queries
-    WHERE pghero_queries.query = pghero_query_stats.query;
+UPDATE pghero_query_stats SET query_id = pghero_queries.id, query = NULL
+    FROM pghero_queries WHERE pghero_queries.query = pghero_query_stats.query;
 
 VACUUM (FULL, ANALYZE) pghero_query_stats;
 ```
