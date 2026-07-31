@@ -37,13 +37,14 @@ namespace :pghero do
 
   desc "Backfill query stats"
   task backfill_query_stats: :environment do
+    puts "Backfilling query stats..."
     PgHero.backfill_query_stats
 
-    vacuumed = PgHero.vacuum_query_stats.nil? rescue false
-    if vacuumed
-      puts "Success!"
-    else
-      puts "Backfill succeeded, but unable to vacuum. For best performance, run:\n\nVACUUM (FULL, ANALYZE) pghero_query_stats;"
+    if ENV["VACUUM"] == "full"
+      puts "Vacuuming query stats..."
+      PgHero.vacuum_query_stats
     end
+
+    puts "Success!"
   end
 end
