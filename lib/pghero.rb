@@ -29,6 +29,7 @@ require_relative "pghero/version"
 module PgHero
   autoload :Connection, "pghero/connection"
   autoload :Stats, "pghero/stats"
+  autoload :Query, "pghero/query"
   autoload :QueryStats, "pghero/query_stats"
   autoload :SpaceStats, "pghero/space_stats"
 
@@ -226,6 +227,7 @@ module PgHero
     # delete previous stats
     # go database by database to use an index
     # stats for old databases are not cleaned up since we can't use an index
+    # TODO clean queries
     def clean_query_stats(before: nil)
       each_database do |database|
         database.clean_query_stats(before: before)
@@ -236,6 +238,48 @@ module PgHero
       each_database do |database|
         database.clean_space_stats(before: before)
       end
+    end
+
+    def backfill_query_stats
+      queries = PgHero::QueryStats.where.not(query: nil).distinct.pluck(:query)
+      queries.each_slice(1000) do |batch|
+        add_queries(batch)
+      end
+
+      query_ids = PgHero::Query.all.pluck(:id, :query).to_h { |v| [v[1], v[0]] }
+
+      # avoid filter in query to keep planning predictable
+      PgHero::QueryStats.select(:id, :database, :query_id, :query).find_in_batches do |batch|
+        values =
+          batch.filter_map do |v|
+            {id: v.id, query_id: query_ids[v.query], query: nil} if v.query_id.nil?
+          end
+        PgHero::QueryStats.upsert_all(values, unique_by: [:id]) if values.any?
+      end
+
+      # try to vacuum
+      vacuum_command = "VACUUM (FULL, ANALYZE) pghero_query_stats"
+      vacuumed = PgHero::QueryStats.connection.execute(vacuum_command) rescue false
+      if vacuumed
+        puts "Success!"
+      else
+        puts "Backfill succeeded, but unable to vacuum. For best performance, run:\n\n#{vacuum_command};"
+      end
+
+      nil
+    end
+
+    # private
+    # duplicates are fine, but could use advisory lock to prevent them
+    def add_queries(queries)
+      queries = queries.uniq
+      query_ids = PgHero::Query.where(query: queries).to_h { |q| [q.query, q.id] }
+      new_queries = queries - query_ids.keys
+      new_ids = PgHero::Query.insert_all!(new_queries.map { |q| {query: q} }).rows.map(&:first)
+      new_queries.zip(new_ids) do |query, id|
+        query_ids[query] = id
+      end
+      query_ids
     end
 
     private

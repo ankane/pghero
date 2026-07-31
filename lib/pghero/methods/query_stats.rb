@@ -160,14 +160,17 @@ module PgHero
         end
 
         start_at = 24.hours.ago
+        # specify pghero_queries.query in case pghero_query_stats.query exists
         sql = <<~SQL
           SELECT
             captured_at,
             total_time,
             calls,
-            (SELECT regexp_matches(query, '.*/\\*(.+?)\\*/'))[1] AS origin
+            (SELECT regexp_matches(pghero_queries.query, '.*/\\*(.+?)\\*/'))[1] AS origin
           FROM
             pghero_query_stats
+          INNER JOIN
+            pghero_queries ON pghero_queries.id = pghero_query_stats.query_id
           WHERE
             database = :id
             AND captured_at >= :start_at
@@ -269,10 +272,9 @@ module PgHero
           WITH query_stats AS (
             SELECT
               query_hash,
-              pghero_query_stats.user AS user,
-              MIN(LEFT(query, 10000)) AS query,
+              "user",
+              query_id,
               SUM(total_time) AS total_time,
-              #{"SUM(total_time) / SUM(calls) AS average_time," if sort == "average_time"}
               SUM(calls) AS calls
             FROM
               pghero_query_stats
@@ -283,20 +285,37 @@ module PgHero
               #{"AND \"user\" = :user" if user}
               #{query_hash ? "AND query_hash = :query_hash" : "AND query_hash IS NOT NULL"}
             GROUP BY
+              1, 2, 3
+          ),
+          grouped_query_stats AS (
+            SELECT
+              query_hash,
+              "user",
+              (array_agg(query_id ORDER BY total_time DESC))[1] AS query_id,
+              SUM(total_time) AS total_time,
+              #{"SUM(total_time) / SUM(calls) AS average_time," if sort == "average_time"}
+              SUM(calls) AS calls
+            FROM
+              query_stats
+            GROUP BY
               1, 2
+            ORDER BY
+              #{quote_column_name(sort)} DESC
+            LIMIT :limit
           )
           (
             SELECT
               query_hash,
-              query_stats.user,
+              "user",
               query,
               total_time,
               calls
             FROM
-              query_stats
+              grouped_query_stats
+            INNER JOIN
+              pghero_queries ON pghero_queries.id = grouped_query_stats.query_id
             ORDER BY
               #{quote_column_name(sort)} DESC
-            LIMIT :limit
           ) UNION ALL (
             SELECT NULL, NULL, NULL, SUM(total_time), NULL FROM query_stats
           )
@@ -332,19 +351,22 @@ module PgHero
       end
 
       def insert_query_stats(query_stats, captured_at)
-        values =
-          query_stats.map do |qs|
-            {
-              database: id,
-              user: qs[:user],
-              query: qs[:query],
-              query_hash: qs[:query_hash],
-              total_time: qs[:total_time],
-              calls: qs[:calls],
-              captured_at: captured_at
-            }
-          end
-        PgHero::QueryStats.insert_all!(values)
+        PgHero::QueryStats.transaction do
+          query_ids = PgHero.add_queries(query_stats.map { |qs| qs[:query] })
+          values =
+            query_stats.map do |qs, query_id|
+              {
+                database: id,
+                user: qs[:user],
+                query_id: query_ids.fetch(qs[:query]),
+                query_hash: qs[:query_hash],
+                total_time: qs[:total_time],
+                calls: qs[:calls],
+                captured_at: captured_at
+              }
+            end
+          PgHero::QueryStats.insert_all!(values)
+        end
       end
     end
   end

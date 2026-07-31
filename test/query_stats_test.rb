@@ -94,7 +94,7 @@ class QueryStatsTest < Minitest::Test
     ActiveRecord::Base.connection.select_all("SELECT 1")
     assert database.capture_query_stats
     assert PgHero::QueryStats.any?
-    qs = PgHero::QueryStats.find_by!(query: "SELECT $1")
+    qs = PgHero::Query.find_by!(query: "SELECT $1").query_stats.last
     assert_equal "primary", qs.database
     assert_equal 1, qs.calls
     refute_empty database.query_stats(current: false, historical: true)
@@ -116,7 +116,7 @@ class QueryStatsTest < Minitest::Test
     database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1 /*hello*/")
     database.capture_query_stats
-    qs = PgHero::QueryStats.find_by!(query: "SELECT $1 /*hello*/")
+    qs = PgHero::Query.find_by!(query: "SELECT $1 /*hello*/").query_stats.last
     ActiveRecord::Base.connection.select_all("SELECT 1 /*world*/")
     assert_equal 2, database.query_hash_stats(qs.query_hash).size
     assert database.query_hash_stats(qs.query_hash).map { |v| v[:captured_at] }.all? { |v| v.instance_of?(Time) }

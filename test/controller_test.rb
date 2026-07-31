@@ -65,7 +65,7 @@ class ControllerTest < ActionDispatch::IntegrationTest
     database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
     database.capture_query_stats
-    qs = PgHero::QueryStats.find_by!(query: "SELECT $1")
+    qs = PgHero::Query.find_by!(query: "SELECT $1").query_stats.last
     ActiveRecord::Base.connection.select_all("SELECT 1")
     get pg_hero.show_query_path(query_hash: qs.query_hash, user: qs.user)
     assert_response :success

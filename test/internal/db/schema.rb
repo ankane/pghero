@@ -3,10 +3,15 @@ ActiveRecord::Schema.define do
   enable_extension "pg_trgm"
   enable_extension "ltree"
 
+  create_table :pghero_queries, force: true do |t|
+    t.text :query
+    t.index :query, using: :hash
+  end
+
   create_table :pghero_query_stats, force: true do |t|
     t.text :database
     t.text :user
-    t.text :query
+    t.references :query, index: false
     t.integer :query_hash, limit: 8
     t.float :total_time
     t.integer :calls, limit: 8

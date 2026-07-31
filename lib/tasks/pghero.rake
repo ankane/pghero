@@ -34,4 +34,9 @@ namespace :pghero do
     options[:before] = Float(ENV["KEEP_DAYS"]).days.ago if ENV["KEEP_DAYS"].present?
     PgHero.clean_space_stats(**options)
   end
+
+  desc "Backfill query stats"
+  task backfill_query_stats: :environment do
+    PgHero.backfill_query_stats
+  end
 end
