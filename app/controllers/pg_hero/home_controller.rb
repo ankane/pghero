@@ -422,7 +422,8 @@ module PgHero
     end
 
     def reset_query_stats
-      if @database.historical_query_stats_enabled?
+      # also disable when upgrading
+      if @database.historical_query_stats_enabled? || @database.query_stats_table_exists?
         render_text "Cannot reset when historical query stats are enabled", status: :bad_request
         return
       end
