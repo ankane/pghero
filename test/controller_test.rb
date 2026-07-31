@@ -59,9 +59,17 @@ class ControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_show_query
-    get pg_hero.show_query_path(query_hash: 123)
-    assert_response :not_found
+    database.reset_query_stats
+    ActiveRecord::Base.connection.select_all("SELECT 1")
+    database.capture_query_stats
+    qs = PgHero::Query.find_by!(query: "SELECT $1").query_stats.last
+    ActiveRecord::Base.connection.select_all("SELECT 1")
+    get pg_hero.show_query_path(query_hash: [qs.query_hash].pack("q>").unpack1("H*"), user: qs.user, v: 2)
+    assert_response :success
+    assert_match "SELECT $1", response.body
+  end
 
+  def test_show_query_v1
     database.reset_query_stats
     ActiveRecord::Base.connection.select_all("SELECT 1")
     database.capture_query_stats
@@ -69,6 +77,12 @@ class ControllerTest < ActionDispatch::IntegrationTest
     ActiveRecord::Base.connection.select_all("SELECT 1")
     get pg_hero.show_query_path(query_hash: qs.query_hash, user: qs.user)
     assert_response :success
+    assert_match "SELECT $1", response.body
+  end
+
+  def test_show_query_not_found
+    get pg_hero.show_query_path(query_hash: 123)
+    assert_response :not_found
   end
 
   def test_system
