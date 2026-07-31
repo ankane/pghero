@@ -291,7 +291,7 @@ We recommend [setting up a dedicated user](Permissions.md) for PgHero.
 
 ### 4.0
 
-If historical query stats are enabled, update the schema:
+If historical query stats are enabled, run:
 
 ```sql
 CREATE TABLE "pghero_queries" (
@@ -301,12 +301,16 @@ CREATE TABLE "pghero_queries" (
 CREATE INDEX ON "pghero_queries" USING hash ("query");
 
 ALTER TABLE "pghero_query_stats" ADD COLUMN "query_id" bigint;
-```
 
-And backfill with:
+INSERT INTO "pghero_queries" ("query")
+  SELECT DISTINCT "query" FROM "pghero_query_stats" WHERE "query" IS NOT NULL;
 
-```sh
-docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:backfill_query_stats VACUUM=full
+UPDATE "pghero_query_stats"
+  SET "query_id" = "pghero_queries"."id", "query" = NULL
+  FROM "pghero_queries"
+  WHERE "pghero_queries"."query" = "pghero_query_stats"."query";
+
+VACUUM (FULL, ANALYZE) "pghero_query_stats";
 ```
 
 ## Credits
