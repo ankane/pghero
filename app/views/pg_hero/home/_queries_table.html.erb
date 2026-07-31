@@ -51,7 +51,8 @@
               <% end %>
             <% end %>
             <% if @show_details && query[:query_hash] %>
-              <%= link_to "details", show_query_path(query[:query_hash], user: query[:user]), target: "_blank" %>
+              <% hex_hash = [query[:query_hash]].pack("q>").unpack1("H16") %>
+              <%= link_to "details", show_query_path(hex_hash, user: query[:user], v: /\A\d{16}\z/.match?(hex_hash) ? 2 : nil), target: "_blank" %>
             <% end %>
           </span>
         </td>

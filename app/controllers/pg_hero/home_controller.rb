@@ -195,10 +195,30 @@ module PgHero
     end
 
     def show_query
-      @query_hash = params[:query_hash].to_i
-      @user = params[:user].to_s
+      query_hash = params[:query_hash].to_s
 
-      stats = @database.query_stats(historical: true, user: @user, query_hash: @query_hash, start_at: 24.hours.ago).first
+      # v needed for ambiguous values
+      hash_format =
+        if params[:v] == "2"
+          2
+        elsif query_hash.size <= 20 && /\A-?\d{1,19}\z/.match?(query_hash)
+          1
+        elsif query_hash.size == 16 && /\A[0-9a-f]{16}\z/.match?(query_hash)
+          2
+        end
+
+      @query_hash =
+        case hash_format
+        when 2
+          [query_hash].pack("H16").unpack1("q>")
+        when 1
+          Integer(query_hash)
+        end
+
+      if @query_hash
+        stats = @database.query_stats(historical: true, user: @user, query_hash: @query_hash, start_at: 24.hours.ago).first
+      end
+
       if stats
         @query = stats[:query]
         @title = @query.truncate(70)
