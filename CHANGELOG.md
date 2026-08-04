@@ -5,13 +5,12 @@
 - Added `unused_index_megabytes` option to set minimum size for unused indexes
 - Added copy button to explain visualize page
 - Fixed error with unlogged sequences on replicas
-- Removed `reset_instance_query_stats` method (use `reset_query_stats` instead)
-- Removed `create_user` and `drop_user` methods
 - Dropped support for Postgres < 14
 - Dropped support for pg_query < 6
 - Dropped support for Sprockets < 4
 - Dropped support for google-cloud-monitoring < 1
 - Dropped support for system stats for Azure Database (Ruby SDK no longer supported)
+- Dropped support for Ruby API
 - Dropped support for Linux packages
 
 ## 3.8.0 (2026-04-15)
