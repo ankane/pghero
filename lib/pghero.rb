@@ -170,10 +170,6 @@ module PgHero
       @databases
     end
 
-    def primary_database
-      databases.values.first
-    end
-
     def capture_query_stats(verbose: false)
       each_database do |database|
         next unless database.capture_query_stats?
