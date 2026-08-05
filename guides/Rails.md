@@ -128,8 +128,6 @@ CPU usage, IOPS, and other stats are available for:
 - [Amazon RDS](#amazon-rds)
 - [Google Cloud SQL](#google-cloud-sql)
 
-Heroku and Digital Ocean do not currently have an API for database metrics.
-
 ### Amazon RDS
 
 Add this line to your application’s Gemfile:
