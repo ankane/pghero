@@ -60,7 +60,7 @@ docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:capture_query_s
 
 After this, a time range slider will appear on the Queries tab.
 
-The query stats table can grow large over time. Remove old stats with:
+Remove old stats with:
 
 ```sh
 docker run -ti -e DATABASE_URL=... ankane/pghero bin/rake pghero:clean_query_stats KEEP_DAYS=14
@@ -100,8 +100,6 @@ CPU usage, IOPS, and other stats are available for:
 
 - [Amazon RDS](#amazon-rds)
 - [Google Cloud SQL](#google-cloud-sql)
-
-Heroku and Digital Ocean do not currently have an API for database metrics.
 
 ### Amazon RDS
 
