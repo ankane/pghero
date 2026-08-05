@@ -19,7 +19,5 @@ class <%= migration_class_name %> < ActiveRecord::Migration<%= migration_version
     SQL
 
     remove_column :pghero_query_stats, :query
-
-    execute "VACUUM (FULL, ANALYZE) pghero_query_stats"
   end
 end
