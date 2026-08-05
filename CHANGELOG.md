@@ -1,4 +1,4 @@
-## 4.0.0 (unreleased)
+## 4.0.0 (2026-08-05)
 
 - Reduced space for historical query stats
 - Added `disable_kill` option to disable killing queries and connections
