@@ -1,6 +1,6 @@
 ## 4.0.0 (unreleased)
 
-- Normalized historical query stats to reduce space
+- Reduced space for historical query stats
 - Added `disable_kill` option to disable killing queries and connections
 - Added `unused_index_megabytes` option to set minimum size for unused indexes
 - Added copy button to explain visualize page
