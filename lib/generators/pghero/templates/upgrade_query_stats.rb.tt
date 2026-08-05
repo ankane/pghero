@@ -3,7 +3,9 @@ class <%= migration_class_name %> < ActiveRecord::Migration<%= migration_version
     create_table :pghero_queries do |t|
       t.text :query
     end
+
     add_index :pghero_queries, :query, using: :hash
+
     add_reference :pghero_query_stats, :query, index: false
 
     execute <<~SQL
