@@ -6,6 +6,8 @@ A performance dashboard for Postgres
 
 [![Screenshot](https://pghero.dokkuapp.com/assets/pghero-88a0d052.png)](https://pghero.dokkuapp.com/)
 
+**PgHero 4.0 was recently released** - see how to upgrade [Docker](guides/Docker.md#upgrading) or [Rails](guides/Rails.md#upgrading)
+
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
 [![Build Status](https://github.com/ankane/pghero/actions/workflows/build.yml/badge.svg)](https://github.com/ankane/pghero/actions)

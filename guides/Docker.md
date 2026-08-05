@@ -37,11 +37,17 @@ Query stats can be enabled from the dashboard. If you run into issues, [view the
 To track query stats over time, create a table to store them.
 
 ```sql
+CREATE TABLE pghero_queries (
+    id bigserial PRIMARY KEY,
+    query text
+);
+CREATE INDEX ON pghero_queries USING hash (query);
+
 CREATE TABLE pghero_query_stats (
     id bigserial PRIMARY KEY,
     database text,
     "user" text,
-    query text,
+    query_id bigint,
     query_hash bigint,
     total_time float,
     calls bigint,
