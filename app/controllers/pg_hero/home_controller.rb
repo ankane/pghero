@@ -199,9 +199,7 @@ module PgHero
 
       # v needed for ambiguous values
       hash_format =
-        if params[:v] == "2"
-          2
-        elsif query_hash.size <= 20 && /\A-?\d{1,19}\z/.match?(query_hash)
+        if params[:v] != "2" && query_hash.size <= 20 && /\A-?\d{1,19}\z/.match?(query_hash)
           1
         elsif query_hash.size == 16 && /\A[0-9a-f]{16}\z/.match?(query_hash)
           2
