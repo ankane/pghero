@@ -1,5 +1,7 @@
 ## 4.0.0 (2026-08-05)
 
+See the upgrade notes for [Docker](guides/Docker.md#upgrading) or [Rails](guides/Rails.md#upgrading)
+
 - Reduced space for historical query stats
 - Added `disable_kill` option to disable killing queries and connections
 - Added `unused_index_megabytes` option to set minimum size for unused indexes
