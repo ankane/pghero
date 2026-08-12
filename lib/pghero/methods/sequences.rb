@@ -2,9 +2,11 @@ module PgHero
   module Methods
     module Sequences
       def sequences
-        # get columns with default values
+        # get columns with default values, plus identity columns
         # use pg_get_expr to get correct default value
         # it's what information_schema.columns uses
+        # identity columns have no default; their sequence is linked
+        # internally via pg_depend, so resolve it there
         # also, exclude temporary tables to prevent error
         # when accessing across sessions
         sequences = select_all <<~SQL
@@ -13,19 +15,31 @@ module PgHero
             c.relname AS table,
             attname AS column,
             format_type(a.atttypid, a.atttypmod) AS column_type,
-            pg_get_expr(d.adbin, d.adrelid) AS default_value
+            pg_get_expr(d.adbin, d.adrelid) AS default_value,
+            sn.nspname AS identity_schema,
+            s.relname AS identity_sequence
           FROM
             pg_catalog.pg_attribute a
           INNER JOIN
             pg_catalog.pg_class c ON c.oid = a.attrelid
           INNER JOIN
             pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-          INNER JOIN
-            pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid,  d.adnum)
+          LEFT JOIN
+            pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid, d.adnum)
+          LEFT JOIN
+            pg_catalog.pg_depend dep ON a.attidentity IN ('a', 'd')
+              AND dep.classid = 'pg_catalog.pg_class'::regclass
+              AND dep.refclassid = 'pg_catalog.pg_class'::regclass
+              AND (dep.refobjid, dep.refobjsubid) = (a.attrelid, a.attnum)
+              AND dep.deptype = 'i'
+          LEFT JOIN
+            pg_catalog.pg_class s ON s.oid = dep.objid AND s.relkind = 'S'
+          LEFT JOIN
+            pg_catalog.pg_namespace sn ON sn.oid = s.relnamespace
           WHERE
             NOT a.attisdropped
             AND a.attnum > 0
-            AND pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%'
+            AND (pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%' OR s.relname IS NOT NULL)
             AND n.nspname NOT LIKE 'pg\\_temp\\_%'
         SQL
 
@@ -33,8 +47,16 @@ module PgHero
         sequences.each do |column|
           column[:max_value] = column[:column_type] == 'integer' ? 2147483647 : 9223372036854775807
 
-          column[:schema], column[:sequence] = parse_default_value(column[:default_value])
-          column.delete(:default_value) if column[:sequence]
+          identity_schema = column.delete(:identity_schema)
+          identity_sequence = column.delete(:identity_sequence)
+          if identity_sequence
+            column[:schema] = identity_schema
+            column[:sequence] = identity_sequence
+            column.delete(:default_value)
+          else
+            column[:schema], column[:sequence] = parse_default_value(column[:default_value])
+            column.delete(:default_value) if column[:sequence]
+          end
         end
 
         add_sequence_attributes(sequences)
