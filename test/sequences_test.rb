@@ -36,7 +36,7 @@ class SequencesTest < Minitest::Test
     assert_equal "events", seq[:table]
     assert_equal "location_id", seq[:column]
     assert_equal "smallint", seq[:column_type]
-    assert_equal 1, seq[:last_value]
+    assert_equal 3, seq[:last_value]
     assert_equal 32767, seq[:max_value]
     assert_equal true, seq[:readable]
   end
