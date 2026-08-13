@@ -3,7 +3,8 @@ module PgHero
     module Sequences
       def sequences
         # get columns with default values and identity columns
-        # use pg_get_expr to get correct default value
+        # use pg_depend to get owned sequences (like pg_get_serial_sequence)
+        # use pg_get_expr to get correct default value for rest
         # it's what information_schema.columns uses
         # also, exclude temporary tables to prevent error
         # when accessing across sessions
@@ -23,19 +24,21 @@ module PgHero
           INNER JOIN
             pg_catalog.pg_namespace n ON n.oid = c.relnamespace
           LEFT JOIN
-            pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid, d.adnum)
-          LEFT JOIN
-            pg_catalog.pg_depend dep ON a.attidentity IN ('a', 'd')
-            AND dep.refclassid = 'pg_catalog.pg_class'::regclass
+            pg_catalog.pg_depend dep ON dep.refclassid = 'pg_catalog.pg_class'::regclass
             AND dep.refobjid = a.attrelid
             AND dep.refobjsubid = a.attnum
             AND dep.classid = 'pg_catalog.pg_class'::regclass
             AND dep.objsubid = 0
             AND dep.deptype IN ('i', 'a')
+            AND dep.objid IN (SELECT oid FROM pg_class WHERE relkind = 'S')
           LEFT JOIN
-            pg_catalog.pg_class s ON s.oid = dep.objid AND s.relkind = 'S'
+            pg_catalog.pg_class s ON s.oid = dep.objid
           LEFT JOIN
             pg_catalog.pg_namespace sn ON sn.oid = s.relnamespace
+          LEFT JOIN
+            pg_catalog.pg_attrdef d ON a.attrelid = d.adrelid
+            AND a.attnum = d.adnum
+            AND s.relkind IS NULL
           WHERE
             NOT a.attisdropped
             AND a.attnum > 0
