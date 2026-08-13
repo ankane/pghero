@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class SequencesTest < Minitest::Test
   def test_sequences
-    assert_equal 7, database.sequences.size
+    assert_equal 8, database.sequences.size
     seq = database.sequences.find { |s| s[:sequence] == "cities_id_seq" }
     assert_equal "public", seq[:table_schema]
     assert_equal "cities", seq[:table]
