@@ -46,7 +46,6 @@ module PgHero
             AND c.relpersistence <> 't'
         SQL
 
-        # parse out sequence
         sequences.each do |column|
           column[:max_value] =
             case column[:column_type]
