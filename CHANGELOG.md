@@ -1,3 +1,7 @@
+## 4.0.1 (unreleased)
+
+- Added sequences from identity columns
+
 ## 4.0.0 (2026-08-05)
 
 See the upgrade notes for [Docker](guides/Docker.md#upgrading) or [Rails](guides/Rails.md#upgrading)

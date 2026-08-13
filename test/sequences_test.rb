@@ -13,6 +13,18 @@ class SequencesTest < Minitest::Test
     assert_equal true, seq[:readable]
   end
 
+  def test_sequences_identity
+    seq = database.sequences.find { |s| s[:sequence] == "events_id_seq" }
+    assert_equal "public", seq[:table_schema]
+    assert_equal "events", seq[:table]
+    assert_equal "id", seq[:column]
+    assert_equal "integer", seq[:column_type]
+    assert_equal 2147483647, seq[:max_value]
+    assert_equal "public", seq[:schema]
+    assert_equal "events_id_seq", seq[:sequence]
+    assert_equal true, seq[:readable]
+  end
+
   def test_sequences_last_value
     last_value = database.sequences.to_h { |s| [s[:sequence], s[:last_value]] }
     assert_equal 50, last_value["states_id_seq"]

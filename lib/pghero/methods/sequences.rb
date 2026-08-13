@@ -2,13 +2,15 @@ module PgHero
   module Methods
     module Sequences
       def sequences
-        # get columns with default values
+        # get columns with default values and identity columns
         # use pg_get_expr to get correct default value
         # it's what information_schema.columns uses
         # also, exclude temporary tables to prevent error
         # when accessing across sessions
         sequences = select_all <<~SQL
           SELECT
+            sn.nspname AS schema,
+            s.relname AS sequence,
             n.nspname AS table_schema,
             c.relname AS table,
             attname AS column,
@@ -20,12 +22,24 @@ module PgHero
             pg_catalog.pg_class c ON c.oid = a.attrelid
           INNER JOIN
             pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-          INNER JOIN
-            pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid,  d.adnum)
+          LEFT JOIN
+            pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid, d.adnum)
+          LEFT JOIN
+            pg_catalog.pg_depend dep ON a.attidentity IN ('a', 'd')
+            AND dep.refclassid = 'pg_catalog.pg_class'::regclass
+            AND dep.refobjid = a.attrelid
+            AND dep.refobjsubid = a.attnum
+            AND dep.classid = 'pg_catalog.pg_class'::regclass
+            AND dep.objsubid = 0
+            AND dep.deptype IN ('i', 'a')
+          LEFT JOIN
+            pg_catalog.pg_class s ON s.oid = dep.objid AND s.relkind = 'S'
+          LEFT JOIN
+            pg_catalog.pg_namespace sn ON sn.oid = s.relnamespace
           WHERE
             NOT a.attisdropped
             AND a.attnum > 0
-            AND pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%'
+            AND (pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%' OR s.relname IS NOT NULL)
             AND n.nspname NOT LIKE 'pg\\_temp\\_%'
         SQL
 
@@ -33,7 +47,9 @@ module PgHero
         sequences.each do |column|
           column[:max_value] = column[:column_type] == 'integer' ? 2147483647 : 9223372036854775807
 
-          column[:schema], column[:sequence] = parse_default_value(column[:default_value])
+          unless column[:sequence]
+            column[:schema], column[:sequence] = parse_default_value(column[:default_value])
+          end
           column.delete(:default_value) if column[:sequence]
         end
 
