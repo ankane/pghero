@@ -48,7 +48,15 @@ module PgHero
 
         # parse out sequence
         sequences.each do |column|
-          column[:max_value] = column[:column_type] == 'integer' ? 2147483647 : 9223372036854775807
+          column[:max_value] =
+            case column[:column_type]
+            when "smallint"
+              32767
+            when "integer"
+              2147483647
+            else
+              9223372036854775807
+            end
 
           unless column[:sequence]
             column[:schema], column[:sequence] = parse_default_value(column[:default_value])
