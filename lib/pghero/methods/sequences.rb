@@ -66,12 +66,8 @@ module PgHero
         add_sequence_attributes(sequences)
 
         last_value = {}
-        sequences.select { |s| s[:readable] }.map { |s| [s[:schema], s[:sequence]] }.uniq.each_slice(1024) do |slice|
-          sql = slice.map { |s| "SELECT last_value FROM #{quote_ident(s[0])}.#{quote_ident(s[1])}" }.join(" UNION ALL ")
-
-          select_all(sql).zip(slice) do |row, seq|
-            last_value[seq] = row[:last_value]
-          end
+        select_all("SELECT schemaname AS schema, sequencename AS sequence, COALESCE(last_value, start_value) AS last_value FROM pg_sequences").each do |row|
+          last_value[[row[:schema], row[:sequence]]] = row[:last_value]
         end
 
         sequences.select { |s| s[:readable] }.each do |seq|
