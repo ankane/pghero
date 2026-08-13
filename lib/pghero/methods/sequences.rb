@@ -89,8 +89,8 @@ module PgHero
       # nextval('id_seq'::regclass)
       # nextval(('id_seq'::text)::regclass)
       def parse_default_value(default_value)
-        m = /^nextval\('(.+)'\:\:regclass\)$/.match(default_value)
-        m = /^nextval\(\('(.+)'\:\:text\)\:\:regclass\)$/.match(default_value) unless m
+        m = /\Anextval\('(.+)'\:\:regclass\)\z/.match(default_value)
+        m = /\Anextval\(\('(.+)'\:\:text\)\:\:regclass\)\z/.match(default_value) unless m
         if m
           unquote_ident(m[1])
         else
