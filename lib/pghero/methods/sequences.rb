@@ -43,7 +43,7 @@ module PgHero
             NOT a.attisdropped
             AND a.attnum > 0
             AND (pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%' OR s.relname IS NOT NULL)
-            AND n.nspname NOT LIKE 'pg\\_temp\\_%'
+            AND c.relpersistence <> 't'
         SQL
 
         # parse out sequence
