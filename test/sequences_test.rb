@@ -30,7 +30,7 @@ class SequencesTest < Minitest::Test
   end
 
   def test_sequences_unowned
-    seq = database.sequences.find { |s| s[:sequence] == "location_id_seq" }
+    seq = database.sequences.find { |s| s[:sequence] == "events_location_id_seq" }
     assert_equal "public", seq[:schema]
     assert_equal "public", seq[:table_schema]
     assert_equal "events", seq[:table]

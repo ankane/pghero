@@ -41,8 +41,8 @@ ActiveRecord::Schema.define do
     t.integer :location_id, limit: 2
   end
 
-  execute "CREATE SEQUENCE location_id_seq"
-  execute "ALTER TABLE events ALTER COLUMN location_id SET DEFAULT nextval('location_id_seq')"
+  execute "CREATE SEQUENCE events_location_id_seq"
+  execute "ALTER TABLE events ALTER COLUMN location_id SET DEFAULT nextval('events_location_id_seq')"
 
   create_table :users, force: :cascade do |t|
     t.integer :city_id
