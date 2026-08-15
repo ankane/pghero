@@ -1,4 +1,4 @@
-## 4.0.1 (unreleased)
+## 4.0.1 (2026-08-15)
 
 - Added sequences from identity columns
 
