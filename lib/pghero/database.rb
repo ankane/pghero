@@ -98,7 +98,7 @@ module PgHero
           if config.key?("filter_data")
             config["filter_data"]
           elsif PgHero.config.key?("filter_data")
-            PgHero.config.key?("filter_data")
+            PgHero.config["filter_data"]
           else
             PgHero.filter_data
           end
