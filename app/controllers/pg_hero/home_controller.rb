@@ -11,6 +11,7 @@ module PgHero
     before_action :set_show_details, only: [:index, :queries, :show_query]
     before_action :ensure_query_stats, only: [:queries, :show_query, :reset_query_stats]
     before_action :ensure_kill_enabled, only: [:kill, :kill_long_running_queries, :kill_all]
+    before_action :validate_system_params, only: [:system, :cpu_usage, :connection_stats, :replication_lag_stats, :load_stats]
 
     if PgHero.config["override_csp"]
       # note: this does not take into account asset hosts
@@ -255,15 +256,6 @@ module PgHero
         "1 week" => {duration: 1.week, period: 30.minutes},
         "2 weeks" => {duration: 2.weeks, period: 1.hours}
       }
-
-      @duration = (params[:duration] || 1.hour).to_i
-      @period = (params[:period] || 60.seconds).to_i
-
-      if @duration / @period > 1440
-        render_text "Too many data points", status: :bad_request
-      elsif @period % 60 != 0
-        render_text "Period must be a multiple of 60", status: :bad_request
-      end
     end
 
     def cpu_usage
@@ -505,10 +497,23 @@ module PgHero
 
     def system_params
       {
-        duration: params[:duration],
-        period: params[:period],
+        duration: @duration,
+        period: @period,
         series: true
-      }.delete_if { |_, v| v.nil? }
+      }
+    end
+
+    def validate_system_params
+      @duration = (params[:duration] || 1.hour).to_i
+      @period = (params[:period] || 60.seconds).to_i
+
+      if @duration <= 0 || @period <= 0
+        render_text "Duration and period must be positive", status: :bad_request
+      elsif @duration > @period * 1440
+        render_text "Too many data points", status: :bad_request
+      elsif @period % 60 != 0
+        render_text "Period must be a multiple of 60", status: :bad_request
+      end
     end
 
     def chart_library_options
