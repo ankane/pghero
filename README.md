@@ -20,6 +20,7 @@ Select your preferred method of installation to get started.
 
 - [Docker](guides/Docker.md)
 - [Rails](guides/Rails.md)
+- [MCP Server](guides/MCP.md)
 
 ## Related Projects
 

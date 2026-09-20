@@ -10,8 +10,10 @@ Gem::Specification.new do |spec|
   spec.author        = "Andrew Kane"
   spec.email         = "andrew@ankane.org"
 
-  spec.files         = Dir["*.{md,txt}", "{app,config,lib,licenses}/**/*"]
+  spec.files         = Dir["*.{md,txt}", "{app,config,exe,lib,licenses}/**/*"]
   spec.require_path  = "lib"
+  spec.bindir        = "exe"
+  spec.executables   = ["pghero-mcp"]
 
   spec.required_ruby_version = ">= 3.3"
 

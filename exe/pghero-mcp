@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require "pghero/mcp"
+
+PgHero::MCP::Server.run
