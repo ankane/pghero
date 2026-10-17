@@ -8,3 +8,7 @@ gem "activerecord", "~> 8.2.0.alpha", github: "rails/rails"
 gem "combustion"
 gem "pg"
 gem "pg_query"
+
+if ENV["RACTORIZE"]
+  gem "rack", github: "rack/rack"
+end

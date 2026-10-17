@@ -67,7 +67,10 @@ Combustion.initialize! :active_record, :action_controller do
   config.load_defaults Rails::VERSION::STRING.to_f
   config.action_controller.logger = logger
   config.active_record.logger = logger
+  config.eager_load = true if ENV["RACTORIZE"]
 end
+
+Rails.application.ractorize! if ENV["RACTORIZE"]
 
 class City < ActiveRecord::Base
 end
