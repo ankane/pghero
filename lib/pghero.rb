@@ -83,7 +83,7 @@ module PgHero
 
     # private
     def explain_mode
-      @config["explain"]
+      config["explain"]
     end
 
     def visualize_url
