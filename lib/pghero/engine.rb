@@ -14,4 +14,11 @@ module PgHero
       PgHero.time_zone = file_config["time_zone"] if file_config["time_zone"]
     end
   end
+
+  class DatabaseConstraint
+    def matches?(request)
+      database = request.params[:database]
+      database.nil? || PgHero.config["databases"].key?(database)
+    end
+  end
 end

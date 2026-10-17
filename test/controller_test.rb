@@ -289,4 +289,14 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_response :bad_request
     assert_match "Cannot reset when historical query stats are enabled", response.body
   end
+
+  def test_database
+    get pg_hero.root_path(database: "primary")
+    assert_response :success
+  end
+
+  def test_database_missing
+    get pg_hero.root_path(database: "missing")
+    assert_response :not_found
+  end
 end
