@@ -1,5 +1,5 @@
 PgHero::Engine.routes.draw do
-  scope "(:database)", constraints: proc { |req| (PgHero.config["databases"].keys + [nil]).include?(req.params[:database]) } do
+  scope "(:database)", constraints: PgHero::DatabaseConstraint do
     get "space", to: "home#space"
     get "space/:relation", to: "home#relation_space", as: :relation_space
     get "index_bloat", to: "home#index_bloat"

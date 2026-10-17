@@ -23,6 +23,16 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_match "High number of connections", response.body
   end
 
+  def test_database
+    get pg_hero.root_path(database: "primary")
+    assert_response :success
+  end
+
+  def test_database_not_found
+    get pg_hero.root_path(database: "missing")
+    assert_response :not_found
+  end
+
   def test_space
     get pg_hero.space_path
     assert_response :success
