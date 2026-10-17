@@ -163,7 +163,7 @@ module PgHero
           # return if another process initialized while we were waiting
           return @databases if defined?(@databases)
 
-          @databases = config["databases"].map { |id, c| [id.to_sym, Database.new(id, c)] }.to_h
+          @databases = config["databases"].to_h { |id, c| [id.to_sym, Database.new(id, c)] }
         end
       end
 

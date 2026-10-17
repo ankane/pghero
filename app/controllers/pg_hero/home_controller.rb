@@ -528,7 +528,7 @@ module PgHero
     end
 
     def group_connections_by_key(connections, key)
-      group_connections(connections, [key]).map { |v| [v[key], v[:total_connections]] }.to_h
+      group_connections(connections, [key]).to_h { |v| [v[key], v[:total_connections]] }
     end
 
     def check_api

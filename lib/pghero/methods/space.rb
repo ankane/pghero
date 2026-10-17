@@ -93,7 +93,7 @@ module PgHero
       def relation_space_stats(relation, schema: "public")
         if space_stats_enabled?
           relation_sizes ||= self.relation_sizes
-          sizes = relation_sizes.map { |r| [[r[:schema], r[:relation]], r[:size_bytes]] }.to_h
+          sizes = relation_sizes.to_h { |r| [[r[:schema], r[:relation]], r[:size_bytes]] }
           start_at = 30.days.ago
 
           sql = <<~SQL
