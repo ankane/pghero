@@ -1,3 +1,7 @@
+## 4.0.2 (unreleased)
+
+- Fixed error when index is dropped during indexes query
+
 ## 4.0.1 (2026-08-15)
 
 - Added sequences from identity columns
