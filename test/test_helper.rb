@@ -60,17 +60,33 @@ class Minitest::Test
   end
 end
 
-logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)
+if ENV["RACTORIZE"]
+  # make procs defined during boot shareable (warn, since Combustion's to_prepare block captures a hash)
+  ActiveSupport::Ractors.unshareable_proc_action = :warn
+  # the engine is frozen when the routes are made shareable at boot, before env_config is memoized
+  PgHero::Engine.instance.env_config
+end
+
+logger = (ENV["RACTORIZE"] ? ActiveSupport::Ractors::Logger : ActiveSupport::Logger).new(ENV["VERBOSE"] ? STDERR : nil)
 
 Combustion.path = "test/internal"
 Combustion.initialize! :active_record, :action_controller do
   config.load_defaults Rails::VERSION::STRING.to_f
   config.action_controller.logger = logger
   config.active_record.logger = logger
-  config.eager_load = true if ENV["RACTORIZE"]
+  if ENV["RACTORIZE"]
+    config.eager_load = true
+    config.logger = logger
+    # debug error pages memoize into route nodes, which are frozen
+    config.consider_all_requests_local = false
+  end
 end
 
-Rails.application.ractorize! if ENV["RACTORIZE"]
+if ENV["RACTORIZE"]
+  # LazyRouteSet (local environments) reloads routes on each request, which raises FrozenError once ractorized
+  Rails.application.define_singleton_method(:reload_routes_unless_loaded) { true }
+  Rails.application.ractorize!
+end
 
 class City < ActiveRecord::Base
 end
