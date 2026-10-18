@@ -154,7 +154,7 @@ module PgHero
           ORDER BY
             1, 2
         SQL
-        ).map { |v| v[:columns] = v[:columns].sub(") WHERE (", " WHERE ").split(", ").map { |c| unquote(c) }; v }
+        ).select { |v| v[:definition] }.map { |v| v[:columns] = v[:columns].sub(") WHERE (", " WHERE ").split(", ").map { |c| unquote(c) }; v }
 
         # determine if any invalid indexes being created
         # hacky, but works for simple cases
