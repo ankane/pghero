@@ -84,7 +84,9 @@ end
 
 if ENV["RACTORIZE"]
   # LazyRouteSet (local environments) reloads routes on each request, which raises FrozenError once ractorized
-  Rails.application.define_singleton_method(:reload_routes_unless_loaded) { true }
+  Rails.application.singleton_class.class_eval do
+    def reload_routes_unless_loaded = true
+  end
   Rails.application.ractorize!
 end
 
