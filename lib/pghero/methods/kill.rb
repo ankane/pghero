@@ -8,13 +8,12 @@ module PgHero
 
       # note: this method is not affected by disable_kill option
       def kill_long_running_queries(min_duration: nil)
-        running_queries(min_duration: min_duration || long_running_query_sec).each { |query| kill(query[:pid]) }
-        true
+        kill_all(min_duration: min_duration || long_running_query_sec)
       end
 
       # note: this method is not affected by disable_kill option
-      def kill_all
-        select_all <<~SQL
+      def kill_all(min_duration: nil)
+        query = <<~SQL
           SELECT
             pg_terminate_backend(pid)
           FROM
@@ -23,7 +22,12 @@ module PgHero
             pid <> pg_backend_pid()
             AND query <> '<insufficient privilege>'
             AND datname = current_database()
+            #{"AND state <> 'idle' AND NOW() - COALESCE(query_start, xact_start) > interval :min_duration" if min_duration}
         SQL
+
+        binds = {}
+        binds[:min_duration] = "#{min_duration.to_i} seconds" if min_duration
+        select_all(query, binds)
         true
       end
     end
