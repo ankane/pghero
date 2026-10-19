@@ -51,7 +51,11 @@ SELECT pg_stat_statements_reset();
 
 #### Queries show up as `<insufficient privilege>`
 
-For security reasons, only superusers can see queries executed by other users.
+Add the `pg_read_all_stats` role to the database user.
+
+```psql
+GRANT pg_read_all_stats TO <user>;
+```
 
 #### ERROR: column "total_plan_time" / "queryid" does not exist
 
