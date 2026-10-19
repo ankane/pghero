@@ -8,11 +8,17 @@ module PgHero
 
       # note: this method is not affected by disable_kill option
       def kill_long_running_queries(min_duration: nil)
-        kill_all(min_duration: min_duration || long_running_query_sec)
+        kill_backends(min_duration: min_duration || long_running_query_sec)
       end
 
       # note: this method is not affected by disable_kill option
-      def kill_all(min_duration: nil)
+      def kill_all
+        kill_backends
+      end
+
+      private
+
+      def kill_backends(min_duration: nil)
         query = <<~SQL
           SELECT
             pg_terminate_backend(pid)
