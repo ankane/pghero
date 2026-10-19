@@ -46,21 +46,21 @@ class Minitest::Test
   end
 
   def with_running_query(query)
-    # TODO manually checkout connection if needed
     stopping = false
     t =
       Thread.new do
-        begin
-          ActiveRecord::Base.connection.execute(query)
-        rescue ActiveRecord::QueryCanceled => e
-          raise e unless stopping
+        ActiveRecord::Base.connection_pool.with_connection do |connection|
+          begin
+            connection.execute(query)
+          rescue ActiveRecord::QueryCanceled => e
+            raise e unless stopping
+          end
         end
       end
     t.report_on_exception = false
     # TODO ensure query started
     sleep(0.05)
     yield
-    # stop query
     stopping = true
     database.send(:execute, "SELECT pg_cancel_backend(pid) FROM pg_stat_activity WHERE query = ?", [query])
     t.join
