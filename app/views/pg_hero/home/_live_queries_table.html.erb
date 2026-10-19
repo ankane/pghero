@@ -32,7 +32,7 @@
           <% end %>
         </td>
         <td class="text-right">
-          <% unless @database.filter_data %>
+          <% if @explain_enabled && (!@database.filter_data || @database.server_version_num >= 160000) %>
             <%= button_to "Explain", explain_path, params: {query: query[:query]}, form: {target: "_blank"}, class: "btn btn-info" %>
           <% end %>
           <% if @kill_enabled %>
