@@ -66,6 +66,7 @@ module PgHero
           if filter_data
             query_columns.each do |column|
               result.each do |row|
+                next if row[column] == "<insufficient privilege>"
                 begin
                   row[column] = PgQuery.normalize(row[column]) unless row[column].nil?
                 rescue PgQuery::ParseError
