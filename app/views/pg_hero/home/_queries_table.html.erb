@@ -46,7 +46,7 @@
           <span class="user">
             <% if query[:user] %>
               <%= @link_user ? link_to(query[:user], {user: query[:user]}.merge(@link_options)) : query[:user] %>
-              <% if @show_details %>
+              <% if @show_details && query[:query_hash] %>
                 &middot;
               <% end %>
             <% end %>
