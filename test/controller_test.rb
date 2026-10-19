@@ -49,10 +49,10 @@ class ControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_live_queries
-    with_running_query("SELECT pg_sleep(0.1)") do
+    with_running_query("SELECT pg_sleep(1)") do
       get pg_hero.live_queries_path
       assert_response :success
-      assert_match "SELECT pg_sleep(0.1)", response.body
+      assert_match "SELECT pg_sleep(1)", response.body
       assert_match "Explain</button>", response.body
       assert_match "Kill</button>", response.body
     end
@@ -60,11 +60,11 @@ class ControllerTest < ActionDispatch::IntegrationTest
 
   def test_live_queries_filter_data
     with_filter_data do
-      with_running_query("SELECT pg_sleep(0.15)") do
+      with_running_query("SELECT pg_sleep(1)") do
         get pg_hero.live_queries_path
         assert_response :success
         assert_match "SELECT pg_sleep($1)", response.body
-        refute_match "SELECT pg_sleep(0.15)", response.body
+        refute_match "SELECT pg_sleep(1)", response.body
         if database.server_version_num >= 160000
           assert_match "Explain</button>", response.body
         else
@@ -76,10 +76,10 @@ class ControllerTest < ActionDispatch::IntegrationTest
 
   def test_live_queries_disable_kill
     with_disable_kill do
-      with_running_query("SELECT pg_sleep(0.1)") do
+      with_running_query("SELECT pg_sleep(1)") do
         get pg_hero.live_queries_path
         assert_response :success
-        assert_match "SELECT pg_sleep(0.1)", response.body
+        assert_match "SELECT pg_sleep(1)", response.body
         refute_match "Kill</button>", response.body
       end
     end
@@ -87,10 +87,10 @@ class ControllerTest < ActionDispatch::IntegrationTest
 
   def test_live_queries_explain_false
     with_explain(false) do
-      with_running_query("SELECT pg_sleep(0.1)") do
+      with_running_query("SELECT pg_sleep(1)") do
         get pg_hero.live_queries_path
         assert_response :success
-        assert_match "SELECT pg_sleep(0.1)", response.body
+        assert_match "SELECT pg_sleep(1)", response.body
         refute_match "Explain</button>", response.body
       end
     end
