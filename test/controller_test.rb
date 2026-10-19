@@ -4,7 +4,7 @@ class ControllerTest < ActionDispatch::IntegrationTest
   def test_index
     get pg_hero.root_path
     assert_response :success
-    assert_match "long running queries", response.body
+    assert_match "No long running queries", response.body
     refute_match "hit rate", response.body
   end
 
@@ -13,6 +13,30 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "hit rate", response.body
     assert_match "unused indexes", response.body
+  end
+
+  def test_index_long_running_queries
+    with_config({"long_running_query_sec" => 0}) do
+      with_running_query("SELECT pg_sleep(1)") do
+        get pg_hero.root_path
+        assert_response :success
+        assert_match "1 long running query", response.body
+        assert_match "Kill</button>", response.body
+        assert_match "Kill All</button>", response.body
+      end
+    end
+  end
+
+  def test_index_long_running_queries_disable_kill
+    with_config({"long_running_query_sec" => 0, "disable_kill" => true}) do
+      with_running_query("SELECT pg_sleep(1)") do
+        get pg_hero.root_path
+        assert_response :success
+        assert_match "1 long running query", response.body
+        refute_match "Kill All</button>", response.body
+        refute_match "Kill</button>", response.body
+      end
+    end
   end
 
   def test_index_connections
