@@ -64,6 +64,7 @@ class ControllerTest < ActionDispatch::IntegrationTest
         get pg_hero.live_queries_path
         assert_response :success
         assert_match "SELECT pg_sleep($1)", response.body
+        refute_match "SELECT pg_sleep(0.1)", response.body
         if database.server_version_num >= 160000
           assert_match "Explain", response.body
         else
