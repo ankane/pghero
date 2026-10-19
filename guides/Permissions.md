@@ -36,7 +36,7 @@ $$ LANGUAGE sql VOLATILE SECURITY DEFINER;
 
 CREATE VIEW pghero.pg_stat_statements AS SELECT * FROM pghero.pg_stat_statements();
 
--- query stats reset
+-- reset query stats
 CREATE OR REPLACE FUNCTION pghero.pg_stat_statements_reset(userid oid, dbid oid, queryid bigint) RETURNS void AS
 $$
     SELECT public.pg_stat_statements_reset(userid, dbid, queryid);
