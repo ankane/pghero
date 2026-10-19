@@ -49,8 +49,50 @@ class ControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_live_queries
-    get pg_hero.live_queries_path
-    assert_response :success
+    with_running_query("SELECT pg_sleep(0.1)") do
+      get pg_hero.live_queries_path
+      assert_response :success
+      assert_match "SELECT pg_sleep(0.1)", response.body
+      assert_match "Explain", response.body
+      assert_match "Kill", response.body
+    end
+  end
+
+  def test_live_queries_filter_data
+    with_filter_data do
+      with_running_query("SELECT pg_sleep(0.1)") do
+        get pg_hero.live_queries_path
+        assert_response :success
+        assert_match "SELECT pg_sleep($1)", response.body
+        if database.server_version_num >= 160000
+          assert_match "Explain", response.body
+        else
+          refute_match "Explain", response.body
+        end
+      end
+    end
+  end
+
+  def test_live_queries_disable_kill
+    with_disable_kill do
+      with_running_query("SELECT pg_sleep(0.1)") do
+        get pg_hero.live_queries_path
+        assert_response :success
+        assert_match "SELECT pg_sleep(0.1)", response.body
+        refute_match "Kill", response.body
+      end
+    end
+  end
+
+  def test_live_queries_explain_false
+    with_explain(false) do
+      with_running_query("SELECT pg_sleep(0.1)") do
+        get pg_hero.live_queries_path
+        assert_response :success
+        assert_match "SELECT pg_sleep(0.1)", response.body
+        refute_match "Explain", response.body
+      end
+    end
   end
 
   def test_queries
