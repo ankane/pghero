@@ -421,16 +421,22 @@ module PgHero
       else
         redirect_backward notice: "Query no longer running"
       end
+    rescue ActiveRecord::StatementInvalid
+      redirect_backward alert: "The database user does not have permission to kill this query"
     end
 
     def kill_long_running_queries
       @database.kill_long_running_queries
       redirect_backward notice: "Queries killed"
+    rescue ActiveRecord::StatementInvalid
+      redirect_backward alert: "The database user does not have permission to kill some queries"
     end
 
     def kill_all
       @database.kill_all
       redirect_backward notice: "Connections killed"
+    rescue ActiveRecord::StatementInvalid
+      redirect_backward alert: "The database user does not have permission to kill some connections"
     end
 
     def enable_query_stats
