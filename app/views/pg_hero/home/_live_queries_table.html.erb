@@ -10,7 +10,7 @@
   <tbody>
     <% queries.reverse.each do |query| %>
       <tr>
-        <td><%= query[:pid] %></td>
+        <td><%= ([query[:pid]] + query[:worker_pids]).join(", ") %></td>
         <td>
           <% if query[:duration_ms] %>
             <% sec = query[:duration_ms] / 1000.0 %>
