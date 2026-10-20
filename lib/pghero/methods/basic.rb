@@ -66,9 +66,20 @@ module PgHero
           if filter_data
             query_columns.each do |column|
               result.each do |row|
-                next if row[column] == "<insufficient privilege>"
+                value = row[column]
+                if value.nil? || value == "<insufficient privilege>"
+                  next
+                end
+
+                if value.start_with?("autovacuum:")
+                  prefix = "autovacuum:"
+                  value = value.delete_prefix("autovacuum:")
+                else
+                  prefix = ""
+                end
+
                 begin
-                  row[column] = PgQuery.normalize(row[column]) unless row[column].nil?
+                  row[column] = prefix + PgQuery.normalize(value)
                 rescue PgQuery::ParseError
                   # try replacing "interval $1" with "$1::interval"
                   # see https://github.com/lfittl/pg_query/issues/169 for more info
@@ -76,7 +87,7 @@ module PgHero
                   # we could skip normalization
                   # but this has a very small chance of data leakage
                   begin
-                    row[column] = PgQuery.normalize(row[column].gsub(/\binterval\s+(\$\d+)\b/i, "\\1::interval"))
+                    row[column] = prefix + PgQuery.normalize(value.gsub(/\binterval\s+(\$\d+)\b/i, "\\1::interval"))
                   rescue PgQuery::ParseError
                     row[column] = "<unable to filter data>"
                   end
