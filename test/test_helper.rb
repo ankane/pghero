@@ -37,7 +37,7 @@ class Minitest::Test
     previous_value = PgHero.filter_data
     begin
       PgHero.filter_data = true
-      database.remove_instance_variable(:@filter_data)
+      database.remove_instance_variable(:@filter_data) if database.instance_variable_defined?(:@filter_data)
       yield
     ensure
       PgHero.filter_data = previous_value
