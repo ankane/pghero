@@ -316,11 +316,16 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_match "Dead Rows", response.body
   end
 
-  # prevent warning for now
-  # def test_kill
-  #   post pg_hero.kill_path(pid: 1_000_000_000)
-  #   assert_redirected_to "/"
-  # end
+  def test_kill
+    assert_kills do
+      with_running_query("SELECT pg_sleep(1)") do
+        query = database.running_queries.find { |v| v[:query] == "SELECT pg_sleep(1)" }
+        post pg_hero.kill_path(pid: query[:pid])
+        assert_redirected_to "/"
+        assert_equal "Query killed", flash[:notice]
+      end
+    end
+  end
 
   def test_kill_not_enabled
     with_disable_kill do
@@ -333,6 +338,17 @@ class ControllerTest < ActionDispatch::IntegrationTest
   def test_kill_long_running_queries
     post pg_hero.kill_long_running_queries_path
     assert_redirected_to "/"
+    assert_equal "Queries killed", flash[:notice]
+
+    with_config({"long_running_query_sec" => 0}) do
+      assert_kills do
+        with_running_query("SELECT pg_sleep(1)") do
+          post pg_hero.kill_long_running_queries_path
+          assert_redirected_to "/"
+          assert_equal "Queries killed", flash[:notice]
+        end
+      end
+    end
   end
 
   def test_kill_long_running_queries_not_enabled

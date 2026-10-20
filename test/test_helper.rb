@@ -69,6 +69,13 @@ class Minitest::Test
   def explain_normalized?
     database.server_version_num >= 160000
   end
+
+  def assert_kills
+    error = assert_raises(ActiveRecord::ConnectionFailed) do
+      yield
+    end
+    assert_match "terminating connection due to administrator command", error.message
+  end
 end
 
 logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)
