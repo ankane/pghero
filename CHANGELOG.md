@@ -1,6 +1,6 @@
 ## 4.1.0 (unreleased)
 
-- Added grouping for parallel workers
+- Added grouping for parallel queries
 - Fixed error when index is dropped during indexes query
 - Fixed `unable to filter data` messages
 
