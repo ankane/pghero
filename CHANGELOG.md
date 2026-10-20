@@ -1,6 +1,7 @@
 ## 4.0.2 (unreleased)
 
 - Fixed error when index is dropped during indexes query
+- Fixed `unable to filter data` messages
 
 ## 4.0.1 (2026-08-15)
 
