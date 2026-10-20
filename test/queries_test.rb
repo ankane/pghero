@@ -7,7 +7,7 @@ class QueriesTest < Minitest::Test
     end
   end
 
-  def test_filter_data
+  def test_running_queries_filter_data
     with_filter_data do
       with_running_query("SELECT pg_sleep(1)") do
         assert_equal "SELECT pg_sleep($1)", database.running_queries.first[:query]
