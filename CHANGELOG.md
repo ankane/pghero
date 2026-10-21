@@ -1,5 +1,6 @@
 ## 4.1.0 (unreleased)
 
+- Restricted killing queries to current database
 - Added grouping for parallel queries
 - Fixed error when index is dropped during indexes query
 - Fixed `unable to filter data` messages
