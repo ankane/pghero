@@ -36,7 +36,7 @@
             <%= button_to "Explain", explain_path, params: {query: query[:query]}, form: {target: "_blank"}, class: "btn btn-info" %>
           <% end %>
           <% if @kill_enabled && ["client backend", "autovacuum worker"].include?(query[:backend_type]) %>
-            <%= button_to "Kill", kill_path(pid: query[:pid]), class: "btn btn-danger" %>
+            <%= button_to "Kill", kill_path(pid: query[:pid], key: query[:started_at].usec), class: "btn btn-danger" %>
           <% end %>
         </td>
       </tr>

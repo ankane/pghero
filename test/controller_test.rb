@@ -320,11 +320,22 @@ class ControllerTest < ActionDispatch::IntegrationTest
     assert_kills do
       with_running_query("SELECT pg_sleep(1)") do
         query = database.running_queries.find { |v| v[:query] == "SELECT pg_sleep(1)" }
-        post pg_hero.kill_path(pid: query[:pid])
+        post pg_hero.kill_path(pid: query[:pid], key: query[:started_at].usec)
         assert_redirected_to "/"
         assert_equal "Query killed", flash[:notice]
       end
     end
+
+    with_running_query("SELECT pg_sleep(1)") do
+      query = database.running_queries.find { |v| v[:query] == "SELECT pg_sleep(1)" }
+      post pg_hero.kill_path(pid: query[:pid], key: query[:started_at].usec - 1)
+      assert_redirected_to "/"
+      assert_equal "Query no longer running", flash[:notice]
+    end
+
+    post pg_hero.kill_path(pid: 1_000_000_000)
+    assert_redirected_to "/"
+    assert_equal "Query no longer running", flash[:notice]
   end
 
   def test_kill_not_enabled

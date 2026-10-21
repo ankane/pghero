@@ -2,8 +2,8 @@ module PgHero
   module Methods
     module Kill
       # note: this method is not affected by disable_kill option
-      def kill(pid)
-        kill_backends(pid: pid, backend_type: ["client backend", "autovacuum worker"]).any? { |v| v[:pg_terminate_backend] }
+      def kill(pid, key: nil)
+        kill_backends(pid: pid, key: key, backend_type: ["client backend", "autovacuum worker"]).any? { |v| v[:pg_terminate_backend] }
       end
 
       # note: this method is not affected by disable_kill option
@@ -20,10 +20,16 @@ module PgHero
 
       private
 
-      def kill_backends(pid: nil, min_duration: nil, backend_type: ["client backend"])
+      def kill_backends(pid: nil, key: nil, min_duration: nil, backend_type: ["client backend"])
+        select_expr = "pg_terminate_backend(pid)"
+        # key is used to reduce chance of killing different query
+        # check *after* row matches other conditions
+        if key
+          select_expr = "CASE WHEN EXTRACT(MICROSECONDS FROM COALESCE(query_start, xact_start)) % 1000000 = :key THEN #{select_expr} ELSE NULL END AS pg_terminate_backend"
+        end
         query = <<~SQL
           SELECT
-            pg_terminate_backend(pid)
+            #{select_expr}
           FROM
             pg_stat_activity
           WHERE
@@ -38,6 +44,7 @@ module PgHero
         binds = {}
         binds[:backend_type] = Array(backend_type)
         binds[:pid] = pid.to_i if pid
+        binds[:key] = key.to_i if key
         binds[:min_duration] = "#{min_duration.to_i} seconds" if min_duration
         select_all(query, binds)
       end
