@@ -3,7 +3,7 @@ module PgHero
     module Kill
       # note: this method is not affected by disable_kill option
       def kill(pid)
-        kill_backends(pid: pid).any? { |v| v[:pg_terminate_backend] }
+        kill_backends(pid: pid, backend_type: ["client backend", "autovacuum worker"]).any? { |v| v[:pg_terminate_backend] }
       end
 
       # note: this method is not affected by disable_kill option
@@ -20,7 +20,7 @@ module PgHero
 
       private
 
-      def kill_backends(pid: nil, min_duration: nil)
+      def kill_backends(pid: nil, min_duration: nil, backend_type: ["client backend"])
         query = <<~SQL
           SELECT
             pg_terminate_backend(pid)
@@ -30,11 +30,13 @@ module PgHero
             pid <> pg_backend_pid()
             AND query <> '<insufficient privilege>'
             AND datname = current_database()
+            AND backend_type IN (:backend_type)
             #{"AND pid = :pid" if pid}
             #{"AND state <> 'idle' AND NOW() - COALESCE(query_start, xact_start) > interval :min_duration" if min_duration}
         SQL
 
         binds = {}
+        binds[:backend_type] = Array(backend_type)
         binds[:pid] = pid.to_i if pid
         binds[:min_duration] = "#{min_duration.to_i} seconds" if min_duration
         select_all(query, binds)
