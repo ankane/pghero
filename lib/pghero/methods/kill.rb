@@ -3,7 +3,7 @@ module PgHero
     module Kill
       # note: this method is not affected by disable_kill option
       def kill(pid, key: nil)
-        kill_backends(pid: pid, key: key, backend_type: ["client backend", "autovacuum worker"]).any? { |v| v[:pg_terminate_backend] }
+        kill_backends(pid: pid.to_i, key: key, backend_type: ["client backend", "autovacuum worker"]).any? { |v| v[:pg_terminate_backend] }
       end
 
       # note: this method is not affected by disable_kill option

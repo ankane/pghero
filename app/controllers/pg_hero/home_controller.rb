@@ -415,7 +415,7 @@ module PgHero
     end
 
     def kill
-      if @database.kill(params[:pid], key: params[:key].to_i)
+      if @database.kill(params[:pid].to_i, key: params[:key].to_i)
         redirect_backward notice: "Query killed"
       else
         redirect_backward notice: "Query no longer running"
