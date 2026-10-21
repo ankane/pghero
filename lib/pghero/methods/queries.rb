@@ -21,6 +21,7 @@ module PgHero
             state <> 'idle'
             AND pid <> pg_backend_pid()
             AND datname = current_database()
+            AND backend_type IN ('client backend', 'parallel worker', 'autovacuum worker')
             #{"AND NOW() - COALESCE(query_start, xact_start) > interval :min_duration" if min_duration}
             #{"AND query <> '<insufficient privilege>'" if !all}
           ORDER BY
@@ -75,10 +76,10 @@ module PgHero
             NOT blockedl.granted
             AND blockeda.query <> '<insufficient privilege>'
             AND blockeda.datname = current_database()
+            AND blockeda.backend_type IN ('client backend', 'parallel worker', 'autovacuum worker')
           ORDER BY
             blocked_duration DESC
         SQL
-
         select_all(query, query_columns: [:blocked_query, :current_or_recent_query_in_blocking_process])
       end
     end
