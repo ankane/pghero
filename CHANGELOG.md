@@ -4,7 +4,7 @@
 - Added grouping for parallel queries
 - Fixed error when index is dropped during indexes query
 - Fixed `unable to filter data` messages
-- Removed replication backend types from live queries page
+- Removed replication backends from live queries page
 
 ## 4.0.1 (2026-08-15)
 
