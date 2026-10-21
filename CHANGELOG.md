@@ -3,7 +3,7 @@
 - Restricted killing queries to current database and certain backend types - [more info](https://github.com/ankane/pghero/security/advisories/GHSA-5287-hmjh-qmqq)
 - Added grouping for parallel queries
 - Fixed error when index is dropped during indexes query
-- Fixed `unable to filter data` messages
+- Fixed `<unable to filter data>` messages
 - Removed replication backends from live queries page
 
 ## 4.0.1 (2026-08-15)
