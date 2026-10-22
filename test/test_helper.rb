@@ -78,13 +78,39 @@ class Minitest::Test
   end
 end
 
-logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDERR : nil)
+def ractorize?
+  ENV["RACTORIZE"]
+end
+
+if ractorize?
+  ActiveSupport::Ractors.unshareable_proc_action = :warn
+
+  # https://github.com/rails/rails/issues/59152
+  PgHero::Engine.instance.env_config
+end
+
+logger_class = ractorize? ? ActiveSupport::Ractors::Logger : ActiveSupport::Logger
+logger = logger_class.new(ENV["VERBOSE"] ? STDERR : nil)
 
 Combustion.path = "test/internal"
 Combustion.initialize! :active_record, :action_controller do
   config.load_defaults Rails::VERSION::STRING.to_f
   config.action_controller.logger = logger
   config.active_record.logger = logger
+  if ractorize?
+    config.eager_load = true
+    config.logger = logger
+    config.consider_all_requests_local = false
+  end
+end
+
+if ractorize?
+  # https://github.com/rails/rails/issues/59168
+  Rails.application.singleton_class.class_eval do
+    def reload_routes_unless_loaded = true
+  end
+
+  Rails.application.ractorize!
 end
 
 class City < ActiveRecord::Base
